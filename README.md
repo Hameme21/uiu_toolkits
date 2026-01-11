@@ -1,1 +1,1 @@
-# uiu-exam-scheduler
+# uiu-toolkits
