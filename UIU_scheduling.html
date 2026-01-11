@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UIU Student Dashboard</title>
+    <style>
+        /* --- GLOBAL VARIABLES & THEME --- */
+        :root {
+            --uiu-orange: #F37021;
+            --uiu-blue: #005696;
+            
+            /* Light Theme Defaults */
+            --bg-body: #f4f7f6;
+            --bg-container: #ffffff;
+            --bg-input: #ffffff;
+            --text-main: #333333;
+            --text-muted: #666666;
+            --border-color: #e0e0e0;
+            --table-header-bg: #005696;
+            --table-header-text: #ffffff;
+            --clash-bg: #ffebee;
+            --clash-border: #d32f2f;
+            --course-added-bg: #e3f2fd;
+            --shadow: 0 4px 15px rgba(0,0,0,0.1);
+            --warning-bg: #fff3cd;
+            --warning-text: #856404;
+            --warning-border: #ffeeba;
+        }
+
+        body.dark-mode {
+            --bg-body: #121212;
+            --bg-container: #1e1e1e;
+            --bg-input: #2d2d2d;
+            --text-main: #e0e0e0;
+            --text-muted: #a0a0a0;
+            --border-color: #333333;
+            --table-header-bg: #004070;
+            --clash-bg: #3e1a1a;
+            --course-added-bg: #0d2333;
+            --shadow: 0 4px 15px rgba(0,0,0,0.5);
+            --warning-bg: #332701;
+            --warning-text: #ffc107;
+            --warning-border: #664d03;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            margin: 0;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        /* --- NAVIGATION BAR (Top Right) --- */
+        nav {
+            background-color: var(--bg-container);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo {
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: var(--uiu-orange);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .nav-btn {
+            padding: 8px 16px;
+            border: 2px solid var(--uiu-blue);
+            background: transparent;
+            color: var(--uiu-blue);
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .nav-btn.active {
+            background: var(--uiu-blue);
+            color: white;
+        }
+
+        .nav-btn:hover {
+            background: var(--uiu-blue);
+            color: white;
+            opacity: 0.9;
+        }
+        
+        body.dark-mode .nav-btn {
+            border-color: var(--uiu-orange);
+            color: var(--uiu-orange);
+        }
+        body.dark-mode .nav-btn.active, 
+        body.dark-mode .nav-btn:hover {
+            background: var(--uiu-orange);
+            color: #121212;
+        }
+
+        /* --- MAIN CONTAINER --- */
+        .container {
+            max-width: 1100px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+
+        .tool-section {
+            display: none; /* Hidden by default */
+            background: var(--bg-container);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            animation: fadeIn 0.3s;
+        }
+
+        .tool-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 { color: var(--uiu-blue); margin-top: 0; }
+        p { color: var(--text-muted); }
+
+        /* --- WARNING BOX STYLE --- */
+        .disclaimer-box {
+            background-color: var(--warning-bg);
+            color: var(--warning-text);
+            border: 1px solid var(--warning-border);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 0.95rem;
+        }
+
+        /* --- COMMON INPUTS --- */
+        input, select {
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-input);
+            color: var(--text-main);
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        /* --- EXAM SCHEDULER STYLES --- */
+        .routine-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .routine-table th, .routine-table td {
+            border: 1px solid var(--border-color);
+            padding: 12px;
+            text-align: center;
+            vertical-align: top;
+        }
+        .routine-table th {
+            background-color: var(--table-header-bg);
+            color: var(--table-header-text);
+        }
+        .added-course {
+            background-color: var(--course-added-bg);
+            border-left: 4px solid var(--uiu-blue);
+            padding: 8px;
+            margin-top: 5px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            text-align: left;
+            position: relative;
+        }
+        .added-course.clash {
+            background-color: var(--clash-bg);
+            border-left-color: var(--clash-border);
+            color: #d32f2f;
+        }
+        .remove-btn {
+            position: absolute;
+            top: 2px; right: 5px;
+            cursor: pointer; color: var(--text-muted);
+        }
+        .remove-btn:hover { color: red; }
+        
+        .search-box { position: relative; max-width: 600px; margin-bottom: 20px; }
+        #courseSearch { width: 100%; box-sizing: border-box; }
+        
+        .suggestions {
+            position: absolute; top: 100%; left: 0; right: 0;
+            background: var(--bg-container);
+            border: 1px solid var(--border-color);
+            max-height: 250px; overflow-y: auto; z-index: 100;
+            display: none;
+        }
+        .suggestion-item {
+            padding: 10px; cursor: pointer; border-bottom: 1px solid var(--border-color);
+            display: flex; justify-content: space-between;
+        }
+        .suggestion-item:hover { background-color: var(--bg-body); }
+        .shortcut-badge { background: var(--border-color); font-size: 0.75em; padding: 2px 6px; border-radius: 4px; }
+        
+        #alert-box {
+            background-color: var(--clash-bg); color: #d32f2f;
+            padding: 15px; border-radius: 6px; margin-bottom: 20px;
+            text-align: center; font-weight: bold; display: none;
+            border: 1px solid var(--clash-border);
+        }
+
+        /* --- CGPA CALCULATOR STYLES --- */
+        .section-box {
+            border: 1px solid var(--border-color);
+            padding: 20px; border-radius: 8px; margin-bottom: 20px;
+        }
+        .section-title {
+            color: var(--uiu-blue); font-weight: bold; display: block;
+            border-left: 4px solid var(--uiu-orange); padding-left: 10px; margin-bottom: 15px;
+        }
+        .cgpa-table { width: 100%; margin-bottom: 15px; border-collapse: collapse; }
+        .cgpa-table th { background-color: var(--uiu-blue); color: white; padding: 10px; text-align: left; }
+        .cgpa-table td { padding: 10px; border-bottom: 1px solid var(--border-color); }
+        .btn-add { background-color: var(--uiu-blue); color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
+        .btn-calc { background-color: var(--uiu-orange); color: white; border: none; padding: 12px; width: 100%; font-size: 1.1rem; border-radius: 5px; cursor: pointer; margin-top: 10px; }
+        .btn-delete { background-color: #ff4d4d; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
+        
+        .result-box {
+            background-color: var(--course-added-bg);
+            border: 2px solid var(--uiu-blue);
+            padding: 20px; border-radius: 8px; text-align: center;
+            display: none; margin-top: 20px;
+        }
+        .gpa-value { font-size: 2rem; font-weight: bold; color: var(--uiu-orange); }
+
+        /* Mobile Responsive */
+        @media (max-width: 600px) {
+            nav { flex-direction: column; gap: 15px; }
+            .routine-table th, .routine-table td { font-size: 0.8em; padding: 5px; }
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <div class="logo">
+        <span style="font-size: 1.5em;">🎓</span> UIU Toolkit
+    </div>
+    <div class="nav-buttons">
+        <button class="nav-btn active" onclick="switchTab('exam')" id="btn-exam">Exam Routine</button>
+        <button class="nav-btn" onclick="switchTab('cgpa')" id="btn-cgpa">CGPA Calculator</button>
+        <button class="nav-btn" onclick="toggleTheme()" id="btn-theme">🌙</button>
+    </div>
+</nav>
+
+<div class="container">
+
+    <div id="exam-section" class="tool-section active">
+        <div style="text-align: center; margin-bottom: 20px;">
+            <h1>Exam Clash Solver</h1>
+            <p>Spring 2026 | CSE Dept.</p>
+        </div>
+
+        <div class="disclaimer-box">
+            ⚠️ WARNING: Always recheck with your UCAM. There might be data entry mistakes or official changes from the University.
+        </div>
+
+        <div id="alert-box">⚠️ Exam Clash Detected! You have two exams at the same time.</div>
+
+        <div class="search-box">
+            <input type="text" id="courseSearch" placeholder="Type Shortcut (e.g. SPL, DSA 2) or Name..." oninput="filterCourses()">
+            <div class="suggestions" id="suggestions"></div>
+        </div>
+
+        <table class="routine-table">
+            <thead>
+                <tr>
+                    <th>Day</th>
+                    <th>Slot T1<br><small>9:00 - 11:00</small></th>
+                    <th>Slot T2<br><small>11:30 - 1:30</small></th>
+                    <th>Slot T3<br><small>2:00 - 4:00</small></th>
+                </tr>
+            </thead>
+            <tbody id="routineBody"></tbody>
+        </table>
+    </div>
+
+    <div id="cgpa-section" class="tool-section">
+        <div style="text-align: center; margin-bottom: 20px;">
+            <h1>CGPA Calculator</h1>
+            <p>Standard UIU Grading Scale</p>
+        </div>
+
+        <div class="section-box">
+            <span class="section-title">Previous Results (Optional)</span>
+            <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                <div style="flex: 1;">
+                    <label>Previous CGPA:</label><br>
+                    <input type="number" id="prevCGPA" placeholder="e.g. 3.50" step="0.01" style="width: 100%; box-sizing: border-box; margin-top:5px;">
+                </div>
+                <div style="flex: 1;">
+                    <label>Credits Completed:</label><br>
+                    <input type="number" id="prevCredits" placeholder="e.g. 60" step="1" style="width: 100%; box-sizing: border-box; margin-top:5px;">
+                </div>
+            </div>
+        </div>
+
+        <div class="section-box">
+            <span class="section-title">Current Semester Courses</span>
+            <table class="cgpa-table" id="courseTable">
+                <thead>
+                    <tr>
+                        <th style="width: 10%;">#</th>
+                        <th style="width: 30%;">Credits</th>
+                        <th style="width: 40%;">Grade</th>
+                        <th style="width: 20%;">Action</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+            <button class="btn-add" onclick="addCourseRow()">+ Add Course</button>
+        </div>
+
+        <button class="btn-calc" onclick="calculateCGPA()">Calculate CGPA</button>
+
+        <div id="resultBox" class="result-box">
+            <div style="margin: 10px 0;">
+                <span>Current Semester GPA:</span>
+                <div class="gpa-value" id="currentGPA">0.00</div>
+            </div>
+            <div style="margin: 10px 0;">
+                <span>Total CGPA:</span>
+                <div class="gpa-value" id="totalCGPA">0.00</div>
+            </div>
+            <p>Total Credits: <span id="totalCreditsDisplay">0</span></p>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // ================== TAB & THEME LOGIC ==================
+    function switchTab(tab) {
+        // Hide all sections
+        document.querySelectorAll('.tool-section').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+
+        // Show selected
+        document.getElementById(tab + '-section').classList.add('active');
+        document.getElementById('btn-' + tab).classList.add('active');
+    }
+
+    function toggleTheme() {
+        document.body.classList.toggle('dark-mode');
+        const btn = document.getElementById('btn-theme');
+        if (document.body.classList.contains('dark-mode')) {
+            btn.innerHTML = '☀️';
+            localStorage.setItem('theme', 'dark');
+        } else {
+            btn.innerHTML = '🌙';
+            localStorage.setItem('theme', 'light');
+        }
+    }
+
+    // Load Theme Preference
+    if (localStorage.getItem('theme') === 'dark') {
+        document.body.classList.add('dark-mode');
+        document.getElementById('btn-theme').innerHTML = '☀️';
+    }
+
+    // ================== EXAM ROUTINE LOGIC ==================
+    const rawRoutine = [
+        // Day 1
+        { day: 1, time: 1, codes: ["ENG 1011", "ENG 101"], name: "English I", keywords: ["eng 1"] },
+        { day: 1, time: 1, codes: ["CSI 309", "CSE 4509"], name: "Operating Systems", keywords: ["os", "operating"] },
+        { day: 1, time: 1, codes: ["IPE 401", "IPE 3401"], name: "Industrial Management", keywords: ["ipe"] },
+        { day: 1, time: 1, codes: ["DS 4491"], name: "Data Science Elective", keywords: [] },
+        { day: 1, time: 2, codes: ["ENG 1013", "ENG 103"], name: "English II", keywords: ["eng 2"] },
+        { day: 1, time: 2, codes: ["DS 3885"], name: "DS Elective", keywords: [] },
+        { day: 1, time: 3, codes: ["MATH 183", "MATH 2183", "MATH 2107"], name: "Linear Algebra and Calculus", keywords: ["linear", "diff", "math", "calculus"] },
+        { day: 1, time: 3, codes: ["CSE 313", "CSE 3313"], name: "Computer Architecture", keywords: ["architecture", "ca"] },
+        { day: 1, time: 3, codes: ["SOC 101", "SOC 2101", "SOC 2102"], name: "Society, Tech & Ethics", keywords: ["soc", "ethics"] },
+        { day: 1, time: 3, codes: ["DS 4889", "CSE 4889"], name: "Machine Learning", keywords: ["ml", "machine"] },
+
+        // Day 2
+        { day: 2, time: 1, codes: ["CSI 421", "CSE 4621"], name: "Computer Graphics", keywords: ["graphics", "cg"] },
+        { day: 2, time: 1, codes: ["CSI 221", "CSE 3521"], name: "Database Management Systems", keywords: ["dbms", "database"] },
+        { day: 2, time: 2, codes: ["CSE 425", "CSE 4325"], name: "Microprocessor & Interfacing", keywords: ["micro", "mpi"] },
+        { day: 2, time: 2, codes: ["MATH 151", "MATH 1151"], name: "Fundamental Calculus", keywords: ["calculus", "calc 1", "fundamental"] },
+        { day: 2, time: 3, codes: ["ACT 111", "ACT 2111"], name: "Financial Accounting", keywords: ["accounting", "act"] },
+        { day: 2, time: 3, codes: ["STAT 205", "MATH 2205"], name: "Probability & Statistics", keywords: ["stat", "stats"] },
+
+        // Day 3
+        { day: 3, time: 1, codes: ["CSI 341", "CSE 3811"], name: "Computer Networks", keywords: ["networks", "cn"] },
+        { day: 3, time: 1, codes: ["CSE 4451", "CSE 451"], name: "Human Computer Interaction", keywords: ["hci"] },
+        { day: 3, time: 2, codes: ["CSI 219", "CSE 2213"], name: "Discrete Mathematics", keywords: ["discrete", "dm"] },
+        { day: 3, time: 2, codes: ["CSE 469", "PMG 4101"], name: "Project Management", keywords: ["pmg", "project"] },
+        { day: 3, time: 2, codes: ["TEC 2499"], name: "Tech Entrepreneurship", keywords: ["entrepreneurship"] },
+        { day: 3, time: 3, codes: ["CSE 225", "CSE 1325"], name: "Digital Logic Design", keywords: ["dld", "logic"] },
+        { day: 3, time: 3, codes: ["CSE 487", "CSE 4587"], name: "Cloud Computing", keywords: ["cloud"] },
+        { day: 3, time: 3, codes: ["BIO 3105", "BIO 3107"], name: "Biology for Engineers", keywords: ["biology", "bio"] },
+
+        // Day 4
+        { day: 4, time: 1, codes: ["CSI 411", "CSE 4611"], name: "Compiler Design", keywords: ["compiler"] },
+        { day: 4, time: 1, codes: ["CSI 483", "CSE 4883"], name: "Digital Image Processing", keywords: ["dip", "image"] },
+        { day: 4, time: 2, codes: ["CSI 121", "CSE 1111"], name: "Structured Programming Language", keywords: ["spl", "c programming"] },
+        { day: 4, time: 2, codes: ["CSI 217", "CSE 2215"], name: "Data Structure & Algorithms I", keywords: ["dsa 1", "dsa"] },
+        { day: 4, time: 2, codes: ["DS 1501"], name: "Programming for Data Science", keywords: ["pds"] },
+        { day: 4, time: 2, codes: ["DS 2251"], name: "DS Algo II (DS)", keywords: [] },
+        { day: 4, time: 3, codes: ["CSE 323", "CSE 3711"], name: "System Analysis & Design", keywords: ["sad"] }, 
+        { day: 4, time: 3, codes: ["DS 4523", "CSE 4893", "CSE 493"], name: "Bioinformatics / Simulation", keywords: ["simulation", "bio"] },
+        { day: 4, time: 3, codes: ["DS 3101"], name: "Data Science Core", keywords: [] },
+
+        // Day 5
+        { day: 5, time: 1, codes: ["MATH 201", "MATH 2201", "MATH 1153"], name: "Coord. Geometry & Vector", keywords: ["vector", "math 2", "geometry"] },
+        { day: 5, time: 1, codes: ["CSI 311", "CSE 3411"], name: "System Analysis & Design", keywords: ["sad"] },
+        { day: 5, time: 1, codes: ["EEE 4261"], name: "EEE Elective", keywords: [] },
+        { day: 5, time: 2, codes: ["CSI 227", "CSE 2217"], name: "Data Structure & Algorithms II", keywords: ["dsa 2", "algorithms"] },
+        { day: 5, time: 2, codes: ["DS 1101"], name: "Fund. of Data Science", keywords: ["fds"] },
+        { day: 5, time: 3, codes: ["CSI 321", "CSE 3421"], name: "Software Engineering", keywords: ["se", "software"] },
+
+        // Day 6
+        { day: 6, time: 1, codes: ["BDS 1201"], name: "Bangladesh Studies", keywords: ["bds"] },
+        { day: 6, time: 1, codes: ["ECO 213", "ECO 4101"], name: "Economics", keywords: ["eco", "economics"] },
+        { day: 6, time: 1, codes: ["DS 3521"], name: "Data Science DB", keywords: [] },
+        { day: 6, time: 2, codes: ["CSI 211", "CSE 1115", "DS 1115"], name: "Object Oriented Programming", keywords: ["oop", "java"] },
+        { day: 6, time: 2, codes: ["CSE 4783", "DS 4891"], name: "Data Mining / Elective", keywords: ["data mining"] },
+        { day: 6, time: 3, codes: ["CSE 113", "EEE 2113"], name: "Electrical Circuits", keywords: ["circuits", "electrical"] },
+        { day: 6, time: 3, codes: ["CSE 123", "EEE 2123"], name: "Electronics", keywords: ["electronics"] },
+        { day: 6, time: 3, codes: ["CSE 4531"], name: "Computer Security", keywords: ["security", "cyber"] },
+        { day: 6, time: 3, codes: ["CSE 481", "CSE 4181"], name: "Mobile App Development", keywords: ["mad", "android", "mobile"] },
+
+        // Day 7
+        { day: 7, time: 1, codes: ["CSE 4891", "CSE 491"], name: "Data Mining", keywords: ["mining"] },
+        { day: 7, time: 1, codes: ["CSE 465", "CSE 4165"], name: "Web Programming", keywords: ["web", "internet"] },
+        { day: 7, time: 2, codes: ["CSI 233", "CSE 2233"], name: "Theory of Computation", keywords: ["toc", "theory"] },
+        { day: 7, time: 3, codes: ["PHY 2105", "PHY 105"], name: "Physics", keywords: ["physics", "phy"] },
+        { day: 7, time: 3, codes: ["CSE 4495", "CSE 495"], name: "Software Testing & QA", keywords: ["qa", "testing"] },
+        { day: 7, time: 3, codes: ["DS 3881"], name: "DS Elective", keywords: [] }
+    ];
+
+    let myCourses = [];
+
+    function initGrid() {
+        const tbody = document.getElementById('routineBody');
+        tbody.innerHTML = '';
+        for (let i = 1; i <= 7; i++) {
+            const row = document.createElement('tr');
+            row.innerHTML = `<td class="day-header">Day ${i}</td><td id="d${i}-t1"></td><td id="d${i}-t2"></td><td id="d${i}-t3"></td>`;
+            tbody.appendChild(row);
+        }
+    }
+
+    function filterCourses() {
+        const input = document.getElementById('courseSearch').value.toLowerCase();
+        const suggestionBox = document.getElementById('suggestions');
+        suggestionBox.innerHTML = '';
+        if (input.length < 2) { suggestionBox.style.display = 'none'; return; }
+
+        const matches = [];
+        rawRoutine.forEach(item => {
+            const nameMatch = item.name.toLowerCase().includes(input);
+            const codeMatch = item.codes.some(c => c.toLowerCase().includes(input));
+            const keywordMatch = item.keywords.some(k => k.toLowerCase().includes(input));
+            if (nameMatch || codeMatch || keywordMatch) {
+                matches.push({ displayName: `${item.name} (${item.codes[0]})`, shortcutMatch: keywordMatch, data: item });
+            }
+        });
+
+        if (matches.length > 0) {
+            suggestionBox.style.display = 'block';
+            matches.forEach(match => {
+                const div = document.createElement('div');
+                div.className = 'suggestion-item';
+                div.innerHTML = `<span>${match.displayName}</span>${match.shortcutMatch ? '<span class="shortcut-badge">Shortcut</span>' : ''}`;
+                div.onclick = () => addCourse(match.data);
+                suggestionBox.appendChild(div);
+            });
+        } else { suggestionBox.style.display = 'none'; }
+    }
+
+    function addCourse(courseData) {
+        const isDuplicate = myCourses.some(c => c.name === courseData.name && c.codes[0] === courseData.codes[0]);
+        if (isDuplicate) { alert("Course already added!"); return; }
+        myCourses.push(courseData);
+        document.getElementById('courseSearch').value = '';
+        document.getElementById('suggestions').style.display = 'none';
+        renderSchedule();
+    }
+
+    function renderSchedule() {
+        for (let d = 1; d <= 7; d++) {
+            for (let t = 1; t <= 3; t++) {
+                document.getElementById(`d${d}-t${t}`).innerHTML = '';
+            }
+        }
+        let clashDetected = false;
+        const slotMap = {};
+        myCourses.forEach(course => {
+            const key = `d${course.day}-t${course.time}`;
+            if (!slotMap[key]) slotMap[key] = [];
+            slotMap[key].push(course);
+        });
+        for (const [key, coursesInSlot] of Object.entries(slotMap)) {
+            const cell = document.getElementById(key);
+            const isClash = coursesInSlot.length > 1;
+            if (isClash) clashDetected = true;
+            coursesInSlot.forEach(course => {
+                const div = document.createElement('div');
+                div.className = `added-course ${isClash ? 'clash' : ''}`;
+                div.innerHTML = `<span class="remove-btn" onclick="removeCourse('${course.codes[0]}')">&times;</span><strong>${course.name}</strong><br><small>${course.codes.join('/')}</small>`;
+                cell.appendChild(div);
+            });
+        }
+        document.getElementById('alert-box').style.display = clashDetected ? 'block' : 'none';
+    }
+
+    function removeCourse(primaryCode) {
+        myCourses = myCourses.filter(c => c.codes[0] !== primaryCode);
+        renderSchedule();
+    }
+
+    // ================== CGPA LOGIC ==================
+    const grades = [
+        { label: "A (90-100)", value: 4.00 }, { label: "A- (86-89)", value: 3.67 },
+        { label: "B+ (82-85)", value: 3.33 }, { label: "B (78-81)", value: 3.00 },
+        { label: "B- (74-77)", value: 2.67 }, { label: "C+ (70-73)", value: 2.33 },
+        { label: "C (66-69)", value: 2.00 }, { label: "C- (62-65)", value: 1.67 },
+        { label: "D+ (58-61)", value: 1.33 }, { label: "D (55-57)", value: 1.00 },
+        { label: "F (<55)", value: 0.00 }
+    ];
+
+    function addCourseRow() {
+        const tbody = document.querySelector("#courseTable tbody");
+        const rowCount = tbody.rows.length + 1;
+        const row = document.createElement("tr");
+        let options = grades.map(g => `<option value="${g.value}">${g.label}</option>`).join('');
+        row.innerHTML = `<td>${rowCount}</td>
+            <td><input type="number" class="course-credit" value="3" min="1" step="0.5" style="width:100%"></td>
+            <td><select class="course-grade" style="width:100%">${options}</select></td>
+            <td><button class="btn-delete" onclick="removeRow(this)">Remove</button></td>`;
+        tbody.appendChild(row);
+    }
+
+    function removeRow(btn) {
+        const row = btn.parentNode.parentNode;
+        if (document.querySelectorAll("#courseTable tbody tr").length > 1) {
+            row.parentNode.removeChild(row);
+            updateRowNumbers();
+        } else { alert("At least one course is required."); }
+    }
+
+    function updateRowNumbers() {
+        document.querySelectorAll("#courseTable tbody tr").forEach((row, index) => {
+            row.cells[0].innerText = index + 1;
+        });
+    }
+
+    function calculateCGPA() {
+        const creditInputs = document.querySelectorAll(".course-credit");
+        const gradeInputs = document.querySelectorAll(".course-grade");
+        let currentTotalPoints = 0, currentTotalCredits = 0;
+
+        for (let i = 0; i < creditInputs.length; i++) {
+            const credit = parseFloat(creditInputs[i].value);
+            const gradePoint = parseFloat(gradeInputs[i].value);
+            if (!isNaN(credit) && credit > 0) {
+                currentTotalPoints += (credit * gradePoint);
+                currentTotalCredits += credit;
+            }
+        }
+
+        const currentGPA = currentTotalCredits > 0 ? (currentTotalPoints / currentTotalCredits).toFixed(2) : "0.00";
+        const prevCGPA = parseFloat(document.getElementById("prevCGPA").value) || 0;
+        const prevCredits = parseFloat(document.getElementById("prevCredits").value) || 0;
+        
+        let finalTotalPoints = currentTotalPoints + (prevCGPA * prevCredits);
+        let finalTotalCredits = currentTotalCredits + prevCredits;
+        const totalCGPA = finalTotalCredits > 0 ? (finalTotalPoints / finalTotalCredits).toFixed(2) : "0.00";
+
+        document.getElementById("currentGPA").innerText = currentGPA;
+        document.getElementById("totalCGPA").innerText = totalCGPA;
+        document.getElementById("totalCreditsDisplay").innerText = finalTotalCredits;
+        document.getElementById("resultBox").style.display = "block";
+    }
+
+    // ================== INITIALIZATION ==================
+    window.onload = function() {
+        initGrid();
+        addCourseRow(); addCourseRow(); addCourseRow(); // Initial CGPA rows
+        
+        // Hide suggestions on click outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.search-box')) {
+                document.getElementById('suggestions').style.display = 'none';
+            }
+        });
+    };
+</script>
+
+</body>
+</html>
