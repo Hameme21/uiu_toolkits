@@ -10,19 +10,28 @@
             --uiu-orange: #F37021;
             --uiu-blue: #005696;
             
-            /* Light Theme Defaults */
-            --bg-body: #f4f7f6;
+            /* Light Theme (Orange Dominant) */
+            --bg-body: #fdf8f5;
             --bg-container: #ffffff;
             --bg-input: #ffffff;
             --text-main: #333333;
             --text-muted: #666666;
-            --border-color: #e0e0e0;
-            --table-header-bg: #005696;
+            --border-color: #ffdcb0; /* Light Orange Border */
+            
+            /* Theme Specifics */
+            --primary-color: #F37021; /* Orange */
+            --secondary-color: #005696; /* Blue */
+            --table-header-bg: #F37021;
             --table-header-text: #ffffff;
+            
+            /* Status Colors */
             --clash-bg: #ffebee;
             --clash-border: #d32f2f;
-            --course-added-bg: #e3f2fd;
-            --shadow: 0 4px 15px rgba(0,0,0,0.1);
+            --same-day-bg: #fff8e1; /* Light Yellow */
+            --same-day-border: #ffc107; /* Amber */
+            --course-added-bg: #fff3e0; /* Very light orange */
+            
+            --shadow: 0 4px 15px rgba(243, 112, 33, 0.15);
             --warning-bg: #fff3cd;
             --warning-text: #856404;
             --warning-border: #ffeeba;
@@ -35,9 +44,16 @@
             --text-main: #e0e0e0;
             --text-muted: #a0a0a0;
             --border-color: #333333;
-            --table-header-bg: #004070;
+            
+            --primary-color: #F37021;
+            --secondary-color: #64b5f6;
+            --table-header-bg: #d85a0e; /* Darker Orange */
+            
             --clash-bg: #3e1a1a;
-            --course-added-bg: #0d2333;
+            --same-day-bg: #3e3310;
+            --same-day-border: #9c7b16;
+            --course-added-bg: #2d2318;
+            
             --shadow: 0 4px 15px rgba(0,0,0,0.5);
             --warning-bg: #332701;
             --warning-text: #ffc107;
@@ -52,7 +68,7 @@
             transition: background 0.3s, color 0.3s;
         }
 
-        /* --- NAVIGATION BAR (Top Right) --- */
+        /* --- NAVIGATION BAR --- */
         nav {
             background-color: var(--bg-container);
             padding: 15px 20px;
@@ -63,12 +79,13 @@
             position: sticky;
             top: 0;
             z-index: 1000;
+            border-bottom: 3px solid var(--primary-color);
         }
 
         .logo {
             font-weight: bold;
             font-size: 1.2rem;
-            color: var(--uiu-orange);
+            color: var(--primary-color);
             display: flex;
             align-items: center;
             gap: 10px;
@@ -81,9 +98,9 @@
 
         .nav-btn {
             padding: 8px 16px;
-            border: 2px solid var(--uiu-blue);
+            border: 2px solid var(--primary-color);
             background: transparent;
-            color: var(--uiu-blue);
+            color: var(--primary-color);
             border-radius: 20px;
             cursor: pointer;
             font-weight: 600;
@@ -91,23 +108,23 @@
         }
 
         .nav-btn.active {
-            background: var(--uiu-blue);
+            background: var(--primary-color);
             color: white;
         }
 
         .nav-btn:hover {
-            background: var(--uiu-blue);
+            background: var(--primary-color);
             color: white;
             opacity: 0.9;
         }
         
         body.dark-mode .nav-btn {
-            border-color: var(--uiu-orange);
-            color: var(--uiu-orange);
+            border-color: var(--primary-color);
+            color: var(--primary-color);
         }
         body.dark-mode .nav-btn.active, 
         body.dark-mode .nav-btn:hover {
-            background: var(--uiu-orange);
+            background: var(--primary-color);
             color: #121212;
         }
 
@@ -119,12 +136,13 @@
         }
 
         .tool-section {
-            display: none; /* Hidden by default */
+            display: none;
             background: var(--bg-container);
             padding: 25px;
             border-radius: 12px;
             box-shadow: var(--shadow);
             animation: fadeIn 0.3s;
+            border-top: 5px solid var(--primary-color);
         }
 
         .tool-section.active {
@@ -136,10 +154,10 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        h1 { color: var(--uiu-blue); margin-top: 0; }
+        h1 { color: var(--primary-color); margin-top: 0; }
         p { color: var(--text-muted); }
 
-        /* --- WARNING BOX STYLE --- */
+        /* --- WARNING BOXES --- */
         .disclaimer-box {
             background-color: var(--warning-bg);
             color: var(--warning-text);
@@ -152,6 +170,29 @@
             font-size: 0.95rem;
         }
 
+        .alert-box {
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            text-align: center;
+            font-weight: bold;
+            display: none;
+        }
+
+        #clash-alert {
+            background-color: var(--clash-bg);
+            color: #d32f2f;
+            border: 1px solid var(--clash-border);
+        }
+
+        #sameday-alert {
+            background-color: var(--same-day-bg);
+            color: #c49000; /* Darker amber for readability */
+            border: 1px solid var(--same-day-border);
+        }
+        
+        body.dark-mode #sameday-alert { color: #ffca28; }
+
         /* --- COMMON INPUTS --- */
         input, select {
             padding: 10px;
@@ -160,6 +201,12 @@
             color: var(--text-main);
             border-radius: 5px;
             font-size: 1rem;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 5px rgba(243, 112, 33, 0.3);
         }
 
         /* --- EXAM SCHEDULER STYLES --- */
@@ -178,9 +225,10 @@
             background-color: var(--table-header-bg);
             color: var(--table-header-text);
         }
+        
         .added-course {
             background-color: var(--course-added-bg);
-            border-left: 4px solid var(--uiu-blue);
+            border-left: 4px solid var(--primary-color);
             padding: 8px;
             margin-top: 5px;
             border-radius: 4px;
@@ -188,11 +236,18 @@
             text-align: left;
             position: relative;
         }
+        
         .added-course.clash {
             background-color: var(--clash-bg);
             border-left-color: var(--clash-border);
             color: #d32f2f;
         }
+        
+        .added-course.sameday {
+            border-left-color: var(--same-day-border);
+            background-color: var(--same-day-bg);
+        }
+
         .remove-btn {
             position: absolute;
             top: 2px; right: 5px;
@@ -215,38 +270,33 @@
             display: flex; justify-content: space-between;
         }
         .suggestion-item:hover { background-color: var(--bg-body); }
+        .suggestion-item strong { color: var(--primary-color); }
         .shortcut-badge { background: var(--border-color); font-size: 0.75em; padding: 2px 6px; border-radius: 4px; }
         
-        #alert-box {
-            background-color: var(--clash-bg); color: #d32f2f;
-            padding: 15px; border-radius: 6px; margin-bottom: 20px;
-            text-align: center; font-weight: bold; display: none;
-            border: 1px solid var(--clash-border);
-        }
-
         /* --- CGPA CALCULATOR STYLES --- */
         .section-box {
             border: 1px solid var(--border-color);
             padding: 20px; border-radius: 8px; margin-bottom: 20px;
         }
         .section-title {
-            color: var(--uiu-blue); font-weight: bold; display: block;
-            border-left: 4px solid var(--uiu-orange); padding-left: 10px; margin-bottom: 15px;
+            color: var(--primary-color); font-weight: bold; display: block;
+            border-left: 4px solid var(--primary-color); padding-left: 10px; margin-bottom: 15px;
         }
         .cgpa-table { width: 100%; margin-bottom: 15px; border-collapse: collapse; }
-        .cgpa-table th { background-color: var(--uiu-blue); color: white; padding: 10px; text-align: left; }
+        .cgpa-table th { background-color: var(--primary-color); color: white; padding: 10px; text-align: left; }
         .cgpa-table td { padding: 10px; border-bottom: 1px solid var(--border-color); }
-        .btn-add { background-color: var(--uiu-blue); color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
-        .btn-calc { background-color: var(--uiu-orange); color: white; border: none; padding: 12px; width: 100%; font-size: 1.1rem; border-radius: 5px; cursor: pointer; margin-top: 10px; }
+        
+        .btn-add { background-color: var(--secondary-color); color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
+        .btn-calc { background-color: var(--primary-color); color: white; border: none; padding: 12px; width: 100%; font-size: 1.1rem; border-radius: 5px; cursor: pointer; margin-top: 10px; }
         .btn-delete { background-color: #ff4d4d; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
         
         .result-box {
             background-color: var(--course-added-bg);
-            border: 2px solid var(--uiu-blue);
+            border: 2px solid var(--primary-color);
             padding: 20px; border-radius: 8px; text-align: center;
             display: none; margin-top: 20px;
         }
-        .gpa-value { font-size: 2rem; font-weight: bold; color: var(--uiu-orange); }
+        .gpa-value { font-size: 2rem; font-weight: bold; color: var(--primary-color); }
 
         /* Mobile Responsive */
         @media (max-width: 600px) {
@@ -280,7 +330,8 @@
             ⚠️ WARNING: Always recheck with your UCAM. There might be data entry mistakes or official changes from the University.
         </div>
 
-        <div id="alert-box">⚠️ Exam Clash Detected! You have two exams at the same time.</div>
+        <div id="clash-alert" class="alert-box">⚠️ CRITICAL CLASH: 2 Exams at the EXACT SAME TIME!</div>
+        <div id="sameday-alert" class="alert-box">⚠️ PRESSURE WARNING: You have multiple exams on the SAME DAY.</div>
 
         <div class="search-box">
             <input type="text" id="courseSearch" placeholder="Type Shortcut (e.g. SPL, DSA 2) or Name..." oninput="filterCourses()">
@@ -356,11 +407,8 @@
 <script>
     // ================== TAB & THEME LOGIC ==================
     function switchTab(tab) {
-        // Hide all sections
         document.querySelectorAll('.tool-section').forEach(el => el.classList.remove('active'));
         document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
-
-        // Show selected
         document.getElementById(tab + '-section').classList.add('active');
         document.getElementById('btn-' + tab).classList.add('active');
     }
@@ -377,7 +425,6 @@
         }
     }
 
-    // Load Theme Preference
     if (localStorage.getItem('theme') === 'dark') {
         document.body.classList.add('dark-mode');
         document.getElementById('btn-theme').innerHTML = '☀️';
@@ -487,7 +534,7 @@
             matches.forEach(match => {
                 const div = document.createElement('div');
                 div.className = 'suggestion-item';
-                div.innerHTML = `<span>${match.displayName}</span>${match.shortcutMatch ? '<span class="shortcut-badge">Shortcut</span>' : ''}`;
+                div.innerHTML = `<strong>${match.displayName}</strong>${match.shortcutMatch ? '<span class="shortcut-badge">Shortcut</span>' : ''}`;
                 div.onclick = () => addCourse(match.data);
                 suggestionBox.appendChild(div);
             });
@@ -504,30 +551,57 @@
     }
 
     function renderSchedule() {
+        // Clear Grid
         for (let d = 1; d <= 7; d++) {
             for (let t = 1; t <= 3; t++) {
                 document.getElementById(`d${d}-t${t}`).innerHTML = '';
             }
         }
-        let clashDetected = false;
+        
+        let timeClash = false;
+        let sameDayPressure = false;
+        
+        // Count exams per day to check for "Same Day" pressure
+        const dayCounts = {};
+        
         const slotMap = {};
         myCourses.forEach(course => {
+            // Populate Slot Map for Time Clashes
             const key = `d${course.day}-t${course.time}`;
             if (!slotMap[key]) slotMap[key] = [];
             slotMap[key].push(course);
+            
+            // Populate Day Counts for Same Day Warning
+            if (!dayCounts[course.day]) dayCounts[course.day] = 0;
+            dayCounts[course.day]++;
         });
+
+        // Loop through slots
         for (const [key, coursesInSlot] of Object.entries(slotMap)) {
             const cell = document.getElementById(key);
             const isClash = coursesInSlot.length > 1;
-            if (isClash) clashDetected = true;
+            if (isClash) timeClash = true;
+
             coursesInSlot.forEach(course => {
                 const div = document.createElement('div');
-                div.className = `added-course ${isClash ? 'clash' : ''}`;
+                const isSameDay = dayCounts[course.day] > 1;
+                
+                // Determine styling class
+                let className = 'added-course';
+                if (isClash) className += ' clash';
+                else if (isSameDay) {
+                    className += ' sameday';
+                    sameDayPressure = true;
+                }
+
+                div.className = className;
                 div.innerHTML = `<span class="remove-btn" onclick="removeCourse('${course.codes[0]}')">&times;</span><strong>${course.name}</strong><br><small>${course.codes.join('/')}</small>`;
                 cell.appendChild(div);
             });
         }
-        document.getElementById('alert-box').style.display = clashDetected ? 'block' : 'none';
+        
+        document.getElementById('clash-alert').style.display = timeClash ? 'block' : 'none';
+        document.getElementById('sameday-alert').style.display = (sameDayPressure && !timeClash) ? 'block' : 'none';
     }
 
     function removeCourse(primaryCode) {
@@ -604,7 +678,6 @@
         initGrid();
         addCourseRow(); addCourseRow(); addCourseRow(); // Initial CGPA rows
         
-        // Hide suggestions on click outside
         document.addEventListener('click', function(e) {
             if (!e.target.closest('.search-box')) {
                 document.getElementById('suggestions').style.display = 'none';
