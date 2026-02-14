@@ -393,6 +393,11 @@
         <h1>Spring 2026 Academic Calendar</h1>
         <p class="subtitle">Interactive Event Planner</p>
 
+        <div class="search-box">
+            <input type="text" id="calendarSearch" placeholder="Search events or dates (e.g., 'Mid-Term', 'Eid', 'Mar 15')..." oninput="searchCalendarEvents()">
+            <div class="suggestions" id="calendarSuggestions"></div>
+        </div>
+
         <div class="calendar-controls">
             <button onclick="changeMonth(-1)">&#10094; Prev</button>
             <h2 id="month-year-display">February 2026</h2>
@@ -475,22 +480,24 @@
     ];
 
     // --- ACADEMIC CALENDAR EVENTS DATA ---
-    // Mapped explicitly with start and end dates (YYYY-MM-DD) for rendering on the grid
+    // Updated directly from UIU Spring 2026 Academic Calendar PDF
     const academicEvents = [
         { start: "2026-02-23", end: "2026-02-23", title: "Registration without Fine", type: "regular" },
         { start: "2026-03-02", end: "2026-03-02", title: "Drop course (100% refund)", type: "regular" },
         { start: "2026-03-09", end: "2026-03-09", title: "Apply Grade Change (Fall '25)", type: "regular" },
         { start: "2026-03-10", end: "2026-03-10", title: "Drop course (50% refund)", type: "regular" },
+        { start: "2026-03-13", end: "2026-03-13", title: "Grade Submission for incomplete Grades", type: "regular" },
         { start: "2026-03-15", end: "2026-03-15", title: "Registration (500Tk Fine)", type: "regular" },
-        { start: "2026-03-27", end: "2026-03-27", title: "Holiday (Shab-e-Qadr / Eid / Independence Day)", type: "holiday" },
+        { start: "2026-03-27", end: "2026-03-27", title: "Holiday: Shab-e-Qadr/Eid/Independence Day", type: "holiday" },
         { start: "2026-04-13", end: "2026-04-13", title: "Make-up class (Tue Classes)", type: "regular" },
+        { start: "2026-04-14", end: "2026-04-14", title: "Holiday: Bangla New Year", type: "holiday" },
         { start: "2026-04-18", end: "2026-04-24", title: "Mid-Term Exams", type: "exam" },
-        { start: "2026-04-25", end: "2026-04-25", title: "Regular Tue/Wed Classes", type: "regular" },
+        { start: "2026-04-25", end: "2026-04-25", title: "Make-up class (Tue/Wed Classes)", type: "regular" },
         { start: "2026-05-12", end: "2026-05-12", title: "2nd Installment Deadline", type: "regular" },
-        { start: "2026-05-20", end: "2026-05-20", title: "Eid-ul-Adha Holiday", type: "holiday" },
+        { start: "2026-05-20", end: "2026-05-20", title: "Holiday: Eid-ul-Adha", type: "holiday" },
         { start: "2026-06-14", end: "2026-06-14", title: "3rd Installment Deadline", type: "regular" },
         { start: "2026-06-20", end: "2026-06-20", title: "Exam Prep (No Classes)", type: "regular" },
-        { start: "2026-06-21", end: "2026-06-30", title: "Final Exams", type: "exam" }, // Spanning approx 10 days
+        { start: "2026-06-21", end: "2026-06-30", title: "Final Exams", type: "exam" }, 
         { start: "2026-07-07", end: "2026-07-07", title: "Summer 2026 Begins", type: "regular" }
     ];
 
@@ -643,7 +650,6 @@
     }
 
     // --- FULL CALENDAR LOGIC ---
-    // Start view on February 2026 (Start of Spring Sem activities roughly)
     let currentCalYear = 2026;
     let currentCalMonth = 1; // 0-indexed (0=Jan, 1=Feb, 2=Mar...)
 
@@ -665,14 +671,12 @@
         
         // Render days
         for (let day = 1; day <= daysInMonth; day++) {
-            // Formatting Date to YYYY-MM-DD for comparison
             const m = String(currentCalMonth + 1).padStart(2, '0');
             const d = String(day).padStart(2, '0');
             const currentCellDate = `${currentCalYear}-${m}-${d}`;
             
             let eventsHTML = '';
             
-            // Find overlapping events for this cell's date
             academicEvents.forEach(evt => {
                 if (currentCellDate >= evt.start && currentCellDate <= evt.end) {
                     let typeClass = '';
@@ -699,13 +703,56 @@
         renderFullCalendar();
     }
 
+    // --- CALENDAR SEARCH LOGIC ---
+    function searchCalendarEvents() {
+        const input = document.getElementById('calendarSearch').value.toLowerCase();
+        const suggestionBox = document.getElementById('calendarSuggestions');
+        suggestionBox.innerHTML = '';
+        if (input.length < 2) { suggestionBox.style.display = 'none'; return; }
+
+        const matches = academicEvents.filter(evt => {
+            const dateStr = new Date(evt.start).toLocaleDateString('en-US', { month: 'short', day: 'numeric'}).toLowerCase();
+            return evt.title.toLowerCase().includes(input) || evt.start.includes(input) || dateStr.includes(input);
+        });
+
+        if (matches.length > 0) {
+            suggestionBox.style.display = 'block';
+            matches.forEach(match => {
+                const div = document.createElement('div');
+                div.className = 'suggestion-item';
+                const dateStrDisplay = new Date(match.start).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                div.innerHTML = `<strong>${match.title}</strong><span class="shortcut-badge">${dateStrDisplay}</span>`;
+                div.onclick = () => {
+                    const matchDate = new Date(match.start);
+                    currentCalYear = matchDate.getFullYear();
+                    currentCalMonth = matchDate.getMonth();
+                    renderFullCalendar();
+                    document.getElementById('calendarSearch').value = '';
+                    suggestionBox.style.display = 'none';
+                };
+                suggestionBox.appendChild(div);
+            });
+        } else {
+            suggestionBox.style.display = 'none';
+        }
+    }
+
     // --- INIT ---
     window.onload = function() {
         initGrid();
         addCourseRow(); addCourseRow(); addCourseRow();
         renderFullCalendar();
         document.addEventListener('click', e => {
-            if (!e.target.closest('.search-box')) document.getElementById('suggestions').style.display = 'none';
+            // Close exam suggestions
+            if (!e.target.closest('#courseSearch')) {
+                const sugg = document.getElementById('suggestions');
+                if (sugg) sugg.style.display = 'none';
+            }
+            // Close calendar suggestions
+            if (!e.target.closest('#calendarSearch')) {
+                const calSugg = document.getElementById('calendarSuggestions');
+                if (calSugg) calSugg.style.display = 'none';
+            }
         });
     };
 </script>
