@@ -95,6 +95,7 @@
         .nav-buttons {
             display: flex;
             gap: 10px;
+            flex-wrap: wrap;
         }
 
         .nav-btn {
@@ -216,7 +217,7 @@
         .added-course {
             background-color: var(--course-added-bg);
             border-left: 4px solid var(--primary-color);
-            padding: 8px 25px 8px 8px; /* Extra right padding for X button */
+            padding: 8px 25px 8px 8px;
             margin-top: 5px;
             border-radius: 4px;
             font-size: 0.9em;
@@ -253,16 +254,57 @@
         }
         .gpa-value { font-size: 2rem; font-weight: bold; color: var(--primary-color); }
         
-        /* Retake styles */
         .retake-controls { display: flex; align-items: center; gap: 8px; }
         .prev-grade-wrapper { display: none; margin-top: 5px; }
         .prev-grade-wrapper.active { display: block; animation: fadeIn 0.3s; }
         .prev-grade-label { font-size: 0.8em; color: var(--text-muted); display: block; margin-bottom: 2px; }
         .retake-checkbox { width: 18px; height: 18px; cursor: pointer; }
 
+        /* --- FULL CALENDAR STYLES --- */
+        .calendar-controls {
+            display: flex; justify-content: space-between; align-items: center; 
+            margin-bottom: 15px; background: var(--bg-input); padding: 10px 20px;
+            border-radius: 8px; border: 1px solid var(--border-color);
+        }
+        .calendar-controls button {
+            background: var(--primary-color); color: white; border: none; 
+            padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: bold;
+        }
+        .calendar-controls button:hover { background: var(--secondary-color); }
+        .calendar-controls h2 { margin: 0; color: var(--secondary-color); }
+
+        .calendar-wrapper { border-radius: 8px; overflow: hidden; border: 1px solid var(--border-color); }
+        .calendar-grid-header {
+            display: grid; grid-template-columns: repeat(7, 1fr); 
+            background: var(--table-header-bg); color: var(--table-header-text); 
+            text-align: center; font-weight: bold; padding: 12px 0;
+        }
+        .calendar-grid {
+            display: grid; grid-template-columns: repeat(7, 1fr); 
+            background: var(--border-color); gap: 1px; /* Creates borders between cells */
+        }
+        .calendar-day {
+            background: var(--bg-container); min-height: 100px; 
+            padding: 8px; display: flex; flex-direction: column; gap: 4px;
+        }
+        .calendar-day.empty { background: var(--bg-body); }
+        .day-num { font-weight: bold; font-size: 1.1em; color: var(--text-muted); text-align: right; display: block; margin-bottom: 5px; }
+        
+        .event-badge {
+            font-size: 0.75em; padding: 5px 8px; border-radius: 4px; 
+            background-color: var(--course-added-bg); border-left: 3px solid var(--primary-color);
+            color: var(--text-main); font-weight: bold; line-height: 1.2;
+        }
+        .event-holiday { background-color: var(--clash-bg); border-left-color: var(--clash-border); color: #d32f2f; }
+        .event-exam { background-color: var(--same-day-bg); border-left-color: var(--same-day-border); color: #b08100; }
+        body.dark-mode .event-exam { color: #ffca28; }
+
         @media (max-width: 600px) {
             nav { flex-direction: column; gap: 10px; }
             .routine-table th, .routine-table td { font-size: 0.8em; padding: 5px; }
+            .calendar-grid-header { font-size: 0.8em; }
+            .calendar-day { min-height: 80px; padding: 4px; }
+            .event-badge { font-size: 0.65em; padding: 3px; }
         }
     </style>
 </head>
@@ -273,7 +315,7 @@
     <div class="nav-buttons">
         <button class="nav-btn active" onclick="switchTab('exam')" id="btn-exam">Exam Routine</button>
         <button class="nav-btn" onclick="switchTab('cgpa')" id="btn-cgpa">CGPA Calc</button>
-        <button class="nav-btn" onclick="switchTab('calendar')" id="btn-calendar">Calendar</button>
+        <button class="nav-btn" onclick="switchTab('calendar')" id="btn-calendar">Academic Calendar</button>
         <button class="nav-btn" onclick="toggleTheme()" id="btn-theme">🌙</button>
     </div>
 </nav>
@@ -348,27 +390,29 @@
     </div>
 
     <div id="calendar-section" class="tool-section">
-        <h1>Academic Calendar</h1>
-        <p class="subtitle">Spring 2026 | Key Dates & Deadlines</p>
+        <h1>Spring 2026 Academic Calendar</h1>
+        <p class="subtitle">Interactive Event Planner</p>
 
-        <table class="routine-table">
-            <thead>
-                <tr>
-                    <th style="width: 25%">Date</th>
-                    <th style="width: 75%">Event Details</th>
-                </tr>
-            </thead>
-            <tbody id="calendarBody">
-                </tbody>
-        </table>
+        <div class="calendar-controls">
+            <button onclick="changeMonth(-1)">&#10094; Prev</button>
+            <h2 id="month-year-display">February 2026</h2>
+            <button onclick="changeMonth(1)">Next &#10095;</button>
+        </div>
+
+        <div class="calendar-wrapper">
+            <div class="calendar-grid-header">
+                <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+            </div>
+            <div id="calendar-days" class="calendar-grid">
+                </div>
+        </div>
     </div>
 
 </div>
 
 <script>
-    // --- DATA: SPRING 2026 ROUTINE MAPPING (CORRECTED) ---
+    // --- DATA: SPRING 2026 ROUTINE MAPPING ---
     const rawRoutine = [
-        // DAY 1
         { day: 1, time: 1, codes: ["ENG 1011", "ENG 101"], name: "Intensive English I", keywords: ["eng 1", "english"] },
         { day: 1, time: 1, codes: ["CSE 4509", "CSI 309"], name: "Operating Systems Concepts", keywords: ["os", "operating"] },
         { day: 1, time: 1, codes: ["IPE 3401", "IPE 401"], name: "Industrial & Operational Management", keywords: ["ipe", "management"] },
@@ -380,16 +424,12 @@
         { day: 1, time: 3, codes: ["CSE 3313", "CSE 313"], name: "Computer Architecture", keywords: ["ca", "archi"] },
         { day: 1, time: 3, codes: ["SOC 2101", "SOC 101"], name: "Society, Env. & Engineering Ethics", keywords: ["soc", "ethics"] },
         { day: 1, time: 3, codes: ["CSE 4889", "CSE 489"], name: "Machine Learning", keywords: ["ml", "machine"] },
-
-        // DAY 2
         { day: 2, time: 1, codes: ["CSE 4621", "CSI 421"], name: "Computer Graphics", keywords: ["cg", "graphics"] },
         { day: 2, time: 1, codes: ["CSE 3521", "CSI 221"], name: "Database Management Systems", keywords: ["dbms", "database"] },
         { day: 2, time: 2, codes: ["CSE 4325", "CSE 425"], name: "Microprocessors & Microcontrollers", keywords: ["micro", "mpi"] },
         { day: 2, time: 2, codes: ["MATH 1151", "MATH 151"], name: "Fundamental Calculus", keywords: ["calc 1", "calculus"] },
         { day: 2, time: 3, codes: ["ACT 2111", "ACT 111"], name: "Financial & Managerial Accounting", keywords: ["act", "accounting"] },
         { day: 2, time: 3, codes: ["MATH 2205", "STAT 205"], name: "Probability & Statistics", keywords: ["stat", "prob"] },
-
-        // DAY 3
         { day: 3, time: 1, codes: ["CSE 3811", "CSI 341"], name: "Artificial Intelligence", keywords: ["ai", "artificial"] },
         { day: 3, time: 1, codes: ["CSE 4451"], name: "Human Computer Interaction", keywords: ["hci"] },
         { day: 3, time: 2, codes: ["CSE 2213", "CSI 219"], name: "Discrete Mathematics", keywords: ["dm", "discrete"] },
@@ -399,8 +439,6 @@
         { day: 3, time: 3, codes: ["CSE 4587", "CSE 487"], name: "Cloud Computing", keywords: ["cloud"] },
         { day: 3, time: 3, codes: ["BIO 3105", "BIO 101"], name: "Biology for Engineers", keywords: ["bio", "biology"] },
         { day: 3, time: 3, codes: ["CSE 4777"], name: "Network Security", keywords: ["security", "netsec"] },
-
-        // DAY 4
         { day: 4, time: 1, codes: ["CSE 4611", "CSI 411"], name: "Compiler Design", keywords: ["compiler", "cd"] },
         { day: 4, time: 1, codes: ["CSE 4883", "CSI 483"], name: "Digital Image Processing", keywords: ["dip", "image"] },
         { day: 4, time: 2, codes: ["CSE 1111", "CSI 121"], name: "Structured Programming Language", keywords: ["spl", "c programming"] },
@@ -412,16 +450,12 @@
         { day: 4, time: 3, codes: ["DS 4523"], name: "DS Elective", keywords: [] },
         { day: 4, time: 3, codes: ["CSE 4893", "CSE 493"], name: "Introduction to Bioinformatics", keywords: ["bioinformatics"] },
         { day: 4, time: 3, codes: ["DS 3101"], name: "Data Science Core", keywords: [] },
-
-        // DAY 5
         { day: 5, time: 1, codes: ["MATH 2201", "MATH 201"], name: "Coord. Geometry & Vector Analysis", keywords: ["math 2", "vector"] },
         { day: 5, time: 1, codes: ["CSE 3411", "CSI 311"], name: "System Analysis and Design", keywords: ["sad", "system analysis"] },
         { day: 5, time: 1, codes: ["EEE 4261"], name: "Green Computing", keywords: ["green", "energy"] },
         { day: 5, time: 2, codes: ["CSE 2217", "CSI 227"], name: "Data Structure & Algorithms II", keywords: ["dsa 2", "algo"] },
         { day: 5, time: 2, codes: ["DS 1101"], name: "Fund. of Data Science", keywords: ["fds"] },
         { day: 5, time: 3, codes: ["CSE 3421", "CSI 321"], name: "Software Engineering", keywords: ["se", "software"] },
-        
-        // DAY 6
         { day: 6, time: 1, codes: ["BDS 1201"], name: "History of the Emergence of BD", keywords: ["bds", "history"] },
         { day: 6, time: 1, codes: ["ECO 4101", "ECO 213"], name: "Economics", keywords: ["eco", "economics"] },
         { day: 6, time: 1, codes: ["DS 3521"], name: "Database Systems (DS)", keywords: [] },
@@ -432,8 +466,6 @@
         { day: 6, time: 3, codes: ["EEE 2123", "CSE 123"], name: "Electronics", keywords: ["electronics"] },
         { day: 6, time: 3, codes: ["CSE 4531"], name: "Computer Security", keywords: ["security", "cyber"] },
         { day: 6, time: 3, codes: ["CSE 4181", "CSE 481"], name: "Mobile App Development", keywords: ["mad", "android"] },
-
-        // DAY 7
         { day: 7, time: 1, codes: ["CSE 4891", "CSE 491"], name: "Data Mining", keywords: ["mining", "dm"] },
         { day: 7, time: 1, codes: ["CSE 4165", "CSE 465"], name: "Web Programming", keywords: ["web", "internet"] },
         { day: 7, time: 2, codes: ["CSE 2233", "CSI 233"], name: "Theory of Computation", keywords: ["toc", "theory"] },
@@ -442,37 +474,38 @@
         { day: 7, time: 3, codes: ["DS 3881"], name: "DS Elective", keywords: [] }
     ];
 
-    // --- ACADEMIC CALENDAR DATA ---
-    const academicCalendar = [
-        { date: "Feb 23, 2026", event: "Last day of Course Advising & Registration without Fine" },
-        { date: "Mar 2, 2026", event: "Last day to drop course(s) with 100% adjustable refund" },
-        { date: "Mar 9, 2026", event: "Last day to apply for Grade Change (Fall 2025)" },
-        { date: "Mar 10, 2026", event: "Last day to drop course(s) with 50% adjustable refund" },
-        { date: "Mar 15, 2026", event: "Last day of Course Advising & Registration with Fine of Tk. 500" },
-        { date: "Mar 27, 2026", event: "Holiday: Shab-e-Qadr / Eid-ul-Fitr / Independence Day", highlight: true },
-        { date: "Apr 13, 2026", event: "Make-up class: Regular Tuesday Classes" },
-        { date: "Apr 18 - 24, 2026", event: "Mid-Term Exams", highlight: true },
-        { date: "Apr 25, 2026", event: "Regular Tuesday/Wednesday Classes" },
-        { date: "May 12, 2026", event: "Last date of 2nd installment" },
-        { date: "May 20, 2026", event: "Holiday: Eid-ul-Adha", highlight: true },
-        { date: "Jun 14, 2026", event: "Last date of 3rd installment" },
-        { date: "Jun 20, 2026", event: "Classes suspended for Exam preparation" },
-        { date: "Jun 21, 2026", event: "Final Exams Begin", highlight: true },
-        { date: "Jul 7, 2026", event: "Summer 2026 Trimester Begins" }
+    // --- ACADEMIC CALENDAR EVENTS DATA ---
+    // Mapped explicitly with start and end dates (YYYY-MM-DD) for rendering on the grid
+    const academicEvents = [
+        { start: "2026-02-23", end: "2026-02-23", title: "Registration without Fine", type: "regular" },
+        { start: "2026-03-02", end: "2026-03-02", title: "Drop course (100% refund)", type: "regular" },
+        { start: "2026-03-09", end: "2026-03-09", title: "Apply Grade Change (Fall '25)", type: "regular" },
+        { start: "2026-03-10", end: "2026-03-10", title: "Drop course (50% refund)", type: "regular" },
+        { start: "2026-03-15", end: "2026-03-15", title: "Registration (500Tk Fine)", type: "regular" },
+        { start: "2026-03-27", end: "2026-03-27", title: "Holiday (Shab-e-Qadr / Eid / Independence Day)", type: "holiday" },
+        { start: "2026-04-13", end: "2026-04-13", title: "Make-up class (Tue Classes)", type: "regular" },
+        { start: "2026-04-18", end: "2026-04-24", title: "Mid-Term Exams", type: "exam" },
+        { start: "2026-04-25", end: "2026-04-25", title: "Regular Tue/Wed Classes", type: "regular" },
+        { start: "2026-05-12", end: "2026-05-12", title: "2nd Installment Deadline", type: "regular" },
+        { start: "2026-05-20", end: "2026-05-20", title: "Eid-ul-Adha Holiday", type: "holiday" },
+        { start: "2026-06-14", end: "2026-06-14", title: "3rd Installment Deadline", type: "regular" },
+        { start: "2026-06-20", end: "2026-06-20", title: "Exam Prep (No Classes)", type: "regular" },
+        { start: "2026-06-21", end: "2026-06-30", title: "Final Exams", type: "exam" }, // Spanning approx 10 days
+        { start: "2026-07-07", end: "2026-07-07", title: "Summer 2026 Begins", type: "regular" }
     ];
 
-    // --- APP LOGIC ---
     let myCourses = [];
 
-    // Tab Switcher
+    // --- TAB SWITCHER ---
     function switchTab(tab) {
         document.querySelectorAll('.tool-section').forEach(el => el.classList.remove('active'));
         document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
         document.getElementById(tab + '-section').classList.add('active');
         document.getElementById('btn-' + tab).classList.add('active');
+        if (tab === 'calendar') renderFullCalendar();
     }
 
-    // Theme Toggle
+    // --- THEME TOGGLE ---
     function toggleTheme() {
         document.body.classList.toggle('dark-mode');
         const btn = document.getElementById('btn-theme');
@@ -503,11 +536,8 @@
 
         const matches = [];
         rawRoutine.forEach(item => {
-            const nameMatch = item.name.toLowerCase().includes(input);
-            const codeMatch = item.codes.some(c => c.toLowerCase().includes(input));
-            const keywordMatch = item.keywords.some(k => k.toLowerCase().includes(input));
-            if (nameMatch || codeMatch || keywordMatch) {
-                matches.push({ displayName: `${item.name} (${item.codes[0]})`, shortcutMatch: keywordMatch, data: item });
+            if (item.name.toLowerCase().includes(input) || item.codes.some(c => c.toLowerCase().includes(input)) || item.keywords.some(k => k.toLowerCase().includes(input))) {
+                matches.push({ displayName: `${item.name} (${item.codes[0]})`, data: item });
             }
         });
 
@@ -516,7 +546,7 @@
             matches.forEach(match => {
                 const div = document.createElement('div');
                 div.className = 'suggestion-item';
-                div.innerHTML = `<strong>${match.displayName}</strong>${match.shortcutMatch ? '<span class="shortcut-badge">Shortcut</span>' : ''}`;
+                div.innerHTML = `<strong>${match.displayName}</strong>`;
                 div.onclick = () => addCourse(match.data);
                 suggestionBox.appendChild(div);
             });
@@ -524,9 +554,7 @@
     }
 
     function addCourse(courseData) {
-        if (myCourses.some(c => c.name === courseData.name && c.codes[0] === courseData.codes[0])) {
-            alert("Course already added!"); return;
-        }
+        if (myCourses.some(c => c.name === courseData.name && c.codes[0] === courseData.codes[0])) { alert("Course already added!"); return; }
         myCourses.push(courseData);
         document.getElementById('courseSearch').value = '';
         document.getElementById('suggestions').style.display = 'none';
@@ -537,17 +565,13 @@
         for (let d = 1; d <= 7; d++) {
             for (let t = 1; t <= 3; t++) { document.getElementById(`d${d}-t${t}`).innerHTML = ''; }
         }
-        
-        let timeClash = false;
-        let sameDayPressure = false;
-        const dayCounts = {};
-        const slotMap = {};
+        let timeClash = false, sameDayPressure = false;
+        const dayCounts = {}, slotMap = {};
         
         myCourses.forEach(course => {
             const key = `d${course.day}-t${course.time}`;
             if (!slotMap[key]) slotMap[key] = [];
             slotMap[key].push(course);
-            
             if (!dayCounts[course.day]) dayCounts[course.day] = 0;
             dayCounts[course.day]++;
         });
@@ -561,140 +585,125 @@
                 const div = document.createElement('div');
                 const isSameDay = dayCounts[course.day] > 1;
                 let className = 'added-course';
-                if (isClash) className += ' clash';
-                else if (isSameDay) { className += ' sameday'; sameDayPressure = true; }
-
+                if (isClash) className += ' clash'; else if (isSameDay) { className += ' sameday'; sameDayPressure = true; }
                 div.className = className;
                 div.innerHTML = `<span class="remove-btn" onclick="removeCourse('${course.codes[0]}')">&times;</span>
                                  <strong>${course.name}</strong><br><small>${course.codes.join('/')}</small>`;
                 cell.appendChild(div);
             });
         }
-        
         document.getElementById('clash-alert').style.display = timeClash ? 'block' : 'none';
         document.getElementById('sameday-alert').style.display = (sameDayPressure && !timeClash) ? 'block' : 'none';
     }
 
-    function removeCourse(code) {
-        myCourses = myCourses.filter(c => c.codes[0] !== code);
-        renderSchedule();
-    }
+    function removeCourse(code) { myCourses = myCourses.filter(c => c.codes[0] !== code); renderSchedule(); }
 
-    // --- CGPA LOGIC WITH RETAKE ---
+    // --- CGPA LOGIC ---
     const gradePoints = { "A":4.00, "A-":3.67, "B+":3.33, "B":3.00, "B-":2.67, "C+":2.33, "C":2.00, "C-":1.67, "D+":1.33, "D":1.00, "F":0.00 };
     
     function addCourseRow() {
         const tbody = document.querySelector("#courseTable tbody");
         const row = document.createElement("tr");
-        let opts = "";
-        for (let g in gradePoints) opts += `<option value="${gradePoints[g]}">${g}</option>`;
-        
-        // Prev grade options (including F)
-        let prevOpts = "";
-        for (let g in gradePoints) prevOpts += `<option value="${gradePoints[g]}">${g}</option>`;
-
+        let opts = ""; for (let g in gradePoints) opts += `<option value="${gradePoints[g]}">${g}</option>`;
         row.innerHTML = `
             <td>${tbody.rows.length + 1}</td>
             <td><input type="number" class="c-credit" value="3" step="0.5"></td>
             <td><select class="c-grade-new">${opts}</select></td>
             <td>
-                <div class="retake-controls">
-                    <input type="checkbox" class="retake-checkbox" onchange="toggleRetake(this)">
-                    <span>Retake?</span>
-                </div>
-                <div class="prev-grade-wrapper">
-                    <span class="prev-grade-label">Old Grade:</span>
-                    <select class="c-grade-old">${prevOpts}</select>
-                </div>
+                <div class="retake-controls"><input type="checkbox" class="retake-checkbox" onchange="toggleRetake(this)"><span>Retake?</span></div>
+                <div class="prev-grade-wrapper"><span class="prev-grade-label">Old Grade:</span><select class="c-grade-old">${opts}</select></div>
             </td>
             <td><button class="btn-delete" onclick="this.closest('tr').remove(); updateRows()">✕</button></td>`;
         tbody.appendChild(row);
     }
 
-    function toggleRetake(checkbox) {
-        const wrapper = checkbox.closest('td').querySelector('.prev-grade-wrapper');
-        if(checkbox.checked) {
-            wrapper.classList.add('active');
-        } else {
-            wrapper.classList.remove('active');
-        }
-    }
-    
-    function updateRows() {
-        document.querySelectorAll("#courseTable tbody tr").forEach((row, i) => row.cells[0].innerText = i + 1);
-    }
+    function toggleRetake(checkbox) { checkbox.checked ? checkbox.closest('td').querySelector('.prev-grade-wrapper').classList.add('active') : checkbox.closest('td').querySelector('.prev-grade-wrapper').classList.remove('active'); }
+    function updateRows() { document.querySelectorAll("#courseTable tbody tr").forEach((row, i) => row.cells[0].innerText = i + 1); }
 
     function calculateCGPA() {
-        // 1. Get Previous Data
-        let prevCGPA = parseFloat(document.getElementById("prevCGPA").value) || 0;
-        let prevCredits = parseFloat(document.getElementById("prevCredits").value) || 0;
-        
-        let totalPoints = prevCGPA * prevCredits;
-        let totalCredits = prevCredits;
-        
-        let currentPoints = 0;
-        let currentCredits = 0;
+        let prevCGPA = parseFloat(document.getElementById("prevCGPA").value) || 0, prevCredits = parseFloat(document.getElementById("prevCredits").value) || 0;
+        let totalPoints = prevCGPA * prevCredits, totalCredits = prevCredits, currentPoints = 0, currentCredits = 0;
 
-        // 2. Loop through rows
         document.querySelectorAll("#courseTable tbody tr").forEach(row => {
-            const crd = parseFloat(row.querySelector(".c-credit").value) || 0;
-            const newGrade = parseFloat(row.querySelector(".c-grade-new").value);
-            const isRetake = row.querySelector(".retake-checkbox").checked;
-            
+            const crd = parseFloat(row.querySelector(".c-credit").value) || 0, newGrade = parseFloat(row.querySelector(".c-grade-new").value);
             if (crd > 0) {
-                if (isRetake) {
+                if (row.querySelector(".retake-checkbox").checked) {
                     const oldGrade = parseFloat(row.querySelector(".c-grade-old").value);
-                    
                     totalPoints = totalPoints - (oldGrade * crd) + (newGrade * crd);
-                    
-                    if (oldGrade === 0.00) {
-                        // Previous F: We gain new credits now
-                        totalCredits += crd;
-                    }
-                    
-                } else {
-                    // Fresh Course
-                    totalPoints += (crd * newGrade);
-                    totalCredits += crd;
-                }
-                
-                // Track current stats separately just for display
-                currentPoints += (crd * newGrade);
-                currentCredits += crd; 
+                    if (oldGrade === 0.00) totalCredits += crd;
+                } else { totalPoints += (crd * newGrade); totalCredits += crd; }
+                currentPoints += (crd * newGrade); currentCredits += crd; 
             }
         });
 
-        // 3. Final Calculations
-        const finalCGPA = totalCredits ? (totalPoints / totalCredits).toFixed(2) : "0.00";
-        // Note: Current GPA is just average of this semester's inputs
-        const curGPA = currentCredits ? (currentPoints / currentCredits).toFixed(2) : "0.00";
-
-        document.getElementById("currentGPA").innerText = curGPA;
-        document.getElementById("totalCGPA").innerText = finalCGPA;
+        document.getElementById("currentGPA").innerText = currentCredits ? (currentPoints / currentCredits).toFixed(2) : "0.00";
+        document.getElementById("totalCGPA").innerText = totalCredits ? (totalPoints / totalCredits).toFixed(2) : "0.00";
         document.getElementById("totalCreditsDisplay").innerText = totalCredits;
         document.getElementById("resultBox").style.display = "block";
     }
 
-    // --- CALENDAR LOGIC ---
-    function renderCalendar() {
-        const tbody = document.getElementById('calendarBody');
-        tbody.innerHTML = '';
-        academicCalendar.forEach(item => {
-            const rowStyle = item.highlight ? 'style="background-color: var(--course-added-bg); font-weight: bold;"' : '';
-            tbody.innerHTML += `
-                <tr ${rowStyle}>
-                    <td><strong>${item.date}</strong></td>
-                    <td style="text-align: left; padding-left: 15px;">${item.event}</td>
-                </tr>
+    // --- FULL CALENDAR LOGIC ---
+    // Start view on February 2026 (Start of Spring Sem activities roughly)
+    let currentCalYear = 2026;
+    let currentCalMonth = 1; // 0-indexed (0=Jan, 1=Feb, 2=Mar...)
+
+    function renderFullCalendar() {
+        const daysContainer = document.getElementById('calendar-days');
+        const monthYearDisplay = document.getElementById('month-year-display');
+        daysContainer.innerHTML = '';
+        
+        const firstDay = new Date(currentCalYear, currentCalMonth, 1).getDay();
+        const daysInMonth = new Date(currentCalYear, currentCalMonth + 1, 0).getDate();
+        
+        const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        monthYearDisplay.innerText = `${monthNames[currentCalMonth]} ${currentCalYear}`;
+        
+        // Render empty offset cells
+        for (let i = 0; i < firstDay; i++) {
+            daysContainer.innerHTML += `<div class="calendar-day empty"></div>`;
+        }
+        
+        // Render days
+        for (let day = 1; day <= daysInMonth; day++) {
+            // Formatting Date to YYYY-MM-DD for comparison
+            const m = String(currentCalMonth + 1).padStart(2, '0');
+            const d = String(day).padStart(2, '0');
+            const currentCellDate = `${currentCalYear}-${m}-${d}`;
+            
+            let eventsHTML = '';
+            
+            // Find overlapping events for this cell's date
+            academicEvents.forEach(evt => {
+                if (currentCellDate >= evt.start && currentCellDate <= evt.end) {
+                    let typeClass = '';
+                    if (evt.type === 'holiday') typeClass = 'event-holiday';
+                    if (evt.type === 'exam') typeClass = 'event-exam';
+                    
+                    eventsHTML += `<div class="event-badge ${typeClass}">${evt.title}</div>`;
+                }
+            });
+            
+            daysContainer.innerHTML += `
+                <div class="calendar-day">
+                    <span class="day-num">${day}</span>
+                    ${eventsHTML}
+                </div>
             `;
-        });
+        }
     }
 
-    // Init
+    function changeMonth(direction) {
+        currentCalMonth += direction;
+        if (currentCalMonth < 0) { currentCalMonth = 11; currentCalYear--; }
+        if (currentCalMonth > 11) { currentCalMonth = 0; currentCalYear++; }
+        renderFullCalendar();
+    }
+
+    // --- INIT ---
     window.onload = function() {
         initGrid();
         addCourseRow(); addCourseRow(); addCourseRow();
-        renderCalendar();
+        renderFullCalendar();
         document.addEventListener('click', e => {
             if (!e.target.closest('.search-box')) document.getElementById('suggestions').style.display = 'none';
         });
