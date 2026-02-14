@@ -273,6 +273,7 @@
     <div class="nav-buttons">
         <button class="nav-btn active" onclick="switchTab('exam')" id="btn-exam">Exam Routine</button>
         <button class="nav-btn" onclick="switchTab('cgpa')" id="btn-cgpa">CGPA Calc</button>
+        <button class="nav-btn" onclick="switchTab('calendar')" id="btn-calendar">Calendar</button>
         <button class="nav-btn" onclick="toggleTheme()" id="btn-theme">🌙</button>
     </div>
 </nav>
@@ -344,6 +345,22 @@
             <div>Total CGPA: <span class="gpa-value" id="totalCGPA">0.00</span></div>
             <p>Total Credits: <span id="totalCreditsDisplay">0</span></p>
         </div>
+    </div>
+
+    <div id="calendar-section" class="tool-section">
+        <h1>Academic Calendar</h1>
+        <p class="subtitle">Spring 2026 | Key Dates & Deadlines</p>
+
+        <table class="routine-table">
+            <thead>
+                <tr>
+                    <th style="width: 25%">Date</th>
+                    <th style="width: 75%">Event Details</th>
+                </tr>
+            </thead>
+            <tbody id="calendarBody">
+                </tbody>
+        </table>
     </div>
 
 </div>
@@ -423,6 +440,25 @@
         { day: 7, time: 3, codes: ["CSE 4495", "CSE 495"], name: "Software Testing & QA", keywords: ["sqa", "testing"] },
         { day: 7, time: 3, codes: ["PHY 2105", "PHY 105"], name: "Physics", keywords: ["phy", "physics"] },
         { day: 7, time: 3, codes: ["DS 3881"], name: "DS Elective", keywords: [] }
+    ];
+
+    // --- ACADEMIC CALENDAR DATA ---
+    const academicCalendar = [
+        { date: "Feb 23, 2026", event: "Last day of Course Advising & Registration without Fine" },
+        { date: "Mar 2, 2026", event: "Last day to drop course(s) with 100% adjustable refund" },
+        { date: "Mar 9, 2026", event: "Last day to apply for Grade Change (Fall 2025)" },
+        { date: "Mar 10, 2026", event: "Last day to drop course(s) with 50% adjustable refund" },
+        { date: "Mar 15, 2026", event: "Last day of Course Advising & Registration with Fine of Tk. 500" },
+        { date: "Mar 27, 2026", event: "Holiday: Shab-e-Qadr / Eid-ul-Fitr / Independence Day", highlight: true },
+        { date: "Apr 13, 2026", event: "Make-up class: Regular Tuesday Classes" },
+        { date: "Apr 18 - 24, 2026", event: "Mid-Term Exams", highlight: true },
+        { date: "Apr 25, 2026", event: "Regular Tuesday/Wednesday Classes" },
+        { date: "May 12, 2026", event: "Last date of 2nd installment" },
+        { date: "May 20, 2026", event: "Holiday: Eid-ul-Adha", highlight: true },
+        { date: "Jun 14, 2026", event: "Last date of 3rd installment" },
+        { date: "Jun 20, 2026", event: "Classes suspended for Exam preparation" },
+        { date: "Jun 21, 2026", event: "Final Exams Begin", highlight: true },
+        { date: "Jul 7, 2026", event: "Summer 2026 Trimester Begins" }
     ];
 
     // --- APP LOGIC ---
@@ -609,19 +645,12 @@
                 if (isRetake) {
                     const oldGrade = parseFloat(row.querySelector(".c-grade-old").value);
                     
-                    // Logic: Remove old influence, add new influence
-                    // Case A: Improving a passed course (Old Grade > 0)
-                    // -> Credits don't increase, only points balance changes.
-                    // Case B: Retaking a failed course (Old Grade == 0)
-                    // -> Credits INCREASE (since they weren't earned before), points add up normally.
-                    
                     totalPoints = totalPoints - (oldGrade * crd) + (newGrade * crd);
                     
                     if (oldGrade === 0.00) {
                         // Previous F: We gain new credits now
                         totalCredits += crd;
                     }
-                    // Else: We already had these credits in 'prevCredits', so don't add them again.
                     
                 } else {
                     // Fresh Course
@@ -646,10 +675,26 @@
         document.getElementById("resultBox").style.display = "block";
     }
 
+    // --- CALENDAR LOGIC ---
+    function renderCalendar() {
+        const tbody = document.getElementById('calendarBody');
+        tbody.innerHTML = '';
+        academicCalendar.forEach(item => {
+            const rowStyle = item.highlight ? 'style="background-color: var(--course-added-bg); font-weight: bold;"' : '';
+            tbody.innerHTML += `
+                <tr ${rowStyle}>
+                    <td><strong>${item.date}</strong></td>
+                    <td style="text-align: left; padding-left: 15px;">${item.event}</td>
+                </tr>
+            `;
+        });
+    }
+
     // Init
     window.onload = function() {
         initGrid();
         addCourseRow(); addCourseRow(); addCourseRow();
+        renderCalendar();
         document.addEventListener('click', e => {
             if (!e.target.closest('.search-box')) document.getElementById('suggestions').style.display = 'none';
         });
