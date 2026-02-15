@@ -328,7 +328,7 @@ function uploadFile(file) {
         const formData = new FormData();
         formData.append('file', file);
         // Point this to your Render backend
-        fetch('https://your-auction-backend.onrender.com/upload', { 
+        fetch('https://auction-socket-39c2.onrender.com/upload', { 
             method: 'POST', 
             body: formData 
         }).then(r=>r.json()).then(d=>resolve(d.url)).catch(reject);
