@@ -273,28 +273,36 @@
         .calendar-controls button:hover { background: var(--secondary-color); }
         .calendar-controls h2 { margin: 0; color: var(--secondary-color); }
 
-        .calendar-wrapper { border-radius: 8px; overflow: hidden; border: 1px solid var(--border-color); }
+                .calendar-wrapper { border-radius: 8px; overflow-x: auto; border: 1px solid var(--border-color); }
+        
         .calendar-grid-header {
             display: grid; grid-template-columns: repeat(7, 1fr); 
             background: var(--table-header-bg); color: var(--table-header-text); 
             text-align: center; font-weight: bold; padding: 12px 0;
+            min-width: 650px; /* <--- ADDED THIS */
         }
+        
         .calendar-grid {
             display: grid; grid-template-columns: repeat(7, 1fr); 
-            background: var(--border-color); gap: 1px; /* Creates borders between cells */
+            background: var(--border-color); gap: 1px;
+            min-width: 650px; /* <--- ADDED THIS */
         }
+
         .calendar-day {
             background: var(--bg-container); min-height: 100px; 
             padding: 8px; display: flex; flex-direction: column; gap: 4px;
         }
         .calendar-day.empty { background: var(--bg-body); }
         .day-num { font-weight: bold; font-size: 1.1em; color: var(--text-muted); text-align: right; display: block; margin-bottom: 5px; }
-        
-        .event-badge {
+                .event-badge {
             font-size: 0.75em; padding: 5px 8px; border-radius: 4px; 
             background-color: var(--course-added-bg); border-left: 3px solid var(--primary-color);
             color: var(--text-main); font-weight: bold; line-height: 1.2;
+            word-wrap: break-word; /* <--- NEW: Fixes text overflow */
+            overflow-wrap: break-word; /* <--- NEW */
+            white-space: normal; /* <--- NEW */
         }
+
         .event-holiday { background-color: var(--clash-bg); border-left-color: var(--clash-border); color: #d32f2f; }
         .event-exam { background-color: var(--same-day-bg); border-left-color: var(--same-day-border); color: #b08100; }
         body.dark-mode .event-exam { color: #ffca28; }
@@ -765,6 +773,7 @@
 
 </body>
 </html>
+
 
 
 
