@@ -302,9 +302,12 @@ button.small { padding: 4px 10px; font-size: 11px; }
   <audio id="hammerAudio" src="/hammer.wav"></audio>
 </div>
 
-<script src="/socket.io/socket.io.js"></script>
+<script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
 <script>
-const socket = io();
+// Replace the URL with your actual Render backend link
+const socket = io("https://auction-socket-39c2.onrender.com", {
+    transports: ["websocket"]
+});
 let CURRENT_USER = { role: null, teamId: null, hostId: null };
 let STATE = { teams: [], categories: [], playersSnapshot: {}, activeBids: {}, soldPrices: {}, config: { impactAmount: 0 } };
 let pendingSold = null, activePlayer = null;
@@ -324,7 +327,11 @@ function uploadFile(file) {
     return new Promise((resolve, reject) => {
         const formData = new FormData();
         formData.append('file', file);
-        fetch('/upload', { method: 'POST', body: formData }).then(r=>r.json()).then(d=>resolve(d.url)).catch(reject);
+        // Point this to your Render backend
+        fetch('https://your-auction-backend.onrender.com/upload', { 
+            method: 'POST', 
+            body: formData 
+        }).then(r=>r.json()).then(d=>resolve(d.url)).catch(reject);
     });
 }
 // Attach generic click-to-upload handler
