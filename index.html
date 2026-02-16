@@ -27,11 +27,13 @@ label { display: block; margin-bottom: 6px; color: var(--muted); font-size: 11px
 
 input, select, textarea { width: 100%; background: var(--glass); border: 1px solid var(--border); color: white; padding: 10px 12px; border-radius: 6px; font-size: 13px; transition: 0.2s; outline: none; }
 input:focus, textarea:focus { border-color: var(--accent); background: rgba(255,255,255,0.08); }
+input.error { border-color: var(--danger) !important; background: rgba(239, 68, 68, 0.1) !important; }
 
 button { background: var(--accent); border: none; padding: 8px 16px; color: white; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px; transition: all 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 5px; }
-button:hover { filter: brightness(1.1); transform: translateY(-1px); }
+button:hover:not(:disabled) { filter: brightness(1.1); transform: translateY(-1px); }
+button:disabled { opacity: 0.5; cursor: not-allowed; }
 button.ghost { background: transparent; border: 1px solid var(--border); }
-button.ghost:hover { background: var(--glass); }
+button.ghost:hover:not(:disabled) { background: var(--glass); }
 button.green { background: var(--success); }
 button.red { background: var(--danger); }
 button.yellow { background: var(--warning); color: #000; }
@@ -304,10 +306,16 @@ button.small { padding: 4px 10px; font-size: 11px; }
 
 <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
 <script>
-// Replace the URL with your actual Render backend link
-const socket = io("https://auction-socket-39c2.onrender.com", {
+
+// 2. DEFINE YOUR BACKEND URL HERE
+// *** IMPORTANT: Replace this with your actual Render URL once it is deployed! ***
+const BACKEND_URL = "https://auction-socket-39c2.onrender.com";
+
+// 3. Connect to the Render Server
+const socket = io(BACKEND_URL, {
     transports: ["websocket"]
 });
+
 let CURRENT_USER = { role: null, teamId: null, hostId: null };
 let STATE = { teams: [], categories: [], playersSnapshot: {}, activeBids: {}, soldPrices: {}, config: { impactAmount: 0 } };
 let pendingSold = null, activePlayer = null;
@@ -327,11 +335,11 @@ function uploadFile(file) {
     return new Promise((resolve, reject) => {
         const formData = new FormData();
         formData.append('file', file);
-        // Point this to your Render backend
-        fetch('https://auction-socket-39c2.onrender.com/upload', { 
-            method: 'POST', 
-            body: formData 
-        }).then(r=>r.json()).then(d=>resolve(d.url)).catch(reject);
+        // 4. Point the fetch request to Render, AND prefix the returned URL so Vercel can display it!
+        fetch(`${BACKEND_URL}/upload`, { method: 'POST', body: formData })
+            .then(r => r.json())
+            .then(d => resolve(BACKEND_URL + d.url)) 
+            .catch(reject);
     });
 }
 // Attach generic click-to-upload handler
@@ -358,13 +366,14 @@ function setupFileUpload(triggerEl, callback) {
 
 // --- APP LOGIC ---
 window.switchTab = (tab) => { document.querySelectorAll('.tab').forEach(t => t.classList.remove('active')); document.querySelector(`.tab[onclick="switchTab('${tab}')"]`).classList.add('active'); document.getElementById('managerForm').classList.toggle('hidden', tab !== 'manager'); document.getElementById('participantForm').classList.toggle('hidden', tab !== 'participant'); };
-window.managerLogin = () => { const u = document.getElementById('mUser').value, p = document.getElementById('mPass').value; if(u && p) socket.emit('manager:login', { username: u, password: p }); };
-window.managerRegister = () => { const u = document.getElementById('mUser').value, p = document.getElementById('mPass').value; if(u && p) socket.emit('manager:register', { username: u, password: p }); };
-window.connectToHost = () => { const h = document.getElementById('pHostId').value; if(h) socket.emit('participant:connect', h); };
+window.managerLogin = () => { const u = document.getElementById('mUser').value.trim(), p = document.getElementById('mPass').value; if(u && p) socket.emit('manager:login', { username: u, password: p }); };
+window.managerRegister = () => { const u = document.getElementById('mUser').value.trim(), p = document.getElementById('mPass').value; if(u && p) socket.emit('manager:register', { username: u, password: p }); };
+window.connectToHost = () => { const h = document.getElementById('pHostId').value.trim(); if(h) socket.emit('participant:connect', h); };
 window.toggleTeamPass = () => { const isTeam = document.getElementById('loginRole').value === 'team'; document.getElementById('teamSelectGroup').classList.toggle('hidden', !isTeam); document.getElementById('passGroup').classList.toggle('hidden', !isTeam); };
 window.enterAuction = () => { const role = document.getElementById('loginRole').value, teamId = document.getElementById('loginTeamId').value, pass = document.getElementById('loginPass').value; socket.emit('team:login', { hostId: CURRENT_USER.hostId, teamId, password: pass, role }); };
 window.previewTeamLogo = () => { const teamId = document.getElementById('loginTeamId').value, team = STATE.teams.find(t => t.id === teamId), img = document.getElementById('loginTeamLogo'); if(team && team.logo) { img.src = team.logo; img.style.display = 'block'; } else { img.style.display = 'none'; } };
 window.activateImpact = (c, n) => { if(confirm('Activate Impact Power? +Purse Amount. One time use.')) socket.emit('team:activateImpact', { teamId: CURRENT_USER.teamId, category: c, playerName: n }); };
+document.getElementById('clearLog').onclick = () => { document.getElementById('log').innerHTML = ''; };
 
 // SOCKET EVENTS
 socket.on('auth:portal_error', msg => document.getElementById('portalMsg').textContent = msg);
@@ -374,7 +383,7 @@ socket.on('init:teams_available', data => { CURRENT_USER.hostId = data.hostId; c
 socket.on('auction:enter', data => { CURRENT_USER.role = data.role; CURRENT_USER.teamId = data.teamId; STATE = data.state; teamAuthOverlay.classList.add('hidden'); appContainer.classList.remove('hidden'); setupUI(); renderAll(); });
 socket.on('auth:team_error', msg => document.getElementById('teamAuthMsg').textContent = msg);
 socket.on('state:updated', newState => { STATE = newState; renderAll(); if(CURRENT_USER.role === 'admin') { renderTeamConfigForm(); document.getElementById('configImpact').value = STATE.config.impactAmount || 0; } if(activePlayer) { const key = `${activePlayer.category}:${activePlayer.name}`; updatePopupPrice(STATE.activeBids[key] || activePlayer.base); } });
-socket.on('player:bid', pl => { const el = getPlayerEl(pl.category, pl.name); if(el) { el.dataset.price = pl.price; el.querySelector('.price').textContent = pl.price; el.classList.add('bidding','has-bid'); setTimeout(()=>el.classList.remove('bidding'), 300); } if(activePlayer && activePlayer.name === pl.name) updatePopupPrice(pl.price); log(`BID: ${pl.name} (${pl.category}) -> ${pl.price}`); });
+socket.on('player:bid', pl => { const el = getPlayerEl(pl.category, pl.name); if(el) { el.dataset.price = pl.price; el.querySelector('.price').textContent = pl.price; el.classList.add('bidding','has-bid'); setTimeout(()=>el.classList.remove('bidding'), 300); } if(activePlayer && activePlayer.name === pl.name) updatePopupPrice(pl.price); log(`BID: ${pl.name} (${pl.category}) -> ৳${pl.price}`); });
 socket.on('popup:open', player => { 
     activePlayer = player; 
     document.getElementById('playerPopup').classList.remove('hidden'); 
@@ -411,16 +420,70 @@ socket.on('player:sold', data => {
     if(el) { el.classList.add('sold'); el.classList.remove('has-bid'); el.querySelector('.actions').innerHTML = `<div class="badge" style="background:var(--accent); color:white">Sold: ${t ? t.name : teamId}</div>`; } 
     renderScoreboard(); 
     if(CURRENT_USER.role==='team') renderMyTeam(); 
-    log(`SOLD: ${name} to ${t ? t.name : teamId} for ${price}`); 
+    log(`SOLD: ${name} to ${t ? t.name : teamId} for ৳${price}`); 
 });
 socket.on('admin:toast', d => showToast(d.msg));
 
 // UI Renderers
 function setupUI() { document.getElementById('roleDisplay').textContent = `Host: ${CURRENT_USER.hostId} | ${CURRENT_USER.role.toUpperCase()}`; if(CURRENT_USER.role === 'admin') { document.getElementById('adminConfigCard').classList.remove('hidden'); document.getElementById('btnResetSystem').classList.remove('hidden'); document.getElementById('btnExportAdmin').classList.remove('hidden'); renderTeamConfigForm(); document.getElementById('configImpact').value = STATE.config.impactAmount || 0; } else { document.getElementById('myTeamCard').classList.remove('hidden'); const myTeam = STATE.teams.find(t => t.id === CURRENT_USER.teamId); if(myTeam && myTeam.logo) { const logoEl = document.getElementById('headerTeamLogo'); logoEl.src = myTeam.logo; logoEl.classList.remove('hidden'); } } }
-function renderAll() { categoriesContainer.innerHTML = ''; if(STATE.categories.length === 0) categoriesContainer.innerHTML = '<div style="padding:10px;color:var(--muted)">No categories.</div>'; STATE.categories.forEach(cat => { const div = document.createElement('div'); let header = `<span class="badge">Base: ${cat.base} | Inc: ${cat.increment}</span>`; if(CURRENT_USER.role === 'admin') header += `<button class="red small" onclick="deleteCat('${cat.id}')" style="margin-left:5px">X</button>`; div.innerHTML = `<div style="display:flex;justify-content:space-between;margin-bottom:5px;"><label>${cat.id}</label><div>${header}</div></div>${CURRENT_USER.role === 'admin' ? `<textarea id="ta-${cat.id}" class="cat-ta" placeholder="Enter players (one per line)..."></textarea><div style="margin-bottom:10px"><button onclick="saveCat('${cat.id}')" class="ghost small">Save List</button> <button onclick="clearCat('${cat.id}')" class="ghost small">Clear</button></div>` : ''}<div class="players" id="playersList-${cat.id}"></div>`; categoriesContainer.appendChild(div); renderCategoryPlayers(cat.id, STATE.playersSnapshot[cat.id] || []); if(CURRENT_USER.role === 'admin') { const ta = div.querySelector('textarea'); if(document.activeElement !== ta && STATE.playersSnapshot[cat.id]) ta.value = STATE.playersSnapshot[cat.id].map(p=>p.name).join('\n'); } }); renderScoreboard(); if(CURRENT_USER.role==='team') renderMyTeam(); }
-function renderCategoryPlayers(catId, players) { const container = document.getElementById(`playersList-${catId}`); if(!container) return; container.innerHTML = ''; const catConfig = STATE.categories.find(c => c.id === catId); players.forEach(p => { let isSold = false, soldTo = null; STATE.teams.forEach(t => { if(t.purchases && t.purchases[catId] === p.name) { isSold=true; soldTo=t.name; }}); const el = document.createElement('div'); el.dataset.name = p.name; el.className = `player ${isSold ? 'sold' : ''}`; const key = `${catId}:${p.name}`; const displayPrice = STATE.activeBids[key] || STATE.soldPrices[key] || p.price || catConfig.base; el.dataset.price = displayPrice; if(!isSold) { el.style.cursor = 'pointer'; el.onclick = (e) => { if(e.target.tagName === 'BUTTON') return; if(CURRENT_USER.role === 'admin') socket.emit('admin:select_player', { category: catId, name: p.name, base: catConfig.base, currentPrice: displayPrice, image: p.image }); }; } let actionHTML = ''; if(isSold) actionHTML = `<div class="badge" style="background:var(--accent);color:white">Sold: ${soldTo}</div>`; else if(CURRENT_USER.role === 'admin') actionHTML = `<button class="yellow small" title="Reset Player" onclick="resetPlayer('${catId}','${p.name}')">↺</button>`; else if(CURRENT_USER.role === 'team') { actionHTML = `<button class="btn-bid-req ghost small">Bid Req</button>`; const t = STATE.teams.find(x => x.id === CURRENT_USER.teamId); if(t && !t.impactUsed) actionHTML += `<button class="purple small" style="margin-left:4px" onclick="activateImpact('${catId}','${p.name}')" title="Use Impact">⚡</button>`; } el.innerHTML = `<div class="left"><div class="badge">${catId}</div><div class="name">${p.name}</div></div><div class="right" style="display:flex;gap:8px;align-items:center"><div class="price">${displayPrice}</div><div class="actions">${actionHTML}</div></div>`; if(CURRENT_USER.role === 'team' && !isSold) { const btn = el.querySelector('.btn-bid-req'); if(btn) btn.onclick = () => { socket.emit('bid:request', { category: catId, playerName: p.name, teamName: getMyTeamName() }); btn.textContent = 'Requested'; }; } container.appendChild(el); }); }
 
-// Updated Scoreboard with better default display
+function renderAll() { 
+    categoriesContainer.innerHTML = ''; 
+    if(STATE.categories.length === 0) categoriesContainer.innerHTML = '<div style="padding:10px;color:var(--muted)">No categories.</div>'; 
+    STATE.categories.forEach(cat => { 
+        const div = document.createElement('div'); 
+        let header = `<span class="badge">Base: ${cat.base} | Inc: ${cat.increment}</span>`; 
+        if(CURRENT_USER.role === 'admin') header += `<button class="red small" onclick="deleteCat('${cat.id}')" style="margin-left:5px">X</button>`; 
+        div.innerHTML = `<div style="display:flex;justify-content:space-between;margin-bottom:5px;"><label>${cat.id}</label><div>${header}</div></div>${CURRENT_USER.role === 'admin' ? `<textarea id="ta-${cat.id}" class="cat-ta" placeholder="Enter players (one per line)..."></textarea><div style="margin-bottom:10px"><button onclick="saveCat('${cat.id}')" class="ghost small">Save List</button> <button onclick="clearCat('${cat.id}')" class="ghost small">Clear</button></div>` : ''}<div class="players" id="playersList-${cat.id}"></div>`; 
+        categoriesContainer.appendChild(div); 
+        renderCategoryPlayers(cat.id, STATE.playersSnapshot[cat.id] || []); 
+        if(CURRENT_USER.role === 'admin') { 
+            const ta = div.querySelector('textarea'); 
+            if(document.activeElement !== ta && STATE.playersSnapshot[cat.id]) ta.value = STATE.playersSnapshot[cat.id].map(p=>p.name).join('\n'); 
+        } 
+    }); 
+    renderScoreboard(); 
+    if(CURRENT_USER.role==='team') renderMyTeam(); 
+}
+
+function renderCategoryPlayers(catId, players) { 
+    const container = document.getElementById(`playersList-${catId}`); 
+    if(!container) return; 
+    container.innerHTML = ''; 
+    const catConfig = STATE.categories.find(c => c.id === catId); 
+    players.forEach(p => { 
+        let isSold = false, soldTo = null; 
+        STATE.teams.forEach(t => { if(t.purchases && t.purchases[catId] === p.name) { isSold=true; soldTo=t.name; }}); 
+        const el = document.createElement('div'); 
+        el.dataset.name = p.name; 
+        el.className = `player ${isSold ? 'sold' : ''}`; 
+        const key = `${catId}:${p.name}`; 
+        const displayPrice = STATE.activeBids[key] || STATE.soldPrices[key] || p.price || catConfig.base; 
+        el.dataset.price = displayPrice; 
+        if(!isSold) { 
+            el.style.cursor = 'pointer'; 
+            el.onclick = (e) => { 
+                if(e.target.tagName === 'BUTTON') return; 
+                if(CURRENT_USER.role === 'admin') socket.emit('admin:select_player', { category: catId, name: p.name, base: catConfig.base, currentPrice: displayPrice, image: p.image }); 
+            }; 
+        } 
+        let actionHTML = ''; 
+        if(isSold) actionHTML = `<div class="badge" style="background:var(--accent);color:white">Sold: ${soldTo}</div>`; 
+        else if(CURRENT_USER.role === 'admin') actionHTML = `<button class="yellow small" title="Reset Player" onclick="resetPlayer('${catId}','${p.name}')">↺</button>`; 
+        else if(CURRENT_USER.role === 'team') { 
+            actionHTML = `<button class="btn-bid-req ghost small">Bid Req</button>`; 
+            const t = STATE.teams.find(x => x.id === CURRENT_USER.teamId); 
+            if(t && !t.impactUsed) actionHTML += `<button class="purple small" style="margin-left:4px" onclick="activateImpact('${catId}','${p.name}')" title="Use Impact">⚡</button>`; 
+        } 
+        el.innerHTML = `<div class="left"><div class="badge">${catId}</div><div class="name">${p.name}</div></div><div class="right" style="display:flex;gap:8px;align-items:center"><div class="price">${displayPrice}</div><div class="actions">${actionHTML}</div></div>`; 
+        if(CURRENT_USER.role === 'team' && !isSold) { 
+            const btn = el.querySelector('.btn-bid-req'); 
+            if(btn) btn.onclick = () => { socket.emit('bid:request', { category: catId, playerName: p.name, teamName: getMyTeamName() }); btn.textContent = 'Requested'; }; 
+        } 
+        container.appendChild(el); 
+    }); 
+}
+
 function renderScoreboard() { 
     scoreboardEl.innerHTML = ''; 
     STATE.teams.forEach(t => { 
@@ -439,7 +502,18 @@ function renderScoreboard() {
     }); 
 }
 
-function renderMyTeam() { const t = STATE.teams.find(x => x.id === CURRENT_USER.teamId); const div = document.getElementById('myTeamContent'); if(t) { let html = `<div style="font-size:20px;font-weight:bold;margin-bottom:10px;color:var(--success)">Purse: ৳ ${t.purse}</div>`; if(t.impactUsed) html += `<div class="small" style="color:var(--accent);margin-bottom:5px">⚡ Impact Active</div>`; html += `<strong>My Purchases:</strong><div style="margin-top:5px;display:flex;flex-wrap:wrap;gap:5px">`; if(t.purchases) Object.entries(t.purchases).forEach(([c,n]) => html += `<span class="badge">[${c}] ${n}</span>`); html+='</div>'; div.innerHTML = html; } }
+function renderMyTeam() { 
+    const t = STATE.teams.find(x => x.id === CURRENT_USER.teamId); 
+    const div = document.getElementById('myTeamContent'); 
+    if(t) { 
+        let html = `<div style="font-size:20px;font-weight:bold;margin-bottom:10px;color:var(--success)">Purse: ৳ ${t.purse}</div>`; 
+        if(t.impactUsed) html += `<div class="small" style="color:var(--accent);margin-bottom:5px">⚡ Impact Active</div>`; 
+        html += `<strong>My Purchases:</strong><div style="margin-top:5px;display:flex;flex-wrap:wrap;gap:5px">`; 
+        if(t.purchases) Object.entries(t.purchases).forEach(([c,n]) => html += `<span class="badge">[${c}] ${n}</span>`); 
+        html+='</div>'; 
+        div.innerHTML = html; 
+    } 
+}
 
 function renderTeamConfigForm() { 
     teamsConfigContainer.innerHTML = ''; 
@@ -453,14 +527,13 @@ function renderTeamConfigForm() {
     }); 
 }
 
-// FIX: New Row Logic ensures drop-zone gets an ID and initializes file upload listener
+// Add row with unique drop ID
 window.addTeamInputRow = () => { 
     const row = document.createElement('div'); 
     row.className = 'team-config-row'; 
     const tempId = 'new-' + Date.now();
     row.innerHTML = `<input class="t-id" placeholder="ID"><input class="t-name" placeholder="Name"><input class="t-pass" placeholder="Pass"><input class="t-purse" type="number" value="500" placeholder="Purse"><div class="logo-drop-zone" id="drop-${tempId}"><span>Drop</span></div><div></div><div></div><button class="red small" onclick="this.parentElement.remove()">X</button>`; 
     teamsConfigContainer.appendChild(row); 
-    
     setupFileUpload(row.querySelector(`#drop-${tempId}`), (file) => {
         uploadFile(file).then(url => {
             row.querySelector('.logo-drop-zone').innerHTML = `<img src="${url}">`;
@@ -470,42 +543,129 @@ window.addTeamInputRow = () => {
 
 // Controls
 window.closePopup = () => { if(CURRENT_USER.role==='admin') socket.emit('admin:close_popup'); };
-window.adjustBid = (dir) => { if(!activePlayer) return; const cat = STATE.categories.find(c => c.id === activePlayer.category); let current = Number(document.getElementById('popupPrice').textContent), next = dir === 'inc' ? current + cat.increment : current - cat.increment; if(next >= Number(cat.base)) socket.emit('player:bid', { category: activePlayer.category, name: activePlayer.name, price: next }); };
+window.adjustBid = (dir) => { 
+    if(!activePlayer) return; 
+    const cat = STATE.categories.find(c => c.id === activePlayer.category); 
+    let current = Number(document.getElementById('popupPrice').textContent) || 0;
+    let increment = Number(cat.increment) || 0;
+    let next = dir === 'inc' ? current + increment : current - increment; 
+    // Bulletproof: Prevent negative values or values below base
+    if(next >= Number(cat.base)) socket.emit('player:bid', { category: activePlayer.category, name: activePlayer.name, price: next }); 
+};
 window.updatePopupPrice = (p) => { document.getElementById('popupPrice').textContent = p; document.getElementById('viewerPrice').textContent = p; };
 window.triggerSoldFromPopup = () => openSoldConfirmation(activePlayer.category, activePlayer.name, document.getElementById('popupPrice').textContent);
-window.saveCat = (id) => { const ta = document.getElementById(`ta-${id}`), config = STATE.categories.find(c=>c.id===id), names = ta.value.split('\n').map(s=>s.trim()).filter(Boolean); socket.emit('players:save', { category: id, players: names.map(n => ({ name: n, price: config.base })) }); showToast('Players Saved'); };
+
+window.saveCat = (id) => { 
+    const ta = document.getElementById(`ta-${id}`), config = STATE.categories.find(c=>c.id===id);
+    const names = ta.value.split('\n').map(s=>s.trim()).filter(Boolean); 
+    socket.emit('players:save', { category: id, players: names.map(n => ({ name: n, price: Number(config.base) || 0 })) }); 
+    showToast('Players Saved'); 
+};
 window.clearCat = (id) => { if(confirm('Clear?')) socket.emit('players:clear', { category: id }); };
 window.deleteCat = (id) => { if(confirm('Delete?')) socket.emit('admin:deleteCategory', { id }); };
 window.resetPlayer = (c,n) => { if(confirm('Reset?')) socket.emit('admin:resetPlayer', { category: c, name: n }); };
-document.getElementById('btnAddCat').onclick = () => { const id=document.getElementById('newCatId').value.toUpperCase(), base=document.getElementById('newCatBase').value, inc=document.getElementById('newCatInc').value; if(id && base && inc) { STATE.categories.push({ id, base: Number(base), increment: Number(inc) }); socket.emit('admin:updateConfig', { categories: STATE.categories }); } };
+
+document.getElementById('btnAddCat').onclick = () => { 
+    const id=document.getElementById('newCatId').value.trim().toUpperCase();
+    const base=Number(document.getElementById('newCatBase').value) || 0;
+    const inc=Number(document.getElementById('newCatInc').value) || 0;
+    if(id && base > 0 && inc > 0) { 
+        STATE.categories.push({ id, base, increment: inc }); 
+        socket.emit('admin:updateConfig', { categories: STATE.categories }); 
+        document.getElementById('newCatId').value = '';
+        document.getElementById('newCatBase').value = '';
+        document.getElementById('newCatInc').value = '';
+    } else {
+        showToast('❌ Error: Missing or invalid category values');
+    }
+};
+
 window.saveGlobalConfig = () => { const amt = document.getElementById('configImpact').value; socket.emit('admin:updateConfig', { impactAmount: amt }); showToast('Impact Rule Saved'); };
 window.resetImpact = (tid) => { if(confirm('Reset Impact Power?')) socket.emit('admin:resetImpact', { teamId: tid }); };
 window.resetTeam = (tid) => { if(confirm('Reset Team? (Clears purchases & purse)')) socket.emit('admin:resetTeam', { teamId: tid }); };
-document.getElementById('btnAddTeamRow').onclick = addTeamInputRow;
 
-// FIX: Grab the image source during team save and show precise toast msg
+// Bulletproof Save Logic
 document.getElementById('btnSaveTeams').onclick = () => { 
     const teams = []; 
-    document.querySelectorAll('.team-config-row').forEach(r => { 
-        const id=r.querySelector('.t-id').value;
-        const name=r.querySelector('.t-name').value;
-        const pass=r.querySelector('.t-pass').value;
-        const purse=r.querySelector('.t-purse').value;
+    const seenIds = new Set();
+    let hasError = false;
+
+    document.querySelectorAll('#teamsConfigContainer .team-config-row').forEach(r => { 
+        const idInput = r.querySelector('.t-id');
+        const nameInput = r.querySelector('.t-name');
+        const passInput = r.querySelector('.t-pass');
+        const purseInput = r.querySelector('.t-purse');
         const imgEl = r.querySelector('.logo-drop-zone img');
-        const logo = imgEl ? imgEl.src : null;
+        
+        const id = idInput ? idInput.value.trim() : "";
+        const name = nameInput ? nameInput.value.trim() : "";
+        idInput.classList.remove('error'); // Reset error styling
         
         if(id && name) {
-            teams.push({ id, name, password: pass, purse: Number(purse), logo: logo }); 
+            if (seenIds.has(id)) {
+                hasError = true;
+                idInput.classList.add('error');
+            } else {
+                seenIds.add(id);
+                teams.push({ 
+                    id: id, 
+                    name: name, 
+                    password: passInput ? passInput.value : "", 
+                    purse: purseInput ? (Number(purseInput.value) || 0) : 500, 
+                    logo: imgEl ? imgEl.src : null 
+                }); 
+            }
         }
     }); 
-    socket.emit('admin:updateConfig', { teams }); 
-    showToast('Teams Saved Successfully!'); 
+    
+    if (hasError) {
+        showToast('❌ Error: Duplicate Team IDs found. Please make them unique.');
+        return;
+    }
+
+    if(teams.length > 0) {
+        socket.emit('admin:updateConfig', { teams }); 
+        showToast('Teams Saved Successfully!'); 
+    } else {
+        showToast('No valid teams to save!');
+    }
 };
 
-document.getElementById('btnResetSystem').onclick = () => { if(confirm('WIPE DATA?')) socket.emit('admin:resetAll'); };
-function openSoldConfirmation(cat, name, price) { pendingSold = { category: cat, name, price: Number(price) }; const modal = document.getElementById('soldActionOverlay'), sel = document.getElementById('soldActionTeam'); document.getElementById('soldActionDetails').textContent = `${name} (${cat}) @ ${price}`; sel.innerHTML = ''; STATE.teams.forEach(t => { const afford = t.purse >= Number(price), has = t.purchases && t.purchases[cat]; sel.innerHTML += `<option value="${t.id}" ${(!afford || has)?'disabled':''}>${t.name} (৳${t.purse})</option>`; }); modal.classList.remove('hidden'); }
+document.getElementById('btnResetSystem').onclick = () => { if(confirm('⚠️ WARNING: This will wipe all current bids and purchases. Proceed?')) socket.emit('admin:resetAll'); };
+
+function openSoldConfirmation(cat, name, price) { 
+    const safePrice = Number(price) || 0;
+    if (safePrice <= 0) return showToast('Cannot sell for 0');
+
+    pendingSold = { category: cat, name, price: safePrice }; 
+    const modal = document.getElementById('soldActionOverlay');
+    const sel = document.getElementById('soldActionTeam'); 
+    document.getElementById('soldActionDetails').textContent = `${name} (${cat}) @ ৳${safePrice}`; 
+    sel.innerHTML = ''; 
+    
+    STATE.teams.forEach(t => { 
+        const afford = Number(t.purse) >= safePrice;
+        const has = t.purchases && t.purchases[cat]; 
+        sel.innerHTML += `<option value="${t.id}" ${(!afford || has)?'disabled':''}>${t.name} (৳${t.purse})</option>`; 
+    }); 
+    modal.classList.remove('hidden'); 
+}
+
 document.getElementById('btnCancelSold').onclick = () => document.getElementById('soldActionOverlay').classList.add('hidden');
-document.getElementById('btnConfirmSold').onclick = () => { if(document.getElementById('soldActionTeam').value) { socket.emit('player:sold', { ...pendingSold, teamId: document.getElementById('soldActionTeam').value }); document.getElementById('soldActionOverlay').classList.add('hidden'); }};
+
+// Bulletproof Double-click prevention
+document.getElementById('btnConfirmSold').onclick = (e) => { 
+    const teamId = document.getElementById('soldActionTeam').value;
+    if(teamId) { 
+        e.target.disabled = true; // Lock button
+        socket.emit('player:sold', { ...pendingSold, teamId }); 
+        setTimeout(() => {
+            e.target.disabled = false; // Unlock after delay
+            document.getElementById('soldActionOverlay').classList.add('hidden'); 
+        }, 500);
+    }
+};
+
 const dlCSV = () => { let r=[["Category","Name","Base","Sold","Status","Buyer"]]; STATE.categories.forEach(c => { (STATE.playersSnapshot[c.id]||[]).forEach(p => { let s="Unsold", b="-", sp=c.base, t = STATE.teams.find(x => x.purchases && x.purchases[c.id] === p.name); if(t) { s="Sold"; b=t.name; sp=STATE.soldPrices[`${c.id}:${p.name}`]; } r.push([c.id, p.name, c.base, sp, s, b]); }); }); const link = document.createElement("a"); link.href = "data:text/csv;charset=utf-8," + encodeURI(r.map(e=>e.join(",")).join("\n")); link.download = "auction.csv"; link.click(); };
 document.getElementById('btnExportAdmin').onclick = dlCSV; document.getElementById('btnExportTeam').onclick = dlCSV;
 function getPlayerEl(c,n) { const l=document.getElementById(`playersList-${c}`); return l ? Array.from(l.children).find(e=>e.dataset.name===n) : null; }
