@@ -520,21 +520,21 @@ function renderTeamConfigForm() {
     STATE.teams.forEach(t => { 
         const row = document.createElement('div'); row.className = 'team-config-row'; 
         const logoHtml = t.logo ? `<img src="${t.logo}">` : `<span style="font-size:10px;color:var(--muted)">Drop</span>`; 
-        row.innerHTML = `<input class="t-id" value="${t.id}" placeholder="ID"><input class="t-name" value="${t.name}" placeholder="Name"><input class="t-pass" value="${t.password||''}" placeholder="Pass"><input class="t-purse" type="number" value="${t.purse}" placeholder="Purse"><div class="logo-drop-zone" id="drop-${t.id}">${logoHtml}</div><button class="purple small" onclick="resetImpact('${t.id}')" title="Reset Impact">⚡</button><button class="yellow small" onclick="resetTeam('${t.id}')" title="Reset Team">↺</button><button class="red small" onclick="this.parentElement.remove()">X</button>`; 
+        // FIX: Removed ID attribute from drop-zone to prevent CSS selector crash on spaces
+        row.innerHTML = `<input class="t-id" value="${t.id}" placeholder="ID"><input class="t-name" value="${t.name}" placeholder="Name"><input class="t-pass" value="${t.password||''}" placeholder="Pass"><input class="t-purse" type="number" value="${t.purse}" placeholder="Purse"><div class="logo-drop-zone">${logoHtml}</div><button class="purple small" onclick="resetImpact('${t.id}')" title="Reset Impact">⚡</button><button class="yellow small" onclick="resetTeam('${t.id}')" title="Reset Team">↺</button><button class="red small" onclick="this.parentElement.remove()">X</button>`; 
         teamsConfigContainer.appendChild(row); 
-        // Attach Upload
-        setupFileUpload(row.querySelector(`#drop-${t.id}`), (file) => uploadFile(file).then(url => socket.emit('admin:setTeamLogo', { teamId: t.id, logoUrl: url }))); 
+        // FIX: Target drop-zone safely by scope, no IDs required
+        setupFileUpload(row.querySelector('.logo-drop-zone'), (file) => uploadFile(file).then(url => socket.emit('admin:setTeamLogo', { teamId: t.id, logoUrl: url }))); 
     }); 
 }
 
-// Add row with unique drop ID
+// FIX: Add row uses the same safe scoping for drop-zone
 window.addTeamInputRow = () => { 
     const row = document.createElement('div'); 
     row.className = 'team-config-row'; 
-    const tempId = 'new-' + Date.now();
-    row.innerHTML = `<input class="t-id" placeholder="ID"><input class="t-name" placeholder="Name"><input class="t-pass" placeholder="Pass"><input class="t-purse" type="number" value="500" placeholder="Purse"><div class="logo-drop-zone" id="drop-${tempId}"><span>Drop</span></div><div></div><div></div><button class="red small" onclick="this.parentElement.remove()">X</button>`; 
+    row.innerHTML = `<input class="t-id" placeholder="ID"><input class="t-name" placeholder="Name"><input class="t-pass" placeholder="Pass"><input class="t-purse" type="number" value="500" placeholder="Purse"><div class="logo-drop-zone"><span>Drop</span></div><div></div><div></div><button class="red small" onclick="this.parentElement.remove()">X</button>`; 
     teamsConfigContainer.appendChild(row); 
-    setupFileUpload(row.querySelector(`#drop-${tempId}`), (file) => {
+    setupFileUpload(row.querySelector('.logo-drop-zone'), (file) => {
         uploadFile(file).then(url => {
             row.querySelector('.logo-drop-zone').innerHTML = `<img src="${url}">`;
         });
@@ -549,7 +549,6 @@ window.adjustBid = (dir) => {
     let current = Number(document.getElementById('popupPrice').textContent) || 0;
     let increment = Number(cat.increment) || 0;
     let next = dir === 'inc' ? current + increment : current - increment; 
-    // Bulletproof: Prevent negative values or values below base
     if(next >= Number(cat.base)) socket.emit('player:bid', { category: activePlayer.category, name: activePlayer.name, price: next }); 
 };
 window.updatePopupPrice = (p) => { document.getElementById('popupPrice').textContent = p; document.getElementById('viewerPrice').textContent = p; };
@@ -599,12 +598,14 @@ document.getElementById('btnSaveTeams').onclick = () => {
         
         const id = idInput ? idInput.value.trim() : "";
         const name = nameInput ? nameInput.value.trim() : "";
-        idInput.classList.remove('error'); // Reset error styling
+        
+        // FIX: Ensure classList.remove is safe against null elements
+        if (idInput) idInput.classList.remove('error'); 
         
         if(id && name) {
             if (seenIds.has(id)) {
                 hasError = true;
-                idInput.classList.add('error');
+                if (idInput) idInput.classList.add('error');
             } else {
                 seenIds.add(id);
                 teams.push({ 
@@ -623,12 +624,9 @@ document.getElementById('btnSaveTeams').onclick = () => {
         return;
     }
 
-    if(teams.length > 0) {
-        socket.emit('admin:updateConfig', { teams }); 
-        showToast('Teams Saved Successfully!'); 
-    } else {
-        showToast('No valid teams to save!');
-    }
+    // FIX: Always allow saving, even if empty, so the admin can successfully delete all teams if they want
+    socket.emit('admin:updateConfig', { teams }); 
+    showToast('Teams Saved Successfully!'); 
 };
 
 document.getElementById('btnResetSystem').onclick = () => { if(confirm('⚠️ WARNING: This will wipe all current bids and purchases. Proceed?')) socket.emit('admin:resetAll'); };
@@ -653,7 +651,6 @@ function openSoldConfirmation(cat, name, price) {
 
 document.getElementById('btnCancelSold').onclick = () => document.getElementById('soldActionOverlay').classList.add('hidden');
 
-// Bulletproof Double-click prevention
 document.getElementById('btnConfirmSold').onclick = (e) => { 
     const teamId = document.getElementById('soldActionTeam').value;
     if(teamId) { 
