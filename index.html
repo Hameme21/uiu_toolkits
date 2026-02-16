@@ -293,9 +293,11 @@ button.small { padding: 4px 10px; font-size: 11px; }
     <div style="text-align:center; transform: scale(1.2);">
       <h1 style="font-size:80px; color:var(--warning); text-shadow:0 0 60px rgba(245,158,11,0.6); margin:0; letter-spacing: 5px;">SOLD!</h1>
       <h2 id="animPlayer" style="font-size:40px; margin:20px 0; color:white;">Player Name</h2>
-      <div style="font-size:24px; color:var(--muted)">
-        Sold to <strong id="animTeam" style="color:var(--accent); font-size:30px">Team Name</strong><br>
-        for <strong id="animPrice" style="color:var(--success); font-size:40px; display:block; margin-top:10px">0</strong>
+      <div style="font-size:24px; color:var(--muted); display:flex; flex-direction:column; align-items:center;">
+        <span style="margin-bottom:15px">Sold to</span>
+        <img id="animTeamLogo" src="" style="width:100px; height:100px; border-radius:50%; object-fit:cover; border:4px solid var(--accent); display:none; margin-bottom:10px; box-shadow:0 0 30px rgba(99,102,241,0.5);">
+        <strong id="animTeam" style="color:var(--accent); font-size:30px">Team Name</strong>
+        <strong id="animPrice" style="color:var(--success); font-size:40px; display:block; margin-top:10px">0</strong>
       </div>
     </div>
   </div>
@@ -335,14 +337,13 @@ function uploadFile(file) {
     return new Promise((resolve, reject) => {
         const formData = new FormData();
         formData.append('file', file);
-        // 4. Point the fetch request to Render, AND prefix the returned URL so Vercel can display it!
         fetch(`${BACKEND_URL}/upload`, { method: 'POST', body: formData })
             .then(r => r.json())
             .then(d => resolve(BACKEND_URL + d.url)) 
             .catch(reject);
     });
 }
-// Attach generic click-to-upload handler
+
 function setupFileUpload(triggerEl, callback) {
     // Click
     triggerEl.onclick = () => {
@@ -379,7 +380,17 @@ document.getElementById('clearLog').onclick = () => { document.getElementById('l
 socket.on('auth:portal_error', msg => document.getElementById('portalMsg').textContent = msg);
 socket.on('auth:portal_success', d => { document.getElementById('portalMsg').style.color='#10b981'; document.getElementById('portalMsg').textContent = d.msg; });
 socket.on('manager:logged_in', data => { CURRENT_USER.hostId = data.username; CURRENT_USER.role = 'admin'; STATE = data.state; portal.classList.add('hidden'); appContainer.classList.remove('hidden'); setupUI(); renderAll(); });
-socket.on('init:teams_available', data => { CURRENT_USER.hostId = data.hostId; const sel = document.getElementById('loginTeamId'); sel.innerHTML = '<option value="">Select Team</option>'; data.teams.forEach(t => sel.innerHTML += `<option value="${t.id}">${t.name}</option>`); portal.classList.add('hidden'); teamAuthOverlay.classList.remove('hidden'); });
+
+socket.on('init:teams_available', data => { 
+    CURRENT_USER.hostId = data.hostId; 
+    STATE.teams = data.teams; // FIX: Ensure STATE is populated here so the previewTeamLogo works immediately!
+    const sel = document.getElementById('loginTeamId'); 
+    sel.innerHTML = '<option value="">Select Team</option>'; 
+    data.teams.forEach(t => sel.innerHTML += `<option value="${t.id}">${t.name}</option>`); 
+    portal.classList.add('hidden'); 
+    teamAuthOverlay.classList.remove('hidden'); 
+});
+
 socket.on('auction:enter', data => { CURRENT_USER.role = data.role; CURRENT_USER.teamId = data.teamId; STATE = data.state; teamAuthOverlay.classList.add('hidden'); appContainer.classList.remove('hidden'); setupUI(); renderAll(); });
 socket.on('auth:team_error', msg => document.getElementById('teamAuthMsg').textContent = msg);
 socket.on('state:updated', newState => { STATE = newState; renderAll(); if(CURRENT_USER.role === 'admin') { renderTeamConfigForm(); document.getElementById('configImpact').value = STATE.config.impactAmount || 0; } if(activePlayer) { const key = `${activePlayer.category}:${activePlayer.name}`; updatePopupPrice(STATE.activeBids[key] || activePlayer.base); } });
@@ -404,18 +415,31 @@ socket.on('popup:open', player => {
 });
 socket.on('popup:close', () => { activePlayer = null; document.getElementById('playerPopup').classList.add('hidden'); });
 socket.on('popup:update_image', data => document.getElementById('popupImg').src = data.imageUrl);
+
 socket.on('player:sold', data => { 
     const { category, name, price, teamId } = data.payload; 
     STATE.teams = data.teams; 
     document.getElementById('playerPopup').classList.add('hidden'); 
     const t = STATE.teams.find(x => x.id === teamId); 
+    
     document.getElementById('animPlayer').textContent = name; 
     document.getElementById('animTeam').textContent = t ? t.name : teamId; 
     document.getElementById('animPrice').textContent = price; 
+    
+    // UPGRADE: Show the buying team's logo directly in the animation!
+    const animLogo = document.getElementById('animTeamLogo');
+    if (t && t.logo) {
+        animLogo.src = t.logo;
+        animLogo.style.display = 'block';
+    } else {
+        animLogo.style.display = 'none';
+    }
+
     document.getElementById('soldAnimationOverlay').classList.remove('hidden'); 
     hammer.style.display='block'; hammer.classList.remove('swing'); void hammer.offsetWidth; hammer.classList.add('swing'); 
     const audio = document.getElementById('hammerAudio'); if(audio) { audio.pause(); audio.currentTime=0; audio.play().catch(e=>{}); } 
     setTimeout(() => document.getElementById('soldAnimationOverlay').classList.add('hidden'), 3500); 
+    
     const el = getPlayerEl(category, name); 
     if(el) { el.classList.add('sold'); el.classList.remove('has-bid'); el.querySelector('.actions').innerHTML = `<div class="badge" style="background:var(--accent); color:white">Sold: ${t ? t.name : teamId}</div>`; } 
     renderScoreboard(); 
@@ -425,7 +449,24 @@ socket.on('player:sold', data => {
 socket.on('admin:toast', d => showToast(d.msg));
 
 // UI Renderers
-function setupUI() { document.getElementById('roleDisplay').textContent = `Host: ${CURRENT_USER.hostId} | ${CURRENT_USER.role.toUpperCase()}`; if(CURRENT_USER.role === 'admin') { document.getElementById('adminConfigCard').classList.remove('hidden'); document.getElementById('btnResetSystem').classList.remove('hidden'); document.getElementById('btnExportAdmin').classList.remove('hidden'); renderTeamConfigForm(); document.getElementById('configImpact').value = STATE.config.impactAmount || 0; } else { document.getElementById('myTeamCard').classList.remove('hidden'); const myTeam = STATE.teams.find(t => t.id === CURRENT_USER.teamId); if(myTeam && myTeam.logo) { const logoEl = document.getElementById('headerTeamLogo'); logoEl.src = myTeam.logo; logoEl.classList.remove('hidden'); } } }
+function setupUI() { 
+    document.getElementById('roleDisplay').textContent = `Host: ${CURRENT_USER.hostId} | ${CURRENT_USER.role.toUpperCase()}`; 
+    if(CURRENT_USER.role === 'admin') { 
+        document.getElementById('adminConfigCard').classList.remove('hidden'); 
+        document.getElementById('btnResetSystem').classList.remove('hidden'); 
+        document.getElementById('btnExportAdmin').classList.remove('hidden'); 
+        renderTeamConfigForm(); 
+        document.getElementById('configImpact').value = STATE.config.impactAmount || 0; 
+    } else { 
+        document.getElementById('myTeamCard').classList.remove('hidden'); 
+        const myTeam = STATE.teams.find(t => t.id === CURRENT_USER.teamId); 
+        if(myTeam && myTeam.logo) { 
+            const logoEl = document.getElementById('headerTeamLogo'); 
+            logoEl.src = myTeam.logo; 
+            logoEl.classList.remove('hidden'); 
+        } 
+    } 
+}
 
 function renderAll() { 
     categoriesContainer.innerHTML = ''; 
@@ -512,6 +553,13 @@ function renderMyTeam() {
         if(t.purchases) Object.entries(t.purchases).forEach(([c,n]) => html += `<span class="badge">[${c}] ${n}</span>`); 
         html+='</div>'; 
         div.innerHTML = html; 
+        
+        // FIX: Update header logo instantly if changed by admin during the live auction
+        if(t.logo) {
+            const logoEl = document.getElementById('headerTeamLogo');
+            logoEl.src = t.logo;
+            logoEl.classList.remove('hidden');
+        }
     } 
 }
 
@@ -520,15 +568,12 @@ function renderTeamConfigForm() {
     STATE.teams.forEach(t => { 
         const row = document.createElement('div'); row.className = 'team-config-row'; 
         const logoHtml = t.logo ? `<img src="${t.logo}">` : `<span style="font-size:10px;color:var(--muted)">Drop</span>`; 
-        // FIX: Removed ID attribute from drop-zone to prevent CSS selector crash on spaces
         row.innerHTML = `<input class="t-id" value="${t.id}" placeholder="ID"><input class="t-name" value="${t.name}" placeholder="Name"><input class="t-pass" value="${t.password||''}" placeholder="Pass"><input class="t-purse" type="number" value="${t.purse}" placeholder="Purse"><div class="logo-drop-zone">${logoHtml}</div><button class="purple small" onclick="resetImpact('${t.id}')" title="Reset Impact">⚡</button><button class="yellow small" onclick="resetTeam('${t.id}')" title="Reset Team">↺</button><button class="red small" onclick="this.parentElement.remove()">X</button>`; 
         teamsConfigContainer.appendChild(row); 
-        // FIX: Target drop-zone safely by scope, no IDs required
         setupFileUpload(row.querySelector('.logo-drop-zone'), (file) => uploadFile(file).then(url => socket.emit('admin:setTeamLogo', { teamId: t.id, logoUrl: url }))); 
     }); 
 }
 
-// FIX: Add row uses the same safe scoping for drop-zone
 window.addTeamInputRow = () => { 
     const row = document.createElement('div'); 
     row.className = 'team-config-row'; 
@@ -583,10 +628,8 @@ window.saveGlobalConfig = () => { const amt = document.getElementById('configImp
 window.resetImpact = (tid) => { if(confirm('Reset Impact Power?')) socket.emit('admin:resetImpact', { teamId: tid }); };
 window.resetTeam = (tid) => { if(confirm('Reset Team? (Clears purchases & purse)')) socket.emit('admin:resetTeam', { teamId: tid }); };
 
-// FIX: ATTACH EVENT LISTENER FOR ADD SLOT BUTTON HERE
 document.getElementById('btnAddTeamRow').onclick = window.addTeamInputRow;
 
-// Bulletproof Save Logic
 document.getElementById('btnSaveTeams').onclick = () => { 
     const teams = []; 
     const seenIds = new Set();
@@ -602,7 +645,6 @@ document.getElementById('btnSaveTeams').onclick = () => {
         const id = idInput ? idInput.value.trim() : "";
         const name = nameInput ? nameInput.value.trim() : "";
         
-        // FIX: Ensure classList.remove is safe against null elements
         if (idInput) idInput.classList.remove('error'); 
         
         if(id && name) {
@@ -627,7 +669,6 @@ document.getElementById('btnSaveTeams').onclick = () => {
         return;
     }
 
-    // FIX: Always allow saving, even if empty, so the admin can successfully delete all teams if they want
     socket.emit('admin:updateConfig', { teams }); 
     showToast('Teams Saved Successfully!'); 
 };
@@ -657,10 +698,10 @@ document.getElementById('btnCancelSold').onclick = () => document.getElementById
 document.getElementById('btnConfirmSold').onclick = (e) => { 
     const teamId = document.getElementById('soldActionTeam').value;
     if(teamId) { 
-        e.target.disabled = true; // Lock button
+        e.target.disabled = true; 
         socket.emit('player:sold', { ...pendingSold, teamId }); 
         setTimeout(() => {
-            e.target.disabled = false; // Unlock after delay
+            e.target.disabled = false; 
             document.getElementById('soldActionOverlay').classList.add('hidden'); 
         }, 500);
     }
