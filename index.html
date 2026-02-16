@@ -583,6 +583,9 @@ window.saveGlobalConfig = () => { const amt = document.getElementById('configImp
 window.resetImpact = (tid) => { if(confirm('Reset Impact Power?')) socket.emit('admin:resetImpact', { teamId: tid }); };
 window.resetTeam = (tid) => { if(confirm('Reset Team? (Clears purchases & purse)')) socket.emit('admin:resetTeam', { teamId: tid }); };
 
+// FIX: ATTACH EVENT LISTENER FOR ADD SLOT BUTTON HERE
+document.getElementById('btnAddTeamRow').onclick = window.addTeamInputRow;
+
 // Bulletproof Save Logic
 document.getElementById('btnSaveTeams').onclick = () => { 
     const teams = []; 
