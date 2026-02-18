@@ -260,6 +260,55 @@
         .prev-grade-label { font-size: 0.8em; color: var(--text-muted); display: block; margin-bottom: 2px; }
         .retake-checkbox { width: 18px; height: 18px; cursor: pointer; }
 
+        /* --- COURSE PLANNER STYLES --- */
+        .planner-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .tri-card {
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+            transition: transform 0.2s;
+        }
+        .tri-card:hover { transform: translateY(-5px); box-shadow: var(--shadow); }
+        .tri-header {
+            color: var(--primary-color);
+            font-weight: bold;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .tri-course-list { list-style: none; padding: 0; margin: 0; }
+        .tri-course-item {
+            padding: 6px 0;
+            border-bottom: 1px dashed var(--border-color);
+            font-size: 0.9em;
+            display: flex;
+            justify-content: space-between;
+        }
+        .tri-course-item:last-child { border-bottom: none; }
+        .badge-credit {
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.75em;
+        }
+        
+        /* Dropdown specific for CGPA */
+        .planner-select-wrapper {
+            margin-bottom: 15px;
+            background: var(--course-added-bg);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--primary-color);
+        }
+
         /* --- FULL CALENDAR STYLES --- */
         .calendar-controls {
             display: flex; justify-content: space-between; align-items: center; 
@@ -273,19 +322,19 @@
         .calendar-controls button:hover { background: var(--secondary-color); }
         .calendar-controls h2 { margin: 0; color: var(--secondary-color); }
 
-                .calendar-wrapper { border-radius: 8px; overflow-x: auto; border: 1px solid var(--border-color); }
+        .calendar-wrapper { border-radius: 8px; overflow-x: auto; border: 1px solid var(--border-color); }
         
         .calendar-grid-header {
             display: grid; grid-template-columns: repeat(7, 1fr); 
             background: var(--table-header-bg); color: var(--table-header-text); 
             text-align: center; font-weight: bold; padding: 12px 0;
-            min-width: 650px; /* <--- ADDED THIS */
+            min-width: 650px; 
         }
         
         .calendar-grid {
             display: grid; grid-template-columns: repeat(7, 1fr); 
             background: var(--border-color); gap: 1px;
-            min-width: 650px; /* <--- ADDED THIS */
+            min-width: 650px; 
         }
 
         .calendar-day {
@@ -294,13 +343,11 @@
         }
         .calendar-day.empty { background: var(--bg-body); }
         .day-num { font-weight: bold; font-size: 1.1em; color: var(--text-muted); text-align: right; display: block; margin-bottom: 5px; }
-                .event-badge {
+        .event-badge {
             font-size: 0.75em; padding: 5px 8px; border-radius: 4px; 
             background-color: var(--course-added-bg); border-left: 3px solid var(--primary-color);
             color: var(--text-main); font-weight: bold; line-height: 1.2;
-            word-wrap: break-word; /* <--- NEW: Fixes text overflow */
-            overflow-wrap: break-word; /* <--- NEW */
-            white-space: normal; /* <--- NEW */
+            word-wrap: break-word; overflow-wrap: break-word; white-space: normal;
         }
 
         .event-holiday { background-color: var(--clash-bg); border-left-color: var(--clash-border); color: #d32f2f; }
@@ -324,6 +371,7 @@
         <button class="nav-btn active" onclick="switchTab('exam')" id="btn-exam">Exam Routine</button>
         <button class="nav-btn" onclick="switchTab('cgpa')" id="btn-cgpa">CGPA Calc</button>
         <button class="nav-btn" onclick="switchTab('calendar')" id="btn-calendar">Academic Calendar</button>
+        <button class="nav-btn" onclick="switchTab('planner')" id="btn-planner">Course Planner</button>
         <button class="nav-btn" onclick="toggleTheme()" id="btn-theme">🌙</button>
     </div>
 </nav>
@@ -373,13 +421,23 @@
 
         <div class="section-box">
             <span class="section-title">Current Trimester</span>
+            
+            <div class="planner-select-wrapper">
+                <label style="font-weight:bold; color:var(--primary-color);">🚀 Auto-fill Courses from Planner:</label>
+                <select id="cgpaPlannerSelect" onchange="loadFromPlanner()" style="margin-top: 8px;">
+                    <option value="">-- Select a Trimester to Load --</option>
+                    </select>
+                <small style="color:var(--text-muted); display:block; margin-top:5px;">Warning: Selecting a trimester will replace current table rows.</small>
+            </div>
+
             <table class="cgpa-table" id="courseTable">
                 <thead>
                     <tr>
                         <th style="width: 5%">#</th>
-                        <th style="width: 20%">Credits</th>
-                        <th style="width: 25%">Expected Grade</th>
-                        <th style="width: 40%">Type</th>
+                        <th style="width: 25%">Course (Optional)</th>
+                        <th style="width: 15%">Credits</th>
+                        <th style="width: 20%">Grade</th>
+                        <th style="width: 25%">Type</th>
                         <th style="width: 10%">X</th>
                     </tr>
                 </thead>
@@ -421,9 +479,101 @@
         </div>
     </div>
 
+    <div id="planner-section" class="tool-section">
+        <h1>Course Planner</h1>
+        <p class="subtitle">Recommended Roadmap for UIU CSE</p>
+        <div class="disclaimer-box">
+            💡 Tip: Go to the "CGPA Calc" tab and select your trimester to auto-load these courses!
+        </div>
+        <div id="plannerGrid" class="planner-grid">
+            </div>
+    </div>
+
 </div>
 
 <script>
+    // --- DATA: UIU CSE STANDARD CURRICULUM ---
+    const uiuCurriculum = {
+        "1st Trimester": [
+            { code: "ENG 1011", title: "Intensive English I", cr: 3.0 },
+            { code: "CSE 1111", title: "Structured Programming", cr: 3.0 },
+            { code: "CSE 1112", title: "SPL Lab", cr: 1.0 },
+            { code: "MATH 1151", title: "Fundamental Calculus", cr: 3.0 }
+        ],
+        "2nd Trimester": [
+            { code: "ENG 1013", title: "Intensive English II", cr: 3.0 },
+            { code: "CSE 1115", title: "OOP", cr: 3.0 },
+            { code: "CSE 1116", title: "OOP Lab", cr: 1.0 },
+            { code: "MATH 2183", title: "Calculus & Linear Algebra", cr: 3.0 },
+            { code: "CHEM 1011", title: "Chemistry", cr: 3.0 }
+        ],
+        "3rd Trimester": [
+            { code: "CSE 2213", title: "Discrete Mathematics", cr: 3.0 },
+            { code: "CSE 2215", title: "Data Structures & Algo I", cr: 3.0 },
+            { code: "CSE 2216", title: "DSA I Lab", cr: 1.0 },
+            { code: "PHY 2105", title: "Physics", cr: 3.0 },
+            { code: "PHY 2106", title: "Physics Lab", cr: 1.0 }
+        ],
+        "4th Trimester": [
+            { code: "CSE 2217", title: "Data Structures & Algo II", cr: 3.0 },
+            { code: "CSE 2218", title: "DSA II Lab", cr: 1.0 },
+            { code: "MATH 2201", title: "Coord Geometry & Vector", cr: 3.0 },
+            { code: "ACT 2111", title: "Accounting", cr: 3.0 },
+            { code: "CSE 1325", title: "Digital Logic Design", cr: 3.0 }
+        ],
+        "5th Trimester": [
+            { code: "CSE 3521", title: "Database Systems", cr: 3.0 },
+            { code: "CSE 3522", title: "Database Lab", cr: 1.0 },
+            { code: "CSE 2233", title: "Theory of Computation", cr: 3.0 },
+            { code: "STAT 2205", title: "Prob & Stats", cr: 3.0 },
+            { code: "EEE 2123", title: "Electronics", cr: 3.0 }
+        ],
+        "6th Trimester": [
+            { code: "CSE 3313", title: "Computer Architecture", cr: 3.0 },
+            { code: "CSE 3411", title: "System Analysis & Design", cr: 3.0 },
+            { code: "CSE 3412", title: "SAD Lab", cr: 1.0 },
+            { code: "CSE 3811", title: "Artificial Intelligence", cr: 3.0 },
+            { code: "CSE 3812", title: "AI Lab", cr: 1.0 }
+        ],
+        "7th Trimester": [
+            { code: "CSE 3711", title: "Computer Networks", cr: 3.0 },
+            { code: "CSE 3712", title: "Computer Networks Lab", cr: 1.0 },
+            { code: "CSE 4509", title: "Operating Systems", cr: 3.0 },
+            { code: "CSE 4510", title: "OS Lab", cr: 1.0 },
+            { code: "CSE 3421", title: "Software Engineering", cr: 3.0 }
+        ],
+        "8th Trimester": [
+            { code: "CSE 4325", title: "Microprocessors", cr: 3.0 },
+            { code: "CSE 4326", title: "Microprocessors Lab", cr: 1.0 },
+            { code: "CSE 4165", title: "Web Programming", cr: 3.0 },
+            { code: "CSE 4166", title: "Web Lab", cr: 1.5 },
+            { code: "BDS 1201", title: "History of BD", cr: 2.0 }
+        ],
+        "9th Trimester": [
+            { code: "CSE 4611", title: "Compiler Design", cr: 3.0 },
+            { code: "CSE 4612", title: "Compiler Lab", cr: 1.0 },
+            { code: "CSE 4000A", title: "FYP Part 1", cr: 2.0 },
+            { code: "Elective I", title: "Major Elective", cr: 3.0 },
+            { code: "SOC 2101", title: "Society & Ethics", cr: 3.0 }
+        ],
+        "10th Trimester": [
+            { code: "CSE 4621", title: "Computer Graphics", cr: 3.0 },
+            { code: "CSE 4622", title: "Graphics Lab", cr: 1.0 },
+            { code: "CSE 4000B", title: "FYP Part 2", cr: 2.0 },
+            { code: "Elective II", title: "Major Elective", cr: 3.0 }
+        ],
+        "11th Trimester": [
+            { code: "Elective III", title: "Major Elective", cr: 3.0 },
+            { code: "Elective IV", title: "Major Elective", cr: 3.0 },
+            { code: "IPE 3401", title: "Industrial Management", cr: 3.0 },
+            { code: "CSE 4000C", title: "FYP Part 3", cr: 2.0 }
+        ],
+        "12th Trimester": [
+            { code: "ECO 4101", title: "Economics", cr: 2.0 },
+            { code: "BIO 3105", title: "Biology", cr: 2.0 }
+        ]
+    };
+
     // --- DATA: SPRING 2026 ROUTINE MAPPING ---
     const rawRoutine = [
         { day: 1, time: 1, codes: ["ENG 1011", "ENG 101"], name: "Intensive English I", keywords: ["eng 1", "english"] },
@@ -488,7 +638,6 @@
     ];
 
     // --- ACADEMIC CALENDAR EVENTS DATA ---
-    // Updated directly from UIU Spring 2026 Academic Calendar PDF
     const academicEvents = [
         { start: "2026-02-23", end: "2026-02-25", title: "Registration without Fine", type: "regular" },
         { start: "2026-02-28", end: "2026-02-28", title: "Spring 2026 classes Begin", type: "regular" },
@@ -622,13 +771,15 @@
     // --- CGPA LOGIC ---
     const gradePoints = { "A":4.00, "A-":3.67, "B+":3.33, "B":3.00, "B-":2.67, "C+":2.33, "C":2.00, "C-":1.67, "D+":1.33, "D":1.00, "F":0.00 };
     
-    function addCourseRow() {
+    function addCourseRow(name = "", credit = 3.0) {
         const tbody = document.querySelector("#courseTable tbody");
         const row = document.createElement("tr");
         let opts = ""; for (let g in gradePoints) opts += `<option value="${gradePoints[g]}">${g}</option>`;
+        
         row.innerHTML = `
             <td>${tbody.rows.length + 1}</td>
-            <td><input type="number" class="c-credit" value="3" step="0.5"></td>
+            <td><input type="text" class="c-name" value="${name}" placeholder="Subject name"></td>
+            <td><input type="number" class="c-credit" value="${credit}" step="0.5"></td>
             <td><select class="c-grade-new">${opts}</select></td>
             <td>
                 <div class="retake-controls"><input type="checkbox" class="retake-checkbox" onchange="toggleRetake(this)"><span>Retake?</span></div>
@@ -661,6 +812,64 @@
         document.getElementById("totalCGPA").innerText = totalCredits ? (totalPoints / totalCredits).toFixed(2) : "0.00";
         document.getElementById("totalCreditsDisplay").innerText = totalCredits;
         document.getElementById("resultBox").style.display = "block";
+    }
+
+    // --- PLANNER LOGIC (NEW) ---
+    function initPlanner() {
+        // Populate Dropdown
+        const select = document.getElementById('cgpaPlannerSelect');
+        const plannerGrid = document.getElementById('plannerGrid');
+        
+        Object.keys(uiuCurriculum).forEach(triName => {
+            // Dropdown option
+            const option = document.createElement('option');
+            option.value = triName;
+            option.innerText = triName;
+            select.appendChild(option);
+
+            // Planner Grid Card
+            const card = document.createElement('div');
+            card.className = 'tri-card';
+            
+            let courseListHTML = '';
+            uiuCurriculum[triName].forEach(c => {
+                courseListHTML += `
+                    <li class="tri-course-item">
+                        <span><strong>${c.code}</strong> ${c.title}</span>
+                        <span class="badge-credit">${c.cr} Cr</span>
+                    </li>`;
+            });
+
+            card.innerHTML = `
+                <div class="tri-header">
+                    <span>${triName}</span>
+                </div>
+                <ul class="tri-course-list">${courseListHTML}</ul>
+            `;
+            plannerGrid.appendChild(card);
+        });
+    }
+
+    function loadFromPlanner() {
+        const triName = document.getElementById('cgpaPlannerSelect').value;
+        if (!triName) return;
+
+        // Confirm overwrite if table is not empty
+        const tbody = document.querySelector("#courseTable tbody");
+        if (tbody.children.length > 0) {
+            if(!confirm("Loading this trimester will replace your current list. Continue?")) return;
+        }
+
+        // Clear existing
+        tbody.innerHTML = '';
+
+        // Add courses from curriculum
+        const courses = uiuCurriculum[triName];
+        if (courses) {
+            courses.forEach(c => {
+                addCourseRow(c.title + ` (${c.code})`, c.cr);
+            });
+        }
     }
 
     // --- FULL CALENDAR LOGIC ---
@@ -754,8 +963,11 @@
     // --- INIT ---
     window.onload = function() {
         initGrid();
+        initPlanner(); // Initialize planner data
+        // Default rows for CGPA
         addCourseRow(); addCourseRow(); addCourseRow();
         renderFullCalendar();
+        
         document.addEventListener('click', e => {
             // Close exam suggestions
             if (!e.target.closest('#courseSearch')) {
@@ -773,9 +985,3 @@
 
 </body>
 </html>
-
-
-
-
-
-
