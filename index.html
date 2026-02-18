@@ -578,6 +578,12 @@
         ]
     };
 
+    // Flatten curriculum for search
+    let allCourses = [];
+    Object.values(uiuCurriculum).forEach(tri => {
+        tri.forEach(c => allCourses.push(c));
+    });
+
     // --- DATA: SPRING 2026 ROUTINE MAPPING ---
     const rawRoutine = [
         { day: 1, time: 1, codes: ["ENG 1011", "ENG 101"], name: "Intensive English I", keywords: ["eng 1", "english"] },
@@ -782,7 +788,10 @@
         
         row.innerHTML = `
             <td>${tbody.rows.length + 1}</td>
-            <td><input type="text" class="c-name" value="${name}" placeholder="Subject name"></td>
+            <td style="position: relative;">
+                <input type="text" class="c-name" value="${name}" placeholder="Type to search..." oninput="searchCGPACourse(this)" autocomplete="off">
+                <div class="suggestions" style="width: 100%;"></div>
+            </td>
             <td><input type="number" class="c-credit" value="${credit}" step="0.5"></td>
             <td><select class="c-grade-new">${opts}</select></td>
             <td>
@@ -791,6 +800,52 @@
             </td>
             <td><button class="btn-delete" onclick="this.closest('tr').remove(); updateRows()">✕</button></td>`;
         tbody.appendChild(row);
+    }
+
+    // --- NEW: ROW-WISE SEARCH FUNCTIONS ---
+    function searchCGPACourse(input) {
+        const val = input.value.toLowerCase();
+        const suggestionBox = input.nextElementSibling; // The div.suggestions
+        suggestionBox.innerHTML = '';
+        
+        if (val.length < 1) { 
+            suggestionBox.style.display = 'none'; 
+            return; 
+        }
+
+        // Search in flattened allCourses array
+        const matches = allCourses.filter(c => 
+            c.code.toLowerCase().includes(val) || 
+            c.title.toLowerCase().includes(val)
+        ).slice(0, 5); // Limit to 5 results
+
+        if (matches.length > 0) {
+            suggestionBox.style.display = 'block';
+            matches.forEach(match => {
+                const div = document.createElement('div');
+                div.className = 'suggestion-item';
+                div.innerHTML = `<strong>${match.code}</strong> <small>${match.title}</small>`;
+                div.onclick = () => selectCGPACourse(input, match);
+                suggestionBox.appendChild(div);
+            });
+        } else {
+            suggestionBox.style.display = 'none';
+        }
+    }
+
+    function selectCGPACourse(inputElement, courseData) {
+        // Fill Name
+        inputElement.value = `${courseData.code} : ${courseData.title}`;
+        
+        // Auto-fill Credit
+        const row = inputElement.closest('tr');
+        const creditInput = row.querySelector('.c-credit');
+        if (creditInput) {
+            creditInput.value = courseData.cr;
+        }
+        
+        // Hide Suggestions
+        inputElement.nextElementSibling.style.display = 'none';
     }
 
     function toggleRetake(checkbox) { checkbox.checked ? checkbox.closest('td').querySelector('.prev-grade-wrapper').classList.add('active') : checkbox.closest('td').querySelector('.prev-grade-wrapper').classList.remove('active'); }
@@ -983,11 +1038,17 @@
                 const calSugg = document.getElementById('calendarSuggestions');
                 if (calSugg) calSugg.style.display = 'none';
             }
+            // Close CGPA row suggestions (Generic for any .c-name input)
+            if (!e.target.closest('.c-name')) {
+                document.querySelectorAll('.suggestions').forEach(s => {
+                    if(s.id !== 'suggestions' && s.id !== 'calendarSuggestions') {
+                        s.style.display = 'none';
+                    }
+                });
+            }
         });
     };
 </script>
 
 </body>
 </html>
-
-
