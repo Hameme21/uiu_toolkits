@@ -485,7 +485,13 @@
         <div class="disclaimer-box">
             💡 Tip: Go to the "CGPA Calc" tab and select your trimester to auto-load these courses!
         </div>
+        
+        <h2 style="color: var(--secondary-color); margin-top: 30px; border-bottom: 2px solid var(--border-color); padding-bottom: 10px;">Core Trimesters</h2>
         <div id="plannerGrid" class="planner-grid">
+            </div>
+
+        <h2 style="color: var(--secondary-color); margin-top: 40px; border-bottom: 2px solid var(--border-color); padding-bottom: 10px;">Elective Tracks (Majors)</h2>
+        <div id="electiveGrid" class="planner-grid">
             </div>
     </div>
 
@@ -578,6 +584,67 @@
         ]
     };
 
+    // --- DATA: ELECTIVE TRACKS ---
+    const electiveTracks = {
+        "Computational Theory": [
+            { code: "CSE 4601", title: "Mathematical Analysis for Computer Science", cr: 3.0 },
+            { code: "CSE 4633", title: "Basic Graph Theory", cr: 3.0 },
+            { code: "CSE 4655", title: "Algorithm Engineering", cr: 3.0 },
+            { code: "CSE 4611", title: "Compiler Design", cr: 3.0 },
+            { code: "CSE 4613", title: "Computational Geometry", cr: 3.0 },
+            { code: "CSE 4621", title: "Computer Graphics", cr: 3.0 }
+        ],
+        "Network and Communications": [
+            { code: "CSE 3715", title: "Data Communication", cr: 3.0 },
+            { code: "CSE 4759", title: "Wireless and Cellular Communication", cr: 3.0 },
+            { code: "CSE 4793", title: "Advanced Network Services and Management", cr: 3.0 },
+            { code: "CSE 4783", title: "Cryptography", cr: 3.0 },
+            { code: "CSE 4777", title: "Networks Security", cr: 3.0 },
+            { code: "CSE 4763", title: "Electronic Business", cr: 3.0 }
+        ],
+        "Systems": [
+            { code: "CSE 4547", title: "Multimedia Systems Design", cr: 3.0 },
+            { code: "CSE 4519", title: "Distributed Systems", cr: 3.0 },
+            { code: "CSE 4523", title: "Simulation and Modeling", cr: 3.0 },
+            { code: "CSE 4521", title: "Computer Graphics", cr: 3.0 },
+            { code: "CSE 4587", title: "Cloud Computing", cr: 3.0 },
+            { code: "CSE 4567", title: "Advanced Database Management Systems", cr: 3.0 }
+        ],
+        "Data Science": [
+            { code: "CSE 4889", title: "Machine Learning", cr: 3.0 },
+            { code: "CSE 4891", title: "Data Mining", cr: 3.0 },
+            { code: "CSE 4893", title: "Introduction to Bioinformatics", cr: 3.0 },
+            { code: "CSE 4883", title: "Digital Image Processing", cr: 3.0 },
+            { code: "CSE 4817", title: "Big Data Analytics", cr: 3.0 }
+        ],
+        "Information and Communication Technology": [
+            { code: "CSE 4941", title: "Enterprise Systems: Concepts and Practice", cr: 3.0 },
+            { code: "CSE 4943", title: "Web Application Security", cr: 3.0 },
+            { code: "CSE 4463", title: "Electronic Business", cr: 3.0 },
+            { code: "CSE 4165", title: "Web Programming", cr: 3.0 },
+            { code: "CSE 4181", title: "Mobile Application Development", cr: 3.0 },
+            { code: "CSE 4945", title: "UI: Concepts and Design", cr: 3.0 },
+            { code: "CSE 4949", title: "IT Audit: Concepts and Practice", cr: 3.0 },
+            { code: "CSE 4587", title: "Cloud Computing", cr: 3.0 },
+            { code: "CSE 4495", title: "Software Testing and Quality Assurance", cr: 3.0 }
+        ],
+        "Software Engineering": [
+            { code: "CSE 4451", title: "Human Computer Interaction", cr: 3.0 },
+            { code: "CSE 4435", title: "Software Architecture", cr: 3.0 },
+            { code: "CSE 4165", title: "Web Programming", cr: 3.0 },
+            { code: "CSE 4181", title: "Mobile Application Development", cr: 3.0 },
+            { code: "CSE 4495", title: "Software Testing and Quality Assurance", cr: 3.0 },
+            { code: "CSE 4485", title: "Game Design and Development", cr: 3.0 }
+        ],
+        "Hardware": [
+            { code: "CSE 4329", title: "Digital System Design", cr: 3.0 },
+            { code: "CSE 4379", title: "Real-time Embedded Systems", cr: 3.0 },
+            { code: "CSE 4327", title: "VLSI Design", cr: 3.0 },
+            { code: "CSE 4337", title: "Robotics", cr: 3.0 },
+            { code: "CSE 4397", title: "Interfacing", cr: 3.0 }
+        ]
+    };
+
     // --- DATA: SPRING 2026 ROUTINE MAPPING ---
     const rawRoutine = [
         { day: 1, time: 1, codes: ["ENG 1011", "ENG 101"], name: "Intensive English I", keywords: ["eng 1", "english"] },
@@ -641,19 +708,24 @@
         { day: 7, time: 3, codes: ["DS 3881"], name: "DS Elective", keywords: [] }
     ];
 
-    // Flatten curriculum for search AND merge keywords from rawRoutine
-    let allCourses = [];
+    // Build unified map of courses to remove duplicates, then map keywords
+    let allCoursesMap = new Map();
+
+    // 1. Add Core Curriculum
     Object.values(uiuCurriculum).forEach(tri => {
-        tri.forEach(c => {
-            // Find corresponding keywords from rawRoutine based on course code
-            let routineMatch = rawRoutine.find(r => r.codes.includes(c.code));
-            let keywords = routineMatch && routineMatch.keywords ? routineMatch.keywords : [];
-            
-            allCourses.push({
-                ...c,
-                keywords: keywords
-            });
-        });
+        tri.forEach(c => allCoursesMap.set(c.code, c));
+    });
+
+    // 2. Add Elective Tracks
+    Object.values(electiveTracks).forEach(track => {
+        track.forEach(c => allCoursesMap.set(c.code, c));
+    });
+
+    // 3. Map keywords from Routine
+    let allCourses = Array.from(allCoursesMap.values()).map(c => {
+        let routineMatch = rawRoutine.find(r => r.codes.includes(c.code));
+        let keywords = routineMatch && routineMatch.keywords ? routineMatch.keywords : [];
+        return { ...c, keywords: keywords };
     });
 
     // --- ACADEMIC CALENDAR EVENTS DATA ---
@@ -826,7 +898,7 @@
         const matches = allCourses.filter(c => 
             c.code.toLowerCase().includes(val) || 
             c.title.toLowerCase().includes(val) ||
-            c.keywords.some(k => k.toLowerCase().includes(val))
+            (c.keywords && c.keywords.some(k => k.toLowerCase().includes(val)))
         ).slice(0, 5); // Limit to 5 results
 
         if (matches.length > 0) {
@@ -883,12 +955,13 @@
         document.getElementById("resultBox").style.display = "block";
     }
 
-    // --- PLANNER LOGIC (NEW) ---
+    // --- PLANNER LOGIC ---
     function initPlanner() {
-        // Populate Dropdown
         const select = document.getElementById('cgpaPlannerSelect');
-        const plannerGrid = document.getElementById('plannerGrid');
+        const corePlannerGrid = document.getElementById('plannerGrid');
+        const electiveGrid = document.getElementById('electiveGrid');
         
+        // 1. Populate Core Trimesters
         Object.keys(uiuCurriculum).forEach(triName => {
             // Dropdown option
             const option = document.createElement('option');
@@ -915,7 +988,30 @@
                 </div>
                 <ul class="tri-course-list">${courseListHTML}</ul>
             `;
-            plannerGrid.appendChild(card);
+            corePlannerGrid.appendChild(card);
+        });
+
+        // 2. Populate Elective Tracks
+        Object.keys(electiveTracks).forEach(trackName => {
+            const card = document.createElement('div');
+            card.className = 'tri-card';
+            
+            let courseListHTML = '';
+            electiveTracks[trackName].forEach(c => {
+                courseListHTML += `
+                    <li class="tri-course-item">
+                        <span><strong>${c.code}</strong> ${c.title}</span>
+                        <span class="badge-credit">${c.cr} Cr</span>
+                    </li>`;
+            });
+
+            card.innerHTML = `
+                <div class="tri-header">
+                    <span>${trackName}</span>
+                </div>
+                <ul class="tri-course-list">${courseListHTML}</ul>
+            `;
+            electiveGrid.appendChild(card);
         });
     }
 
