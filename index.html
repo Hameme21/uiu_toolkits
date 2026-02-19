@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Auction</title>
+<title>Players Auction System</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
 <style>
 /* --- THEME & RESET --- */
@@ -284,6 +284,10 @@ button.small { padding: 4px 10px; font-size: 11px; }
       <div id="adminActionButtons" class="hidden" style="margin-top:25px">
          <button class="yellow" style="padding:12px 40px; font-size:16px; font-weight:800; color:#fff;" onclick="triggerSoldFromPopup()">SOLD</button>
       </div>
+
+      <div id="teamActionButtons" class="hidden" style="margin-top:25px">
+         <button id="btnPopupImpact" class="purple" style="padding:12px 30px; font-size:16px; font-weight:800; color:#fff;">⚡ Activate Impact Purse</button>
+      </div>
       
       <div id="popupStatus" style="color:var(--muted); margin-top:20px; font-size:13px">Waiting for bids...</div>
     </div>
@@ -487,7 +491,27 @@ socket.on('manager:logged_in', data => { CURRENT_USER.hostId = data.username; CU
 socket.on('init:teams_available', data => { CURRENT_USER.hostId = data.hostId; const sel = document.getElementById('loginTeamId'); sel.innerHTML = '<option value="">Select Team</option>'; data.teams.forEach(t => sel.innerHTML += `<option value="${t.id}">${t.name}</option>`); portal.classList.add('hidden'); teamAuthOverlay.classList.remove('hidden'); });
 socket.on('auction:enter', data => { CURRENT_USER.role = data.role; CURRENT_USER.teamId = data.teamId; STATE = data.state; teamAuthOverlay.classList.add('hidden'); appContainer.classList.remove('hidden'); setupUI(); renderAll(); });
 socket.on('auth:team_error', msg => document.getElementById('teamAuthMsg').textContent = msg);
-socket.on('state:updated', newState => { STATE = newState; renderAll(); if(CURRENT_USER.role === 'admin') { renderTeamConfigForm(); document.getElementById('configImpact').value = STATE.config.impactAmount || 0; } if(activePlayer) { const key = `${activePlayer.category}:${activePlayer.name}`; updatePopupPrice(STATE.activeBids[key] || activePlayer.base); } });
+socket.on('state:updated', newState => { 
+    STATE = newState; 
+    renderAll(); 
+    if(CURRENT_USER.role === 'admin') { 
+        renderTeamConfigForm(); 
+        document.getElementById('configImpact').value = STATE.config.impactAmount || 0; 
+    } 
+    if(activePlayer) { 
+        const key = `${activePlayer.category}:${activePlayer.name}`; 
+        updatePopupPrice(STATE.activeBids[key] || activePlayer.base); 
+        
+        // Re-check impact button state if team
+        if (CURRENT_USER.role === 'team') {
+            const myTeam = STATE.teams.find(t => t.id === CURRENT_USER.teamId);
+            const btnImpact = document.getElementById('btnPopupImpact');
+            if (myTeam && myTeam.impactUsed && btnImpact) {
+                btnImpact.style.display = 'none';
+            }
+        }
+    } 
+});
 socket.on('player:bid', pl => { const el = getPlayerEl(pl.category, pl.name); if(el) { el.dataset.price = pl.price; el.querySelector('.price').textContent = pl.price; el.classList.add('bidding','has-bid'); setTimeout(()=>el.classList.remove('bidding'), 300); } if(activePlayer && activePlayer.name === pl.name) updatePopupPrice(pl.price); log(`BID: ${pl.name} (${pl.category}) -> ৳${pl.price}`); });
 socket.on('popup:open', player => { 
     activePlayer = player; 
@@ -498,9 +522,27 @@ socket.on('popup:open', player => {
     updatePopupPrice(player.currentPrice || player.base || 0); 
     
     const isAdmin = CURRENT_USER.role === 'admin'; 
+    const isTeam = CURRENT_USER.role === 'team';
+    
     document.getElementById('adminControls').classList.toggle('hidden', !isAdmin); 
     document.getElementById('adminActionButtons').classList.toggle('hidden', !isAdmin); 
     document.getElementById('viewerControls').classList.toggle('hidden', isAdmin); 
+    
+    // Set up Team Action Buttons
+    const teamButtons = document.getElementById('teamActionButtons');
+    if(teamButtons) {
+        teamButtons.classList.toggle('hidden', !isTeam);
+        if (isTeam) {
+            const myTeam = STATE.teams.find(t => t.id === CURRENT_USER.teamId);
+            const btnImpact = document.getElementById('btnPopupImpact');
+            if (myTeam && !myTeam.impactUsed) {
+                btnImpact.style.display = 'inline-flex';
+                btnImpact.onclick = () => activateImpact(player.category, player.name);
+            } else {
+                btnImpact.style.display = 'none';
+            }
+        }
+    }
     
     // Attach Click/Drag to Popup Image
     if(isAdmin) setupFileUpload(document.getElementById('popupImgContainer'), (file) => {
