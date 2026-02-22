@@ -249,6 +249,8 @@
         .btn-add { background-color: var(--secondary-color); color: white; width: auto; padding: 8px 20px; }
         .btn-export { background-color: #28a745; color: white; width: auto; padding: 8px 20px; }
         .btn-export:hover { background-color: #218838; }
+        .btn-import { background-color: #17a2b8; color: white; width: auto; padding: 8px 20px; }
+        .btn-import:hover { background-color: #138496; }
         .btn-calc { background-color: var(--primary-color); color: white; font-size: 1.1em; }
         .btn-delete { background-color: #ff4d4d; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 0.8em; }
 
@@ -399,7 +401,9 @@
             <div class="suggestions" id="suggestions"></div>
         </div>
         
-        <div style="text-align: right; margin-bottom: 10px;">
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-bottom: 10px;">
+            <input type="file" id="examCsvInput" accept=".csv" style="display: none;" onchange="importExamCSV(event)">
+            <button class="btn-action btn-import" onclick="document.getElementById('examCsvInput').click()">📤 Import Routine from CSV</button>
             <button class="btn-action btn-export" onclick="exportExamCSV()">📥 Export Routine to CSV</button>
         </div>
 
@@ -459,7 +463,11 @@
 
         <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 20px;">
             <h2 style="color: var(--secondary-color); font-size: 1.2em; margin-bottom: 0; border-bottom: 2px solid var(--border-color); padding-bottom: 5px;">Theory Routine</h2>
-            <button class="btn-action btn-export" style="margin-top: 0;" onclick="exportSectionCSV()">📥 Export Planner to CSV</button>
+            <div style="display: flex; gap: 10px;">
+                <input type="file" id="sectionCsvInput" accept=".csv" style="display: none;" onchange="importSectionCSV(event)">
+                <button class="btn-action btn-import" style="margin-top: 0;" onclick="document.getElementById('sectionCsvInput').click()">📤 Import Planner from CSV</button>
+                <button class="btn-action btn-export" style="margin-top: 0;" onclick="exportSectionCSV()">📥 Export Planner to CSV</button>
+            </div>
         </div>
 
         <div style="overflow-x: auto; margin-bottom: 30px;">
@@ -865,7 +873,22 @@
         "Slot 3 (02:00 PM - 04:30 PM)"
     ];
 
-    // --- CSV EXPORT LOGIC ---
+    // --- CSV PARSING & EXPORT LOGIC ---
+    function parseCSVRow(str) {
+        const regex = /("([^"]|"")*"|[^,]*)(?:,|$)/g;
+        let matches = [];
+        let match;
+        while (match = regex.exec(str)) {
+            if (match[0] === '' && match.index === regex.lastIndex) break;
+            let val = match[1];
+            if (val.startsWith('"') && val.endsWith('"')) {
+                val = val.slice(1, -1).replace(/""/g, '"');
+            }
+            matches.push(val);
+        }
+        return matches;
+    }
+
     function downloadCSV(csvContent, fileName) {
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement("a");
@@ -901,6 +924,33 @@
         downloadCSV(csv, "Exam_Routine.csv");
     }
 
+    function importExamCSV(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const lines = e.target.result.split('\n');
+            let addedCount = 0;
+            for (let i = 1; i < lines.length; i++) {
+                if (!lines[i].trim()) continue;
+                const row = parseCSVRow(lines[i]);
+                if (row.length < 4) continue;
+                const codeStr = row[1];
+                const firstCode = codeStr.split(' / ')[0];
+                const courseData = rawRoutine.find(c => c.codes[0] === firstCode);
+                
+                if (courseData && !myCourses.some(c => c.codes[0] === courseData.codes[0])) {
+                    myCourses.push(courseData);
+                    addedCount++;
+                }
+            }
+            renderSchedule();
+            alert(`Successfully imported ${addedCount} courses into Exam Routine.`);
+        };
+        reader.readAsText(file);
+        event.target.value = ''; 
+    }
+
     function exportSectionCSV() {
         if (mySectionClasses.length === 0) {
             alert("No classes to export in your Section Planner!");
@@ -913,6 +963,40 @@
             csv += `${courseName},${c.section},${c.type},"${c.day}","${timeStr}"\n`;
         });
         downloadCSV(csv, "Section_Planner.csv");
+    }
+
+    function importSectionCSV(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const lines = e.target.result.split('\n');
+            let importedClasses = [];
+            for (let i = 1; i < lines.length; i++) {
+                if (!lines[i].trim()) continue;
+                const row = parseCSVRow(lines[i]);
+                if(row.length < 5) continue;
+                
+                const type = row[2];
+                const slotStr = row[4];
+                const slotIndex = type === 'Theory' ? theoryTimeSlots.indexOf(slotStr) : labTimeSlots.indexOf(slotStr);
+                
+                const newClass = {
+                    id: Date.now().toString() + i, 
+                    course: row[0],
+                    section: row[1],
+                    type: type,
+                    day: row[3],
+                    slotIndex: slotIndex > -1 ? slotIndex : 0
+                };
+                importedClasses.push(newClass);
+            }
+            mySectionClasses = importedClasses;
+            renderSectionRoutine();
+            alert(`Successfully imported ${importedClasses.length} sessions into Section Planner.`);
+        };
+        reader.readAsText(file);
+        event.target.value = ''; 
     }
 
     // --- TAB SWITCHER ---
