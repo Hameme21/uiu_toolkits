@@ -430,6 +430,12 @@
                 <div style="flex:1; min-width: 100px;">
                     <input type="text" id="sectionNameInput" placeholder="Section (e.g., A)">
                 </div>
+                <div style="flex:1; min-width: 100px;">
+                    <select id="sectionTypeSelect" onchange="updateTimeSlots()">
+                        <option value="Theory">Theory</option>
+                        <option value="Lab">Lab</option>
+                    </select>
+                </div>
                 <div style="flex:1; min-width: 120px;">
                     <select id="sectionDaySelect">
                         <option value="Saturday">Saturday</option>
@@ -440,13 +446,7 @@
                 </div>
                 <div style="flex:1; min-width: 160px;">
                     <select id="sectionTimeSelect">
-                        <option value="Slot 1 (08:30 AM - 09:50 AM)">Slot 1 (08:30 AM - 09:50 AM)</option>
-                        <option value="Slot 2 (09:51 AM - 11:10 AM)">Slot 2 (09:51 AM - 11:10 AM)</option>
-                        <option value="Slot 3 (11:11 AM - 12:30 PM)">Slot 3 (11:11 AM - 12:30 PM</option>
-                        <option value="Slot 4 (12:31 PM - 01:50 PM)">Slot 4 (12:31 PM - 01:50 PM)</option>
-                        <option value="Slot 5 (01:51 PM - 03:10 PM)">Slot 5 (01:51 PM - 03:10 PM)</option>
-                        <option value="Slot 6 (03:11 PM - 04:30 PM)">Slot 6 (03:11 PM - 04:30 PM)</option>
-                    </select>
+                        </select>
                 </div>
                 <div>
                     <button class="btn-action btn-add" style="margin-top:0;" onclick="addSectionClass()">Add to Routine</button>
@@ -455,8 +455,9 @@
             <small style="color:var(--text-muted);">💡 Tip: You can add the same course multiple times with different sections to visualize your alternative options!</small>
         </div>
 
-        <div style="overflow-x: auto;">
-            <table class="routine-table" id="sectionRoutineTable" style="min-width: 700px;">
+        <h2 style="color: var(--secondary-color); font-size: 1.2em; margin-top: 20px; border-bottom: 2px solid var(--border-color); padding-bottom: 5px;">Theory Routine</h2>
+        <div style="overflow-x: auto; margin-bottom: 30px;">
+            <table class="routine-table" id="theoryRoutineTable" style="min-width: 700px; margin-top: 10px;">
                 <thead>
                     <tr>
                         <th style="width:20%">Time Slot</th>
@@ -466,7 +467,24 @@
                         <th style="width:20%">Wednesday</th>
                     </tr>
                 </thead>
-                <tbody id="sectionRoutineBody">
+                <tbody id="theoryRoutineBody">
+                    </tbody>
+            </table>
+        </div>
+
+        <h2 style="color: var(--secondary-color); font-size: 1.2em; border-bottom: 2px solid var(--border-color); padding-bottom: 5px;">Lab Routine</h2>
+        <div style="overflow-x: auto;">
+            <table class="routine-table" id="labRoutineTable" style="min-width: 700px; margin-top: 10px;">
+                <thead>
+                    <tr>
+                        <th style="width:20%">Time Slot</th>
+                        <th style="width:20%">Saturday</th>
+                        <th style="width:20%">Sunday</th>
+                        <th style="width:20%">Tuesday</th>
+                        <th style="width:20%">Wednesday</th>
+                    </tr>
+                </thead>
+                <tbody id="labRoutineBody">
                     </tbody>
             </table>
         </div>
@@ -825,13 +843,20 @@
     // --- SECTION PLANNER DATA ---
     let mySectionClasses = [];
     const sectionDaysOfWeek = ["Saturday", "Sunday", "Tuesday", "Wednesday"];
-    const sectionTimeSlots = [
-        "Slot 1 (08:30 AM - 10:00 AM)",
-        "Slot 2 (10:00 AM - 11:30 AM)",
-        "Slot 3 (11:30 AM - 01:00 PM)",
-        "Slot 4 (01:00 PM - 02:30 PM)",
-        "Slot 5 (02:30 PM - 04:00 PM)",
-        "Slot 6 (04:00 PM - 05:30 PM)"
+    
+    const theoryTimeSlots = [
+        "Slot 1 (08:30 AM - 09:50 AM)",
+        "Slot 2 (09:51 AM - 11:10 AM)",
+        "Slot 3 (11:11 AM - 12:30 PM)",
+        "Slot 4 (12:31 PM - 01:50 PM)",
+        "Slot 5 (01:51 PM - 03:10 PM)",
+        "Slot 6 (03:11 PM - 04:30 PM)"
+    ];
+    
+    const labTimeSlots = [
+        "Slot 1 (08:30 AM - 11:00 AM)",
+        "Slot 2 (11:11 AM - 01:40 PM)",
+        "Slot 3 (02:00 PM - 04:30 PM)"
     ];
 
     // --- TAB SWITCHER ---
@@ -938,17 +963,47 @@
 
 
     // --- SECTION PLANNER LOGIC ---
+    function updateTimeSlots() {
+        const type = document.getElementById('sectionTypeSelect').value;
+        const timeSelect = document.getElementById('sectionTimeSelect');
+        timeSelect.innerHTML = '';
+        
+        const slots = type === 'Theory' ? theoryTimeSlots : labTimeSlots;
+        slots.forEach(slot => {
+            const opt = document.createElement('option');
+            opt.value = slot;
+            opt.innerText = slot;
+            timeSelect.appendChild(opt);
+        });
+    }
+
     function initSectionGrid() {
-        const tbody = document.getElementById('sectionRoutineBody');
-        tbody.innerHTML = '';
-        sectionTimeSlots.forEach((slot, index) => {
+        // Init Theory Grid
+        const tbodyTheory = document.getElementById('theoryRoutineBody');
+        tbodyTheory.innerHTML = '';
+        theoryTimeSlots.forEach((slot, index) => {
             let rowHTML = `<tr><td class="day-header" style="font-size:0.85em;"><strong>${slot}</strong></td>`;
             sectionDaysOfWeek.forEach(day => {
-                rowHTML += `<td id="sec-${day}-${index}"></td>`;
+                rowHTML += `<td id="sec-theory-${day}-${index}"></td>`;
             });
             rowHTML += `</tr>`;
-            tbody.innerHTML += rowHTML;
+            tbodyTheory.innerHTML += rowHTML;
         });
+
+        // Init Lab Grid
+        const tbodyLab = document.getElementById('labRoutineBody');
+        tbodyLab.innerHTML = '';
+        labTimeSlots.forEach((slot, index) => {
+            let rowHTML = `<tr><td class="day-header" style="font-size:0.85em;"><strong>${slot}</strong></td>`;
+            sectionDaysOfWeek.forEach(day => {
+                rowHTML += `<td id="sec-lab-${day}-${index}"></td>`;
+            });
+            rowHTML += `</tr>`;
+            tbodyLab.innerHTML += rowHTML;
+        });
+
+        // Setup dropdown
+        updateTimeSlots();
     }
 
     function filterSectionCourses() {
@@ -958,7 +1013,6 @@
         if (input.length < 2) { suggestionBox.style.display = 'none'; return; }
 
         const matches = [];
-        // Use the exact same searching logic from the exam routine
         rawRoutine.forEach(item => {
             if (item.name.toLowerCase().includes(input) || item.codes.some(c => c.toLowerCase().includes(input)) || item.keywords.some(k => k.toLowerCase().includes(input))) {
                 matches.push({ displayName: `${item.name} (${item.codes[0]})`, data: item });
@@ -984,6 +1038,7 @@
     function addSectionClass() {
         const courseStr = document.getElementById('sectionCourseSelected').value;
         const secName = document.getElementById('sectionNameInput').value || "N/A";
+        const type = document.getElementById('sectionTypeSelect').value;
         const day = document.getElementById('sectionDaySelect').value;
         const slot = document.getElementById('sectionTimeSelect').value;
         
@@ -996,8 +1051,9 @@
             id: Date.now().toString(),
             course: courseStr,
             section: secName,
+            type: type,
             day: day,
-            slotIndex: sectionTimeSlots.indexOf(slot)
+            slotIndex: type === 'Theory' ? theoryTimeSlots.indexOf(slot) : labTimeSlots.indexOf(slot)
         };
         
         mySectionClasses.push(newClass);
@@ -1005,9 +1061,13 @@
     }
 
     function renderSectionRoutine() {
+        // Clear all grids
         sectionDaysOfWeek.forEach(day => {
-            sectionTimeSlots.forEach((slot, idx) => {
-                document.getElementById(`sec-${day}-${idx}`).innerHTML = '';
+            theoryTimeSlots.forEach((slot, idx) => {
+                document.getElementById(`sec-theory-${day}-${idx}`).innerHTML = '';
+            });
+            labTimeSlots.forEach((slot, idx) => {
+                document.getElementById(`sec-lab-${day}-${idx}`).innerHTML = '';
             });
         });
         
@@ -1015,7 +1075,7 @@
         const slotMap = {};
 
         mySectionClasses.forEach(c => {
-            const key = `sec-${c.day}-${c.slotIndex}`;
+            const key = `sec-${c.type.toLowerCase()}-${c.day}-${c.slotIndex}`;
             if (!slotMap[key]) slotMap[key] = [];
             slotMap[key].push(c);
         });
@@ -1298,7 +1358,7 @@
     // --- INIT ---
     window.onload = function() {
         initGrid();
-        initSectionGrid(); // Initialize section planner grid
+        initSectionGrid(); // Initialize BOTH theory and lab section grids
         initPlanner(); 
         addCourseRow(); addCourseRow(); addCourseRow();
         renderFullCalendar();
@@ -1329,4 +1389,3 @@
 
 </body>
 </html>
-
