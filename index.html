@@ -247,6 +247,1481 @@
 
         .btn-action { width: 100%; padding: 12px; border-radius: 6px; border: none; font-weight: bold; cursor: pointer; margin-top: 10px; }
         .btn-add { background-color: var(--secondary-color); color: white; width: auto; padding: 8px 20px; }
+        .btn-export { background-color: #28a745; color: white; width: auto; padding: 8px 20px; }
+        .btn-export:hover { background-color: #218838; }
+        .btn-calc { background-color: var(--primary-color); color: white; font-size: 1.1em; }
+        .btn-delete { background-color: #ff4d4d; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 0.8em; }
+
+        .result-box {
+            background-color: var(--course-added-bg); border: 2px solid var(--primary-color);
+            padding: 20px; border-radius: 8px; text-align: center; display: none; margin-top: 20px;
+        }
+        .gpa-value { font-size: 2rem; font-weight: bold; color: var(--primary-color); }
+        
+        .retake-controls { display: flex; align-items: center; gap: 8px; }
+        .prev-grade-wrapper { display: none; margin-top: 5px; }
+        .prev-grade-wrapper.active { display: block; animation: fadeIn 0.3s; }
+        .prev-grade-label { font-size: 0.8em; color: var(--text-muted); display: block; margin-bottom: 2px; }
+        .retake-checkbox { width: 18px; height: 18px; cursor: pointer; }
+
+        /* --- COURSE PLANNER STYLES --- */
+        .planner-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .tri-card {
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+            transition: transform 0.2s;
+        }
+        .tri-card:hover { transform: translateY(-5px); box-shadow: var(--shadow); }
+        .tri-header {
+            color: var(--primary-color);
+            font-weight: bold;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .tri-course-list { list-style: none; padding: 0; margin: 0; }
+        .tri-course-item {
+            padding: 6px 0;
+            border-bottom: 1px dashed var(--border-color);
+            font-size: 0.9em;
+            display: flex;
+            justify-content: space-between;
+        }
+        .tri-course-item:last-child { border-bottom: none; }
+        .badge-credit {
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.75em;
+        }
+        
+        /* Dropdown specific for CGPA */
+        .planner-select-wrapper {
+            margin-bottom: 15px;
+            background: var(--course-added-bg);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--primary-color);
+        }
+
+        /* --- FULL CALENDAR STYLES --- */
+        .calendar-controls {
+            display: flex; justify-content: space-between; align-items: center; 
+            margin-bottom: 15px; background: var(--bg-input); padding: 10px 20px;
+            border-radius: 8px; border: 1px solid var(--border-color);
+        }
+        .calendar-controls button {
+            background: var(--primary-color); color: white; border: none; 
+            padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: bold;
+        }
+        .calendar-controls button:hover { background: var(--secondary-color); }
+        .calendar-controls h2 { margin: 0; color: var(--secondary-color); }
+
+        .calendar-wrapper { border-radius: 8px; overflow-x: auto; border: 1px solid var(--border-color); }
+        
+        .calendar-grid-header {
+            display: grid; grid-template-columns: repeat(7, 1fr); 
+            background: var(--table-header-bg); color: var(--table-header-text); 
+            text-align: center; font-weight: bold; padding: 12px 0;
+            min-width: 650px; 
+        }
+        
+        .calendar-grid {
+            display: grid; grid-template-columns: repeat(7, 1fr); 
+            background: var(--border-color); gap: 1px;
+            min-width: 650px; 
+        }
+
+        .calendar-day {
+            background: var(--bg-container); min-height: 100px; 
+            padding: 8px; display: flex; flex-direction: column; gap: 4px;
+        }
+        .calendar-day.empty { background: var(--bg-body); }
+        .day-num { font-weight: bold; font-size: 1.1em; color: var(--text-muted); text-align: right; display: block; margin-bottom: 5px; }
+        .event-badge {
+            font-size: 0.75em; padding: 5px 8px; border-radius: 4px; 
+            background-color: var(--course-added-bg); border-left: 3px solid var(--primary-color);
+            color: var(--text-main); font-weight: bold; line-height: 1.2;
+            word-wrap: break-word; overflow-wrap: break-word; white-space: normal;
+        }
+
+        .event-holiday { background-color: var(--clash-bg); border-left-color: var(--clash-border); color: #d32f2f; }
+        .event-exam { background-color: var(--same-day-bg); border-left-color: var(--same-day-border); color: #b08100; }
+        body.dark-mode .event-exam { color: #ffca28; }
+
+        @media (max-width: 600px) {
+            nav { flex-direction: column; gap: 10px; }
+            .routine-table th, .routine-table td { font-size: 0.8em; padding: 5px; }
+            .calendar-grid-header { font-size: 0.8em; }
+            .calendar-day { min-height: 80px; padding: 4px; }
+            .event-badge { font-size: 0.65em; padding: 3px; }
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <div class="logo">🎓 UIU Toolkit</div>
+    <div class="nav-buttons">
+        <button class="nav-btn active" onclick="switchTab('exam')" id="btn-exam">Exam Routine</button>
+        <button class="nav-btn" onclick="switchTab('sectionplanner')" id="btn-sectionplanner">Section Planner</button>
+        <button class="nav-btn" onclick="switchTab('cgpa')" id="btn-cgpa">CGPA Calc</button>
+        <button class="nav-btn" onclick="switchTab('calendar')" id="btn-calendar">Academic Calendar</button>
+        <button class="nav-btn" onclick="switchTab('planner')" id="btn-planner">Course Planner</button>
+        <button class="nav-btn" onclick="toggleTheme()" id="btn-theme">🌙</button>
+    </div>
+</nav>
+
+<div class="container">
+
+    <div id="exam-section" class="tool-section active">
+        <h1>Exam Clash Solver</h1>
+        <p class="subtitle">Spring 2026 | CSE Dept. | Updated with Official Routine</p>
+
+        <div class="disclaimer-box">
+            ⚠️ DISCLAIMER: Data sourced from the "Spring 2026 Exam Template". Always verify with your official UCAM routine for last-minute changes.
+        </div>
+
+        <div id="clash-alert" class="alert-box">⚠️ CRITICAL CLASH: You have 2 exams at the EXACT same time!</div>
+        <div id="sameday-alert" class="alert-box">⚠️ PRESSURE WARNING: Multiple exams on the same day.</div>
+
+        <div class="search-box">
+            <input type="text" id="courseSearch" placeholder="Type Code (e.g. 3811), Name (Artificial Intelligence), or Shortcut (AI)..." oninput="filterCourses()">
+            <div class="suggestions" id="suggestions"></div>
+        </div>
+        
+        <div style="text-align: right; margin-bottom: 10px;">
+            <button class="btn-action btn-export" onclick="exportExamCSV()">📥 Export Routine to CSV</button>
+        </div>
+
+        <table class="routine-table">
+            <thead>
+                <tr>
+                    <th style="width:10%">Day</th>
+                    <th style="width:30%">Slot T1<br><small>9:00 - 11:00 AM</small></th>
+                    <th style="width:30%">Slot T2<br><small>11:30 - 1:30 PM</small></th>
+                    <th style="width:30%">Slot T3<br><small>2:00 - 4:00 PM</small></th>
+                </tr>
+            </thead>
+            <tbody id="routineBody"></tbody>
+        </table>
+    </div>
+
+    <div id="sectionplanner-section" class="tool-section">
+        <h1>Section Planner</h1>
+        <p class="subtitle">Draft your Class Routine & Check Clashes</p>
+
+        <div id="section-clash-alert" class="alert-box">⚠️ CLASS CLASH: You have overlapping classes at the exact same time!</div>
+
+        <div class="section-box">
+            <span class="section-title">Add Class Session to Routine</span>
+            <div class="search-box" style="margin-bottom: 10px; max-width: 100%;">
+                <input type="text" id="sectionCourseSearch" placeholder="Search Course using code or keyword (e.g., spl, dbms)..." oninput="filterSectionCourses()" autocomplete="off">
+                <div class="suggestions" id="sectionSuggestions"></div>
+            </div>
+            
+            <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px;">
+                <div style="flex:2; min-width: 200px;">
+                    <input type="text" id="sectionCourseSelected" placeholder="Selected Course" readonly style="background: var(--bg-body);">
+                </div>
+                <div style="flex:1; min-width: 100px;">
+                    <input type="text" id="sectionNameInput" placeholder="Section (e.g., A)">
+                </div>
+                <div style="flex:1; min-width: 100px;">
+                    <select id="sectionTypeSelect" onchange="updateSectionDropdowns()">
+                        <option value="Theory">Theory</option>
+                        <option value="Lab">Lab</option>
+                    </select>
+                </div>
+                <div style="flex:1; min-width: 160px;">
+                    <select id="sectionDaySelect">
+                        </select>
+                </div>
+                <div style="flex:1; min-width: 160px;">
+                    <select id="sectionTimeSelect">
+                        </select>
+                </div>
+                <div>
+                    <button class="btn-action btn-add" style="margin-top:0;" onclick="addSectionClass()">Add to Routine</button>
+                </div>
+            </div>
+            <small style="color:var(--text-muted);">💡 Tip: You can add the same course multiple times with different sections to visualize your alternative options!</small>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 20px;">
+            <h2 style="color: var(--secondary-color); font-size: 1.2em; margin-bottom: 0; border-bottom: 2px solid var(--border-color); padding-bottom: 5px;">Theory Routine</h2>
+            <button class="btn-action btn-export" style="margin-top: 0;" onclick="exportSectionCSV()">📥 Export Planner to CSV</button>
+        </div>
+
+        <div style="overflow-x: auto; margin-bottom: 30px;">
+            <table class="routine-table" id="theoryRoutineTable" style="min-width: 700px; margin-top: 10px;">
+                <thead>
+                    <tr>
+                        <th style="width:20%">Time Slot</th>
+                        <th style="width:20%">Saturday</th>
+                        <th style="width:20%">Sunday</th>
+                        <th style="width:20%">Tuesday</th>
+                        <th style="width:20%">Wednesday</th>
+                    </tr>
+                </thead>
+                <tbody id="theoryRoutineBody">
+                    </tbody>
+            </table>
+        </div>
+
+        <h2 style="color: var(--secondary-color); font-size: 1.2em; border-bottom: 2px solid var(--border-color); padding-bottom: 5px;">Lab Routine</h2>
+        <div style="overflow-x: auto;">
+            <table class="routine-table" id="labRoutineTable" style="min-width: 700px; margin-top: 10px;">
+                <thead>
+                    <tr>
+                        <th style="width:20%">Time Slot</th>
+                        <th style="width:20%">Saturday</th>
+                        <th style="width:20%">Sunday</th>
+                        <th style="width:20%">Tuesday</th>
+                        <th style="width:20%">Wednesday</th>
+                    </tr>
+                </thead>
+                <tbody id="labRoutineBody">
+                    </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="cgpa-section" class="tool-section">
+        <h1>CGPA Calculator</h1>
+        <p class="subtitle">UIU Grading Scale with Retake Support</p>
+
+        <div class="section-box">
+            <span class="section-title">Previous Results (Optional)</span>
+            <div style="display: flex; gap: 10px;">
+                <div style="flex:1"><label>Prev. CGPA</label><input type="number" id="prevCGPA" placeholder="e.g. 3.50" step="0.01"></div>
+                <div style="flex:1"><label>Credits Earned</label><input type="number" id="prevCredits" placeholder="e.g. 60" step="1"></div>
+            </div>
+        </div>
+
+        <div class="section-box">
+            <span class="section-title">Current Trimester</span>
+            
+            <div class="planner-select-wrapper">
+                <label style="font-weight:bold; color:var(--primary-color);">🚀 Auto-fill Courses from Planner:</label>
+                <select id="cgpaPlannerSelect" onchange="loadFromPlanner()" style="margin-top: 8px;">
+                    <option value="">-- Select a Trimester to Load --</option>
+                </select>
+                <small style="color:var(--text-muted); display:block; margin-top:5px;">Warning: Selecting a trimester will replace current table rows.</small>
+            </div>
+
+            <table class="cgpa-table" id="courseTable">
+                <thead>
+                    <tr>
+                        <th style="width: 5%">#</th>
+                        <th style="width: 25%">Course (Optional)</th>
+                        <th style="width: 15%">Credits</th>
+                        <th style="width: 20%">Grade</th>
+                        <th style="width: 25%">Type</th>
+                        <th style="width: 10%">X</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+            <button class="btn-action btn-add" onclick="addCourseRow()">+ Add Course</button>
+        </div>
+
+        <button class="btn-action btn-calc" onclick="calculateCGPA()">Calculate CGPA</button>
+
+        <div id="resultBox" class="result-box">
+            <div>Current GPA: <span class="gpa-value" id="currentGPA">0.00</span></div>
+            <div>Total CGPA: <span class="gpa-value" id="totalCGPA">0.00</span></div>
+            <p>Total Credits: <span id="totalCreditsDisplay">0</span></p>
+        </div>
+    </div>
+
+    <div id="calendar-section" class="tool-section">
+        <h1>Spring 2026 Academic Calendar</h1>
+        <p class="subtitle">Interactive Event Planner</p>
+
+        <div class="search-box">
+            <input type="text" id="calendarSearch" placeholder="Search events or dates (e.g., 'Mid-Term', 'Eid', 'Mar 15')..." oninput="searchCalendarEvents()">
+            <div class="suggestions" id="calendarSuggestions"></div>
+        </div>
+
+        <div class="calendar-controls">
+            <button onclick="changeMonth(-1)">&#10094; Prev</button>
+            <h2 id="month-year-display">February 2026</h2>
+            <button onclick="changeMonth(1)">Next &#10095;</button>
+        </div>
+
+        <div class="calendar-wrapper">
+            <div class="calendar-grid-header">
+                <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+            </div>
+            <div id="calendar-days" class="calendar-grid">
+                </div>
+        </div>
+    </div>
+
+    <div id="planner-section" class="tool-section">
+        <h1>Course Planner</h1>
+        <p class="subtitle">Recommended Roadmap for UIU CSE</p>
+        <div class="disclaimer-box">
+            💡 Tip: Go to the "CGPA Calc" tab and select your trimester to auto-load these courses!
+        </div>
+        
+        <h2 style="color: var(--secondary-color); margin-top: 30px; border-bottom: 2px solid var(--border-color); padding-bottom: 10px;">Core Trimesters</h2>
+        <div id="plannerGrid" class="planner-grid">
+            </div>
+
+        <h2 style="color: var(--secondary-color); margin-top: 40px; border-bottom: 2px solid var(--border-color); padding-bottom: 10px;">Elective Tracks (Majors)</h2>
+        <div id="electiveGrid" class="planner-grid">
+            </div>
+    </div>
+
+</div>
+
+<script>
+    // --- DATA: UIU CSE STANDARD CURRICULUM ---
+    const uiuCurriculum = {
+        "1st Trimester": [
+            { code: "ENG 1011", title: "Intensive English I", cr: 3.0 },
+            { code: "CSE 1112", title: "Introduction to Computer Systems", cr: 1.0 },
+            { code: "BDS 1201", title: "History of the Emergence of Bangladesh", cr: 2.0 },
+            { code: "MATH 1151", title: "Fundamental Calculus", cr: 3.0 }
+        ],
+        "2nd Trimester": [
+            { code: "ENG 1013", title: "Intensive English II", cr: 3.0 },
+            { code: "CSE 1111", title: "SPL", cr: 3.0 },
+            { code: "CSE 1112", title: "SPL Lab", cr: 1.0 },
+            { code: "CSE 2213", title: "Discrete Mathematics", cr: 3.0 },
+        ],
+        "3rd Trimester": [
+            { code: "MATH 2183", title: "Calculus and Linear Algebra", cr: 3.0 },
+            { code: "CSE 2215", title: "Data Structures & Algo I", cr: 3.0 },
+            { code: "CSE 2216", title: "DSA I Lab", cr: 1.0 },
+            { code: "PHY 2105", title: "Physics", cr: 3.0 },
+            { code: "PHY 2106", title: "Physics Lab", cr: 1.0 }
+        ],
+        "4th Trimester": [
+            { code: "CSE 1325", title: "Digital Logic Design", cr: 3.0 },
+            { code: "CSE 2218", title: "DLD Lab", cr: 1.0 },
+            { code: "MATH 2201", title: "Coord Geometry & Vector", cr: 3.0 },
+            { code: "CSE 1115", title: "Object Oriented Programming", cr: 3.0 },
+            { code: "CSE 1116", title: "OOP Lab", cr: 1.0 },
+        ],
+        "5th Trimester": [
+            { code: "CSE 2215", title: "Data Structures & Algo II", cr: 3.0 },
+            { code: "CSE 2216", title: "DSA II Lab", cr: 1.0 },
+            { code: "SOC 2101", title: "Society, Environment and Engineering Ethic", cr: 3.0 },
+            { code: "MATH 2205", title: "Prob & Stats", cr: 3.0 },
+            { code: "EEE 2113", title: "Electrical Circuits", cr: 3.0 }
+        ],
+        "6th Trimester": [
+            { code: "CSE 3521", title: "Database Management Systems", cr: 3.0 },
+            { code: "CSE 3522", title: "DBMS Lab", cr: 1.0 },
+            { code: "EEE 2123", title: "Electronics", cr: 3.0 },
+            { code: "EEE 2124", title: "Electronics Lab", cr: 1.0 },
+            { code: "CSE 4165", title: "Web Programming", cr: 3.0 }
+        ],
+        "7th Trimester": [
+            { code: "CSE 3313", title: "Computer Architecture", cr: 3.0 },
+            { code: "CSE 2118", title: "AOOP Lab", cr: 1.0 },
+            { code: "CSE 3411", title: "System Analysis and Design", cr: 3.0 },
+            { code: "CSE 3412", title: "SAD Lab", cr: 1.0 },
+            { code: "BIO 3105", title: "Biology for Engineers", cr: 3.0 }
+        ],
+        "8th Trimester": [
+            { code: "CSE 4325", title: "Microprocessors", cr: 3.0 },
+            { code: "CSE 4326", title: "Microprocessors Lab", cr: 1.0 },
+            { code: "CSE 3421", title: "Software Engineering", cr: 3.0 },
+            { code: "CSE 3422", title: "Software Engineering Lab", cr: 1.0 },
+            { code: "CSE 3811", title: "Artificial Intelligence", cr: 3.0 },
+            { code: "CSE 3812", title: "AI Lab", cr: 1.0 },
+        ],
+        "9th Trimester": [
+            { code: "CSE 2233", title: "Theory of Computation", cr: 3.0 },
+            { code: "PMG 4101", title: "Project Management", cr: 3.0 },
+            { code: "GED OPT1", title: "General Education Optional-I", cr: 3.0 },
+            { code: "CSE 3711", title: "Computer Networks", cr: 3.0 },
+            { code: "CSE 3712", title: "CN Lab", cr: 1.0 }
+        ],
+        "10th Trimester": [
+            { code: "CSE 4509", title: "Operating Systems", cr: 3.0 },
+            { code: "CSE 4510", title: "OS Lab", cr: 1.0 },
+            { code: "CSE 4000A", title: "FYP Part 1", cr: 2.0 },
+            { code: "Elective I", title: "Major Elective", cr: 3.0 },
+            { code: "GED OPT2", title: "General Education Optional-II", cr: 3.0 }
+        ],
+        "11th Trimester": [
+            { code: "Elective II", title: "Major Elective", cr: 3.0 },
+            { code: "Elective III", title: "Major Elective", cr: 3.0 },
+            { code: "CSE 4531", title: "Computer Security", cr: 3.0 },
+            { code: "CSE 4000B", title: "FYP Part 2", cr: 2.0 },
+            { code: "GED OPT3", title: "General Education Optional-III", cr: 3.0 }
+        ],
+        "12th Trimester": [
+            { code: "EEE 4261", title: "Green Computing", cr: 3.0 },
+            { code: "CSE 4000C", title: "FYP Part 3", cr: 2.0 },
+            { code: "Elective IV", title: "Major Elective", cr: 3.0 },
+            { code: "Elective V", title: "Major Elective", cr: 3.0 },
+        ]
+    };
+
+    // --- DATA: ELECTIVE TRACKS ---
+    const electiveTracks = {
+        "Computational Theory": [
+            { code: "CSE 4601", title: "Mathematical Analysis for Computer Science", cr: 3.0 },
+            { code: "CSE 4633", title: "Basic Graph Theory", cr: 3.0 },
+            { code: "CSE 4655", title: "Algorithm Engineering", cr: 3.0 },
+            { code: "CSE 4611", title: "Compiler Design", cr: 3.0 },
+            { code: "CSE 4613", title: "Computational Geometry", cr: 3.0 },
+            { code: "CSE 4621", title: "Computer Graphics", cr: 3.0 }
+        ],
+        "Network and Communications": [
+            { code: "CSE 3715", title: "Data Communication", cr: 3.0 },
+            { code: "CSE 4759", title: "Wireless and Cellular Communication", cr: 3.0 },
+            { code: "CSE 4793", title: "Advanced Network Services and Management", cr: 3.0 },
+            { code: "CSE 4783", title: "Cryptography", cr: 3.0 },
+            { code: "CSE 4777", title: "Networks Security", cr: 3.0 },
+            { code: "CSE 4763", title: "Electronic Business", cr: 3.0 }
+        ],
+        "Systems": [
+            { code: "CSE 4547", title: "Multimedia Systems Design", cr: 3.0 },
+            { code: "CSE 4519", title: "Distributed Systems", cr: 3.0 },
+            { code: "CSE 4523", title: "Simulation and Modeling", cr: 3.0 },
+            { code: "CSE 4521", title: "Computer Graphics", cr: 3.0 },
+            { code: "CSE 4587", title: "Cloud Computing", cr: 3.0 },
+            { code: "CSE 4567", title: "Advanced Database Management Systems", cr: 3.0 }
+        ],
+        "Data Science": [
+            { code: "CSE 4889", title: "Machine Learning", cr: 3.0 },
+            { code: "CSE 4891", title: "Data Mining", cr: 3.0 },
+            { code: "CSE 4893", title: "Introduction to Bioinformatics", cr: 3.0 },
+            { code: "CSE 4883", title: "Digital Image Processing", cr: 3.0 },
+            { code: "CSE 4817", title: "Big Data Analytics", cr: 3.0 }
+        ],
+        "Information and Communication Technology": [
+            { code: "CSE 4941", title: "Enterprise Systems: Concepts and Practice", cr: 3.0 },
+            { code: "CSE 4943", title: "Web Application Security", cr: 3.0 },
+            { code: "CSE 4463", title: "Electronic Business", cr: 3.0 },
+            { code: "CSE 4165", title: "Web Programming", cr: 3.0 },
+            { code: "CSE 4181", title: "Mobile Application Development", cr: 3.0 },
+            { code: "CSE 4945", title: "UI: Concepts and Design", cr: 3.0 },
+            { code: "CSE 4949", title: "IT Audit: Concepts and Practice", cr: 3.0 },
+            { code: "CSE 4587", title: "Cloud Computing", cr: 3.0 },
+            { code: "CSE 4495", title: "Software Testing and Quality Assurance", cr: 3.0 }
+        ],
+        "Software Engineering": [
+            { code: "CSE 4451", title: "Human Computer Interaction", cr: 3.0 },
+            { code: "CSE 4435", title: "Software Architecture", cr: 3.0 },
+            { code: "CSE 4165", title: "Web Programming", cr: 3.0 },
+            { code: "CSE 4181", title: "Mobile Application Development", cr: 3.0 },
+            { code: "CSE 4495", title: "Software Testing and Quality Assurance", cr: 3.0 },
+            { code: "CSE 4485", title: "Game Design and Development", cr: 3.0 }
+        ],
+        "Hardware": [
+            { code: "CSE 4329", title: "Digital System Design", cr: 3.0 },
+            { code: "CSE 4379", title: "Real-time Embedded Systems", cr: 3.0 },
+            { code: "CSE 4327", title: "VLSI Design", cr: 3.0 },
+            { code: "CSE 4337", title: "Robotics", cr: 3.0 },
+            { code: "CSE 4397", title: "Interfacing", cr: 3.0 }
+        ]
+    };
+
+    // --- DATA: SPRING 2026 ROUTINE MAPPING ---
+    const rawRoutine = [
+        { day: 1, time: 1, codes: ["ENG 1011", "ENG 101"], name: "Intensive English I", keywords: ["eng 1", "english"] },
+        { day: 1, time: 1, codes: ["CSE 4509", "CSI 309"], name: "Operating Systems Concepts", keywords: ["os", "operating"] },
+        { day: 1, time: 1, codes: ["IPE 3401", "IPE 401"], name: "Industrial & Operational Management", keywords: ["ipe", "management"] },
+        { day: 1, time: 1, codes: ["DS 4491"], name: "Data Science Elective", keywords: [] },
+        { day: 1, time: 2, codes: ["ENG 1013", "ENG 103"], name: "Intensive English II", keywords: ["eng 2", "english"] },
+        { day: 1, time: 2, codes: ["DS 3885"], name: "DS Elective", keywords: [] },
+        { day: 1, time: 2, codes: ["CSE 4945"], name: "UI: Concepts and Design", keywords: ["ui", "design", "user interface"] },
+        { day: 1, time: 3, codes: ["MATH 2183", "MATH 183"], name: "Calculus & Linear Algebra", keywords: ["linear", "math", "calculus"] },
+        { day: 1, time: 3, codes: ["CSE 3313", "CSE 313"], name: "Computer Architecture", keywords: ["ca", "archi"] },
+        { day: 1, time: 3, codes: ["SOC 2101", "SOC 101"], name: "Society, Env. & Engineering Ethics", keywords: ["soc", "ethics"] },
+        { day: 1, time: 3, codes: ["CSE 4889", "CSE 489"], name: "Machine Learning", keywords: ["ml", "machine"] },
+        { day: 2, time: 1, codes: ["CSE 4621", "CSI 421"], name: "Computer Graphics", keywords: ["cg", "graphics"] },
+        { day: 2, time: 1, codes: ["CSE 3521", "CSI 221"], name: "Database Management Systems", keywords: ["dbms", "database"] },
+        { day: 2, time: 2, codes: ["CSE 4325", "CSE 425"], name: "Microprocessors & Microcontrollers", keywords: ["micro", "mpi"] },
+        { day: 2, time: 2, codes: ["MATH 1151", "MATH 151"], name: "Fundamental Calculus", keywords: ["calc 1", "calculus"] },
+        { day: 2, time: 3, codes: ["ACT 2111", "ACT 111"], name: "Financial & Managerial Accounting", keywords: ["act", "accounting"] },
+        { day: 2, time: 3, codes: ["MATH 2205", "STAT 205"], name: "Probability & Statistics", keywords: ["stat", "prob"] },
+        { day: 3, time: 1, codes: ["CSE 3811", "CSI 341"], name: "Artificial Intelligence", keywords: ["ai", "artificial"] },
+        { day: 3, time: 1, codes: ["CSE 4451"], name: "Human Computer Interaction", keywords: ["hci"] },
+        { day: 3, time: 2, codes: ["CSE 2213", "CSI 219"], name: "Discrete Mathematics", keywords: ["dm", "discrete"] },
+        { day: 3, time: 2, codes: ["PMG 4101", "CSE 469"], name: "Project Management", keywords: ["pmg", "project"] },
+        { day: 3, time: 2, codes: ["TEC 2499"], name: "Technology Entrepreneurship", keywords: ["entrepreneurship"] },
+        { day: 3, time: 3, codes: ["CSE 1325", "CSE 225"], name: "Digital Logic Design", keywords: ["dld", "logic"] },
+        { day: 3, time: 3, codes: ["CSE 4587", "CSE 487"], name: "Cloud Computing", keywords: ["cloud"] },
+        { day: 3, time: 3, codes: ["BIO 3105", "BIO 101"], name: "Biology for Engineers", keywords: ["bio", "biology"] },
+        { day: 3, time: 3, codes: ["CSE 4777"], name: "Network Security", keywords: ["security", "netsec"] },
+        { day: 4, time: 1, codes: ["CSE 4611", "CSI 411"], name: "Compiler Design", keywords: ["compiler", "cd"] },
+        { day: 4, time: 1, codes: ["CSE 4883", "CSI 483"], name: "Digital Image Processing", keywords: ["dip", "image"] },
+        { day: 4, time: 2, codes: ["CSE 1111", "CSI 121"], name: "Structured Programming Language", keywords: ["spl", "c programming"] },
+        { day: 4, time: 2, codes: ["CSE 2215", "CSI 217"], name: "Data Structure & Algorithms I", keywords: ["dsa 1", "dsa"] },
+        { day: 4, time: 2, codes: ["DS 1501"], name: "Programming for Data Science", keywords: ["pds"] },
+        { day: 4, time: 2, codes: ["CSE 4435"], name: "Software Architecture", keywords: ["sa", "architecture"] },
+        { day: 4, time: 2, codes: ["DS 2251"], name: "Data Structures & Algorithms II (DS)", keywords: [] },
+        { day: 4, time: 3, codes: ["CSE 3711", "CSE 323"], name: "Computer Networks", keywords: ["network", "net", "cn"] },
+        { day: 4, time: 3, codes: ["DS 4523"], name: "DS Elective", keywords: [] },
+        { day: 4, time: 3, codes: ["CSE 4893", "CSE 493"], name: "Introduction to Bioinformatics", keywords: ["bioinformatics"] },
+        { day: 4, time: 3, codes: ["DS 3101"], name: "Data Science Core", keywords: [] },
+        { day: 5, time: 1, codes: ["MATH 2201", "MATH 201"], name: "Coord. Geometry & Vector Analysis", keywords: ["math 2", "vector"] },
+        { day: 5, time: 1, codes: ["CSE 3411", "CSI 311"], name: "System Analysis and Design", keywords: ["sad", "system analysis"] },
+        { day: 5, time: 1, codes: ["EEE 4261"], name: "Green Computing", keywords: ["green", "energy"] },
+        { day: 5, time: 2, codes: ["CSE 2217", "CSI 227"], name: "Data Structure & Algorithms II", keywords: ["dsa 2", "algo"] },
+        { day: 5, time: 2, codes: ["DS 1101"], name: "Fund. of Data Science", keywords: ["fds"] },
+        { day: 5, time: 3, codes: ["CSE 3421", "CSI 321"], name: "Software Engineering", keywords: ["se", "software"] },
+        { day: 6, time: 1, codes: ["BDS 1201"], name: "History of the Emergence of BD", keywords: ["bds", "history"] },
+        { day: 6, time: 1, codes: ["ECO 4101", "ECO 213"], name: "Economics", keywords: ["eco", "economics"] },
+        { day: 6, time: 1, codes: ["DS 3521"], name: "Database Systems (DS)", keywords: [] },
+        { day: 6, time: 2, codes: ["CSE 1115", "CSI 211"], name: "Object Oriented Programming", keywords: ["oop", "java"] },
+        { day: 6, time: 2, codes: ["CSE 4783"], name: "Cryptography", keywords: ["crypto", "security"] },
+        { day: 6, time: 2, codes: ["DS 4891"], name: "DS Elective", keywords: [] },
+        { day: 6, time: 3, codes: ["EEE 2113", "CSE 113"], name: "Electrical Circuits", keywords: ["circuit", "electrical"] },
+        { day: 6, time: 3, codes: ["EEE 2123", "CSE 123"], name: "Electronics", keywords: ["electronics"] },
+        { day: 6, time: 3, codes: ["CSE 4531"], name: "Computer Security", keywords: ["security", "cyber"] },
+        { day: 6, time: 3, codes: ["CSE 4181", "CSE 481"], name: "Mobile App Development", keywords: ["mad", "android"] },
+        { day: 7, time: 1, codes: ["CSE 4891", "CSE 491"], name: "Data Mining", keywords: ["mining", "dm"] },
+        { day: 7, time: 1, codes: ["CSE 4165", "CSE 465"], name: "Web Programming", keywords: ["web", "internet"] },
+        { day: 7, time: 2, codes: ["CSE 2233", "CSI 233"], name: "Theory of Computation", keywords: ["toc", "theory"] },
+        { day: 7, time: 3, codes: ["CSE 4495", "CSE 495"], name: "Software Testing & QA", keywords: ["sqa", "testing"] },
+        { day: 7, time: 3, codes: ["PHY 2105", "PHY 105"], name: "Physics", keywords: ["phy", "physics"] },
+        { day: 7, time: 3, codes: ["DS 3881"], name: "DS Elective", keywords: [] }
+    ];
+
+    // Build unified map of courses to remove duplicates, then map keywords
+    let allCoursesMap = new Map();
+
+    // 1. Add Core Curriculum
+    Object.values(uiuCurriculum).forEach(tri => {
+        tri.forEach(c => allCoursesMap.set(c.code, c));
+    });
+
+    // 2. Add Elective Tracks
+    Object.values(electiveTracks).forEach(track => {
+        track.forEach(c => allCoursesMap.set(c.code, c));
+    });
+
+    // 3. Map keywords from Routine
+    let allCourses = Array.from(allCoursesMap.values()).map(c => {
+        let routineMatch = rawRoutine.find(r => r.codes.includes(c.code));
+        let keywords = routineMatch && routineMatch.keywords ? routineMatch.keywords : [];
+        return { ...c, keywords: keywords };
+    });
+
+    // --- ACADEMIC CALENDAR EVENTS DATA ---
+    const academicEvents = [
+        { start: "2026-02-23", end: "2026-02-25", title: "Registration without Fine", type: "regular" },
+        { start: "2026-02-28", end: "2026-02-28", title: "Spring 2026 classes Begin", type: "regular" },
+        { start: "2026-03-02", end: "2026-03-02", title: "Drop course (100% refund)", type: "regular" },
+        { start: "2026-03-07", end: "2026-03-07", title: "Apply Grade Change (Fall '25)", type: "regular" },
+        { start: "2026-03-09", end: "2026-03-09", title: "Drop course (50% refund)", type: "regular" },
+        { start: "2026-03-10", end: "2026-03-10", title: "Grade Submission for incomplete Grades", type: "regular" },
+        { start: "2026-03-15", end: "2026-03-15", title: "Registration (500Tk Fine)", type: "regular" },
+        { start: "2026-03-17", end: "2026-03-27", title: "Holiday: Shab-e-Qadr/Eid", type: "holiday" },
+        { start: "2026-03-26", end: "2026-03-26", title: "Independence Day", type: "holiday" },
+        { start: "2026-04-13", end: "2026-04-13", title: "Make-up class (Tue Classes)", type: "regular" },
+        { start: "2026-04-14", end: "2026-04-14", title: "Holiday: Bangla New Year", type: "holiday" },
+        { start: "2026-04-18", end: "2026-04-24", title: "Mid-Term Exams", type: "exam" },
+        { start: "2026-04-25", end: "2026-04-25", title: "Regular class (Tue Classes)", type: "regular" },
+        { start: "2026-04-26", end: "2026-04-26", title: "Regular class (Wed Classes)", type: "regular" },
+        { start: "2026-05-04", end: "2026-05-04", title: "Last day of Course Withdrawal", type: "regular" },
+        { start: "2026-05-12", end: "2026-05-12", title: "2nd Installment Deadline", type: "regular" },
+        { start: "2026-05-26", end: "2026-06-05", title: "Holiday: Eid-ul-Adha", type: "holiday" },
+        { start: "2026-06-14", end: "2026-06-14", title: "3rd Installment Deadline", type: "regular" },
+        { start: "2026-06-18", end: "2026-06-20", title: "Exam Prep (No Classes)", type: "regular" },
+        { start: "2026-06-21", end: "2026-06-25", title: "Final Exams", type: "exam" },
+        { start: "2026-06-26", end: "2026-06-26", title: "Ashura", type: "holiday" },
+        { start: "2026-06-27", end: "2026-06-28", title: "Final Exams", type: "exam" },
+        { start: "2026-07-07", end: "2026-07-07", title: "Summer 2026 Begins", type: "regular" }
+    ];
+
+    let myCourses = [];
+
+    // --- SECTION PLANNER DATA ---
+    let mySectionClasses = [];
+    const sectionDaysOfWeek = ["Saturday", "Sunday", "Tuesday", "Wednesday"];
+    
+    const theoryTimeSlots = [
+        "Slot 1 (08:30 AM - 09:50 AM)",
+        "Slot 2 (09:51 AM - 11:10 AM)",
+        "Slot 3 (11:11 AM - 12:30 PM)",
+        "Slot 4 (12:31 PM - 01:50 PM)",
+        "Slot 5 (01:51 PM - 03:10 PM)",
+        "Slot 6 (03:11 PM - 04:30 PM)"
+    ];
+    
+    const labTimeSlots = [
+        "Slot 1 (08:30 AM - 11:00 AM)",
+        "Slot 2 (11:11 AM - 01:40 PM)",
+        "Slot 3 (02:00 PM - 04:30 PM)"
+    ];
+
+    // --- CSV EXPORT LOGIC ---
+    function downloadCSV(csvContent, fileName) {
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement("a");
+        if (link.download !== undefined) {
+            const url = URL.createObjectURL(blob);
+            link.setAttribute("href", url);
+            link.setAttribute("download", fileName);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    }
+
+    function exportExamCSV() {
+        if (myCourses.length === 0) {
+            alert("No courses to export in your Exam Routine!");
+            return;
+        }
+        let csv = "Course Name,Course Code,Exam Day,Time Slot\n";
+        const examTimeSlots = {
+            1: "9:00 AM - 11:00 AM",
+            2: "11:30 AM - 1:30 PM",
+            3: "2:00 PM - 4:00 PM"
+        };
+        myCourses.forEach(c => {
+            const name = `"${c.name}"`;
+            const code = `"${c.codes.join(" / ")}"`;
+            const day = `Day ${c.day}`;
+            const time = examTimeSlots[c.time] || `Slot ${c.time}`;
+            csv += `${name},${code},${day},"${time}"\n`;
+        });
+        downloadCSV(csv, "Exam_Routine.csv");
+    }
+
+    function exportSectionCSV() {
+        if (mySectionClasses.length === 0) {
+            alert("No classes to export in your Section Planner!");
+            return;
+        }
+        let csv = "Course,Section,Type,Days,Time Slot\n";
+        mySectionClasses.forEach(c => {
+            const courseName = `"${c.course}"`;
+            const timeStr = c.type === 'Theory' ? theoryTimeSlots[c.slotIndex] : labTimeSlots[c.slotIndex];
+            csv += `${courseName},${c.section},${c.type},"${c.day}","${timeStr}"\n`;
+        });
+        downloadCSV(csv, "Section_Planner.csv");
+    }
+
+    // --- TAB SWITCHER ---
+    function switchTab(tab) {
+        document.querySelectorAll('.tool-section').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+        document.getElementById(tab + '-section').classList.add('active');
+        document.getElementById('btn-' + tab).classList.add('active');
+        if (tab === 'calendar') renderFullCalendar();
+    }
+
+    // --- THEME TOGGLE ---
+    function toggleTheme() {
+        document.body.classList.toggle('dark-mode');
+        const btn = document.getElementById('btn-theme');
+        if (document.body.classList.contains('dark-mode')) {
+            btn.innerHTML = '☀️';
+            localStorage.setItem('theme', 'dark');
+        } else {
+            btn.innerHTML = '🌙';
+            localStorage.setItem('theme', 'light');
+        }
+    }
+    if (localStorage.getItem('theme') === 'dark') toggleTheme();
+
+    // --- EXAM LOGIC ---
+    function initGrid() {
+        const tbody = document.getElementById('routineBody');
+        tbody.innerHTML = '';
+        for (let i = 1; i <= 7; i++) {
+            tbody.innerHTML += `<tr><td class="day-header">Day ${i}</td><td id="d${i}-t1"></td><td id="d${i}-t2"></td><td id="d${i}-t3"></td></tr>`;
+        }
+    }
+
+    function filterCourses() {
+        const input = document.getElementById('courseSearch').value.toLowerCase();
+        const suggestionBox = document.getElementById('suggestions');
+        suggestionBox.innerHTML = '';
+        if (input.length < 2) { suggestionBox.style.display = 'none'; return; }
+
+        const matches = [];
+        rawRoutine.forEach(item => {
+            if (item.name.toLowerCase().includes(input) || item.codes.some(c => c.toLowerCase().includes(input)) || item.keywords.some(k => k.toLowerCase().includes(input))) {
+                matches.push({ displayName: `${item.name} (${item.codes[0]})`, data: item });
+            }
+        });
+
+        if (matches.length > 0) {
+            suggestionBox.style.display = 'block';
+            matches.forEach(match => {
+                const div = document.createElement('div');
+                div.className = 'suggestion-item';
+                div.innerHTML = `<strong>${match.displayName}</strong>`;
+                div.onclick = () => addCourse(match.data);
+                suggestionBox.appendChild(div);
+            });
+        } else { suggestionBox.style.display = 'none'; }
+    }
+
+    function addCourse(courseData) {
+        if (myCourses.some(c => c.name === courseData.name && c.codes[0] === courseData.codes[0])) { alert("Course already added!"); return; }
+        myCourses.push(courseData);
+        document.getElementById('courseSearch').value = '';
+        document.getElementById('suggestions').style.display = 'none';
+        renderSchedule();
+    }
+
+    function renderSchedule() {
+        for (let d = 1; d <= 7; d++) {
+            for (let t = 1; t <= 3; t++) { document.getElementById(`d${d}-t${t}`).innerHTML = ''; }
+        }
+        let timeClash = false, sameDayPressure = false;
+        const dayCounts = {}, slotMap = {};
+        
+        myCourses.forEach(course => {
+            const key = `d${course.day}-t${course.time}`;
+            if (!slotMap[key]) slotMap[key] = [];
+            slotMap[key].push(course);
+            if (!dayCounts[course.day]) dayCounts[course.day] = 0;
+            dayCounts[course.day]++;
+        });
+
+        for (const [key, coursesInSlot] of Object.entries(slotMap)) {
+            const cell = document.getElementById(key);
+            const isClash = coursesInSlot.length > 1;
+            if (isClash) timeClash = true;
+
+            coursesInSlot.forEach(course => {
+                const div = document.createElement('div');
+                const isSameDay = dayCounts[course.day] > 1;
+                let className = 'added-course';
+                if (isClash) className += ' clash'; else if (isSameDay) { className += ' sameday'; sameDayPressure = true; }
+                div.className = className;
+                div.innerHTML = `<span class="remove-btn" onclick="removeCourse('${course.codes[0]}')">&times;</span>
+                                 <strong>${course.name}</strong><br><small>${course.codes.join('/')}</small>`;
+                cell.appendChild(div);
+            });
+        }
+        document.getElementById('clash-alert').style.display = timeClash ? 'block' : 'none';
+        document.getElementById('sameday-alert').style.display = (sameDayPressure && !timeClash) ? 'block' : 'none';
+    }
+
+    function removeCourse(code) { myCourses = myCourses.filter(c => c.codes[0] !== code); renderSchedule(); }
+
+
+    // --- SECTION PLANNER LOGIC ---
+    function updateSectionDropdowns() {
+        const type = document.getElementById('sectionTypeSelect').value;
+        
+        // Update Time Slots
+        const timeSelect = document.getElementById('sectionTimeSelect');
+        timeSelect.innerHTML = '';
+        const slots = type === 'Theory' ? theoryTimeSlots : labTimeSlots;
+        slots.forEach(slot => {
+            const opt = document.createElement('option');
+            opt.value = slot;
+            opt.innerText = slot;
+            timeSelect.appendChild(opt);
+        });
+
+        // Update Day Options Based on Type
+        const daySelect = document.getElementById('sectionDaySelect');
+        daySelect.innerHTML = '';
+        
+        let days = type === 'Theory' 
+            ? ["Saturday & Tuesday", "Sunday & Wednesday"] 
+            : ["Saturday", "Sunday", "Tuesday", "Wednesday"];
+            
+        days.forEach(day => {
+            const opt = document.createElement('option');
+            opt.value = day;
+            opt.innerText = day;
+            daySelect.appendChild(opt);
+        });
+    }
+
+    function initSectionGrid() {
+        // Init Theory Grid
+        const tbodyTheory = document.getElementById('theoryRoutineBody');
+        tbodyTheory.innerHTML = '';
+        theoryTimeSlots.forEach((slot, index) => {
+            let rowHTML = `<tr><td class="day-header" style="font-size:0.85em;"><strong>${slot}</strong></td>`;
+            sectionDaysOfWeek.forEach(day => {
+                rowHTML += `<td id="sec-theory-${day}-${index}"></td>`;
+            });
+            rowHTML += `</tr>`;
+            tbodyTheory.innerHTML += rowHTML;
+        });
+
+        // Init Lab Grid
+        const tbodyLab = document.getElementById('labRoutineBody');
+        tbodyLab.innerHTML = '';
+        labTimeSlots.forEach((slot, index) => {
+            let rowHTML = `<tr><td class="day-header" style="font-size:0.85em;"><strong>${slot}</strong></td>`;
+            sectionDaysOfWeek.forEach(day => {
+                rowHTML += `<td id="sec-lab-${day}-${index}"></td>`;
+            });
+            rowHTML += `</tr>`;
+            tbodyLab.innerHTML += rowHTML;
+        });
+
+        // Setup dropdowns on initial load
+        updateSectionDropdowns();
+    }
+
+    function filterSectionCourses() {
+        const input = document.getElementById('sectionCourseSearch').value.toLowerCase();
+        const suggestionBox = document.getElementById('sectionSuggestions');
+        suggestionBox.innerHTML = '';
+        if (input.length < 2) { suggestionBox.style.display = 'none'; return; }
+
+        const matches = [];
+        rawRoutine.forEach(item => {
+            if (item.name.toLowerCase().includes(input) || item.codes.some(c => c.toLowerCase().includes(input)) || item.keywords.some(k => k.toLowerCase().includes(input))) {
+                matches.push({ displayName: `${item.name} (${item.codes[0]})`, data: item });
+            }
+        });
+
+        if (matches.length > 0) {
+            suggestionBox.style.display = 'block';
+            matches.forEach(match => {
+                const div = document.createElement('div');
+                div.className = 'suggestion-item';
+                div.innerHTML = `<strong>${match.displayName}</strong>`;
+                div.onclick = () => {
+                    document.getElementById('sectionCourseSelected').value = match.displayName;
+                    document.getElementById('sectionCourseSearch').value = '';
+                    suggestionBox.style.display = 'none';
+                };
+                suggestionBox.appendChild(div);
+            });
+        } else { suggestionBox.style.display = 'none'; }
+    }
+
+    function addSectionClass() {
+        const courseStr = document.getElementById('sectionCourseSelected').value;
+        const secName = document.getElementById('sectionNameInput').value || "N/A";
+        const type = document.getElementById('sectionTypeSelect').value;
+        const day = document.getElementById('sectionDaySelect').value;
+        const slot = document.getElementById('sectionTimeSelect').value;
+        
+        if (!courseStr) { 
+            alert("Please search and select a course first!"); 
+            return; 
+        }
+
+        const newClass = {
+            id: Date.now().toString(),
+            course: courseStr,
+            section: secName,
+            type: type,
+            day: day, // This will be "Saturday & Tuesday" or a single day
+            slotIndex: type === 'Theory' ? theoryTimeSlots.indexOf(slot) : labTimeSlots.indexOf(slot)
+        };
+        
+        mySectionClasses.push(newClass);
+        renderSectionRoutine();
+    }
+
+    function renderSectionRoutine() {
+        // Clear all grids
+        sectionDaysOfWeek.forEach(day => {
+            theoryTimeSlots.forEach((slot, idx) => {
+                document.getElementById(`sec-theory-${day}-${idx}`).innerHTML = '';
+            });
+            labTimeSlots.forEach((slot, idx) => {
+                document.getElementById(`sec-lab-${day}-${idx}`).innerHTML = '';
+            });
+        });
+        
+        let hasClash = false;
+        const slotMap = {};
+
+        mySectionClasses.forEach(c => {
+            // Determine which days to render based on selection
+            let daysToRender = [];
+            if (c.day === "Saturday & Tuesday") {
+                daysToRender = ["Saturday", "Tuesday"];
+            } else if (c.day === "Sunday & Wednesday") {
+                daysToRender = ["Sunday", "Wednesday"];
+            } else {
+                // Lab single days
+                daysToRender = [c.day];
+            }
+
+            daysToRender.forEach(d => {
+                const key = `sec-${c.type.toLowerCase()}-${d}-${c.slotIndex}`;
+                if (!slotMap[key]) slotMap[key] = [];
+                slotMap[key].push(c);
+            });
+        });
+
+        for (const [key, classesInSlot] of Object.entries(slotMap)) {
+            const cell = document.getElementById(key);
+            const isClash = classesInSlot.length > 1;
+            if (isClash) hasClash = true;
+
+            classesInSlot.forEach(c => {
+                const div = document.createElement('div');
+                let className = 'added-course';
+                if (isClash) className += ' clash';
+                div.className = className;
+                div.innerHTML = `<span class="remove-btn" onclick="removeSectionClass('${c.id}')">&times;</span>
+                                 <strong>${c.course.split(' (')[0]}</strong><br>
+                                 <small>${c.course.match(/\(([^)]+)\)/)[1]} | Sec: ${c.section}</small>`;
+                div.title = c.course;
+                cell.appendChild(div);
+            });
+        }
+        
+        document.getElementById('section-clash-alert').style.display = hasClash ? 'block' : 'none';
+    }
+
+    function removeSectionClass(id) {
+        mySectionClasses = mySectionClasses.filter(c => c.id !== id);
+        renderSectionRoutine();
+    }
+
+    // --- CGPA LOGIC ---
+    const gradePoints = { "A":4.00, "A-":3.67, "B+":3.33, "B":3.00, "B-":2.67, "C+":2.33, "C":2.00, "C-":1.67, "D+":1.33, "D":1.00, "F":0.00 };
+    
+    function addCourseRow(name = "", credit = 3.0) {
+        const tbody = document.querySelector("#courseTable tbody");
+        const row = document.createElement("tr");
+        let opts = ""; for (let g in gradePoints) opts += `<option value="${gradePoints[g]}">${g}</option>`;
+        
+        row.innerHTML = `
+            <td>${tbody.rows.length + 1}</td>
+            <td style="position: relative;">
+                <input type="text" class="c-name" value="${name}" placeholder="Type to search..." oninput="searchCGPACourse(this)" autocomplete="off">
+                <div class="suggestions" style="width: 100%;"></div>
+            </td>
+            <td><input type="number" class="c-credit" value="${credit}" step="0.5"></td>
+            <td><select class="c-grade-new">${opts}</select></td>
+            <td>
+                <div class="retake-controls"><input type="checkbox" class="retake-checkbox" onchange="toggleRetake(this)"><span>Retake?</span></div>
+                <div class="prev-grade-wrapper"><span class="prev-grade-label">Old Grade:</span><select class="c-grade-old">${opts}</select></div>
+            </td>
+            <td><button class="btn-delete" onclick="this.closest('tr').remove(); updateRows()">✕</button></td>`;
+        tbody.appendChild(row);
+    }
+
+    function searchCGPACourse(input) {
+        const val = input.value.toLowerCase();
+        const suggestionBox = input.nextElementSibling; 
+        suggestionBox.innerHTML = '';
+        
+        if (val.length < 1) { 
+            suggestionBox.style.display = 'none'; 
+            return; 
+        }
+
+        const matches = allCourses.filter(c => 
+            c.code.toLowerCase().includes(val) || 
+            c.title.toLowerCase().includes(val) ||
+            (c.keywords && c.keywords.some(k => k.toLowerCase().includes(val)))
+        ).slice(0, 5);
+
+        if (matches.length > 0) {
+            suggestionBox.style.display = 'block';
+            matches.forEach(match => {
+                const div = document.createElement('div');
+                div.className = 'suggestion-item';
+                div.innerHTML = `<strong>${match.code}</strong> <small>${match.title}</small>`;
+                div.onclick = () => selectCGPACourse(input, match);
+                suggestionBox.appendChild(div);
+            });
+        } else {
+            suggestionBox.style.display = 'none';
+        }
+    }
+
+    function selectCGPACourse(inputElement, courseData) {
+        inputElement.value = `${courseData.code} : ${courseData.title}`;
+        const row = inputElement.closest('tr');
+        const creditInput = row.querySelector('.c-credit');
+        if (creditInput) {
+            creditInput.value = courseData.cr;
+        }
+        inputElement.nextElementSibling.style.display = 'none';
+    }
+
+    function toggleRetake(checkbox) { checkbox.checked ? checkbox.closest('td').querySelector('.prev-grade-wrapper').classList.add('active') : checkbox.closest('td').querySelector('.prev-grade-wrapper').classList.remove('active'); }
+    function updateRows() { document.querySelectorAll("#courseTable tbody tr").forEach((row, i) => row.cells[0].innerText = i + 1); }
+
+    function calculateCGPA() {
+        let prevCGPA = parseFloat(document.getElementById("prevCGPA").value) || 0, prevCredits = parseFloat(document.getElementById("prevCredits").value) || 0;
+        let totalPoints = prevCGPA * prevCredits, totalCredits = prevCredits, currentPoints = 0, currentCredits = 0;
+
+        document.querySelectorAll("#courseTable tbody tr").forEach(row => {
+            const crd = parseFloat(row.querySelector(".c-credit").value) || 0, newGrade = parseFloat(row.querySelector(".c-grade-new").value);
+            if (crd > 0) {
+                if (row.querySelector(".retake-checkbox").checked) {
+                    const oldGrade = parseFloat(row.querySelector(".c-grade-old").value);
+                    totalPoints = totalPoints - (oldGrade * crd) + (newGrade * crd);
+                    if (oldGrade === 0.00) totalCredits += crd;
+                } else { totalPoints += (crd * newGrade); totalCredits += crd; }
+                currentPoints += (crd * newGrade); currentCredits += crd; 
+            }
+        });
+
+        document.getElementById("currentGPA").innerText = currentCredits ? (currentPoints / currentCredits).toFixed(2) : "0.00";
+        document.getElementById("totalCGPA").innerText = totalCredits ? (totalPoints / totalCredits).toFixed(2) : "0.00";
+        document.getElementById("totalCreditsDisplay").innerText = totalCredits;
+        document.getElementById("resultBox").style.display = "block";
+    }
+
+    // --- PLANNER LOGIC ---
+    function initPlanner() {
+        const select = document.getElementById('cgpaPlannerSelect');
+        const corePlannerGrid = document.getElementById('plannerGrid');
+        const electiveGrid = document.getElementById('electiveGrid');
+        
+        Object.keys(uiuCurriculum).forEach(triName => {
+            const option = document.createElement('option');
+            option.value = triName;
+            option.innerText = triName;
+            select.appendChild(option);
+
+            const card = document.createElement('div');
+            card.className = 'tri-card';
+            
+            let courseListHTML = '';
+            uiuCurriculum[triName].forEach(c => {
+                courseListHTML += `
+                    <li class="tri-course-item">
+                        <span><strong>${c.code}</strong> ${c.title}</span>
+                        <span class="badge-credit">${c.cr} Cr</span>
+                    </li>`;
+            });
+
+            card.innerHTML = `
+                <div class="tri-header">
+                    <span>${triName}</span>
+                </div>
+                <ul class="tri-course-list">${courseListHTML}</ul>
+            `;
+            corePlannerGrid.appendChild(card);
+        });
+
+        Object.keys(electiveTracks).forEach(trackName => {
+            const card = document.createElement('div');
+            card.className = 'tri-card';
+            
+            let courseListHTML = '';
+            electiveTracks[trackName].forEach(c => {
+                courseListHTML += `
+                    <li class="tri-course-item">
+                        <span><strong>${c.code}</strong> ${c.title}</span>
+                        <span class="badge-credit">${c.cr} Cr</span>
+                    </li>`;
+            });
+
+            card.innerHTML = `
+                <div class="tri-header">
+                    <span>${trackName}</span>
+                </div>
+                <ul class="tri-course-list">${courseListHTML}</ul>
+            `;
+            electiveGrid.appendChild(card);
+        });
+    }
+
+    function loadFromPlanner() {
+        const triName = document.getElementById('cgpaPlannerSelect').value;
+        if (!triName) return;
+
+        const tbody = document.querySelector("#courseTable tbody");
+        if (tbody.children.length > 0) {
+            if(!confirm("Loading this trimester will replace your current list. Continue?")) return;
+        }
+
+        tbody.innerHTML = '';
+
+        const courses = uiuCurriculum[triName];
+        if (courses) {
+            courses.forEach(c => {
+                addCourseRow(c.title + ` (${c.code})`, c.cr);
+            });
+        }
+    }
+
+    // --- FULL CALENDAR LOGIC ---
+    let currentCalYear = 2026;
+    let currentCalMonth = 1; 
+
+    function renderFullCalendar() {
+        const daysContainer = document.getElementById('calendar-days');
+        const monthYearDisplay = document.getElementById('month-year-display');
+        daysContainer.innerHTML = '';
+        
+        const firstDay = new Date(currentCalYear, currentCalMonth, 1).getDay();
+        const daysInMonth = new Date(currentCalYear, currentCalMonth + 1, 0).getDate();
+        
+        const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        monthYearDisplay.innerText = `${monthNames[currentCalMonth]} ${currentCalYear}`;
+        
+        for (let i = 0; i < firstDay; i++) {
+            daysContainer.innerHTML += `<div class="calendar-day empty"></div>`;
+        }
+        
+        for (let day = 1; day <= daysInMonth; day++) {
+            const m = String(currentCalMonth + 1).padStart(2, '0');
+            const d = String(day).padStart(2, '0');
+            const currentCellDate = `${currentCalYear}-${m}-${d}`;
+            
+            let eventsHTML = '';
+            
+            academicEvents.forEach(evt => {
+                if (currentCellDate >= evt.start && currentCellDate <= evt.end) {
+                    let typeClass = '';
+                    if (evt.type === 'holiday') typeClass = 'event-holiday';
+                    if (evt.type === 'exam') typeClass = 'event-exam';
+                    
+                    eventsHTML += `<div class="event-badge ${typeClass}">${evt.title}</div>`;
+                }
+            });
+            
+            daysContainer.innerHTML += `
+                <div class="calendar-day">
+                    <span class="day-num">${day}</span>
+                    ${eventsHTML}
+                </div>
+            `;
+        }
+    }
+
+    function changeMonth(direction) {
+        currentCalMonth += direction;
+        if (currentCalMonth < 0) { currentCalMonth = 11; currentCalYear--; }
+        if (currentCalMonth > 11) { currentCalMonth = 0; currentCalYear++; }
+        renderFullCalendar();
+    }
+
+    function searchCalendarEvents() {
+        const input = document.getElementById('calendarSearch').value.toLowerCase();
+        const suggestionBox = document.getElementById('calendarSuggestions');
+        suggestionBox.innerHTML = '';
+        if (input.length < 2) { suggestionBox.style.display = 'none'; return; }
+
+        const matches = academicEvents.filter(evt => {
+            const dateStr = new Date(evt.start).toLocaleDateString('en-US', { month: 'short', day: 'numeric'}).toLowerCase();
+            return evt.title.toLowerCase().includes(input) || evt.start.includes(input) || dateStr.includes(input);
+        });
+
+        if (matches.length > 0) {
+            suggestionBox.style.display = 'block';
+            matches.forEach(match => {
+                const div = document.createElement('div');
+                div.className = 'suggestion-item';
+                const dateStrDisplay = new Date(match.start).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                div.innerHTML = `<strong>${match.title}</strong><span class="shortcut-badge">${dateStrDisplay}</span>`;
+                div.onclick = () => {
+                    const matchDate = new Date(match.start);
+                    currentCalYear = matchDate.getFullYear();
+                    currentCalMonth = matchDate.getMonth();
+                    renderFullCalendar();
+                    document.getElementById('calendarSearch').value = '';
+                    suggestionBox.style.display = 'none';
+                };
+                suggestionBox.appendChild(div);
+            });
+        } else {
+            suggestionBox.style.display = 'none';
+        }
+    }
+
+    // --- INIT ---
+    window.onload = function() {
+        initGrid();
+        initSectionGrid(); // Initialize BOTH theory and lab section grids
+        initPlanner(); 
+        addCourseRow(); addCourseRow(); addCourseRow();
+        renderFullCalendar();
+        
+        document.addEventListener('click', e => {
+            if (!e.target.closest('#courseSearch')) {
+                const sugg = document.getElementById('suggestions');
+                if (sugg) sugg.style.display = 'none';
+            }
+            if (!e.target.closest('#calendarSearch')) {
+                const calSugg = document.getElementById('calendarSuggestions');
+                if (calSugg) calSugg.style.display = 'none';
+            }
+            if (!e.target.closest('#sectionCourseSearch')) {
+                const secSugg = document.getElementById('sectionSuggestions');
+                if (secSugg) secSugg.style.display = 'none';
+            }
+            if (!e.target.closest('.c-name')) {
+                document.querySelectorAll('.suggestions').forEach(s => {
+                    if(s.id !== 'suggestions' && s.id !== 'calendarSuggestions' && s.id !== 'sectionSuggestions') {
+                        s.style.display = 'none';
+                    }
+                });
+            }
+        });
+    };
+</script>
+
+</body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UIU ToolKits | Spring 2026</title>
+    <style>
+        /* --- GLOBAL VARIABLES & THEME --- */
+        :root {
+            --uiu-orange: #F37021;
+            --uiu-blue: #005696;
+            
+            /* Light Theme */
+            --bg-body: #fdf8f5;
+            --bg-container: #ffffff;
+            --bg-input: #ffffff;
+            --text-main: #333333;
+            --text-muted: #666666;
+            --border-color: #ffdcb0;
+            
+            /* Primary Accents */
+            --primary-color: #F37021; 
+            --secondary-color: #005696;
+            --table-header-bg: #F37021;
+            --table-header-text: #ffffff;
+            
+            /* Alert Colors */
+            --clash-bg: #ffebee;
+            --clash-border: #d32f2f;
+            --same-day-bg: #fff8e1;
+            --same-day-border: #ffc107;
+            --course-added-bg: #fff3e0;
+            
+            --shadow: 0 4px 15px rgba(243, 112, 33, 0.15);
+            --warning-bg: #fff3cd;
+            --warning-text: #856404;
+            --warning-border: #ffeeba;
+        }
+
+        /* Dark Mode Override */
+        body.dark-mode {
+            --bg-body: #121212;
+            --bg-container: #1e1e1e;
+            --bg-input: #2d2d2d;
+            --text-main: #e0e0e0;
+            --text-muted: #a0a0a0;
+            --border-color: #333333;
+            
+            --primary-color: #F37021;
+            --secondary-color: #64b5f6;
+            --table-header-bg: #d85a0e;
+            
+            --clash-bg: #3e1a1a;
+            --same-day-bg: #3e3310;
+            --same-day-border: #9c7b16;
+            --course-added-bg: #2d2318;
+            
+            --shadow: 0 4px 15px rgba(0,0,0,0.5);
+            --warning-bg: #332701;
+            --warning-text: #ffc107;
+            --warning-border: #664d03;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            margin: 0;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        /* --- NAVIGATION --- */
+        nav {
+            background-color: var(--bg-container);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 3px solid var(--primary-color);
+        }
+
+        .logo {
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            padding: 8px 16px;
+            border: 2px solid var(--primary-color);
+            background: transparent;
+            color: var(--primary-color);
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .nav-btn.active, .nav-btn:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+        
+        body.dark-mode .nav-btn {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+        body.dark-mode .nav-btn.active, 
+        body.dark-mode .nav-btn:hover {
+            background: var(--primary-color);
+            color: #121212;
+        }
+
+        /* --- LAYOUT --- */
+        .container {
+            max-width: 1100px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+
+        .tool-section {
+            display: none;
+            background: var(--bg-container);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            animation: fadeIn 0.3s;
+            border-top: 5px solid var(--primary-color);
+        }
+        .tool-section.active { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 { color: var(--primary-color); margin-top: 0; text-align: center; }
+        p.subtitle { color: var(--text-muted); text-align: center; margin-bottom: 20px; }
+
+        /* --- ALERTS --- */
+        .disclaimer-box {
+            background-color: var(--warning-bg);
+            color: var(--warning-text);
+            border: 1px solid var(--warning-border);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        .alert-box {
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            text-align: center;
+            font-weight: bold;
+            display: none;
+        }
+        #clash-alert { background-color: var(--clash-bg); color: #d32f2f; border: 1px solid var(--clash-border); }
+        #sameday-alert { background-color: var(--same-day-bg); color: #c49000; border: 1px solid var(--same-day-border); }
+        #section-clash-alert { background-color: var(--clash-bg); color: #d32f2f; border: 1px solid var(--clash-border); }
+        body.dark-mode #sameday-alert { color: #ffca28; }
+
+        /* --- INPUTS & SEARCH --- */
+        .search-box { position: relative; max-width: 600px; margin: 0 auto 20px auto; }
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-input);
+            color: var(--text-main);
+            border-radius: 6px;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+        input:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 2px rgba(243, 112, 33, 0.2); }
+
+        .suggestions {
+            position: absolute; top: 100%; left: 0; right: 0;
+            background: var(--bg-container);
+            border: 1px solid var(--border-color);
+            max-height: 250px; overflow-y: auto; z-index: 100;
+            display: none;
+            border-radius: 0 0 6px 6px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .suggestion-item {
+            padding: 10px 15px; cursor: pointer; border-bottom: 1px solid var(--border-color);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .suggestion-item:hover { background-color: var(--bg-body); }
+        .suggestion-item strong { color: var(--primary-color); }
+        .shortcut-badge { background: var(--border-color); font-size: 0.75em; padding: 2px 6px; border-radius: 4px; color: var(--text-muted); }
+
+        /* --- EXAM TABLE --- */
+        .routine-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        .routine-table th, .routine-table td {
+            border: 1px solid var(--border-color);
+            padding: 10px; text-align: center; vertical-align: top;
+        }
+        .routine-table th { background-color: var(--table-header-bg); color: var(--table-header-text); }
+        
+        .added-course {
+            background-color: var(--course-added-bg);
+            border-left: 4px solid var(--primary-color);
+            padding: 8px 25px 8px 8px;
+            margin-top: 5px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            text-align: left;
+            position: relative;
+            word-wrap: break-word;
+        }
+        .added-course.clash { background-color: var(--clash-bg); border-left-color: var(--clash-border); color: #d32f2f; }
+        .added-course.sameday { border-left-color: var(--same-day-border); background-color: var(--same-day-bg); }
+        
+        .remove-btn {
+            position: absolute; top: 2px; right: 5px;
+            cursor: pointer; color: var(--text-muted); font-size: 1.2em; font-weight: bold;
+        }
+        .remove-btn:hover { color: red; }
+
+        /* --- CGPA STYLES --- */
+        .section-box { border: 1px solid var(--border-color); padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+        .section-title {
+            color: var(--primary-color); font-weight: bold; display: block;
+            border-left: 4px solid var(--primary-color); padding-left: 10px; margin-bottom: 15px;
+        }
+        .cgpa-table { width: 100%; margin-bottom: 15px; border-collapse: collapse; }
+        .cgpa-table th { background-color: var(--primary-color); color: white; padding: 10px; text-align: left; }
+        .cgpa-table td { padding: 10px; border-bottom: 1px solid var(--border-color); vertical-align: middle; }
+
+        .btn-action { width: 100%; padding: 12px; border-radius: 6px; border: none; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .btn-add { background-color: var(--secondary-color); color: white; width: auto; padding: 8px 20px; }
         .btn-calc { background-color: var(--primary-color); color: white; font-size: 1.1em; }
         .btn-delete { background-color: #ff4d4d; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 0.8em; }
 
@@ -1414,3 +2889,4 @@
 
 </body>
 </html>
+
