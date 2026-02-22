@@ -173,6 +173,7 @@
         }
         #clash-alert { background-color: var(--clash-bg); color: #d32f2f; border: 1px solid var(--clash-border); }
         #sameday-alert { background-color: var(--same-day-bg); color: #c49000; border: 1px solid var(--same-day-border); }
+        #section-clash-alert { background-color: var(--clash-bg); color: #d32f2f; border: 1px solid var(--clash-border); }
         body.dark-mode #sameday-alert { color: #ffca28; }
 
         /* --- INPUTS & SEARCH --- */
@@ -223,6 +224,7 @@
             font-size: 0.9em;
             text-align: left;
             position: relative;
+            word-wrap: break-word;
         }
         .added-course.clash { background-color: var(--clash-bg); border-left-color: var(--clash-border); color: #d32f2f; }
         .added-course.sameday { border-left-color: var(--same-day-border); background-color: var(--same-day-bg); }
@@ -369,6 +371,7 @@
     <div class="logo">🎓 UIU Toolkit</div>
     <div class="nav-buttons">
         <button class="nav-btn active" onclick="switchTab('exam')" id="btn-exam">Exam Routine</button>
+        <button class="nav-btn" onclick="switchTab('sectionplanner')" id="btn-sectionplanner">Section Planner</button>
         <button class="nav-btn" onclick="switchTab('cgpa')" id="btn-cgpa">CGPA Calc</button>
         <button class="nav-btn" onclick="switchTab('calendar')" id="btn-calendar">Academic Calendar</button>
         <button class="nav-btn" onclick="switchTab('planner')" id="btn-planner">Course Planner</button>
@@ -405,6 +408,68 @@
             </thead>
             <tbody id="routineBody"></tbody>
         </table>
+    </div>
+
+    <div id="sectionplanner-section" class="tool-section">
+        <h1>Section Planner</h1>
+        <p class="subtitle">Draft your Class Routine & Check Clashes</p>
+
+        <div id="section-clash-alert" class="alert-box">⚠️ CLASS CLASH: You have overlapping classes at the exact same time!</div>
+
+        <div class="section-box">
+            <span class="section-title">Add Class Session to Routine</span>
+            <div class="search-box" style="margin-bottom: 10px; max-width: 100%;">
+                <input type="text" id="sectionCourseSearch" placeholder="Search Course using code or keyword (e.g., spl, dbms)..." oninput="filterSectionCourses()" autocomplete="off">
+                <div class="suggestions" id="sectionSuggestions"></div>
+            </div>
+            
+            <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px;">
+                <div style="flex:2; min-width: 200px;">
+                    <input type="text" id="sectionCourseSelected" placeholder="Selected Course" readonly style="background: var(--bg-body);">
+                </div>
+                <div style="flex:1; min-width: 100px;">
+                    <input type="text" id="sectionNameInput" placeholder="Section (e.g., A)">
+                </div>
+                <div style="flex:1; min-width: 120px;">
+                    <select id="sectionDaySelect">
+                        <option value="Saturday">Saturday</option>
+                        <option value="Sunday">Sunday</option>
+                        <option value="Tuesday">Tuesday</option>
+                        <option value="Wednesday">Wednesday</option>
+                    </select>
+                </div>
+                <div style="flex:1; min-width: 160px;">
+                    <select id="sectionTimeSelect">
+                        <option value="Slot 1 (08:30 AM - 10:00 AM)">Slot 1 (08:30 AM - 10:00 AM)</option>
+                        <option value="Slot 2 (10:00 AM - 11:30 AM)">Slot 2 (10:00 AM - 11:30 AM)</option>
+                        <option value="Slot 3 (11:30 AM - 01:00 PM)">Slot 3 (11:30 AM - 01:00 PM)</option>
+                        <option value="Slot 4 (01:00 PM - 02:30 PM)">Slot 4 (01:00 PM - 02:30 PM)</option>
+                        <option value="Slot 5 (02:30 PM - 04:00 PM)">Slot 5 (02:30 PM - 04:00 PM)</option>
+                        <option value="Slot 6 (04:00 PM - 05:30 PM)">Slot 6 (04:00 PM - 05:30 PM)</option>
+                    </select>
+                </div>
+                <div>
+                    <button class="btn-action btn-add" style="margin-top:0;" onclick="addSectionClass()">Add to Routine</button>
+                </div>
+            </div>
+            <small style="color:var(--text-muted);">💡 Tip: You can add the same course multiple times with different sections to visualize your alternative options!</small>
+        </div>
+
+        <div style="overflow-x: auto;">
+            <table class="routine-table" id="sectionRoutineTable" style="min-width: 700px;">
+                <thead>
+                    <tr>
+                        <th style="width:20%">Time Slot</th>
+                        <th style="width:20%">Saturday</th>
+                        <th style="width:20%">Sunday</th>
+                        <th style="width:20%">Tuesday</th>
+                        <th style="width:20%">Wednesday</th>
+                    </tr>
+                </thead>
+                <tbody id="sectionRoutineBody">
+                    </tbody>
+            </table>
+        </div>
     </div>
 
     <div id="cgpa-section" class="tool-section">
@@ -757,6 +822,18 @@
 
     let myCourses = [];
 
+    // --- SECTION PLANNER DATA ---
+    let mySectionClasses = [];
+    const sectionDaysOfWeek = ["Saturday", "Sunday", "Tuesday", "Wednesday"];
+    const sectionTimeSlots = [
+        "Slot 1 (08:30 AM - 10:00 AM)",
+        "Slot 2 (10:00 AM - 11:30 AM)",
+        "Slot 3 (11:30 AM - 01:00 PM)",
+        "Slot 4 (01:00 PM - 02:30 PM)",
+        "Slot 5 (02:30 PM - 04:00 PM)",
+        "Slot 6 (04:00 PM - 05:30 PM)"
+    ];
+
     // --- TAB SWITCHER ---
     function switchTab(tab) {
         document.querySelectorAll('.tool-section').forEach(el => el.classList.remove('active'));
@@ -859,6 +936,116 @@
 
     function removeCourse(code) { myCourses = myCourses.filter(c => c.codes[0] !== code); renderSchedule(); }
 
+
+    // --- SECTION PLANNER LOGIC ---
+    function initSectionGrid() {
+        const tbody = document.getElementById('sectionRoutineBody');
+        tbody.innerHTML = '';
+        sectionTimeSlots.forEach((slot, index) => {
+            let rowHTML = `<tr><td class="day-header" style="font-size:0.85em;"><strong>${slot}</strong></td>`;
+            sectionDaysOfWeek.forEach(day => {
+                rowHTML += `<td id="sec-${day}-${index}"></td>`;
+            });
+            rowHTML += `</tr>`;
+            tbody.innerHTML += rowHTML;
+        });
+    }
+
+    function filterSectionCourses() {
+        const input = document.getElementById('sectionCourseSearch').value.toLowerCase();
+        const suggestionBox = document.getElementById('sectionSuggestions');
+        suggestionBox.innerHTML = '';
+        if (input.length < 2) { suggestionBox.style.display = 'none'; return; }
+
+        const matches = [];
+        // Use the exact same searching logic from the exam routine
+        rawRoutine.forEach(item => {
+            if (item.name.toLowerCase().includes(input) || item.codes.some(c => c.toLowerCase().includes(input)) || item.keywords.some(k => k.toLowerCase().includes(input))) {
+                matches.push({ displayName: `${item.name} (${item.codes[0]})`, data: item });
+            }
+        });
+
+        if (matches.length > 0) {
+            suggestionBox.style.display = 'block';
+            matches.forEach(match => {
+                const div = document.createElement('div');
+                div.className = 'suggestion-item';
+                div.innerHTML = `<strong>${match.displayName}</strong>`;
+                div.onclick = () => {
+                    document.getElementById('sectionCourseSelected').value = match.displayName;
+                    document.getElementById('sectionCourseSearch').value = '';
+                    suggestionBox.style.display = 'none';
+                };
+                suggestionBox.appendChild(div);
+            });
+        } else { suggestionBox.style.display = 'none'; }
+    }
+
+    function addSectionClass() {
+        const courseStr = document.getElementById('sectionCourseSelected').value;
+        const secName = document.getElementById('sectionNameInput').value || "N/A";
+        const day = document.getElementById('sectionDaySelect').value;
+        const slot = document.getElementById('sectionTimeSelect').value;
+        
+        if (!courseStr) { 
+            alert("Please search and select a course first!"); 
+            return; 
+        }
+
+        const newClass = {
+            id: Date.now().toString(),
+            course: courseStr,
+            section: secName,
+            day: day,
+            slotIndex: sectionTimeSlots.indexOf(slot)
+        };
+        
+        mySectionClasses.push(newClass);
+        renderSectionRoutine();
+    }
+
+    function renderSectionRoutine() {
+        sectionDaysOfWeek.forEach(day => {
+            sectionTimeSlots.forEach((slot, idx) => {
+                document.getElementById(`sec-${day}-${idx}`).innerHTML = '';
+            });
+        });
+        
+        let hasClash = false;
+        const slotMap = {};
+
+        mySectionClasses.forEach(c => {
+            const key = `sec-${c.day}-${c.slotIndex}`;
+            if (!slotMap[key]) slotMap[key] = [];
+            slotMap[key].push(c);
+        });
+
+        for (const [key, classesInSlot] of Object.entries(slotMap)) {
+            const cell = document.getElementById(key);
+            const isClash = classesInSlot.length > 1;
+            if (isClash) hasClash = true;
+
+            classesInSlot.forEach(c => {
+                const div = document.createElement('div');
+                let className = 'added-course';
+                if (isClash) className += ' clash';
+                div.className = className;
+                div.innerHTML = `<span class="remove-btn" onclick="removeSectionClass('${c.id}')">&times;</span>
+                                 <strong>${c.course.split(' (')[0]}</strong><br>
+                                 <small>${c.course.match(/\(([^)]+)\)/)[1]} | Sec: ${c.section}</small>`;
+                div.title = c.course;
+                cell.appendChild(div);
+            });
+        }
+        
+        document.getElementById('section-clash-alert').style.display = hasClash ? 'block' : 'none';
+    }
+
+    function removeSectionClass(id) {
+        mySectionClasses = mySectionClasses.filter(c => c.id !== id);
+        renderSectionRoutine();
+    }
+
     // --- CGPA LOGIC ---
     const gradePoints = { "A":4.00, "A-":3.67, "B+":3.33, "B":3.00, "B-":2.67, "C+":2.33, "C":2.00, "C-":1.67, "D+":1.33, "D":1.00, "F":0.00 };
     
@@ -883,10 +1070,9 @@
         tbody.appendChild(row);
     }
 
-    // --- NEW: ROW-WISE SEARCH FUNCTIONS ---
     function searchCGPACourse(input) {
         const val = input.value.toLowerCase();
-        const suggestionBox = input.nextElementSibling; // The div.suggestions
+        const suggestionBox = input.nextElementSibling; 
         suggestionBox.innerHTML = '';
         
         if (val.length < 1) { 
@@ -894,12 +1080,11 @@
             return; 
         }
 
-        // Search in flattened allCourses array including keywords
         const matches = allCourses.filter(c => 
             c.code.toLowerCase().includes(val) || 
             c.title.toLowerCase().includes(val) ||
             (c.keywords && c.keywords.some(k => k.toLowerCase().includes(val)))
-        ).slice(0, 5); // Limit to 5 results
+        ).slice(0, 5);
 
         if (matches.length > 0) {
             suggestionBox.style.display = 'block';
@@ -916,17 +1101,12 @@
     }
 
     function selectCGPACourse(inputElement, courseData) {
-        // Fill Name
         inputElement.value = `${courseData.code} : ${courseData.title}`;
-        
-        // Auto-fill Credit
         const row = inputElement.closest('tr');
         const creditInput = row.querySelector('.c-credit');
         if (creditInput) {
             creditInput.value = courseData.cr;
         }
-        
-        // Hide Suggestions
         inputElement.nextElementSibling.style.display = 'none';
     }
 
@@ -961,15 +1141,12 @@
         const corePlannerGrid = document.getElementById('plannerGrid');
         const electiveGrid = document.getElementById('electiveGrid');
         
-        // 1. Populate Core Trimesters
         Object.keys(uiuCurriculum).forEach(triName => {
-            // Dropdown option
             const option = document.createElement('option');
             option.value = triName;
             option.innerText = triName;
             select.appendChild(option);
 
-            // Planner Grid Card
             const card = document.createElement('div');
             card.className = 'tri-card';
             
@@ -991,7 +1168,6 @@
             corePlannerGrid.appendChild(card);
         });
 
-        // 2. Populate Elective Tracks
         Object.keys(electiveTracks).forEach(trackName => {
             const card = document.createElement('div');
             card.className = 'tri-card';
@@ -1019,16 +1195,13 @@
         const triName = document.getElementById('cgpaPlannerSelect').value;
         if (!triName) return;
 
-        // Confirm overwrite if table is not empty
         const tbody = document.querySelector("#courseTable tbody");
         if (tbody.children.length > 0) {
             if(!confirm("Loading this trimester will replace your current list. Continue?")) return;
         }
 
-        // Clear existing
         tbody.innerHTML = '';
 
-        // Add courses from curriculum
         const courses = uiuCurriculum[triName];
         if (courses) {
             courses.forEach(c => {
@@ -1039,7 +1212,7 @@
 
     // --- FULL CALENDAR LOGIC ---
     let currentCalYear = 2026;
-    let currentCalMonth = 1; // 0-indexed (0=Jan, 1=Feb, 2=Mar...)
+    let currentCalMonth = 1; 
 
     function renderFullCalendar() {
         const daysContainer = document.getElementById('calendar-days');
@@ -1052,12 +1225,10 @@
         const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
         monthYearDisplay.innerText = `${monthNames[currentCalMonth]} ${currentCalYear}`;
         
-        // Render empty offset cells
         for (let i = 0; i < firstDay; i++) {
             daysContainer.innerHTML += `<div class="calendar-day empty"></div>`;
         }
         
-        // Render days
         for (let day = 1; day <= daysInMonth; day++) {
             const m = String(currentCalMonth + 1).padStart(2, '0');
             const d = String(day).padStart(2, '0');
@@ -1091,7 +1262,6 @@
         renderFullCalendar();
     }
 
-    // --- CALENDAR SEARCH LOGIC ---
     function searchCalendarEvents() {
         const input = document.getElementById('calendarSearch').value.toLowerCase();
         const suggestionBox = document.getElementById('calendarSuggestions');
@@ -1128,26 +1298,27 @@
     // --- INIT ---
     window.onload = function() {
         initGrid();
-        initPlanner(); // Initialize planner data
-        // Default rows for CGPA
+        initSectionGrid(); // Initialize section planner grid
+        initPlanner(); 
         addCourseRow(); addCourseRow(); addCourseRow();
         renderFullCalendar();
         
         document.addEventListener('click', e => {
-            // Close exam suggestions
             if (!e.target.closest('#courseSearch')) {
                 const sugg = document.getElementById('suggestions');
                 if (sugg) sugg.style.display = 'none';
             }
-            // Close calendar suggestions
             if (!e.target.closest('#calendarSearch')) {
                 const calSugg = document.getElementById('calendarSuggestions');
                 if (calSugg) calSugg.style.display = 'none';
             }
-            // Close CGPA row suggestions (Generic for any .c-name input)
+            if (!e.target.closest('#sectionCourseSearch')) {
+                const secSugg = document.getElementById('sectionSuggestions');
+                if (secSugg) secSugg.style.display = 'none';
+            }
             if (!e.target.closest('.c-name')) {
                 document.querySelectorAll('.suggestions').forEach(s => {
-                    if(s.id !== 'suggestions' && s.id !== 'calendarSuggestions') {
+                    if(s.id !== 'suggestions' && s.id !== 'calendarSuggestions' && s.id !== 'sectionSuggestions') {
                         s.style.display = 'none';
                     }
                 });
