@@ -431,18 +431,14 @@
                     <input type="text" id="sectionNameInput" placeholder="Section (e.g., A)">
                 </div>
                 <div style="flex:1; min-width: 100px;">
-                    <select id="sectionTypeSelect" onchange="updateTimeSlots()">
+                    <select id="sectionTypeSelect" onchange="updateSectionDropdowns()">
                         <option value="Theory">Theory</option>
                         <option value="Lab">Lab</option>
                     </select>
                 </div>
-                <div style="flex:1; min-width: 120px;">
+                <div style="flex:1; min-width: 160px;">
                     <select id="sectionDaySelect">
-                        <option value="Saturday">Saturday</option>
-                        <option value="Sunday">Sunday</option>
-                        <option value="Tuesday">Tuesday</option>
-                        <option value="Wednesday">Wednesday</option>
-                    </select>
+                        </select>
                 </div>
                 <div style="flex:1; min-width: 160px;">
                     <select id="sectionTimeSelect">
@@ -963,17 +959,33 @@
 
 
     // --- SECTION PLANNER LOGIC ---
-    function updateTimeSlots() {
+    function updateSectionDropdowns() {
         const type = document.getElementById('sectionTypeSelect').value;
+        
+        // Update Time Slots
         const timeSelect = document.getElementById('sectionTimeSelect');
         timeSelect.innerHTML = '';
-        
         const slots = type === 'Theory' ? theoryTimeSlots : labTimeSlots;
         slots.forEach(slot => {
             const opt = document.createElement('option');
             opt.value = slot;
             opt.innerText = slot;
             timeSelect.appendChild(opt);
+        });
+
+        // Update Day Options Based on Type
+        const daySelect = document.getElementById('sectionDaySelect');
+        daySelect.innerHTML = '';
+        
+        let days = type === 'Theory' 
+            ? ["Saturday & Tuesday", "Sunday & Wednesday"] 
+            : ["Saturday", "Sunday", "Tuesday", "Wednesday"];
+            
+        days.forEach(day => {
+            const opt = document.createElement('option');
+            opt.value = day;
+            opt.innerText = day;
+            daySelect.appendChild(opt);
         });
     }
 
@@ -1002,8 +1014,8 @@
             tbodyLab.innerHTML += rowHTML;
         });
 
-        // Setup dropdown
-        updateTimeSlots();
+        // Setup dropdowns on initial load
+        updateSectionDropdowns();
     }
 
     function filterSectionCourses() {
@@ -1052,7 +1064,7 @@
             course: courseStr,
             section: secName,
             type: type,
-            day: day,
+            day: day, // This will be "Saturday & Tuesday" or a single day
             slotIndex: type === 'Theory' ? theoryTimeSlots.indexOf(slot) : labTimeSlots.indexOf(slot)
         };
         
@@ -1075,9 +1087,22 @@
         const slotMap = {};
 
         mySectionClasses.forEach(c => {
-            const key = `sec-${c.type.toLowerCase()}-${c.day}-${c.slotIndex}`;
-            if (!slotMap[key]) slotMap[key] = [];
-            slotMap[key].push(c);
+            // Determine which days to render based on selection
+            let daysToRender = [];
+            if (c.day === "Saturday & Tuesday") {
+                daysToRender = ["Saturday", "Tuesday"];
+            } else if (c.day === "Sunday & Wednesday") {
+                daysToRender = ["Sunday", "Wednesday"];
+            } else {
+                // Lab single days
+                daysToRender = [c.day];
+            }
+
+            daysToRender.forEach(d => {
+                const key = `sec-${c.type.toLowerCase()}-${d}-${c.slotIndex}`;
+                if (!slotMap[key]) slotMap[key] = [];
+                slotMap[key].push(c);
+            });
         });
 
         for (const [key, classesInSlot] of Object.entries(slotMap)) {
