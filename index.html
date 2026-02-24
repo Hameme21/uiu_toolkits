@@ -281,7 +281,7 @@ button.small { padding: 4px 10px; font-size: 11px; }
          <div id="viewerPrice" class="price-display">0</div>
       </div>
 
-      <div id="adminActionButtons" class="hidden" style="margin-top:25px; display: flex; gap: 10px; justify-content: center;">
+      <div id="adminActionButtons" class="hidden" style="margin-top:25px; display:flex; gap:10px; justify-content:center;">
          <button class="yellow" style="padding:12px 20px; font-size:16px; font-weight:800; color:#fff;" onclick="triggerSoldFromPopup()">SOLD</button>
          <button class="purple" style="padding:12px 20px; font-size:16px; font-weight:800; color:#fff;" onclick="triggerDirectSignPopup()">DIRECT SIGN</button>
       </div>
@@ -366,7 +366,7 @@ button.small { padding: 4px 10px; font-size: 11px; }
             </div>
             <div id="teamsConfigContainer"></div>
             <div class="flex" style="margin-top:10px">
-              <button id="btnAddTeamRow" class="ghost small" style="flex:1" onclick="addTeamInputRow()">+ Add Slot</button>
+              <button id="btnAddTeamRow" class="ghost small" style="flex:1">+ Add Slot</button>
               <button id="btnSaveTeams" class="green small" style="flex:1">Save Changes</button>
             </div>
           </div>
@@ -421,6 +421,8 @@ button.small { padding: 4px 10px; font-size: 11px; }
 </div>
 
 <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+<script>
+
 // 2. DEFINE YOUR BACKEND URL HERE
 const BACKEND_URL = "https://auction-socket-39c2.onrender.com";
 
@@ -474,32 +476,10 @@ function setupFileUpload(triggerEl, callback) {
 }
 
 // --- APP LOGIC ---
-window.switchTab = (tab) => { 
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active')); 
-    document.querySelector(`.tab[onclick="switchTab('${tab}')"]`).classList.add('active'); 
-    document.getElementById('managerForm').classList.toggle('hidden', tab !== 'manager'); 
-    document.getElementById('participantForm').classList.toggle('hidden', tab !== 'participant'); 
-};
-
-// FIX: Added Error Handling for Empty Login Fields
-window.managerLogin = () => { 
-    const u = document.getElementById('mUser').value.trim(), p = document.getElementById('mPass').value; 
-    if(u && p) socket.emit('manager:login', { username: u, password: p }); 
-    else document.getElementById('portalMsg').textContent = "Please enter credentials.";
-};
-
-window.managerRegister = () => { 
-    const u = document.getElementById('mUser').value.trim(), p = document.getElementById('mPass').value; 
-    if(u && p) socket.emit('manager:register', { username: u, password: p }); 
-    else document.getElementById('portalMsg').textContent = "Please enter credentials.";
-};
-
-window.connectToHost = () => { 
-    const h = document.getElementById('pHostId').value.trim(); 
-    if(h) socket.emit('participant:connect', h); 
-    else document.getElementById('portalMsg').textContent = "Please enter a Host ID.";
-};
-
+window.switchTab = (tab) => { document.querySelectorAll('.tab').forEach(t => t.classList.remove('active')); document.querySelector(`.tab[onclick="switchTab('${tab}')"]`).classList.add('active'); document.getElementById('managerForm').classList.toggle('hidden', tab !== 'manager'); document.getElementById('participantForm').classList.toggle('hidden', tab !== 'participant'); };
+window.managerLogin = () => { const u = document.getElementById('mUser').value.trim(), p = document.getElementById('mPass').value; if(u && p) socket.emit('manager:login', { username: u, password: p }); };
+window.managerRegister = () => { const u = document.getElementById('mUser').value.trim(), p = document.getElementById('mPass').value; if(u && p) socket.emit('manager:register', { username: u, password: p }); };
+window.connectToHost = () => { const h = document.getElementById('pHostId').value.trim(); if(h) socket.emit('participant:connect', h); };
 window.toggleTeamPass = () => { const isTeam = document.getElementById('loginRole').value === 'team'; document.getElementById('teamSelectGroup').classList.toggle('hidden', !isTeam); document.getElementById('passGroup').classList.toggle('hidden', !isTeam); };
 window.enterAuction = () => { const role = document.getElementById('loginRole').value, teamId = document.getElementById('loginTeamId').value, pass = document.getElementById('loginPass').value; socket.emit('team:login', { hostId: CURRENT_USER.hostId, teamId, password: pass, role }); };
 window.previewTeamLogo = () => { const teamId = document.getElementById('loginTeamId').value, team = STATE.teams.find(t => t.id === teamId), img = document.getElementById('loginTeamLogo'); if(team && team.logo) { img.src = team.logo; img.style.display = 'block'; } else { img.style.display = 'none'; } };
@@ -586,25 +566,7 @@ socket.on('player:sold', data => {
 socket.on('admin:toast', d => showToast(d.msg));
 
 // UI Renderers
-// FIX: Listener UI Bug resolved by checking 'else if (CURRENT_USER.role === 'team')'
-function setupUI() { 
-    document.getElementById('roleDisplay').textContent = `Host: ${CURRENT_USER.hostId} | ${CURRENT_USER.role.toUpperCase()}`; 
-    if(CURRENT_USER.role === 'admin') { 
-        document.getElementById('adminConfigCard').classList.remove('hidden'); 
-        document.getElementById('btnResetSystem').classList.remove('hidden'); 
-        document.getElementById('btnExportAdmin').classList.remove('hidden'); 
-        renderTeamConfigForm(); 
-        document.getElementById('configImpact').value = STATE.config.impactAmount || 0; 
-    } else if (CURRENT_USER.role === 'team') { 
-        document.getElementById('myTeamCard').classList.remove('hidden'); 
-        const myTeam = STATE.teams.find(t => t.id === CURRENT_USER.teamId); 
-        if(myTeam && myTeam.logo) { 
-            const logoEl = document.getElementById('headerTeamLogo'); 
-            logoEl.src = myTeam.logo; 
-            logoEl.classList.remove('hidden'); 
-        } 
-    } 
-}
+function setupUI() { document.getElementById('roleDisplay').textContent = `Host: ${CURRENT_USER.hostId} | ${CURRENT_USER.role.toUpperCase()}`; if(CURRENT_USER.role === 'admin') { document.getElementById('adminConfigCard').classList.remove('hidden'); document.getElementById('btnResetSystem').classList.remove('hidden'); document.getElementById('btnExportAdmin').classList.remove('hidden'); renderTeamConfigForm(); document.getElementById('configImpact').value = STATE.config.impactAmount || 0; } else { document.getElementById('myTeamCard').classList.remove('hidden'); const myTeam = STATE.teams.find(t => t.id === CURRENT_USER.teamId); if(myTeam && myTeam.logo) { const logoEl = document.getElementById('headerTeamLogo'); logoEl.src = myTeam.logo; logoEl.classList.remove('hidden'); } } }
 
 function renderAll() { 
     categoriesContainer.innerHTML = ''; 
@@ -730,6 +692,7 @@ window.adjustBid = (dir) => {
 window.updatePopupPrice = (p) => { document.getElementById('popupPrice').textContent = p; document.getElementById('viewerPrice').textContent = p; };
 window.triggerSoldFromPopup = () => openSoldConfirmation(activePlayer.category, activePlayer.name, document.getElementById('popupPrice').textContent);
 
+// NEW: Trigger Direct Sign Flow
 window.triggerDirectSignPopup = () => {
     const currentPrice = document.getElementById('popupPrice').textContent;
     openSoldConfirmation(activePlayer.category, activePlayer.name, currentPrice, true);
@@ -784,6 +747,7 @@ document.getElementById('btnSaveTeams').onclick = () => {
 
 document.getElementById('btnResetSystem').onclick = () => { if(confirm('⚠️ WARNING: This will wipe all current bids and purchases. Proceed?')) socket.emit('admin:resetAll'); };
 
+// Updated Modal Logic to Support Assignment Price
 function openSoldConfirmation(cat, name, price, isDirect = false) { 
     const safePrice = Number(price) || 0;
     if (!isDirect && safePrice <= 0) return showToast('Cannot sell for 0');
@@ -812,11 +776,9 @@ document.getElementById('btnCancelSold').onclick = () => document.getElementById
 document.getElementById('btnConfirmSold').onclick = (e) => { 
     const teamId = document.getElementById('soldActionTeam').value;
     let finalPrice = pendingSold.price;
-    
     if(pendingSold.isDirect) {
         finalPrice = Number(document.getElementById('directSignPrice').value) || 0;
     }
-    
     if(teamId) { 
         e.target.disabled = true; 
         socket.emit('player:sold', { ...pendingSold, price: finalPrice, teamId }); 
@@ -827,24 +789,8 @@ document.getElementById('btnConfirmSold').onclick = (e) => {
     }
 };
 
-const dlCSV = () => { 
-    let r=[["Category","Name","Base","Sold","Status","Buyer"]]; 
-    STATE.categories.forEach(c => { 
-        (STATE.playersSnapshot[c.id]||[]).forEach(p => { 
-            let s="Unsold", b="-", sp=c.base, t = STATE.teams.find(x => x.purchases && x.purchases[c.id] === p.name); 
-            if(t) { s="Sold"; b=t.name; sp=STATE.soldPrices[`${c.id}:${p.name}`]; } 
-            r.push([c.id, p.name, c.base, sp, s, b]); 
-        }); 
-    }); 
-    const link = document.createElement("a"); 
-    link.href = "data:text/csv;charset=utf-8," + encodeURI(r.map(e=>e.join(",")).join("\n")); 
-    link.download = "auction.csv"; 
-    link.click(); 
-};
-
-document.getElementById('btnExportAdmin').onclick = dlCSV; 
-document.getElementById('btnExportTeam').onclick = dlCSV;
-
+const dlCSV = () => { let r=[["Category","Name","Base","Sold","Status","Buyer"]]; STATE.categories.forEach(c => { (STATE.playersSnapshot[c.id]||[]).forEach(p => { let s="Unsold", b="-", sp=c.base, t = STATE.teams.find(x => x.purchases && x.purchases[c.id] === p.name); if(t) { s="Sold"; b=t.name; sp=STATE.soldPrices[`${c.id}:${p.name}`]; } r.push([c.id, p.name, c.base, sp, s, b]); }); }); const link = document.createElement("a"); link.href = "data:text/csv;charset=utf-8," + encodeURI(r.map(e=>e.join(",")).join("\n")); link.download = "auction.csv"; link.click(); };
+document.getElementById('btnExportAdmin').onclick = dlCSV; document.getElementById('btnExportTeam').onclick = dlCSV;
 function getPlayerEl(c,n) { const l=document.getElementById(`playersList-${c}`); return l ? Array.from(l.children).find(e=>e.dataset.name===n) : null; }
 function getMyTeamName() { const t = STATE.teams.find(x => x.id === CURRENT_USER.teamId); return t ? t.name : 'Team'; }
 </script>
