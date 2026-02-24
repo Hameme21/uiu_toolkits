@@ -407,10 +407,10 @@ button.small { padding: 4px 10px; font-size: 11px; }
 
   <div class="overlay hidden" id="soldAnimationOverlay" style="background: rgba(0,0,0,0.9);">
     <div style="text-align:center; transform: scale(1.2);">
-      <h1 style="font-size:80px; color:var(--warning); text-shadow:0 0 60px rgba(245,158,11,0.6); margin:0; letter-spacing: 5px;">SOLD!</h1>
+      <h1 id="animTitle" style="font-size:80px; color:var(--warning); text-shadow:0 0 60px rgba(245,158,11,0.6); margin:0; letter-spacing: 5px;">SOLD!</h1>
       <h2 id="animPlayer" style="font-size:40px; margin:20px 0; color:white;">Player Name</h2>
       <div style="font-size:24px; color:var(--muted)">
-        Sold to <strong id="animTeam" style="color:var(--accent); font-size:30px">Team Name</strong><br>
+        Assigned to <strong id="animTeam" style="color:var(--accent); font-size:30px">Team Name</strong><br>
         for <strong id="animPrice" style="color:var(--success); font-size:40px; display:block; margin-top:10px; text-shadow: 0 0 20px rgba(16,185,129,0.5);">0</strong>
       </div>
     </div>
@@ -432,7 +432,7 @@ const socket = io(BACKEND_URL, {
 });
 
 let CURRENT_USER = { role: null, teamId: null, hostId: null };
-let STATE = { teams: [], categories: [], playersSnapshot: {}, activeBids: {}, soldPrices: {}, config: { impactAmount: 0 } };
+let STATE = { teams: [], categories: [], playersSnapshot: {}, activeBids: {}, soldPrices: {}, directSigns: {}, config: { impactAmount: 0 } };
 let pendingSold = null, activePlayer = null;
 
 const portal = document.getElementById('portal'), teamAuthOverlay = document.getElementById('teamAuthOverlay'), appContainer = document.getElementById('appContainer');
@@ -513,6 +513,7 @@ socket.on('state:updated', newState => {
     } 
 });
 socket.on('player:bid', pl => { const el = getPlayerEl(pl.category, pl.name); if(el) { el.dataset.price = pl.price; el.querySelector('.price').textContent = pl.price; el.classList.add('bidding','has-bid'); setTimeout(()=>el.classList.remove('bidding'), 300); } if(activePlayer && activePlayer.name === pl.name) updatePopupPrice(pl.price); log(`BID: ${pl.name} (${pl.category}) -> ৳${pl.price}`); });
+
 socket.on('popup:open', player => { 
     activePlayer = player; 
     document.getElementById('playerPopup').classList.remove('hidden'); 
@@ -543,25 +544,52 @@ socket.on('popup:open', player => {
         uploadFile(file).then(url => socket.emit('admin:update_player_image', { category: player.category, name: player.name, imageUrl: url }));
     });
 });
+
 socket.on('popup:close', () => { activePlayer = null; document.getElementById('playerPopup').classList.add('hidden'); });
 socket.on('popup:update_image', data => document.getElementById('popupImg').src = data.imageUrl);
+
 socket.on('player:sold', data => { 
-    const { category, name, price, teamId } = data.payload; 
+    const { category, name, price, teamId, isDirect } = data.payload; 
     STATE.teams = data.teams; 
+    
+    // Safety sync to ensure local STATE.directSigns captures it in case network delays state:updated
+    if (isDirect) {
+        if (!STATE.directSigns) STATE.directSigns = {};
+        STATE.directSigns[`${category}:${name}`] = true;
+    }
+
     document.getElementById('playerPopup').classList.add('hidden'); 
     const t = STATE.teams.find(x => x.id === teamId); 
+    
+    const titleEl = document.getElementById('animTitle');
+    if (isDirect) {
+        titleEl.textContent = 'DIRECT SIGNED!';
+        titleEl.style.color = '#8b5cf6';
+        titleEl.style.textShadow = '0 0 60px rgba(139, 92, 246, 0.6)';
+    } else {
+        titleEl.textContent = 'SOLD!';
+        titleEl.style.color = 'var(--warning)';
+        titleEl.style.textShadow = '0 0 60px rgba(245,158,11,0.6)';
+    }
+
     document.getElementById('animPlayer').textContent = name; 
     document.getElementById('animTeam').textContent = t ? t.name : teamId; 
     document.getElementById('animPrice').textContent = price; 
     document.getElementById('soldAnimationOverlay').classList.remove('hidden'); 
+    
     hammer.style.display='block'; hammer.classList.remove('swing'); void hammer.offsetWidth; hammer.classList.add('swing'); 
     const audio = document.getElementById('hammerAudio'); if(audio) { audio.pause(); audio.currentTime=0; audio.play().catch(e=>{}); } 
     setTimeout(() => document.getElementById('soldAnimationOverlay').classList.add('hidden'), 3500); 
+    
     const el = getPlayerEl(category, name); 
-    if(el) { el.classList.add('sold'); el.classList.remove('has-bid'); el.querySelector('.actions').innerHTML = `<div class="badge" style="background:var(--accent); color:white">Sold: ${t ? t.name : teamId}</div>`; } 
+    if(el) { 
+        el.classList.add('sold'); 
+        el.classList.remove('has-bid'); 
+        el.querySelector('.actions').innerHTML = `<div class="badge" style="background:${isDirect ? '#8b5cf6' : 'var(--accent)'}; color:white">${isDirect ? 'D.Signed' : 'Sold'}: ${t ? t.name : teamId}</div>`; 
+    } 
     renderScoreboard(); 
     if(CURRENT_USER.role==='team') renderMyTeam(); 
-    log(`SOLD: ${name} to ${t ? t.name : teamId} for ৳${price}`); 
+    log(`${isDirect ? 'DIRECT SIGNED' : 'SOLD'}: ${name} to ${t ? t.name : teamId} for ৳${price}`); 
 });
 socket.on('admin:toast', d => showToast(d.msg));
 
@@ -600,6 +628,8 @@ function renderCategoryPlayers(catId, players) {
         el.className = `player ${isSold ? 'sold' : ''}`; 
         const key = `${catId}:${p.name}`; 
         const displayPrice = STATE.activeBids[key] || STATE.soldPrices[key] || p.price || catConfig.base; 
+        const isDirect = STATE.directSigns && STATE.directSigns[key];
+
         el.dataset.price = displayPrice; 
         if(!isSold) { 
             el.style.cursor = 'pointer'; 
@@ -608,8 +638,11 @@ function renderCategoryPlayers(catId, players) {
                 if(CURRENT_USER.role === 'admin') socket.emit('admin:select_player', { category: catId, name: p.name, base: catConfig.base, currentPrice: displayPrice, image: p.image }); 
             }; 
         } 
+        
         let actionHTML = ''; 
-        if(isSold) actionHTML = `<div class="badge" style="background:var(--accent);color:white">Sold: ${soldTo}</div>`; 
+        if(isSold) {
+            actionHTML = `<div class="badge" style="background:${isDirect ? '#8b5cf6' : 'var(--accent)'};color:white">${isDirect ? 'D.Signed' : 'Sold'}: ${soldTo}</div>`; 
+        }
         else if(CURRENT_USER.role === 'admin') actionHTML = `<button class="yellow small" title="Reset Player" onclick="resetPlayer('${catId}','${p.name}')">↺</button>`; 
         else if(CURRENT_USER.role === 'team') { 
             actionHTML = `<button class="btn-bid-req ghost small">Bid Req</button>`; 
@@ -650,7 +683,10 @@ function renderMyTeam() {
         let html = `<div style="font-size:20px;font-weight:bold;margin-bottom:10px;color:var(--success)">Purse: ৳ ${t.purse}</div>`; 
         if(t.impactUsed) html += `<div class="small" style="color:var(--accent);margin-bottom:5px">⚡ Impact Active</div>`; 
         html += `<strong>My Purchases:</strong><div style="margin-top:5px;display:flex;flex-wrap:wrap;gap:5px">`; 
-        if(t.purchases) Object.entries(t.purchases).forEach(([c,n]) => html += `<span class="badge">[${c}] ${n}</span>`); 
+        if(t.purchases) Object.entries(t.purchases).forEach(([c,n]) => {
+            const isDS = STATE.directSigns && STATE.directSigns[`${c}:${n}`];
+            html += `<span class="badge" style="${isDS ? 'background: #8b5cf6; border-color: #6d28d9;' : ''}">[${c}] ${n} ${isDS ? '(DS)' : ''}</span>`
+        }); 
         html+='</div>'; 
         div.innerHTML = html; 
     } 
@@ -668,7 +704,6 @@ function renderTeamConfigForm() {
 }
 
 window.addTeamInputRow = () => { 
-    // Sync current un-saved input values back into STATE to prevent losing them on re-render
     STATE.teams = [];
     document.querySelectorAll('#teamsConfigContainer .team-config-row').forEach(r => { 
         const idInput = r.querySelector('.t-id'), nameInput = r.querySelector('.t-name'), passInput = r.querySelector('.t-pass'), purseInput = r.querySelector('.t-purse'), imgEl = r.querySelector('.logo-drop-zone img');
@@ -681,16 +716,7 @@ window.addTeamInputRow = () => {
         });
     });
 
-    // Add a blank team slot
-    STATE.teams.push({ 
-        id: "", 
-        name: "", 
-        password: "", 
-        purse: 500, 
-        logo: null 
-    }); 
-    
-    // Re-render the form so the new row gets all event listeners correctly
+    STATE.teams.push({ id: "", name: "", password: "", purse: 500, logo: null }); 
     renderTeamConfigForm();
 };
 
@@ -707,7 +733,6 @@ window.adjustBid = (dir) => {
 window.updatePopupPrice = (p) => { document.getElementById('popupPrice').textContent = p; document.getElementById('viewerPrice').textContent = p; };
 window.triggerSoldFromPopup = () => openSoldConfirmation(activePlayer.category, activePlayer.name, document.getElementById('popupPrice').textContent);
 
-// NEW: Trigger Direct Sign Flow
 window.triggerDirectSignPopup = () => {
     const currentPrice = document.getElementById('popupPrice').textContent;
     openSoldConfirmation(activePlayer.category, activePlayer.name, currentPrice, true);
@@ -759,7 +784,6 @@ document.getElementById('btnSaveTeams').onclick = () => {
 
         if (idInput) idInput.classList.remove('error'); 
 
-        // Only save if ID and Name are provided
         if(id && name) {
             if (seenIds.has(id)) { 
                 hasError = true; 
@@ -805,7 +829,8 @@ function openSoldConfirmation(cat, name, price, isDirect = false) {
     STATE.teams.forEach(t => { 
         const afford = Number(t.purse) >= (isDirect ? 0 : safePrice);
         const has = t.purchases && t.purchases[cat]; 
-        sel.innerHTML += `<option value="${t.id}" ${(!afford || has)?'disabled':''}>${t.name} (৳${t.purse})</option>`; 
+        const dsUsed = isDirect && t.directSignUsed; // Prevents selection if already used
+        sel.innerHTML += `<option value="${t.id}" ${(!afford || has || dsUsed)?'disabled':''}>${t.name} (৳${t.purse})${dsUsed ? ' [DS Used]' : ''}</option>`; 
     }); 
     modal.classList.remove('hidden'); 
 }
@@ -828,7 +853,25 @@ document.getElementById('btnConfirmSold').onclick = (e) => {
     }
 };
 
-const dlCSV = () => { let r=[["Category","Name","Base","Sold","Status","Buyer"]]; STATE.categories.forEach(c => { (STATE.playersSnapshot[c.id]||[]).forEach(p => { let s="Unsold", b="-", sp=c.base, t = STATE.teams.find(x => x.purchases && x.purchases[c.id] === p.name); if(t) { s="Sold"; b=t.name; sp=STATE.soldPrices[`${c.id}:${p.name}`]; } r.push([c.id, p.name, c.base, sp, s, b]); }); }); const link = document.createElement("a"); link.href = "data:text/csv;charset=utf-8," + encodeURI(r.map(e=>e.join(",")).join("\n")); link.download = "auction.csv"; link.click(); };
+const dlCSV = () => { 
+    let r=[["Category","Name","Base","Sold","Status","Buyer"]]; 
+    STATE.categories.forEach(c => { 
+        (STATE.playersSnapshot[c.id]||[]).forEach(p => { 
+            let s="Unsold", b="-", sp=c.base, t = STATE.teams.find(x => x.purchases && x.purchases[c.id] === p.name); 
+            if(t) { 
+                const isDir = STATE.directSigns && STATE.directSigns[`${c.id}:${p.name}`];
+                s = isDir ? "D.Signed" : "Sold"; 
+                b = t.name; 
+                sp = STATE.soldPrices[`${c.id}:${p.name}`]; 
+            } 
+            r.push([c.id, p.name, c.base, sp, s, b]); 
+        }); 
+    }); 
+    const link = document.createElement("a"); 
+    link.href = "data:text/csv;charset=utf-8," + encodeURI(r.map(e=>e.join(",")).join("\n")); 
+    link.download = "auction.csv"; 
+    link.click(); 
+};
 document.getElementById('btnExportAdmin').onclick = dlCSV; document.getElementById('btnExportTeam').onclick = dlCSV;
 function getPlayerEl(c,n) { const l=document.getElementById(`playersList-${c}`); return l ? Array.from(l.children).find(e=>e.dataset.name===n) : null; }
 function getMyTeamName() { const t = STATE.teams.find(x => x.id === CURRENT_USER.teamId); return t ? t.name : 'Team'; }
