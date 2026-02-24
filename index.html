@@ -281,8 +281,9 @@ button.small { padding: 4px 10px; font-size: 11px; }
          <div id="viewerPrice" class="price-display">0</div>
       </div>
 
-      <div id="adminActionButtons" class="hidden" style="margin-top:25px">
-         <button class="yellow" style="padding:12px 40px; font-size:16px; font-weight:800; color:#fff;" onclick="triggerSoldFromPopup()">SOLD</button>
+      <div id="adminActionButtons" class="hidden" style="margin-top:25px; display:flex; gap:10px; justify-content:center;">
+         <button class="yellow" style="padding:12px 20px; font-size:16px; font-weight:800; color:#fff;" onclick="triggerSoldFromPopup()">SOLD</button>
+         <button class="purple" style="padding:12px 20px; font-size:16px; font-weight:800; color:#fff;" onclick="triggerDirectSignPopup()">DIRECT SIGN</button>
       </div>
 
       <div id="teamActionButtons" class="hidden" style="margin-top:25px">
@@ -296,7 +297,13 @@ button.small { padding: 4px 10px; font-size: 11px; }
   <div class="overlay hidden" id="soldActionOverlay">
     <div class="modal">
       <h3 style="color:var(--warning); font-size:24px; margin-bottom:10px; text-shadow: 0 0 10px rgba(245,158,11,0.5);">Confirm Sale</h3>
-      <div id="soldActionDetails" style="margin-bottom:20px; font-size:16px; color:white;"></div>
+      <div id="soldActionDetails" style="margin-bottom:10px; font-size:16px; color:white;"></div>
+      
+      <div id="directPriceGroup" class="hidden" style="margin-bottom:15px; text-align:left">
+        <label>Assignment Price (Admin Only)</label>
+        <input type="number" id="directSignPrice" placeholder="Enter Amount">
+      </div>
+
       <label style="text-align:left">Select Winning Team</label>
       <select id="soldActionTeam" style="margin-bottom:20px"></select>
       <div class="flex" style="justify-content:center; gap:15px">
@@ -417,7 +424,6 @@ button.small { padding: 4px 10px; font-size: 11px; }
 <script>
 
 // 2. DEFINE YOUR BACKEND URL HERE
-// *** IMPORTANT: Replace this with your actual Render URL once it is deployed! ***
 const BACKEND_URL = "https://auction-socket-39c2.onrender.com";
 
 // 3. Connect to the Render Server
@@ -439,31 +445,27 @@ if(hammer) hammer.addEventListener('animationend', () => { hammer.classList.remo
 function log(msg) { const d = document.createElement('div'); d.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`; document.getElementById('log').prepend(d); }
 function showToast(msg) { const t = document.createElement('div'); t.className = 'toast'; t.innerHTML = `<span>🔔</span> ${msg}`; toastContainer.appendChild(t); setTimeout(() => t.remove(), 4000); }
 
-// --- FILE UPLOAD LOGIC (Click & Drop) ---
+// --- FILE UPLOAD LOGIC ---
 function uploadFile(file) {
     return new Promise((resolve, reject) => {
         const formData = new FormData();
         formData.append('file', file);
-        // 4. Point the fetch request to Render, AND prefix the returned URL so Vercel can display it!
         fetch(`${BACKEND_URL}/upload`, { method: 'POST', body: formData })
             .then(r => r.json())
             .then(d => resolve(BACKEND_URL + d.url)) 
             .catch(reject);
     });
 }
-// Attach generic click-to-upload handler
 function setupFileUpload(triggerEl, callback) {
-    // Click
     triggerEl.onclick = () => {
         fileInput.onchange = (e) => {
             if(e.target.files[0]) {
                 callback(e.target.files[0]);
-                fileInput.value = ''; // Reset
+                fileInput.value = ''; 
             }
         };
         fileInput.click();
     };
-    // Drop
     triggerEl.ondragover = (e) => { e.preventDefault(); triggerEl.classList.add('drag-over'); };
     triggerEl.ondragleave = () => triggerEl.classList.remove('drag-over');
     triggerEl.ondrop = (e) => { 
@@ -501,8 +503,6 @@ socket.on('state:updated', newState => {
     if(activePlayer) { 
         const key = `${activePlayer.category}:${activePlayer.name}`; 
         updatePopupPrice(STATE.activeBids[key] || activePlayer.base); 
-        
-        // Re-check impact button state if team
         if (CURRENT_USER.role === 'team') {
             const myTeam = STATE.teams.find(t => t.id === CURRENT_USER.teamId);
             const btnImpact = document.getElementById('btnPopupImpact');
@@ -520,15 +520,11 @@ socket.on('popup:open', player => {
     document.getElementById('popupCat').textContent = player.category; 
     document.getElementById('popupImg').src = player.image || "https://via.placeholder.com/150?text=Player"; 
     updatePopupPrice(player.currentPrice || player.base || 0); 
-    
     const isAdmin = CURRENT_USER.role === 'admin'; 
     const isTeam = CURRENT_USER.role === 'team';
-    
     document.getElementById('adminControls').classList.toggle('hidden', !isAdmin); 
     document.getElementById('adminActionButtons').classList.toggle('hidden', !isAdmin); 
     document.getElementById('viewerControls').classList.toggle('hidden', isAdmin); 
-    
-    // Set up Team Action Buttons
     const teamButtons = document.getElementById('teamActionButtons');
     if(teamButtons) {
         teamButtons.classList.toggle('hidden', !isTeam);
@@ -543,8 +539,6 @@ socket.on('popup:open', player => {
             }
         }
     }
-    
-    // Attach Click/Drag to Popup Image
     if(isAdmin) setupFileUpload(document.getElementById('popupImgContainer'), (file) => {
         uploadFile(file).then(url => socket.emit('admin:update_player_image', { category: player.category, name: player.name, imageUrl: url }));
     });
@@ -667,15 +661,12 @@ function renderTeamConfigForm() {
     STATE.teams.forEach(t => { 
         const row = document.createElement('div'); row.className = 'team-config-row'; 
         const logoHtml = t.logo ? `<img src="${t.logo}">` : `<span style="font-size:10px;color:var(--muted)">Drop</span>`; 
-        // FIX: Removed ID attribute from drop-zone to prevent CSS selector crash on spaces
         row.innerHTML = `<input class="t-id" value="${t.id}" placeholder="ID"><input class="t-name" value="${t.name}" placeholder="Name"><input class="t-pass" value="${t.password||''}" placeholder="Pass"><input class="t-purse" type="number" value="${t.purse}" placeholder="Purse"><div class="logo-drop-zone">${logoHtml}</div><button class="purple small" onclick="resetImpact('${t.id}')" title="Reset Impact">⚡</button><button class="yellow small" onclick="resetTeam('${t.id}')" title="Reset Team">↺</button><button class="red small" onclick="this.parentElement.remove()">X</button>`; 
         teamsConfigContainer.appendChild(row); 
-        // FIX: Target drop-zone safely by scope, no IDs required
         setupFileUpload(row.querySelector('.logo-drop-zone'), (file) => uploadFile(file).then(url => socket.emit('admin:setTeamLogo', { teamId: t.id, logoUrl: url }))); 
     }); 
 }
 
-// FIX: Add row uses the same safe scoping for drop-zone
 window.addTeamInputRow = () => { 
     const row = document.createElement('div'); 
     row.className = 'team-config-row'; 
@@ -700,6 +691,12 @@ window.adjustBid = (dir) => {
 };
 window.updatePopupPrice = (p) => { document.getElementById('popupPrice').textContent = p; document.getElementById('viewerPrice').textContent = p; };
 window.triggerSoldFromPopup = () => openSoldConfirmation(activePlayer.category, activePlayer.name, document.getElementById('popupPrice').textContent);
+
+// NEW: Trigger Direct Sign Flow
+window.triggerDirectSignPopup = () => {
+    const currentPrice = document.getElementById('popupPrice').textContent;
+    openSoldConfirmation(activePlayer.category, activePlayer.name, currentPrice, true);
+};
 
 window.saveCat = (id) => { 
     const ta = document.getElementById(`ta-${id}`), config = STATE.categories.find(c=>c.id===id);
@@ -730,66 +727,44 @@ window.saveGlobalConfig = () => { const amt = document.getElementById('configImp
 window.resetImpact = (tid) => { if(confirm('Reset Impact Power?')) socket.emit('admin:resetImpact', { teamId: tid }); };
 window.resetTeam = (tid) => { if(confirm('Reset Team? (Clears purchases & purse)')) socket.emit('admin:resetTeam', { teamId: tid }); };
 
-// Bulletproof Save Logic
 document.getElementById('btnSaveTeams').onclick = () => { 
     const teams = []; 
     const seenIds = new Set();
     let hasError = false;
-
     document.querySelectorAll('#teamsConfigContainer .team-config-row').forEach(r => { 
-        const idInput = r.querySelector('.t-id');
-        const nameInput = r.querySelector('.t-name');
-        const passInput = r.querySelector('.t-pass');
-        const purseInput = r.querySelector('.t-purse');
-        const imgEl = r.querySelector('.logo-drop-zone img');
-        
-        const id = idInput ? idInput.value.trim() : "";
-        const name = nameInput ? nameInput.value.trim() : "";
-        
-        // FIX: Ensure classList.remove is safe against null elements
+        const idInput = r.querySelector('.t-id'), nameInput = r.querySelector('.t-name'), passInput = r.querySelector('.t-pass'), purseInput = r.querySelector('.t-purse'), imgEl = r.querySelector('.logo-drop-zone img');
+        const id = idInput ? idInput.value.trim() : "", name = nameInput ? nameInput.value.trim() : "";
         if (idInput) idInput.classList.remove('error'); 
-        
         if(id && name) {
-            if (seenIds.has(id)) {
-                hasError = true;
-                if (idInput) idInput.classList.add('error');
-            } else {
-                seenIds.add(id);
-                teams.push({ 
-                    id: id, 
-                    name: name, 
-                    password: passInput ? passInput.value : "", 
-                    purse: purseInput ? (Number(purseInput.value) || 0) : 500, 
-                    logo: imgEl ? imgEl.src : null 
-                }); 
-            }
+            if (seenIds.has(id)) { hasError = true; if (idInput) idInput.classList.add('error'); } 
+            else { seenIds.add(id); teams.push({ id, name, password: passInput ? passInput.value : "", purse: purseInput ? (Number(purseInput.value) || 0) : 500, logo: imgEl ? imgEl.src : null }); }
         }
     }); 
-    
-    if (hasError) {
-        showToast('❌ Error: Duplicate Team IDs found. Please make them unique.');
-        return;
-    }
-
-    // FIX: Always allow saving, even if empty, so the admin can successfully delete all teams if they want
+    if (hasError) return showToast('❌ Error: Duplicate Team IDs found.');
     socket.emit('admin:updateConfig', { teams }); 
     showToast('Teams Saved Successfully!'); 
 };
 
 document.getElementById('btnResetSystem').onclick = () => { if(confirm('⚠️ WARNING: This will wipe all current bids and purchases. Proceed?')) socket.emit('admin:resetAll'); };
 
-function openSoldConfirmation(cat, name, price) { 
+// Updated Modal Logic to Support Assignment Price
+function openSoldConfirmation(cat, name, price, isDirect = false) { 
     const safePrice = Number(price) || 0;
-    if (safePrice <= 0) return showToast('Cannot sell for 0');
+    if (!isDirect && safePrice <= 0) return showToast('Cannot sell for 0');
 
-    pendingSold = { category: cat, name, price: safePrice }; 
+    pendingSold = { category: cat, name, price: safePrice, isDirect }; 
     const modal = document.getElementById('soldActionOverlay');
     const sel = document.getElementById('soldActionTeam'); 
-    document.getElementById('soldActionDetails').textContent = `${name} (${cat}) @ ৳${safePrice}`; 
+    const priceGroup = document.getElementById('directPriceGroup');
+    const directInput = document.getElementById('directSignPrice');
+
+    priceGroup.classList.toggle('hidden', !isDirect);
+    if(isDirect) directInput.value = safePrice;
+
+    document.getElementById('soldActionDetails').textContent = `${name} (${cat}) ${isDirect ? '(Direct Sign)' : '@ ৳'+safePrice}`; 
     sel.innerHTML = ''; 
-    
     STATE.teams.forEach(t => { 
-        const afford = Number(t.purse) >= safePrice;
+        const afford = Number(t.purse) >= (isDirect ? 0 : safePrice);
         const has = t.purchases && t.purchases[cat]; 
         sel.innerHTML += `<option value="${t.id}" ${(!afford || has)?'disabled':''}>${t.name} (৳${t.purse})</option>`; 
     }); 
@@ -800,11 +775,15 @@ document.getElementById('btnCancelSold').onclick = () => document.getElementById
 
 document.getElementById('btnConfirmSold').onclick = (e) => { 
     const teamId = document.getElementById('soldActionTeam').value;
+    let finalPrice = pendingSold.price;
+    if(pendingSold.isDirect) {
+        finalPrice = Number(document.getElementById('directSignPrice').value) || 0;
+    }
     if(teamId) { 
-        e.target.disabled = true; // Lock button
-        socket.emit('player:sold', { ...pendingSold, teamId }); 
+        e.target.disabled = true; 
+        socket.emit('player:sold', { ...pendingSold, price: finalPrice, teamId }); 
         setTimeout(() => {
-            e.target.disabled = false; // Unlock after delay
+            e.target.disabled = false; 
             document.getElementById('soldActionOverlay').classList.add('hidden'); 
         }, 500);
     }
