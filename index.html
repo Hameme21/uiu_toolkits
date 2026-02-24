@@ -668,16 +668,31 @@ function renderTeamConfigForm() {
 }
 
 window.addTeamInputRow = () => { 
-    const row = document.createElement('div'); 
-    row.className = 'team-config-row'; 
-    row.innerHTML = `<input class="t-id" placeholder="ID"><input class="t-name" placeholder="Name"><input class="t-pass" placeholder="Pass"><input class="t-purse" type="number" value="500" placeholder="Purse"><div class="logo-drop-zone"><span>Drop</span></div><div></div><div></div><button class="red small" onclick="this.parentElement.remove()">X</button>`; 
-    teamsConfigContainer.appendChild(row); 
-    setupFileUpload(row.querySelector('.logo-drop-zone'), (file) => {
-        uploadFile(file).then(url => {
-            row.querySelector('.logo-drop-zone').innerHTML = `<img src="${url}">`;
+    // Sync current un-saved input values back into STATE to prevent losing them on re-render
+    STATE.teams = [];
+    document.querySelectorAll('#teamsConfigContainer .team-config-row').forEach(r => { 
+        const idInput = r.querySelector('.t-id'), nameInput = r.querySelector('.t-name'), passInput = r.querySelector('.t-pass'), purseInput = r.querySelector('.t-purse'), imgEl = r.querySelector('.logo-drop-zone img');
+        STATE.teams.push({ 
+            id: idInput ? idInput.value : "", 
+            name: nameInput ? nameInput.value : "", 
+            password: passInput ? passInput.value : "", 
+            purse: purseInput ? (Number(purseInput.value) || 0) : 500, 
+            logo: imgEl ? imgEl.src : null 
         });
     });
-}
+
+    // Add a blank team slot
+    STATE.teams.push({ 
+        id: "", 
+        name: "", 
+        password: "", 
+        purse: 500, 
+        logo: null 
+    }); 
+    
+    // Re-render the form so the new row gets all event listeners correctly
+    renderTeamConfigForm();
+};
 
 // Controls
 window.closePopup = () => { if(CURRENT_USER.role==='admin') socket.emit('admin:close_popup'); };
@@ -731,16 +746,40 @@ document.getElementById('btnSaveTeams').onclick = () => {
     const teams = []; 
     const seenIds = new Set();
     let hasError = false;
+
     document.querySelectorAll('#teamsConfigContainer .team-config-row').forEach(r => { 
-        const idInput = r.querySelector('.t-id'), nameInput = r.querySelector('.t-name'), passInput = r.querySelector('.t-pass'), purseInput = r.querySelector('.t-purse'), imgEl = r.querySelector('.logo-drop-zone img');
-        const id = idInput ? idInput.value.trim() : "", name = nameInput ? nameInput.value.trim() : "";
+        const idInput = r.querySelector('.t-id');
+        const nameInput = r.querySelector('.t-name');
+        const passInput = r.querySelector('.t-pass');
+        const purseInput = r.querySelector('.t-purse');
+        const imgEl = r.querySelector('.logo-drop-zone img');
+
+        const id = idInput ? idInput.value.trim() : "";
+        const name = nameInput ? nameInput.value.trim() : "";
+
         if (idInput) idInput.classList.remove('error'); 
+
+        // Only save if ID and Name are provided
         if(id && name) {
-            if (seenIds.has(id)) { hasError = true; if (idInput) idInput.classList.add('error'); } 
-            else { seenIds.add(id); teams.push({ id, name, password: passInput ? passInput.value : "", purse: purseInput ? (Number(purseInput.value) || 0) : 500, logo: imgEl ? imgEl.src : null }); }
+            if (seenIds.has(id)) { 
+                hasError = true; 
+                if (idInput) idInput.classList.add('error'); 
+            } else { 
+                seenIds.add(id); 
+                teams.push({ 
+                    id, 
+                    name, 
+                    password: passInput ? passInput.value : "", 
+                    purse: purseInput ? (Number(purseInput.value) || 0) : 500, 
+                    logo: imgEl ? imgEl.src : null 
+                }); 
+            }
         }
     }); 
+
     if (hasError) return showToast('❌ Error: Duplicate Team IDs found.');
+    if (teams.length === 0) return showToast('⚠️ No valid teams to save.');
+
     socket.emit('admin:updateConfig', { teams }); 
     showToast('Teams Saved Successfully!'); 
 };
