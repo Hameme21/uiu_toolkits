@@ -462,7 +462,7 @@
         </div>
 
         <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 20px;">
-            <h2 style="color: var(--secondary-color); font-size: 1.2em; margin-bottom: 0; border-bottom: 2px solid var(--border-color); padding-bottom: 5px;">Theory Routine</h2>
+            <h2 style="color: var(--secondary-color); font-size: 1.2em; margin-bottom: 0; border-bottom: 2px solid var(--border-color); padding-bottom: 5px;">Unified Class Routine</h2>
             <div style="display: flex; gap: 10px;">
                 <input type="file" id="sectionCsvInput" accept=".csv" style="display: none;" onchange="importSectionCSV(event)">
                 <button class="btn-action btn-import" style="margin-top: 0;" onclick="document.getElementById('sectionCsvInput').click()">📤 Import Planner from CSV</button>
@@ -471,20 +471,21 @@
         </div>
 
         <div style="overflow-x: auto; margin-bottom: 30px;">
-    <table class="routine-table" id="unifiedRoutineTable" style="min-width: 700px; margin-top: 10px;">
-        <thead>
-            <tr>
-                <th style="width:20%">Time Slot</th>
-                <th style="width:20%">Saturday</th>
-                <th style="width:20%">Sunday</th>
-                <th style="width:20%">Tuesday</th>
-                <th style="width:20%">Wednesday</th>
-            </tr>
-        </thead>
-        <tbody id="unifiedRoutineBody">
-        </tbody>
-    </table>
-</div>
+            <table class="routine-table" id="unifiedRoutineTable" style="min-width: 700px; margin-top: 10px;">
+                <thead>
+                    <tr>
+                        <th style="width:20%">Time Slot</th>
+                        <th style="width:20%">Saturday</th>
+                        <th style="width:20%">Sunday</th>
+                        <th style="width:20%">Tuesday</th>
+                        <th style="width:20%">Wednesday</th>
+                    </tr>
+                </thead>
+                <tbody id="unifiedRoutineBody">
+                </tbody>
+            </table>
+        </div>
+    </div>
         
     <div id="cgpa-section" class="tool-section">
         <h1>CGPA Calculator</h1>
@@ -1085,6 +1086,22 @@
 
 
     // --- SECTION PLANNER LOGIC ---
+    function initSectionGrid() {
+        const tbody = document.getElementById('unifiedRoutineBody');
+        tbody.innerHTML = '';
+        theoryTimeSlots.forEach((slot, index) => {
+            let rowHTML = `<tr><td class="day-header" style="font-size:0.85em;"><strong>${slot}</strong></td>`;
+            sectionDaysOfWeek.forEach(day => {
+                rowHTML += `<td id="sec-cell-${day}-${index}"></td>`;
+            });
+            rowHTML += `</tr>`;
+            tbody.innerHTML += rowHTML;
+        });
+
+        // Setup dropdowns on initial load
+        updateSectionDropdowns();
+    }
+
     function updateSectionDropdowns() {
         const type = document.getElementById('sectionTypeSelect').value;
         
@@ -1238,60 +1255,6 @@
         
         mySectionClasses.push(newClass);
         renderSectionRoutine();
-    }
-
-    function renderSectionRoutine() {
-        // Clear all grids
-        sectionDaysOfWeek.forEach(day => {
-            theoryTimeSlots.forEach((slot, idx) => {
-                document.getElementById(`sec-theory-${day}-${idx}`).innerHTML = '';
-            });
-            labTimeSlots.forEach((slot, idx) => {
-                document.getElementById(`sec-lab-${day}-${idx}`).innerHTML = '';
-            });
-        });
-        
-        let hasClash = false;
-        const slotMap = {};
-
-        mySectionClasses.forEach(c => {
-            // Determine which days to render based on selection
-            let daysToRender = [];
-            if (c.day === "Saturday & Tuesday") {
-                daysToRender = ["Saturday", "Tuesday"];
-            } else if (c.day === "Sunday & Wednesday") {
-                daysToRender = ["Sunday", "Wednesday"];
-            } else {
-                // Lab single days
-                daysToRender = [c.day];
-            }
-
-            daysToRender.forEach(d => {
-                const key = `sec-${c.type.toLowerCase()}-${d}-${c.slotIndex}`;
-                if (!slotMap[key]) slotMap[key] = [];
-                slotMap[key].push(c);
-            });
-        });
-
-        for (const [key, classesInSlot] of Object.entries(slotMap)) {
-            const cell = document.getElementById(key);
-            const isClash = classesInSlot.length > 1;
-            if (isClash) hasClash = true;
-
-            classesInSlot.forEach(c => {
-                const div = document.createElement('div');
-                let className = 'added-course';
-                if (isClash) className += ' clash';
-                div.className = className;
-                div.innerHTML = `<span class="remove-btn" onclick="removeSectionClass('${c.id}')">&times;</span>
-                                 <strong>${c.course.split(' (')[0]}</strong><br>
-                                 <small>${c.course.match(/\(([^)]+)\)/)[1]} | Sec: ${c.section}</small>`;
-                div.title = c.course;
-                cell.appendChild(div);
-            });
-        }
-        
-        document.getElementById('section-clash-alert').style.display = hasClash ? 'block' : 'none';
     }
 
     function removeSectionClass(id) {
@@ -1582,4 +1545,3 @@
 
 </body>
 </html>
-
