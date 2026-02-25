@@ -235,6 +235,61 @@
         }
         .remove-btn:hover { color: red; }
 
+        /* --- TIMELINE GRID STYLES --- */
+        .timeline-row-cell {
+            position: relative;
+            height: 80px;
+            padding: 0 !important;
+            /* Creates 9 perfectly spaced vertical grid lines for the 9 hours (8 AM - 5 PM) */
+            background-image: repeating-linear-gradient(to right, transparent, transparent calc(11.111% - 1px), var(--border-color) calc(11.111% - 1px), var(--border-color) 11.111%);
+        }
+        
+        .day-col {
+            background-color: #004070;
+            color: white;
+            font-weight: bold;
+            text-align: center;
+            vertical-align: middle;
+        }
+        body.dark-mode .day-col { background-color: #002b4d; }
+        
+        .timeline-event {
+            position: absolute;
+            top: 5px;
+            bottom: 5px;
+            color: white;
+            border-radius: 4px;
+            padding: 5px 8px;
+            font-size: 0.75em;
+            line-height: 1.3;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            text-align: left;
+            transition: transform 0.2s, z-index 0.2s;
+            border-left: 4px solid rgba(255,255,255,0.6);
+            white-space: nowrap;
+        }
+        
+        .timeline-event:hover {
+            transform: scale(1.02);
+            z-index: 10;
+            width: max-content !important; /* Expands to show text if cut off */
+            min-width: 100%;
+        }
+        
+        .remove-btn-timeline {
+            position: absolute;
+            top: 2px;
+            right: 5px;
+            cursor: pointer;
+            color: rgba(255,255,255,0.8);
+            font-size: 1.2em;
+            font-weight: bold;
+            z-index: 2;
+        }
+        .remove-btn-timeline:hover { color: #ff4d4d; }
+
         /* --- CGPA STYLES --- */
         .section-box { border: 1px solid var(--border-color); padding: 20px; border-radius: 8px; margin-bottom: 20px; }
         .section-title {
@@ -471,14 +526,19 @@
         </div>
 
         <div style="overflow-x: auto; margin-bottom: 30px;">
-            <table class="routine-table" id="unifiedRoutineTable" style="min-width: 700px; margin-top: 10px;">
+            <table class="routine-table" id="unifiedRoutineTable" style="min-width: 900px; margin-top: 10px; border-collapse: collapse;">
                 <thead>
                     <tr>
-                        <th style="width:20%">Time Slot</th>
-                        <th style="width:20%">Saturday</th>
-                        <th style="width:20%">Sunday</th>
-                        <th style="width:20%">Tuesday</th>
-                        <th style="width:20%">Wednesday</th>
+                        <th style="width: 10%; background-color: var(--bg-input); color: var(--text-main);">Day</th>
+                        <th style="width: 10%; font-size: 0.8em; font-weight: normal; color: var(--text-muted);">8 AM - 9 AM</th>
+                        <th style="width: 10%; font-size: 0.8em; font-weight: normal; color: var(--text-muted);">9 AM - 10 AM</th>
+                        <th style="width: 10%; font-size: 0.8em; font-weight: normal; color: var(--text-muted);">10 AM - 11 AM</th>
+                        <th style="width: 10%; font-size: 0.8em; font-weight: normal; color: var(--text-muted);">11 AM - 12 PM</th>
+                        <th style="width: 10%; font-size: 0.8em; font-weight: normal; color: var(--text-muted);">12 PM - 1 PM</th>
+                        <th style="width: 10%; font-size: 0.8em; font-weight: normal; color: var(--text-muted);">1 PM - 2 PM</th>
+                        <th style="width: 10%; font-size: 0.8em; font-weight: normal; color: var(--text-muted);">2 PM - 3 PM</th>
+                        <th style="width: 10%; font-size: 0.8em; font-weight: normal; color: var(--text-muted);">3 PM - 4 PM</th>
+                        <th style="width: 10%; font-size: 0.8em; font-weight: normal; color: var(--text-muted);">4 PM - 5 PM</th>
                     </tr>
                 </thead>
                 <tbody id="unifiedRoutineBody">
@@ -840,6 +900,7 @@
     // --- SECTION PLANNER DATA ---
     let mySectionClasses = [];
     const sectionDaysOfWeek = ["Saturday", "Sunday", "Tuesday", "Wednesday"];
+    const allTimelineDays = ["Saturday", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
     
     const theoryTimeSlots = [
         "Slot 1 (08:30 AM - 09:50 AM)",
@@ -1089,17 +1150,27 @@
     function initSectionGrid() {
         const tbody = document.getElementById('unifiedRoutineBody');
         tbody.innerHTML = '';
-        theoryTimeSlots.forEach((slot, index) => {
-            let rowHTML = `<tr><td class="day-header" style="font-size:0.85em;"><strong>${slot}</strong></td>`;
-            sectionDaysOfWeek.forEach(day => {
-                rowHTML += `<td id="sec-cell-${day}-${index}"></td>`;
-            });
-            rowHTML += `</tr>`;
+        allTimelineDays.forEach(day => {
+            // Render the Day column and a single large span column for the timeline events to float in
+            let rowHTML = `<tr>
+                <td class="day-col">${day}</td>
+                <td colspan="9" class="timeline-row-cell" id="sec-row-${day}"></td>
+            </tr>`;
             tbody.innerHTML += rowHTML;
         });
 
         // Setup dropdowns on initial load
         updateSectionDropdowns();
+    }
+
+    function parseTimeToMinutes(timeStr) {
+        let [time, modifier] = timeStr.trim().split(' ');
+        let [hours, minutes] = time.split(':');
+        hours = parseInt(hours, 10);
+        minutes = parseInt(minutes, 10);
+        if (hours === 12 && modifier === 'AM') hours = 0;
+        if (hours < 12 && modifier === 'PM') hours += 12;
+        return (hours * 60) + minutes;
     }
 
     function updateSectionDropdowns() {
@@ -1132,73 +1203,79 @@
         });
     }
 
-   function renderSectionRoutine() {
-        // Clear the unified grid
-        sectionDaysOfWeek.forEach(day => {
-            theoryTimeSlots.forEach((slot, idx) => {
-                document.getElementById(`sec-cell-${day}-${idx}`).innerHTML = '';
-            });
+    function renderSectionRoutine() {
+        // Clear the timeline grid
+        allTimelineDays.forEach(day => {
+            const row = document.getElementById(`sec-row-${day}`);
+            if (row) row.innerHTML = '';
         });
         
         let hasClash = false;
         const slotMap = {};
 
         mySectionClasses.forEach(c => {
-            // Determine which days to render based on selection
+            // Determine days to render
             let daysToRender = [];
             if (c.day === "Saturday & Tuesday") daysToRender = ["Saturday", "Tuesday"];
             else if (c.day === "Sunday & Wednesday") daysToRender = ["Sunday", "Wednesday"];
             else daysToRender = [c.day];
 
-            // Map Lab slots to span multiple theory slots
-            let slotsToRender = [];
-            if (c.type === 'Theory') {
-                slotsToRender.push(c.slotIndex);
-            } else if (c.type === 'Lab') {
-                if (c.slotIndex === 0) { slotsToRender.push(0); slotsToRender.push(1); }      // Lab 1 spans Theory 1 & 2
-                else if (c.slotIndex === 1) { slotsToRender.push(2); slotsToRender.push(3); } // Lab 2 spans Theory 3 & 4
-                else if (c.slotIndex === 2) { slotsToRender.push(4); slotsToRender.push(5); } // Lab 3 spans Theory 5 & 6
-            }
+            // Extract exact start and end times from slot strings
+            let timeLabel = c.type === 'Theory' ? theoryTimeSlots[c.slotIndex] : labTimeSlots[c.slotIndex];
+            let timeMatch = timeLabel.match(/\((.*?)\s*-\s*(.*?)\)/);
+            if (!timeMatch) return;
+            
+            let startStr = timeMatch[1].trim();
+            let endStr = timeMatch[2].trim();
+
+            let startMin = parseTimeToMinutes(startStr);
+            let endMin = parseTimeToMinutes(endStr);
+
+            // Our visual timeline spans from 8:00 AM (480 mins) to 5:00 PM (1020 mins) -> Total 540 mins
+            let timelineStart = 480; 
+            let timelineTotal = 540;
+
+            // Calculate exact position and width as a percentage
+            let leftPercent = ((startMin - timelineStart) / timelineTotal) * 100;
+            let widthPercent = ((endMin - startMin) / timelineTotal) * 100;
 
             daysToRender.forEach(d => {
-                slotsToRender.forEach(sIdx => {
-                    const key = `sec-cell-${d}-${sIdx}`;
-                    if (!slotMap[key]) slotMap[key] = [];
-                    slotMap[key].push(c);
-                });
+                // Clash detection 
+                const clashKey = `${d}-${startMin}`;
+                if(!slotMap[clashKey]) slotMap[clashKey] = [];
+                slotMap[clashKey].push(c.id);
+                if(slotMap[clashKey].length > 1) hasClash = true;
+
+                const cell = document.getElementById(`sec-row-${d}`);
+                if(!cell) return;
+
+                const block = document.createElement('div');
+                block.className = 'timeline-event';
+                
+                // Colors matching UCAM style: #17a2b8 (Teal/Blue) for Theory, #28a745 (Green) for Lab
+                block.style.backgroundColor = c.type === 'Theory' ? '#17a2b8' : '#28a745';
+                
+                // Apply exact positions
+                block.style.left = `${leftPercent}%`;
+                block.style.width = `${widthPercent}%`;
+                
+                // Basic visual overlap warning (stacks them slightly offset if they clash)
+                const clashIndex = slotMap[clashKey].length - 1;
+                if(clashIndex > 0) {
+                    block.style.top = `${5 + (clashIndex * 15)}px`;
+                    block.style.zIndex = 5;
+                    block.style.border = "2px solid #ff4d4d";
+                }
+
+                block.innerHTML = `
+                    <span class="remove-btn-timeline" onclick="removeSectionClass('${c.id}')">&times;</span>
+                    <strong>${c.course.split(' (')[0]}</strong><br>
+                    <small>${startStr} - ${endStr} | Sec: ${c.section}</small>
+                `;
+                block.title = `${c.course}\nType: ${c.type}\nTime: ${startStr} - ${endStr}`;
+                cell.appendChild(block);
             });
         });
-
-        for (const [key, classesInSlot] of Object.entries(slotMap)) {
-            const cell = document.getElementById(key);
-            
-            // Check for actual clashes (different unique classes in same slot)
-            const uniqueClassIds = new Set(classesInSlot.map(cl => cl.id));
-            const isClash = uniqueClassIds.size > 1;
-            if (isClash) hasClash = true;
-
-            classesInSlot.forEach(c => {
-                const div = document.createElement('div');
-                let className = 'added-course';
-                
-                // Give labs a slightly different style to differentiate visually
-                if (c.type === 'Lab') {
-                    div.style.borderLeftColor = 'var(--secondary-color)';
-                }
-                if (isClash) className += ' clash';
-                
-                div.className = className;
-                let timeLabel = c.type === 'Theory' ? theoryTimeSlots[c.slotIndex] : labTimeSlots[c.slotIndex];
-                
-                div.innerHTML = `<span class="remove-btn" onclick="removeSectionClass('${c.id}')">&times;</span>
-                                 <strong>${c.course.split(' (')[0]}</strong> 
-                                 <span class="badge-credit" style="background:${c.type==='Lab'?'var(--secondary-color)':'var(--primary-color)'}; margin-left:5px;">${c.type}</span><br>
-                                 <small>${c.course.match(/\(([^)]+)\)/)[1]} | Sec: ${c.section}</small><br>
-                                 <small style="color:var(--text-muted); font-size:0.8em;">${timeLabel.split(' ')[0]} ${timeLabel.split(' ')[1]}</small>`;
-                div.title = c.course;
-                cell.appendChild(div);
-            });
-        }
         
         document.getElementById('section-clash-alert').style.display = hasClash ? 'block' : 'none';
     }
