@@ -1211,7 +1211,12 @@
         });
         
         let hasClash = false;
-        const slotMap = {};
+        
+        // Track scheduled intervals per day to detect overlapping time ranges
+        const daySchedules = {
+            "Saturday": [], "Sunday": [], "Monday": [], 
+            "Tuesday": [], "Wednesday": [], "Thursday": [], "Friday": []
+        };
 
         mySectionClasses.forEach(c => {
             // Determine days to render
@@ -1240,11 +1245,16 @@
             let widthPercent = ((endMin - startMin) / timelineTotal) * 100;
 
             daysToRender.forEach(d => {
-                // Clash detection 
-                const clashKey = `${d}-${startMin}`;
-                if(!slotMap[clashKey]) slotMap[clashKey] = [];
-                slotMap[clashKey].push(c.id);
-                if(slotMap[clashKey].length > 1) hasClash = true;
+                // --- NEW CLASH DETECTION LOGIC ---
+                // Check if the current class overlaps with any existing class on this day
+                // Condition for overlap: StartA < EndB AND EndA > StartB
+                let overlappingClasses = daySchedules[d].filter(existing => 
+                    startMin < existing.end && endMin > existing.start
+                );
+                
+                if (overlappingClasses.length > 0) {
+                    hasClash = true;
+                }
 
                 const cell = document.getElementById(`sec-row-${d}`);
                 if(!cell) return;
@@ -1259,13 +1269,16 @@
                 block.style.left = `${leftPercent}%`;
                 block.style.width = `${widthPercent}%`;
                 
-                // Basic visual overlap warning (stacks them slightly offset if they clash)
-                const clashIndex = slotMap[clashKey].length - 1;
+                // Visual overlap warning (stacks them slightly offset if they clash so you can read both)
+                const clashIndex = overlappingClasses.length;
                 if(clashIndex > 0) {
-                    block.style.top = `${5 + (clashIndex * 15)}px`;
-                    block.style.zIndex = 5;
+                    block.style.top = `${5 + (clashIndex * 25)}px`; // Drop it down a bit more
+                    block.style.zIndex = 5 + clashIndex;
                     block.style.border = "2px solid #ff4d4d";
                 }
+
+                // Add to schedule history for this day to catch future loops
+                daySchedules[d].push({ start: startMin, end: endMin, id: c.id });
 
                 block.innerHTML = `
                     <span class="remove-btn-timeline" onclick="removeSectionClass('${c.id}')">&times;</span>
@@ -1279,7 +1292,6 @@
         
         document.getElementById('section-clash-alert').style.display = hasClash ? 'block' : 'none';
     }
-
     function filterSectionCourses() {
         const input = document.getElementById('sectionCourseSearch').value.toLowerCase();
         const suggestionBox = document.getElementById('sectionSuggestions');
@@ -1622,3 +1634,4 @@
 
 </body>
 </html>
+
