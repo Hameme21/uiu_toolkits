@@ -471,39 +471,21 @@
         </div>
 
         <div style="overflow-x: auto; margin-bottom: 30px;">
-            <table class="routine-table" id="theoryRoutineTable" style="min-width: 700px; margin-top: 10px;">
-                <thead>
-                    <tr>
-                        <th style="width:20%">Time Slot</th>
-                        <th style="width:20%">Saturday</th>
-                        <th style="width:20%">Sunday</th>
-                        <th style="width:20%">Tuesday</th>
-                        <th style="width:20%">Wednesday</th>
-                    </tr>
-                </thead>
-                <tbody id="theoryRoutineBody">
-                    </tbody>
-            </table>
-        </div>
-
-        <h2 style="color: var(--secondary-color); font-size: 1.2em; border-bottom: 2px solid var(--border-color); padding-bottom: 5px;">Lab Routine</h2>
-        <div style="overflow-x: auto;">
-            <table class="routine-table" id="labRoutineTable" style="min-width: 700px; margin-top: 10px;">
-                <thead>
-                    <tr>
-                        <th style="width:20%">Time Slot</th>
-                        <th style="width:20%">Saturday</th>
-                        <th style="width:20%">Sunday</th>
-                        <th style="width:20%">Tuesday</th>
-                        <th style="width:20%">Wednesday</th>
-                    </tr>
-                </thead>
-                <tbody id="labRoutineBody">
-                    </tbody>
-            </table>
-        </div>
-    </div>
-
+    <table class="routine-table" id="unifiedRoutineTable" style="min-width: 700px; margin-top: 10px;">
+        <thead>
+            <tr>
+                <th style="width:20%">Time Slot</th>
+                <th style="width:20%">Saturday</th>
+                <th style="width:20%">Sunday</th>
+                <th style="width:20%">Tuesday</th>
+                <th style="width:20%">Wednesday</th>
+            </tr>
+        </thead>
+        <tbody id="unifiedRoutineBody">
+        </tbody>
+    </table>
+</div>
+        
     <div id="cgpa-section" class="tool-section">
         <h1>CGPA Calculator</h1>
         <p class="subtitle">UIU Grading Scale with Retake Support</p>
@@ -1133,33 +1115,75 @@
         });
     }
 
-    function initSectionGrid() {
-        // Init Theory Grid
-        const tbodyTheory = document.getElementById('theoryRoutineBody');
-        tbodyTheory.innerHTML = '';
-        theoryTimeSlots.forEach((slot, index) => {
-            let rowHTML = `<tr><td class="day-header" style="font-size:0.85em;"><strong>${slot}</strong></td>`;
-            sectionDaysOfWeek.forEach(day => {
-                rowHTML += `<td id="sec-theory-${day}-${index}"></td>`;
+   function renderSectionRoutine() {
+        // Clear the unified grid
+        sectionDaysOfWeek.forEach(day => {
+            theoryTimeSlots.forEach((slot, idx) => {
+                document.getElementById(`sec-cell-${day}-${idx}`).innerHTML = '';
             });
-            rowHTML += `</tr>`;
-            tbodyTheory.innerHTML += rowHTML;
+        });
+        
+        let hasClash = false;
+        const slotMap = {};
+
+        mySectionClasses.forEach(c => {
+            // Determine which days to render based on selection
+            let daysToRender = [];
+            if (c.day === "Saturday & Tuesday") daysToRender = ["Saturday", "Tuesday"];
+            else if (c.day === "Sunday & Wednesday") daysToRender = ["Sunday", "Wednesday"];
+            else daysToRender = [c.day];
+
+            // Map Lab slots to span multiple theory slots
+            let slotsToRender = [];
+            if (c.type === 'Theory') {
+                slotsToRender.push(c.slotIndex);
+            } else if (c.type === 'Lab') {
+                if (c.slotIndex === 0) { slotsToRender.push(0); slotsToRender.push(1); }      // Lab 1 spans Theory 1 & 2
+                else if (c.slotIndex === 1) { slotsToRender.push(2); slotsToRender.push(3); } // Lab 2 spans Theory 3 & 4
+                else if (c.slotIndex === 2) { slotsToRender.push(4); slotsToRender.push(5); } // Lab 3 spans Theory 5 & 6
+            }
+
+            daysToRender.forEach(d => {
+                slotsToRender.forEach(sIdx => {
+                    const key = `sec-cell-${d}-${sIdx}`;
+                    if (!slotMap[key]) slotMap[key] = [];
+                    slotMap[key].push(c);
+                });
+            });
         });
 
-        // Init Lab Grid
-        const tbodyLab = document.getElementById('labRoutineBody');
-        tbodyLab.innerHTML = '';
-        labTimeSlots.forEach((slot, index) => {
-            let rowHTML = `<tr><td class="day-header" style="font-size:0.85em;"><strong>${slot}</strong></td>`;
-            sectionDaysOfWeek.forEach(day => {
-                rowHTML += `<td id="sec-lab-${day}-${index}"></td>`;
-            });
-            rowHTML += `</tr>`;
-            tbodyLab.innerHTML += rowHTML;
-        });
+        for (const [key, classesInSlot] of Object.entries(slotMap)) {
+            const cell = document.getElementById(key);
+            
+            // Check for actual clashes (different unique classes in same slot)
+            const uniqueClassIds = new Set(classesInSlot.map(cl => cl.id));
+            const isClash = uniqueClassIds.size > 1;
+            if (isClash) hasClash = true;
 
-        // Setup dropdowns on initial load
-        updateSectionDropdowns();
+            classesInSlot.forEach(c => {
+                const div = document.createElement('div');
+                let className = 'added-course';
+                
+                // Give labs a slightly different style to differentiate visually
+                if (c.type === 'Lab') {
+                    div.style.borderLeftColor = 'var(--secondary-color)';
+                }
+                if (isClash) className += ' clash';
+                
+                div.className = className;
+                let timeLabel = c.type === 'Theory' ? theoryTimeSlots[c.slotIndex] : labTimeSlots[c.slotIndex];
+                
+                div.innerHTML = `<span class="remove-btn" onclick="removeSectionClass('${c.id}')">&times;</span>
+                                 <strong>${c.course.split(' (')[0]}</strong> 
+                                 <span class="badge-credit" style="background:${c.type==='Lab'?'var(--secondary-color)':'var(--primary-color)'}; margin-left:5px;">${c.type}</span><br>
+                                 <small>${c.course.match(/\(([^)]+)\)/)[1]} | Sec: ${c.section}</small><br>
+                                 <small style="color:var(--text-muted); font-size:0.8em;">${timeLabel.split(' ')[0]} ${timeLabel.split(' ')[1]}</small>`;
+                div.title = c.course;
+                cell.appendChild(div);
+            });
+        }
+        
+        document.getElementById('section-clash-alert').style.display = hasClash ? 'block' : 'none';
     }
 
     function filterSectionCourses() {
@@ -1558,3 +1582,4 @@
 
 </body>
 </html>
+
