@@ -272,10 +272,9 @@
         }
         
         .timeline-event:hover {
-            transform: scale(1.02);
+            transform: translateY(-3px); /* Just a little uplift */
             z-index: 10;
-            width: max-content !important; /* Expands to show text if cut off */
-            min-width: 100%;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3); /* Slightly stronger shadow on hover */
         }
         
         .remove-btn-timeline {
@@ -1634,4 +1633,5 @@
 
 </body>
 </html>
+
 
