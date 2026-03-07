@@ -490,7 +490,7 @@
         <button class="nav-btn" onclick="switchTab('cgpa')" id="btn-cgpa">CGPA Calc</button>
         <button class="nav-btn" onclick="switchTab('calendar')" id="btn-calendar">Academic Calendar</button>
         <button class="nav-btn" onclick="switchTab('planner')" id="btn-planner">Course Planner</button>
-        <button class="nav-btn" onclick="toggleTheme()" id="btn-theme">🌙</button>
+        <button class="nav-btn" onclick="toggleTheme()" id="btn-theme" title="Toggle Theme">💻</button>
     </div>
 </nav>
 
@@ -1111,18 +1111,54 @@
     }
 
     // --- THEME TOGGLE ---
-    function toggleTheme() {
-        document.body.classList.toggle('dark-mode');
+    // --- THEME TOGGLE (System -> Light -> Dark) ---
+    let currentTheme = localStorage.getItem('theme') || 'system';
+
+    function applyTheme(theme) {
         const btn = document.getElementById('btn-theme');
-        if (document.body.classList.contains('dark-mode')) {
-            btn.innerHTML = '☀️';
-            localStorage.setItem('theme', 'dark');
-        } else {
+        let isDark = false;
+
+        if (theme === 'system') {
+            // Check OS preference
+            isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            btn.innerHTML = '💻';
+        } else if (theme === 'dark') {
+            isDark = true;
             btn.innerHTML = '🌙';
-            localStorage.setItem('theme', 'light');
+        } else {
+            isDark = false;
+            btn.innerHTML = '☀️';
+        }
+
+        // Apply or remove the dark-mode CSS class
+        if (isDark) {
+            document.body.classList.add('dark-mode');
+        } else {
+            document.body.classList.remove('dark-mode');
+        }
+        
+        localStorage.setItem('theme', theme);
+        currentTheme = theme;
+    }
+
+    function toggleTheme() {
+        // Cycle through: System -> Light -> Dark -> System...
+        if (currentTheme === 'system') {
+            applyTheme('light');
+        } else if (currentTheme === 'light') {
+            applyTheme('dark');
+        } else {
+            applyTheme('system');
         }
     }
-    if (localStorage.getItem('theme') === 'dark') toggleTheme();
+
+    // Listen for OS theme changes in real-time (if user changes device settings)
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+        if (currentTheme === 'system') applyTheme('system');
+    });
+
+    // Apply the saved (or default) theme on initial load
+    applyTheme(currentTheme);
 
     // --- EXAM LOGIC ---
     function initGrid() {
@@ -1766,4 +1802,5 @@
 
 </body>
 </html>
+
 
