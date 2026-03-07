@@ -1521,15 +1521,53 @@
         });
     }
 
-    function loadFromPlanner() {
-        const triName = document.getElementById('cgpaPlannerSelect').value;
+  function loadFromPlanner() {
+        const select = document.getElementById('cgpaPlannerSelect');
+        const triName = select.value;
         if (!triName) return;
+
+        // 1. WARNING FOR MISSING PREVIOUS CGPA
+        // If it's not the 1st Trimester and the previous CGPA is missing, show a warning.
+        const prevCGPAInput = document.getElementById('prevCGPA');
+        if (triName !== "1st Trimester" && !prevCGPAInput.value) {
+            const proceed = confirm("⚠️ You haven't entered your Previous CGPA.\n\nAre you sure you want to continue without it? (Your Total CGPA calculation might be inaccurate)");
+            if (!proceed) {
+                select.value = ""; // Reset dropdown if user cancels
+                return;
+            }
+        }
 
         const tbody = document.querySelector("#courseTable tbody");
         if (tbody.children.length > 0) {
-            if(!confirm("Loading this trimester will replace your current list. Continue?")) return;
+            if(!confirm("Loading this trimester will replace your current list. Continue?")) {
+                select.value = ""; // Reset dropdown if user cancels
+                return;
+            }
         }
 
+        // 2. AUTO-CALCULATE PREVIOUS CREDITS
+        let calculatedPrevCredits = 0;
+        
+        // Loop through the curriculum in order to sum previous credits
+        for (const [key, courses] of Object.entries(uiuCurriculum)) {
+            if (key === triName) {
+                break; // Stop when we reach the selected trimester
+            }
+            // Add up the credits for this past trimester
+            courses.forEach(c => {
+                calculatedPrevCredits += c.cr;
+            });
+        }
+
+        // Populate the "Credits Earned" input field automatically
+        const prevCreditsInput = document.getElementById('prevCredits');
+        if (triName === "1st Trimester") {
+            prevCreditsInput.value = ""; // No previous credits for 1st trimester
+        } else {
+            prevCreditsInput.value = calculatedPrevCredits;
+        }
+
+        // 3. LOAD THE COURSES
         tbody.innerHTML = '';
 
         const courses = uiuCurriculum[triName];
@@ -1659,4 +1697,5 @@
 
 </body>
 </html>
+
 
