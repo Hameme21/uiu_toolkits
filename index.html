@@ -444,6 +444,28 @@
             .calendar-day { min-height: 80px; padding: 4px; }
             .event-badge { font-size: 0.65em; padding: 3px; }
         }
+
+        /* --- TODAY HIGHLIGHT & BANNER STYLES --- */
+        .calendar-day.today {
+            background-color: var(--course-added-bg);
+            border: 2px solid var(--primary-color);
+            box-shadow: inset 0 0 10px rgba(243, 112, 33, 0.1);
+        }
+        body.dark-mode .calendar-day.today {
+            background-color: #3e2723;
+        }
+        .today-holiday {
+            background-color: var(--clash-bg);
+            color: #d32f2f;
+            border: 1px solid var(--clash-border);
+        }
+        .today-regular {
+            background-color: var(--course-added-bg);
+            color: var(--secondary-color);
+            border: 1px solid var(--primary-color);
+        }
+        body.dark-mode .today-holiday { color: #ff8a80; }
+        body.dark-mode .today-regular { color: #81d4fa; }
     </style>
 </head>
 <body>
@@ -623,6 +645,8 @@
     <div id="calendar-section" class="tool-section">
         <h1>Spring 2026 Academic Calendar</h1>
         <p class="subtitle">Interactive Event Planner</p>
+
+        <div id="today-event-banner" style="display: none; text-align: center; padding: 15px; margin-bottom: 15px; border-radius: 8px; font-weight: bold; font-size: 1.1em;"></div>
 
         <div class="search-box">
             <input type="text" id="calendarSearch" placeholder="Search events or dates (e.g., 'Mid-Term', 'Eid', 'Mar 15')..." oninput="searchCalendarEvents()">
@@ -1579,8 +1603,9 @@
     }
 
     // --- FULL CALENDAR LOGIC ---
-    let currentCalYear = 2026;
-    let currentCalMonth = 1; 
+    const actualToday = new Date();
+    let currentCalYear = actualToday.getFullYear();
+    let currentCalMonth = actualToday.getMonth(); 
 
     function renderFullCalendar() {
         const daysContainer = document.getElementById('calendar-days');
@@ -1602,6 +1627,12 @@
             const d = String(day).padStart(2, '0');
             const currentCellDate = `${currentCalYear}-${m}-${d}`;
             
+            // Check if this specific cell is exactly TODAY
+            const isToday = (currentCalYear === actualToday.getFullYear() && 
+                             currentCalMonth === actualToday.getMonth() && 
+                             day === actualToday.getDate());
+                             
+            let todayClass = isToday ? ' today' : '';
             let eventsHTML = '';
             
             academicEvents.forEach(evt => {
@@ -1615,7 +1646,7 @@
             });
             
             daysContainer.innerHTML += `
-                <div class="calendar-day">
+                <div class="calendar-day${todayClass}">
                     <span class="day-num">${day}</span>
                     ${eventsHTML}
                 </div>
@@ -1663,6 +1694,34 @@
         }
     }
 
+    // NEW: Function to check today's events for the banner
+    function checkTodayEvents() {
+        const y = actualToday.getFullYear();
+        const m = String(actualToday.getMonth() + 1).padStart(2, '0');
+        const d = String(actualToday.getDate()).padStart(2, '0');
+        const todayStr = `${y}-${m}-${d}`;
+        
+        const banner = document.getElementById('today-event-banner');
+        
+        // Find if today falls within any event's start and end dates
+        let todayEvents = academicEvents.filter(evt => todayStr >= evt.start && todayStr <= evt.end);
+        
+        if (todayEvents.length > 0) {
+            banner.style.display = 'block';
+            let evt = todayEvents[0]; // Display the primary event if there are multiple
+            
+            if (evt.type === 'holiday') {
+                banner.className = 'today-holiday';
+                banner.innerHTML = `Congrats 🎊 , Today is Holiday: '${evt.title}'`;
+            } else {
+                banner.className = 'today-regular';
+                banner.innerHTML = `Be Ready!! Today is '${evt.title}'`;
+            }
+        } else {
+            banner.style.display = 'none';
+        }
+    }
+
     // --- INIT ---
     window.onload = function() {
         initGrid();
@@ -1670,6 +1729,7 @@
         initPlanner(); 
         addCourseRow(); addCourseRow(); addCourseRow();
         renderFullCalendar();
+        checkTodayEvents(); // NEW CALL
         
         document.addEventListener('click', e => {
             if (!e.target.closest('#courseSearch')) {
@@ -1697,5 +1757,3 @@
 
 </body>
 </html>
-
-
