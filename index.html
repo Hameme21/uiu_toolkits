@@ -63,10 +63,14 @@
             --same-day-border: #ffc107;
             --course-added-bg: #fff3e0;
             
-            --shadow: 0 4px 15px rgba(243, 112, 33, 0.15);
+            --shadow: 0 8px 30px rgba(243, 112, 33, 0.12);
             --warning-bg: #fff3cd;
             --warning-text: #856404;
             --warning-border: #ffeeba;
+
+            /* Gradients */
+            --gradient-primary: linear-gradient(135deg, #F37021 0%, #ff985c 100%);
+            --gradient-secondary: linear-gradient(135deg, #005696 0%, #0081d1 100%);
         }
 
         /* Dark Mode Override */
@@ -87,7 +91,7 @@
             --same-day-border: #9c7b16;
             --course-added-bg: #2d2318;
             
-            --shadow: 0 4px 15px rgba(0,0,0,0.5);
+            --shadow: 0 8px 30px rgba(0,0,0,0.6);
             --warning-bg: #332701;
             --warning-text: #ffc107;
             --warning-border: #664d03;
@@ -96,23 +100,39 @@
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: var(--bg-body);
+            /* Soft animated gradient background */
+            background: linear-gradient(135deg, var(--bg-body) 0%, #fff0e6 100%);
             color: var(--text-main);
             margin: 0;
             transition: background 0.3s, color 0.3s;
+            min-height: 100vh;
+        }
+
+        body.dark-mode {
+            background: linear-gradient(135deg, #121212 0%, #201510 100%);
         }
 
         /* --- NAVIGATION --- */
         nav {
-            background-color: var(--bg-container);
+            background-color: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px); /* Glassmorphism */
+            -webkit-backdrop-filter: blur(12px);
             padding: 15px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
             position: sticky;
             top: 0;
             z-index: 1000;
-            border-bottom: 3px solid var(--primary-color);
+            border-bottom: 3px solid transparent;
+            border-image: var(--gradient-primary);
+            border-image-slice: 1;
+        }
+
+        body.dark-mode nav {
+            background-color: rgba(30, 30, 30, 0.85);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
         }
 
         .logo {
@@ -131,19 +151,22 @@
         }
 
         .nav-btn {
-            padding: 8px 16px;
+            padding: 8px 18px;
             border: 2px solid var(--primary-color);
             background: transparent;
             color: var(--primary-color);
-            border-radius: 20px;
+            border-radius: 25px; /* Pill shape */
             cursor: pointer;
             font-weight: 600;
-            transition: all 0.2s;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Bouncy hover */
         }
 
         .nav-btn.active, .nav-btn:hover {
-            background: var(--primary-color);
+            background: var(--gradient-primary);
             color: white;
+            border-color: transparent;
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 6px 15px rgba(243, 112, 33, 0.3);
         }
         
         body.dark-mode .nav-btn {
@@ -152,8 +175,84 @@
         }
         body.dark-mode .nav-btn.active, 
         body.dark-mode .nav-btn:hover {
-            background: var(--primary-color);
             color: #121212;
+            box-shadow: 0 6px 15px rgba(243, 112, 33, 0.5);
+        }
+
+        /* --- DASHBOARD STYLES --- */
+        .gradient-text {
+            background: linear-gradient(45deg, var(--primary-color), #ff4081, var(--secondary-color));
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradient-shift 3s linear infinite;
+        }
+
+        @keyframes gradient-shift {
+            0% { background-position: 0% center; }
+            100% { background-position: 200% center; }
+        }
+
+        .dash-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-top: 40px;
+        }
+
+        .dash-card {
+            background: var(--bg-container);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 30px 20px;
+            text-align: center;
+            cursor: pointer;
+            box-shadow: var(--shadow);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dash-card::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 4px;
+            background: var(--gradient-primary);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .dash-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 35px rgba(243, 112, 33, 0.2);
+            border-color: var(--primary-color);
+        }
+
+        .dash-card:hover::before {
+            opacity: 1;
+        }
+
+        .dash-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            display: inline-block;
+            transition: transform 0.3s;
+        }
+
+        .dash-card:hover .dash-icon {
+            transform: scale(1.2) rotate(5deg);
+        }
+
+        .dash-card h3 {
+            color: var(--primary-color);
+            margin: 0 0 10px 0;
+            font-size: 1.4rem;
+        }
+
+        .dash-card p {
+            color: var(--text-muted);
+            margin: 0;
+            font-size: 0.95rem;
         }
 
         /* --- LAYOUT --- */
@@ -166,21 +265,21 @@
         .tool-section {
             display: none;
             background: var(--bg-container);
-            padding: 25px;
-            border-radius: 12px;
+            padding: 35px 25px;
+            border-radius: 16px;
             box-shadow: var(--shadow);
-            animation: fadeIn 0.3s;
+            animation: slideUpFade 0.4s ease-out;
             border-top: 5px solid var(--primary-color);
         }
         .tool-section.active { display: block; }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
+        @keyframes slideUpFade {
+            from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        h1 { color: var(--primary-color); margin-top: 0; text-align: center; }
-        p.subtitle { color: var(--text-muted); text-align: center; margin-bottom: 20px; }
+        h1 { color: var(--primary-color); margin-top: 0; text-align: center; font-size: 2.2em; }
+        p.subtitle { color: var(--text-muted); text-align: center; margin-bottom: 30px; font-size: 1.1em; }
 
         /* --- ALERTS --- */
         .disclaimer-box {
@@ -188,39 +287,52 @@
             color: var(--warning-text);
             border: 1px solid var(--warning-border);
             padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
             text-align: center;
             font-weight: bold;
-            font-size: 0.9em;
+            font-size: 0.95em;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.03);
         }
 
         .alert-box {
             padding: 15px;
-            border-radius: 6px;
-            margin-bottom: 10px;
+            border-radius: 10px;
+            margin-bottom: 15px;
             text-align: center;
             font-weight: bold;
             display: none;
+            animation: bounceIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
+        @keyframes bounceIn {
+            0% { transform: scale(0.9); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
         #clash-alert { background-color: var(--clash-bg); color: #d32f2f; border: 1px solid var(--clash-border); }
         #sameday-alert { background-color: var(--same-day-bg); color: #c49000; border: 1px solid var(--same-day-border); }
         #section-clash-alert { background-color: var(--clash-bg); color: #d32f2f; border: 1px solid var(--clash-border); }
         body.dark-mode #sameday-alert { color: #ffca28; }
 
         /* --- INPUTS & SEARCH --- */
-        .search-box { position: relative; max-width: 600px; margin: 0 auto 20px auto; }
+        .search-box { position: relative; max-width: 600px; margin: 0 auto 25px auto; }
         input, select {
             width: 100%;
-            padding: 12px;
-            border: 1px solid var(--border-color);
+            padding: 14px;
+            border: 2px solid var(--border-color);
             background: var(--bg-input);
             color: var(--text-main);
-            border-radius: 6px;
+            border-radius: 10px;
             font-size: 1rem;
             box-sizing: border-box;
+            transition: all 0.3s;
         }
-        input:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 2px rgba(243, 112, 33, 0.2); }
+        input:focus, select:focus { 
+            outline: none; 
+            border-color: var(--primary-color); 
+            box-shadow: 0 0 15px rgba(243, 112, 33, 0.2); 
+            transform: translateY(-2px);
+        }
 
         .suggestions {
             position: absolute; top: 100%; left: 0; right: 0;
@@ -228,199 +340,234 @@
             border: 1px solid var(--border-color);
             max-height: 250px; overflow-y: auto; z-index: 100;
             display: none;
-            border-radius: 0 0 6px 6px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border-radius: 0 0 10px 10px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
         }
         .suggestion-item {
-            padding: 10px 15px; cursor: pointer; border-bottom: 1px solid var(--border-color);
+            padding: 12px 15px; cursor: pointer; border-bottom: 1px solid var(--border-color);
             display: flex; justify-content: space-between; align-items: center;
+            transition: background 0.2s;
         }
-        .suggestion-item:hover { background-color: var(--bg-body); }
+        .suggestion-item:hover { background-color: var(--course-added-bg); padding-left: 20px; }
         .suggestion-item strong { color: var(--primary-color); }
-        .shortcut-badge { background: var(--border-color); font-size: 0.75em; padding: 2px 6px; border-radius: 4px; color: var(--text-muted); }
+        .shortcut-badge { background: var(--border-color); font-size: 0.75em; padding: 4px 8px; border-radius: 6px; color: var(--text-muted); }
 
         /* --- EXAM TABLE --- */
-        .routine-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        .routine-table { width: 100%; border-collapse: collapse; margin-top: 20px; border-radius: 10px; overflow: hidden; }
         .routine-table th, .routine-table td {
             border: 1px solid var(--border-color);
-            padding: 10px; text-align: center; vertical-align: top;
+            padding: 12px; text-align: center; vertical-align: top;
         }
-        .routine-table th { background-color: var(--table-header-bg); color: var(--table-header-text); }
+        .routine-table th { background: var(--gradient-primary); color: var(--table-header-text); font-size: 1.05em; }
         
         .added-course {
             background-color: var(--course-added-bg);
-            border-left: 4px solid var(--primary-color);
-            padding: 8px 25px 8px 8px;
-            margin-top: 5px;
-            border-radius: 4px;
+            border-left: 5px solid var(--primary-color);
+            padding: 10px 25px 10px 10px;
+            margin-top: 8px;
+            border-radius: 6px;
             font-size: 0.9em;
             text-align: left;
             position: relative;
             word-wrap: break-word;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            animation: fadeIn 0.3s;
         }
-        .added-course.clash { background-color: var(--clash-bg); border-left-color: var(--clash-border); color: #d32f2f; }
+        .added-course.clash { background-color: var(--clash-bg); border-left-color: var(--clash-border); color: #d32f2f; animation: shake 0.4s; }
         .added-course.sameday { border-left-color: var(--same-day-border); background-color: var(--same-day-bg); }
         
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+            100% { transform: translateX(0); }
+        }
+
         .remove-btn {
-            position: absolute; top: 2px; right: 5px;
-            cursor: pointer; color: var(--text-muted); font-size: 1.2em; font-weight: bold;
+            position: absolute; top: 4px; right: 8px;
+            cursor: pointer; color: var(--text-muted); font-size: 1.4em; font-weight: bold; transition: color 0.2s;
         }
         .remove-btn:hover { color: red; }
 
         /* --- TIMELINE GRID STYLES --- */
         .timeline-row-cell {
             position: relative;
-            height: 80px;
+            height: 90px;
             padding: 0 !important;
-            /* Creates 9 perfectly spaced vertical grid lines for the 9 hours (8 AM - 5 PM) */
             background-image: repeating-linear-gradient(to right, transparent, transparent calc(11.111% - 1px), var(--border-color) calc(11.111% - 1px), var(--border-color) 11.111%);
         }
         
         .day-col {
-            background-color: #004070;
+            background: var(--gradient-secondary);
             color: white;
             font-weight: bold;
             text-align: center;
             vertical-align: middle;
+            border-right: 2px solid white;
         }
-        body.dark-mode .day-col { background-color: #002b4d; }
+        body.dark-mode .day-col { background: #002b4d; border-right-color: #333; }
         
         .timeline-event {
             position: absolute;
-            top: 5px;
-            bottom: 5px;
+            top: 5px; bottom: 5px;
             color: white;
-            border-radius: 4px;
-            padding: 5px 8px;
-            font-size: 0.75em;
-            line-height: 1.3;
+            border-radius: 6px;
+            padding: 6px 10px;
+            font-size: 0.8em;
+            line-height: 1.4;
             overflow: hidden;
             text-overflow: ellipsis;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
             text-align: left;
-            transition: transform 0.2s, z-index 0.2s;
-            border-left: 4px solid rgba(255,255,255,0.6);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), z-index 0.2s;
+            border-left: 4px solid rgba(255,255,255,0.8);
             white-space: nowrap;
         }
         
         .timeline-event:hover {
-            transform: translateY(-3px); /* Just a little uplift */
+            transform: translateY(-5px) scale(1.02); 
             z-index: 10;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.3); /* Slightly stronger shadow on hover */
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3); 
         }
         
         .remove-btn-timeline {
-            position: absolute;
-            top: 2px;
-            right: 5px;
-            cursor: pointer;
-            color: rgba(255,255,255,0.8);
-            font-size: 1.2em;
-            font-weight: bold;
-            z-index: 2;
+            position: absolute; top: 2px; right: 5px;
+            cursor: pointer; color: rgba(255,255,255,0.8);
+            font-size: 1.2em; font-weight: bold; z-index: 2; transition: 0.2s;
         }
-        .remove-btn-timeline:hover { color: #ff4d4d; }
+        .remove-btn-timeline:hover { color: #ff4d4d; transform: scale(1.2); }
 
-        /* --- CGPA STYLES --- */
-        .section-box { border: 1px solid var(--border-color); padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+        /* --- BUTTON & CGPA STYLES --- */
+        .section-box { 
+            border: 1px solid var(--border-color); 
+            padding: 25px; 
+            border-radius: 12px; 
+            margin-bottom: 25px; 
+            background: var(--bg-container);
+            transition: box-shadow 0.3s;
+        }
+        .section-box:hover { box-shadow: var(--shadow); }
+
         .section-title {
-            color: var(--primary-color); font-weight: bold; display: block;
-            border-left: 4px solid var(--primary-color); padding-left: 10px; margin-bottom: 15px;
+            color: var(--primary-color); font-weight: bold; display: block; font-size: 1.1em;
+            border-left: 5px solid var(--primary-color); padding-left: 12px; margin-bottom: 20px;
         }
-        .cgpa-table { width: 100%; margin-bottom: 15px; border-collapse: collapse; }
-        .cgpa-table th { background-color: var(--primary-color); color: white; padding: 10px; text-align: left; }
-        .cgpa-table td { padding: 10px; border-bottom: 1px solid var(--border-color); vertical-align: middle; }
+        
+        .btn-action { 
+            width: 100%; padding: 14px; border-radius: 8px; border: none; font-weight: bold; 
+            cursor: pointer; margin-top: 10px; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+        }
+        .btn-action:hover { transform: translateY(-3px); box-shadow: 0 6px 15px rgba(0,0,0,0.15); }
+        .btn-add { background: var(--gradient-secondary); color: white; width: auto; padding: 10px 24px; }
+        .btn-export { background: linear-gradient(135deg, #28a745, #34ce57); color: white; width: auto; padding: 10px 24px; }
+        .btn-import { background: linear-gradient(135deg, #17a2b8, #1fc8e3); color: white; width: auto; padding: 10px 24px; }
+        .btn-calc { background: var(--gradient-primary); color: white; font-size: 1.2em; padding: 16px; }
+        .btn-delete { background-color: #ff4d4d; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.9em; transition: 0.2s; }
+        .btn-delete:hover { background-color: #ff1a1a; transform: scale(1.1); }
 
-        .btn-action { width: 100%; padding: 12px; border-radius: 6px; border: none; font-weight: bold; cursor: pointer; margin-top: 10px; }
-        .btn-add { background-color: var(--secondary-color); color: white; width: auto; padding: 8px 20px; }
-        .btn-export { background-color: #28a745; color: white; width: auto; padding: 8px 20px; }
-        .btn-export:hover { background-color: #218838; }
-        .btn-import { background-color: #17a2b8; color: white; width: auto; padding: 8px 20px; }
-        .btn-import:hover { background-color: #138496; }
-        .btn-calc { background-color: var(--primary-color); color: white; font-size: 1.1em; }
-        .btn-delete { background-color: #ff4d4d; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 0.8em; }
+        .cgpa-table { width: 100%; margin-bottom: 20px; border-collapse: separate; border-spacing: 0 8px; }
+        .cgpa-table th { background: transparent; color: var(--text-muted); padding: 10px; text-align: left; font-size: 0.9em; text-transform: uppercase; border-bottom: 2px solid var(--border-color); }
+        .cgpa-table td { padding: 12px 10px; background: var(--bg-input); border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); vertical-align: middle; }
+        .cgpa-table td:first-child { border-left: 1px solid var(--border-color); border-top-left-radius: 8px; border-bottom-left-radius: 8px; }
+        .cgpa-table td:last-child { border-right: 1px solid var(--border-color); border-top-right-radius: 8px; border-bottom-right-radius: 8px; }
 
         .result-box {
-            background-color: var(--course-added-bg); border: 2px solid var(--primary-color);
-            padding: 20px; border-radius: 8px; text-align: center; display: none; margin-top: 20px;
+            background: linear-gradient(135deg, var(--course-added-bg) 0%, var(--bg-body) 100%); 
+            border: 2px solid var(--primary-color);
+            padding: 30px; border-radius: 12px; text-align: center; display: none; margin-top: 25px;
+            box-shadow: inset 0 0 20px rgba(243, 112, 33, 0.05);
+            animation: bounceIn 0.5s;
         }
-        .gpa-value { font-size: 2rem; font-weight: bold; color: var(--primary-color); }
+        .gpa-value { font-size: 2.5rem; font-weight: bold; color: var(--primary-color); text-shadow: 2px 2px 4px rgba(243, 112, 33, 0.2); }
         
         .retake-controls { display: flex; align-items: center; gap: 8px; }
-        .prev-grade-wrapper { display: none; margin-top: 5px; }
+        .prev-grade-wrapper { display: none; margin-top: 8px; }
         .prev-grade-wrapper.active { display: block; animation: fadeIn 0.3s; }
-        .prev-grade-label { font-size: 0.8em; color: var(--text-muted); display: block; margin-bottom: 2px; }
-        .retake-checkbox { width: 18px; height: 18px; cursor: pointer; }
+        .prev-grade-label { font-size: 0.85em; color: var(--text-muted); display: block; margin-bottom: 4px; font-weight: bold; }
+        .retake-checkbox { width: 20px; height: 20px; cursor: pointer; accent-color: var(--primary-color); }
 
         /* --- COURSE PLANNER STYLES --- */
         .planner-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 25px;
         }
         .tri-card {
             background: var(--bg-input);
             border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 15px;
-            transition: transform 0.2s;
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
         }
-        .tri-card:hover { transform: translateY(-5px); box-shadow: var(--shadow); }
+        .tri-card::before {
+            content: ""; position: absolute; top: 0; left: 0; width: 5px; height: 100%;
+            background: var(--gradient-secondary);
+        }
+        .tri-card:hover { transform: translateY(-8px); box-shadow: var(--shadow); border-color: var(--secondary-color); }
+        
         .tri-header {
-            color: var(--primary-color);
+            color: var(--secondary-color);
             font-weight: bold;
+            font-size: 1.2em;
             border-bottom: 2px solid var(--border-color);
-            padding-bottom: 8px;
-            margin-bottom: 10px;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
             display: flex;
             justify-content: space-between;
         }
         .tri-course-list { list-style: none; padding: 0; margin: 0; }
         .tri-course-item {
-            padding: 6px 0;
+            padding: 8px 0;
             border-bottom: 1px dashed var(--border-color);
-            font-size: 0.9em;
+            font-size: 0.95em;
             display: flex;
             justify-content: space-between;
+            align-items: center;
         }
         .tri-course-item:last-child { border-bottom: none; }
         .badge-credit {
-            background-color: var(--secondary-color);
+            background: var(--gradient-primary);
             color: white;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 0.75em;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.8em;
+            font-weight: bold;
         }
         
-        /* Dropdown specific for CGPA */
         .planner-select-wrapper {
-            margin-bottom: 15px;
-            background: var(--course-added-bg);
-            padding: 15px;
-            border-radius: 8px;
+            margin-bottom: 20px;
+            background: linear-gradient(to right, var(--course-added-bg), var(--bg-container));
+            padding: 20px;
+            border-radius: 12px;
             border: 1px solid var(--primary-color);
+            border-left: 5px solid var(--primary-color);
         }
 
         /* --- FULL CALENDAR STYLES --- */
         .calendar-controls {
             display: flex; justify-content: space-between; align-items: center; 
-            margin-bottom: 15px; background: var(--bg-input); padding: 10px 20px;
-            border-radius: 8px; border: 1px solid var(--border-color);
+            margin-bottom: 20px; background: var(--bg-input); padding: 15px 25px;
+            border-radius: 12px; border: 1px solid var(--border-color);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.02);
         }
         .calendar-controls button {
-            background: var(--primary-color); color: white; border: none; 
-            padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: bold;
+            background: var(--gradient-secondary); color: white; border: none; 
+            padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold;
+            transition: 0.3s;
         }
-        .calendar-controls button:hover { background: var(--secondary-color); }
-        .calendar-controls h2 { margin: 0; color: var(--secondary-color); }
+        .calendar-controls button:hover { transform: scale(1.05); box-shadow: 0 4px 12px rgba(0, 86, 150, 0.3); }
+        .calendar-controls h2 { margin: 0; color: var(--secondary-color); font-size: 1.5em; }
 
-        .calendar-wrapper { border-radius: 8px; overflow-x: auto; border: 1px solid var(--border-color); }
+        .calendar-wrapper { border-radius: 12px; overflow-x: auto; border: 1px solid var(--border-color); box-shadow: var(--shadow); }
         
         .calendar-grid-header {
             display: grid; grid-template-columns: repeat(7, 1fr); 
-            background: var(--table-header-bg); color: var(--table-header-text); 
-            text-align: center; font-weight: bold; padding: 12px 0;
-            min-width: 650px; 
+            background: var(--gradient-primary); color: white; 
+            text-align: center; font-weight: bold; padding: 15px 0;
+            min-width: 650px; font-size: 1.1em;
         }
         
         .calendar-grid {
@@ -430,51 +577,49 @@
         }
 
         .calendar-day {
-            background: var(--bg-container); min-height: 100px; 
-            padding: 8px; display: flex; flex-direction: column; gap: 4px;
+            background: var(--bg-container); min-height: 110px; 
+            padding: 10px; display: flex; flex-direction: column; gap: 6px;
+            transition: background 0.3s;
         }
-        .calendar-day.empty { background: var(--bg-body); }
-        .day-num { font-weight: bold; font-size: 1.1em; color: var(--text-muted); text-align: right; display: block; margin-bottom: 5px; }
+        .calendar-day:hover { background: var(--bg-body); }
+        .calendar-day.empty { background: var(--bg-body); opacity: 0.6; }
+        .day-num { font-weight: bold; font-size: 1.2em; color: var(--text-muted); text-align: right; display: block; margin-bottom: 5px; }
         .event-badge {
-            font-size: 0.75em; padding: 5px 8px; border-radius: 4px; 
-            background-color: var(--course-added-bg); border-left: 3px solid var(--primary-color);
-            color: var(--text-main); font-weight: bold; line-height: 1.2;
+            font-size: 0.8em; padding: 6px 10px; border-radius: 6px; 
+            background-color: var(--course-added-bg); border-left: 4px solid var(--primary-color);
+            color: var(--text-main); font-weight: bold; line-height: 1.3;
             word-wrap: break-word; overflow-wrap: break-word; white-space: normal;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            transition: transform 0.2s;
         }
+        .event-badge:hover { transform: scale(1.02); }
 
         .event-holiday { background-color: var(--clash-bg); border-left-color: var(--clash-border); color: #d32f2f; }
         .event-exam { background-color: var(--same-day-bg); border-left-color: var(--same-day-border); color: #b08100; }
         body.dark-mode .event-exam { color: #ffca28; }
 
-        @media (max-width: 600px) {
-            nav { flex-direction: column; gap: 10px; }
-            .routine-table th, .routine-table td { font-size: 0.8em; padding: 5px; }
-            .calendar-grid-header { font-size: 0.8em; }
-            .calendar-day { min-height: 80px; padding: 4px; }
-            .event-badge { font-size: 0.65em; padding: 3px; }
-        }
-
-        /* --- TODAY HIGHLIGHT & BANNER STYLES --- */
         .calendar-day.today {
             background-color: var(--course-added-bg);
             border: 2px solid var(--primary-color);
-            box-shadow: inset 0 0 10px rgba(243, 112, 33, 0.1);
+            box-shadow: inset 0 0 15px rgba(243, 112, 33, 0.15);
         }
-        body.dark-mode .calendar-day.today {
-            background-color: #3e2723;
-        }
-        .today-holiday {
-            background-color: var(--clash-bg);
-            color: #d32f2f;
-            border: 1px solid var(--clash-border);
-        }
-        .today-regular {
-            background-color: var(--course-added-bg);
-            color: var(--secondary-color);
-            border: 1px solid var(--primary-color);
-        }
+        body.dark-mode .calendar-day.today { background-color: #3e2723; }
+        
+        .today-holiday { background-color: var(--clash-bg); color: #d32f2f; border: 1px solid var(--clash-border); }
+        .today-regular { background-color: var(--course-added-bg); color: var(--secondary-color); border: 1px solid var(--primary-color); }
         body.dark-mode .today-holiday { color: #ff8a80; }
         body.dark-mode .today-regular { color: #81d4fa; }
+
+        @media (max-width: 600px) {
+            nav { flex-direction: column; gap: 10px; padding: 10px; }
+            .nav-buttons { justify-content: center; }
+            .tool-section { padding: 20px 15px; }
+            .routine-table th, .routine-table td { font-size: 0.8em; padding: 8px; }
+            .calendar-grid-header { font-size: 0.9em; }
+            .calendar-day { min-height: 80px; padding: 6px; }
+            .event-badge { font-size: 0.7em; padding: 4px; }
+            .dash-grid { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
@@ -485,10 +630,11 @@
         UIU Toolkits
     </div>
     <div class="nav-buttons">
-        <button class="nav-btn active" onclick="switchTab('exam')" id="btn-exam">Exam Routine</button>
+        <button class="nav-btn active" onclick="switchTab('dashboard')" id="btn-dashboard">Dashboard</button>
+        <button class="nav-btn" onclick="switchTab('exam')" id="btn-exam">Exam Routine</button>
         <button class="nav-btn" onclick="switchTab('sectionplanner')" id="btn-sectionplanner">Section Planner</button>
         <button class="nav-btn" onclick="switchTab('cgpa')" id="btn-cgpa">CGPA Calc</button>
-        <button class="nav-btn" onclick="switchTab('calendar')" id="btn-calendar">Academic Calendar</button>
+        <button class="nav-btn" onclick="switchTab('calendar')" id="btn-calendar">Calendar</button>
         <button class="nav-btn" onclick="switchTab('planner')" id="btn-planner">Course Planner</button>
         <button class="nav-btn" onclick="toggleTheme()" id="btn-theme" title="Toggle Theme">💻</button>
     </div>
@@ -496,8 +642,43 @@
 
 <div class="container">
 
-    <div id="exam-section" class="tool-section active">
-        <h1>Exam Clash Solver</h1>
+    <div id="dashboard-section" class="tool-section active">
+        <div style="text-align: center; margin-bottom: 30px;">
+            <h1 class="gradient-text" style="font-size: 2.8em; margin-bottom: 10px;">Welcome to UIU Toolkits! 🎓</h1>
+            <p class="subtitle" style="font-size: 1.2em; max-width: 600px; margin: 0 auto;">The ultimate survival kit for UIU CSE students. Select a tool below to get started and dominate this trimester.</p>
+        </div>
+        
+        <div class="dash-grid">
+            <div class="dash-card" onclick="switchTab('exam')">
+                <div class="dash-icon">📅</div>
+                <h3>Exam Routine</h3>
+                <p>Import your courses, detect exact overlaps, and manage final exam pressure visually.</p>
+            </div>
+            <div class="dash-card" onclick="switchTab('sectionplanner')">
+                <div class="dash-icon">🕒</div>
+                <h3>Section Planner</h3>
+                <p>Draft your perfect weekly class schedule and guarantee you never double-book labs.</p>
+            </div>
+            <div class="dash-card" onclick="switchTab('cgpa')">
+                <div class="dash-icon">📈</div>
+                <h3>CGPA Calculator</h3>
+                <p>Predict your GPA, apply retake rules, and build your target CGPA roadmap.</p>
+            </div>
+            <div class="dash-card" onclick="switchTab('calendar')">
+                <div class="dash-icon">🎉</div>
+                <h3>Academic Calendar</h3>
+                <p>Track midterms, finals, holidays, and payment deadlines for Spring 2026.</p>
+            </div>
+            <div class="dash-card" onclick="switchTab('planner')">
+                <div class="dash-icon">🗺️</div>
+                <h3>Course Planner</h3>
+                <p>Explore the full core curriculum and map out your major elective tracks.</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="exam-section" class="tool-section">
+        <h1 class="gradient-text">Exam Clash Solver</h1>
         <p class="subtitle">Spring 2026 | CSE Dept. | Updated with Official Routine</p>
 
         <div class="disclaimer-box">
@@ -512,7 +693,7 @@
             <div class="suggestions" id="suggestions"></div>
         </div>
         
-        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-bottom: 10px;">
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;">
             <input type="file" id="examCsvInput" accept=".csv" style="display: none;" onchange="importExamCSV(event)">
             <button class="btn-action btn-import" onclick="document.getElementById('examCsvInput').click()">📤 Import Routine from CSV</button>
             <button class="btn-action btn-export" onclick="exportExamCSV()">📥 Export Routine to CSV</button>
@@ -532,19 +713,19 @@
     </div>
 
     <div id="sectionplanner-section" class="tool-section">
-        <h1>Section Planner</h1>
+        <h1 class="gradient-text">Section Planner</h1>
         <p class="subtitle">Draft your Class Routine & Check Clashes</p>
 
         <div id="section-clash-alert" class="alert-box">⚠️ CLASS CLASH: You have overlapping classes at the exact same time!</div>
 
         <div class="section-box">
             <span class="section-title">Add Class Session to Routine</span>
-            <div class="search-box" style="margin-bottom: 10px; max-width: 100%;">
+            <div class="search-box" style="margin-bottom: 15px; max-width: 100%;">
                 <input type="text" id="sectionCourseSearch" placeholder="Search Course using code or keyword (e.g., spl, dbms)..." oninput="filterSectionCourses()" autocomplete="off">
                 <div class="suggestions" id="sectionSuggestions"></div>
             </div>
             
-            <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px;">
+            <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 10px;">
                 <div style="flex:2; min-width: 200px;">
                     <input type="text" id="sectionCourseSelected" placeholder="Selected Course" readonly style="background: var(--bg-body);">
                 </div>
@@ -566,35 +747,35 @@
                         </select>
                 </div>
                 <div>
-                    <button class="btn-action btn-add" style="margin-top:0;" onclick="addSectionClass()">Add to Routine</button>
+                    <button class="btn-action btn-add" style="margin-top:0; height: 100%;" onclick="addSectionClass()">Add to Routine</button>
                 </div>
             </div>
-            <small style="color:var(--text-muted);">💡 Tip: You can add the same course multiple times with different sections to visualize your alternative options!</small>
+            <small style="color:var(--text-muted); display: block; margin-top: 10px;">💡 Tip: You can add the same course multiple times with different sections to visualize your alternative options!</small>
         </div>
 
-        <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 20px;">
-            <h2 style="color: var(--secondary-color); font-size: 1.2em; margin-bottom: 0; border-bottom: 2px solid var(--border-color); padding-bottom: 5px;">Unified Class Routine</h2>
-            <div style="display: flex; gap: 10px;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 30px; flex-wrap: wrap; gap: 15px;">
+            <h2 style="color: var(--secondary-color); font-size: 1.4em; margin-bottom: 0; border-bottom: 3px solid var(--primary-color); padding-bottom: 5px;">Unified Class Routine</h2>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
                 <input type="file" id="sectionCsvInput" accept=".csv" style="display: none;" onchange="importSectionCSV(event)">
                 <button class="btn-action btn-import" style="margin-top: 0;" onclick="document.getElementById('sectionCsvInput').click()">📤 Import Planner from CSV</button>
                 <button class="btn-action btn-export" style="margin-top: 0;" onclick="exportSectionCSV()">📥 Export Planner to CSV</button>
             </div>
         </div>
 
-        <div style="overflow-x: auto; margin-bottom: 30px;">
-            <table class="routine-table" id="unifiedRoutineTable" style="min-width: 900px; margin-top: 10px; border-collapse: collapse;">
+        <div style="overflow-x: auto; margin-bottom: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+            <table class="routine-table" id="unifiedRoutineTable" style="min-width: 900px; margin-top: 15px; border-collapse: collapse; border: none;">
                 <thead>
                     <tr>
-                        <th style="width: 10%; background-color: var(--bg-input); color: var(--text-main);">Day</th>
-                        <th style="width: 10%; font-size: 0.8em; font-weight: normal; color: var(--text-muted);">8 AM - 9 AM</th>
-                        <th style="width: 10%; font-size: 0.8em; font-weight: normal; color: var(--text-muted);">9 AM - 10 AM</th>
-                        <th style="width: 10%; font-size: 0.8em; font-weight: normal; color: var(--text-muted);">10 AM - 11 AM</th>
-                        <th style="width: 10%; font-size: 0.8em; font-weight: normal; color: var(--text-muted);">11 AM - 12 PM</th>
-                        <th style="width: 10%; font-size: 0.8em; font-weight: normal; color: var(--text-muted);">12 PM - 1 PM</th>
-                        <th style="width: 10%; font-size: 0.8em; font-weight: normal; color: var(--text-muted);">1 PM - 2 PM</th>
-                        <th style="width: 10%; font-size: 0.8em; font-weight: normal; color: var(--text-muted);">2 PM - 3 PM</th>
-                        <th style="width: 10%; font-size: 0.8em; font-weight: normal; color: var(--text-muted);">3 PM - 4 PM</th>
-                        <th style="width: 10%; font-size: 0.8em; font-weight: normal; color: var(--text-muted);">4 PM - 5 PM</th>
+                        <th style="width: 10%; background: var(--bg-input); color: var(--text-main); border: 1px solid var(--border-color);">Day</th>
+                        <th style="width: 10%; font-size: 0.85em; font-weight: normal; color: var(--text-muted); border: 1px solid var(--border-color);">8 AM - 9 AM</th>
+                        <th style="width: 10%; font-size: 0.85em; font-weight: normal; color: var(--text-muted); border: 1px solid var(--border-color);">9 AM - 10 AM</th>
+                        <th style="width: 10%; font-size: 0.85em; font-weight: normal; color: var(--text-muted); border: 1px solid var(--border-color);">10 AM - 11 AM</th>
+                        <th style="width: 10%; font-size: 0.85em; font-weight: normal; color: var(--text-muted); border: 1px solid var(--border-color);">11 AM - 12 PM</th>
+                        <th style="width: 10%; font-size: 0.85em; font-weight: normal; color: var(--text-muted); border: 1px solid var(--border-color);">12 PM - 1 PM</th>
+                        <th style="width: 10%; font-size: 0.85em; font-weight: normal; color: var(--text-muted); border: 1px solid var(--border-color);">1 PM - 2 PM</th>
+                        <th style="width: 10%; font-size: 0.85em; font-weight: normal; color: var(--text-muted); border: 1px solid var(--border-color);">2 PM - 3 PM</th>
+                        <th style="width: 10%; font-size: 0.85em; font-weight: normal; color: var(--text-muted); border: 1px solid var(--border-color);">3 PM - 4 PM</th>
+                        <th style="width: 10%; font-size: 0.85em; font-weight: normal; color: var(--text-muted); border: 1px solid var(--border-color);">4 PM - 5 PM</th>
                     </tr>
                 </thead>
                 <tbody id="unifiedRoutineBody">
@@ -604,14 +785,14 @@
     </div>
         
     <div id="cgpa-section" class="tool-section">
-        <h1>CGPA Calculator</h1>
+        <h1 class="gradient-text">CGPA Calculator</h1>
         <p class="subtitle">UIU Grading Scale with Retake Support</p>
 
         <div class="section-box">
             <span class="section-title">Previous Results (Optional)</span>
-            <div style="display: flex; gap: 10px;">
-                <div style="flex:1"><label>Prev. CGPA</label><input type="number" id="prevCGPA" placeholder="e.g. 3.50" step="0.01"></div>
-                <div style="flex:1"><label>Credits Earned</label><input type="number" id="prevCredits" placeholder="e.g. 60" step="1"></div>
+            <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                <div style="flex:1; min-width: 200px;"><label style="font-weight: bold; color: var(--text-muted); margin-bottom: 5px; display: block;">Prev. CGPA</label><input type="number" id="prevCGPA" placeholder="e.g. 3.50" step="0.01"></div>
+                <div style="flex:1; min-width: 200px;"><label style="font-weight: bold; color: var(--text-muted); margin-bottom: 5px; display: block;">Credits Earned</label><input type="number" id="prevCredits" placeholder="e.g. 60" step="1"></div>
             </div>
         </div>
 
@@ -619,80 +800,84 @@
             <span class="section-title">Current Trimester</span>
             
             <div class="planner-select-wrapper">
-                <label style="font-weight:bold; color:var(--primary-color);">🚀 Auto-fill Courses from Planner:</label>
-                <select id="cgpaPlannerSelect" onchange="loadFromPlanner()" style="margin-top: 8px;">
+                <label style="font-weight:bold; color:var(--primary-color); font-size: 1.1em;">🚀 Auto-fill Courses from Planner:</label>
+                <select id="cgpaPlannerSelect" onchange="loadFromPlanner()" style="margin-top: 12px; border: 2px solid var(--primary-color);">
                     <option value="">-- Select a Trimester to Load --</option>
                 </select>
-                <small style="color:var(--text-muted); display:block; margin-top:5px;">Warning: Selecting a trimester will replace current table rows.</small>
+                <small style="color:var(--text-muted); display:block; margin-top:8px;">Warning: Selecting a trimester will replace current table rows.</small>
             </div>
 
-            <table class="cgpa-table" id="courseTable">
-                <thead>
-                    <tr>
-                        <th style="width: 5%">#</th>
-                        <th style="width: 25%">Course (Optional)</th>
-                        <th style="width: 15%">Credits</th>
-                        <th style="width: 20%">Grade</th>
-                        <th style="width: 25%">Type</th>
-                        <th style="width: 10%">X</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-            <button class="btn-action btn-add" onclick="addCourseRow()">+ Add Course</button>
+            <div style="overflow-x: auto;">
+                <table class="cgpa-table" id="courseTable" style="min-width: 600px;">
+                    <thead>
+                        <tr>
+                            <th style="width: 5%">#</th>
+                            <th style="width: 25%">Course (Optional)</th>
+                            <th style="width: 15%">Credits</th>
+                            <th style="width: 20%">Grade</th>
+                            <th style="width: 25%">Type</th>
+                            <th style="width: 10%">Drop</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <button class="btn-action btn-add" style="margin-top: 15px;" onclick="addCourseRow()">+ Add Blank Course</button>
         </div>
 
-        <button class="btn-action btn-calc" onclick="calculateCGPA()">Calculate CGPA</button>
+        <button class="btn-action btn-calc" style="margin-top: 30px; box-shadow: 0 10px 20px rgba(243, 112, 33, 0.3);" onclick="calculateCGPA()">✨ Calculate CGPA ✨</button>
 
         <div id="resultBox" class="result-box">
-            <div>Current GPA: <span class="gpa-value" id="currentGPA">0.00</span></div>
-            <div>Total CGPA: <span class="gpa-value" id="totalCGPA">0.00</span></div>
-            <p>Total Credits: <span id="totalCreditsDisplay">0</span></p>
+            <div style="margin-bottom: 10px;">Current Trimester GPA: <span class="gpa-value" id="currentGPA">0.00</span></div>
+            <div style="margin-bottom: 10px;">Overall Total CGPA: <span class="gpa-value" style="color: var(--secondary-color);" id="totalCGPA">0.00</span></div>
+            <p style="font-size: 1.1em; font-weight: bold; color: var(--text-muted);">Total Degree Credits: <span id="totalCreditsDisplay">0</span></p>
         </div>
-        <h2 style="color: var(--secondary-color); margin-top: 40px; border-bottom: 2px solid var(--border-color); padding-bottom: 10px;">🎯 Target CGPA Planner</h2>
+
+        <h2 style="color: var(--secondary-color); margin-top: 50px; border-bottom: 3px solid var(--border-color); padding-bottom: 15px; font-size: 1.8em;">🎯 Target CGPA Planner</h2>
         
         <div class="section-box" style="background-color: var(--bg-container);">
-            <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 15px;">
-                <div style="flex:1; min-width: 140px;">
-                    <label style="font-size: 0.9em; color: var(--text-muted);">Current CGPA</label>
+            <p style="color: var(--text-muted); margin-top: 0; margin-bottom: 25px;">Enter your current standing and graduation goal to calculate the exact average you need to maintain moving forward.</p>
+            <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 20px;">
+                <div style="flex:1; min-width: 150px;">
+                    <label style="font-size: 0.9em; font-weight: bold; color: var(--text-muted); margin-bottom: 5px; display: block;">Current CGPA</label>
                     <input type="number" id="goalCurrentCGPA" placeholder="e.g. 3.20" step="0.01">
                 </div>
-                <div style="flex:1; min-width: 140px;">
-                    <label style="font-size: 0.9em; color: var(--text-muted);">Total Earned Credits</label>
+                <div style="flex:1; min-width: 150px;">
+                    <label style="font-size: 0.9em; font-weight: bold; color: var(--text-muted); margin-bottom: 5px; display: block;">Total Earned Credits</label>
                     <input type="number" id="goalEarnedCredits" placeholder="e.g. 60">
                 </div>
-                <div style="flex:1; min-width: 140px;">
-                    <label style="font-size: 0.9em; color: var(--text-muted);">Target CGPA</label>
+                <div style="flex:1; min-width: 150px;">
+                    <label style="font-size: 0.9em; font-weight: bold; color: var(--text-muted); margin-bottom: 5px; display: block;">Target CGPA</label>
                     <input type="number" id="goalTargetCGPA" placeholder="e.g. 3.50" step="0.01">
                 </div>
-                <div style="flex:1; min-width: 140px;">
-                    <label style="font-size: 0.9em; color: var(--text-muted);">Completed Trimesters</label>
+                <div style="flex:1; min-width: 150px;">
+                    <label style="font-size: 0.9em; font-weight: bold; color: var(--text-muted); margin-bottom: 5px; display: block;">Completed Trimesters</label>
                     <input type="number" id="goalCompletedTrimesters" placeholder="e.g. 5">
                 </div>
-                <div style="flex:1; min-width: 140px;">
-                    <label style="font-size: 0.9em; color: var(--text-muted);">Total Degree Credits</label>
-                    <input type="number" id="goalTotalCredits" value="138" placeholder="UIU CSE standard: 137">
+                <div style="flex:1; min-width: 150px;">
+                    <label style="font-size: 0.9em; font-weight: bold; color: var(--text-muted); margin-bottom: 5px; display: block;">Total Degree Credits</label>
+                    <input type="number" id="goalTotalCredits" value="138" placeholder="UIU CSE standard: 138">
                 </div>
-                <div style="flex:1; min-width: 140px;">
-                    <label style="font-size: 0.9em; color: var(--text-muted);">Total Trimesters</label>
+                <div style="flex:1; min-width: 150px;">
+                    <label style="font-size: 0.9em; font-weight: bold; color: var(--text-muted); margin-bottom: 5px; display: block;">Total Trimesters</label>
                     <input type="number" id="goalTotalTrimesters" value="12" placeholder="Standard: 12">
                 </div>
             </div>
             
-            <button class="btn-action btn-add" style="width: 100%; font-size: 1.1em; padding: 12px; background-color: var(--secondary-color);" onclick="calculateGoalCGPA()">Calculate Required CGPA</button>
+            <button class="btn-action btn-add" style="width: 100%; font-size: 1.2em; padding: 16px; background: var(--gradient-secondary); box-shadow: 0 8px 20px rgba(0, 86, 150, 0.3);" onclick="calculateGoalCGPA()">🚀 Calculate Required Average</button>
             
-            <div id="goalResultBox" class="result-box" style="display: none; margin-top: 20px; background-color: var(--bg-body);">
-                <div style="font-size: 1.3em; margin-bottom: 15px;" id="goalResultText"></div>
-                <div style="font-style: italic; font-weight: bold; color: var(--primary-color); padding: 15px; border-left: 4px solid var(--primary-color); background: var(--bg-input); border-radius: 4px; font-size: 1.1em;" id="goalQuote"></div>
+            <div id="goalResultBox" class="result-box" style="display: none; margin-top: 30px; background: var(--bg-body); border-color: var(--secondary-color);">
+                <div style="font-size: 1.4em; margin-bottom: 20px; color: var(--text-main);" id="goalResultText"></div>
+                <div style="font-style: italic; font-weight: bold; color: var(--primary-color); padding: 20px; border-left: 5px solid var(--primary-color); background: var(--course-added-bg); border-radius: 8px; font-size: 1.2em; box-shadow: 0 4px 10px rgba(0,0,0,0.05);" id="goalQuote"></div>
             </div>
         </div>
     </div>
 
     <div id="calendar-section" class="tool-section">
-        <h1>Spring 2026 Academic Calendar</h1>
+        <h1 class="gradient-text">Spring 2026 Academic Calendar</h1>
         <p class="subtitle">Interactive Event Planner</p>
 
-        <div id="today-event-banner" style="display: none; text-align: center; padding: 15px; margin-bottom: 15px; border-radius: 8px; font-weight: bold; font-size: 1.1em;"></div>
+        <div id="today-event-banner" style="display: none; text-align: center; padding: 20px; margin-bottom: 25px; border-radius: 12px; font-weight: bold; font-size: 1.2em; box-shadow: 0 4px 15px rgba(0,0,0,0.05);"></div>
 
         <div class="search-box">
             <input type="text" id="calendarSearch" placeholder="Search events or dates (e.g., 'Mid-Term', 'Eid', 'Mar 15')..." oninput="searchCalendarEvents()">
@@ -715,17 +900,18 @@
     </div>
 
     <div id="planner-section" class="tool-section">
-        <h1>Course Planner</h1>
+        <h1 class="gradient-text">Course Planner</h1>
         <p class="subtitle">Recommended Roadmap for UIU CSE</p>
-        <div class="disclaimer-box">
-            💡 Tip: Go to the "CGPA Calc" tab and select your trimester to auto-load these courses!
+        
+        <div class="disclaimer-box" style="background: linear-gradient(135deg, var(--course-added-bg), var(--bg-container)); border-color: var(--primary-color); color: var(--text-main);">
+            <strong style="color: var(--primary-color); font-size: 1.2em;">💡 Pro Tip:</strong> Go to the <strong style="cursor: pointer; text-decoration: underline;" onclick="switchTab('cgpa')">CGPA Calc</strong> tab and select your trimester from the dropdown to automatically load these exact courses into your calculation!
         </div>
         
-        <h2 style="color: var(--secondary-color); margin-top: 30px; border-bottom: 2px solid var(--border-color); padding-bottom: 10px;">Core Trimesters</h2>
+        <h2 style="color: var(--secondary-color); margin-top: 40px; border-bottom: 3px solid var(--border-color); padding-bottom: 10px; font-size: 1.8em;">📘 Core Trimesters</h2>
         <div id="plannerGrid" class="planner-grid">
             </div>
 
-        <h2 style="color: var(--secondary-color); margin-top: 40px; border-bottom: 2px solid var(--border-color); padding-bottom: 10px;">Elective Tracks (Majors)</h2>
+        <h2 style="color: var(--secondary-color); margin-top: 50px; border-bottom: 3px solid var(--border-color); padding-bottom: 10px; font-size: 1.8em;">🔬 Elective Tracks (Majors)</h2>
         <div id="electiveGrid" class="planner-grid">
             </div>
     </div>
@@ -1202,7 +1388,7 @@
         const tbody = document.getElementById('routineBody');
         tbody.innerHTML = '';
         for (let i = 1; i <= 7; i++) {
-            tbody.innerHTML += `<tr><td class="day-header">Day ${i}</td><td id="d${i}-t1"></td><td id="d${i}-t2"></td><td id="d${i}-t3"></td></tr>`;
+            tbody.innerHTML += `<tr><td class="day-header" style="font-weight:bold; color:var(--text-main);">Day ${i}</td><td id="d${i}-t1"></td><td id="d${i}-t2"></td><td id="d${i}-t3"></td></tr>`;
         }
     }
 
@@ -1394,7 +1580,7 @@
                 block.className = 'timeline-event';
                 
                 // Colors matching UCAM style: #17a2b8 (Teal/Blue) for Theory, #28a745 (Green) for Lab
-                block.style.backgroundColor = c.type === 'Theory' ? '#17a2b8' : '#28a745';
+                block.style.background = c.type === 'Theory' ? 'linear-gradient(135deg, #17a2b8, #1fc8e3)' : 'linear-gradient(135deg, #28a745, #34ce57)';
                 
                 // Apply exact positions
                 block.style.left = `${leftPercent}%`;
@@ -1491,7 +1677,7 @@
         let opts = ""; for (let g in gradePoints) opts += `<option value="${gradePoints[g]}">${g}</option>`;
         
         row.innerHTML = `
-            <td>${tbody.rows.length + 1}</td>
+            <td style="font-weight: bold; color: var(--text-muted);">${tbody.rows.length + 1}</td>
             <td style="position: relative;">
                 <input type="text" class="c-name" value="${name}" placeholder="Type to search..." oninput="searchCGPACourse(this)" autocomplete="off">
                 <div class="suggestions" style="width: 100%;"></div>
@@ -1502,7 +1688,7 @@
                 <div class="retake-controls"><input type="checkbox" class="retake-checkbox" onchange="toggleRetake(this)"><span>Retake?</span></div>
                 <div class="prev-grade-wrapper"><span class="prev-grade-label">Old Grade:</span><select class="c-grade-old">${opts}</select></div>
             </td>
-            <td><button class="btn-delete" onclick="this.closest('tr').remove(); updateRows()">✕</button></td>`;
+            <td style="text-align: center;"><button class="btn-delete" onclick="this.closest('tr').remove(); updateRows()">✕</button></td>`;
         tbody.appendChild(row);
     }
 
@@ -1842,7 +2028,7 @@
         resultBox.style.display = 'block';
 
         // Format Result
-        resultText.innerHTML = `To reach a target of <strong>${targetCGPA.toFixed(2)}</strong>, you need to maintain an average of <strong style="color: var(--primary-color); font-size: 1.2em;">${requiredCGPA.toFixed(2)}</strong> per trimester for your remaining <strong>${remainingTris}</strong> trimesters.`;
+        resultText.innerHTML = `To reach your target of <strong>${targetCGPA.toFixed(2)}</strong>, you need to maintain an average of <strong style="color: var(--primary-color); font-size: 1.2em;">${requiredCGPA.toFixed(2)}</strong> per trimester for your remaining <strong>${remainingTris}</strong> trimesters.`;
 
         // Motivational Quotes based on difficulty
         if (requiredCGPA > 4.0) {
@@ -1864,11 +2050,11 @@
     // --- INIT ---
     window.onload = function() {
         initGrid();
-        initSectionGrid(); // Initialize BOTH theory and lab section grids
+        initSectionGrid(); 
         initPlanner(); 
         addCourseRow(); addCourseRow(); addCourseRow();
         renderFullCalendar();
-        checkTodayEvents(); // NEW CALL
+        checkTodayEvents(); 
         
         document.addEventListener('click', e => {
             if (!e.target.closest('#courseSearch')) {
@@ -1896,7 +2082,3 @@
 
 </body>
 </html>
-
-
-
-
