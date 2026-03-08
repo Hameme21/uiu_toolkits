@@ -649,6 +649,43 @@
             <div>Total CGPA: <span class="gpa-value" id="totalCGPA">0.00</span></div>
             <p>Total Credits: <span id="totalCreditsDisplay">0</span></p>
         </div>
+        <h2 style="color: var(--secondary-color); margin-top: 40px; border-bottom: 2px solid var(--border-color); padding-bottom: 10px;">🎯 Target CGPA Planner</h2>
+        
+        <div class="section-box" style="background-color: var(--bg-container);">
+            <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 15px;">
+                <div style="flex:1; min-width: 140px;">
+                    <label style="font-size: 0.9em; color: var(--text-muted);">Current CGPA</label>
+                    <input type="number" id="goalCurrentCGPA" placeholder="e.g. 3.20" step="0.01">
+                </div>
+                <div style="flex:1; min-width: 140px;">
+                    <label style="font-size: 0.9em; color: var(--text-muted);">Total Earned Credits</label>
+                    <input type="number" id="goalEarnedCredits" placeholder="e.g. 60">
+                </div>
+                <div style="flex:1; min-width: 140px;">
+                    <label style="font-size: 0.9em; color: var(--text-muted);">Target CGPA</label>
+                    <input type="number" id="goalTargetCGPA" placeholder="e.g. 3.50" step="0.01">
+                </div>
+                <div style="flex:1; min-width: 140px;">
+                    <label style="font-size: 0.9em; color: var(--text-muted);">Completed Trimesters</label>
+                    <input type="number" id="goalCompletedTrimesters" placeholder="e.g. 5">
+                </div>
+                <div style="flex:1; min-width: 140px;">
+                    <label style="font-size: 0.9em; color: var(--text-muted);">Total Degree Credits</label>
+                    <input type="number" id="goalTotalCredits" value="138" placeholder="UIU CSE standard: 138">
+                </div>
+                <div style="flex:1; min-width: 140px;">
+                    <label style="font-size: 0.9em; color: var(--text-muted);">Total Trimesters</label>
+                    <input type="number" id="goalTotalTrimesters" value="12" placeholder="Standard: 12">
+                </div>
+            </div>
+            
+            <button class="btn-action btn-add" style="width: 100%; font-size: 1.1em; padding: 12px; background-color: var(--secondary-color);" onclick="calculateGoalCGPA()">Calculate Required CGPA</button>
+            
+            <div id="goalResultBox" class="result-box" style="display: none; margin-top: 20px; background-color: var(--bg-body);">
+                <div style="font-size: 1.3em; margin-bottom: 15px;" id="goalResultText"></div>
+                <div style="font-style: italic; font-weight: bold; color: var(--primary-color); padding: 15px; border-left: 4px solid var(--primary-color); background: var(--bg-input); border-radius: 4px; font-size: 1.1em;" id="goalQuote"></div>
+            </div>
+        </div>
     </div>
 
     <div id="calendar-section" class="tool-section">
@@ -1767,6 +1804,63 @@
         }
     }
 
+    // --- GOAL CGPA CALCULATOR LOGIC ---
+    function calculateGoalCGPA() {
+        const currentCGPA = parseFloat(document.getElementById('goalCurrentCGPA').value) || 0;
+        const earnedCredits = parseFloat(document.getElementById('goalEarnedCredits').value) || 0;
+        const targetCGPA = parseFloat(document.getElementById('goalTargetCGPA').value) || 0;
+        const completedTris = parseInt(document.getElementById('goalCompletedTrimesters').value) || 0;
+        const totalCredits = parseFloat(document.getElementById('goalTotalCredits').value) || 138;
+        const totalTris = parseInt(document.getElementById('goalTotalTrimesters').value) || 12;
+
+        if (earnedCredits >= totalCredits) {
+            alert("Earned credits cannot be greater than or equal to total degree credits!");
+            return;
+        }
+        if (completedTris >= totalTris) {
+            alert("Completed trimesters cannot be greater than or equal to total trimesters!");
+            return;
+        }
+        if (!currentCGPA || !earnedCredits || !targetCGPA) {
+            alert("Please fill in Current CGPA, Earned Credits, and Target CGPA to calculate.");
+            return;
+        }
+
+        const remainingCredits = totalCredits - earnedCredits;
+        const remainingTris = totalTris - completedTris;
+        
+        // Math: (Target CGPA * Total Credits) - (Current CGPA * Earned Credits) = Required Points for remaining credits
+        const totalTargetPoints = targetCGPA * totalCredits;
+        const currentPoints = currentCGPA * earnedCredits;
+        const requiredPoints = totalTargetPoints - currentPoints;
+        const requiredCGPA = requiredPoints / remainingCredits;
+
+        const resultBox = document.getElementById('goalResultBox');
+        const resultText = document.getElementById('goalResultText');
+        const quoteText = document.getElementById('goalQuote');
+
+        resultBox.style.display = 'block';
+
+        // Format Result
+        resultText.innerHTML = `To reach a target of <strong>${targetCGPA.toFixed(2)}</strong>, you need to maintain an average of <strong style="color: var(--primary-color); font-size: 1.2em;">${requiredCGPA.toFixed(2)}</strong> per trimester for your remaining <strong>${remainingTris}</strong> trimesters.`;
+
+        // Motivational Quotes based on difficulty
+        if (requiredCGPA > 4.0) {
+            resultText.innerHTML = `You need a <strong style="color:red;">${requiredCGPA.toFixed(2)}</strong> average for your remaining ${remainingTris} trimesters.`;
+            quoteText.innerHTML = "\"Mathematically impossible without retaking previous courses. Don't stress the number, focus on building skills and retaking courses if necessary!\" 🌟";
+        } else if (requiredCGPA > 3.8) {
+            quoteText.innerHTML = "\"It always seems impossible until it's done. Time to go into absolute overdrive! You've got this!\" 🔥";
+        } else if (requiredCGPA > 3.5) {
+            quoteText.innerHTML = "\"Push yourself, because no one else is going to do it for you. Challenge accepted!\" 🎯";
+        } else if (requiredCGPA > 3.0) {
+            quoteText.innerHTML = "\"Success is the sum of small efforts, repeated day in and day out. Stay focused!\" 🚀";
+        } else if (requiredCGPA > 2.5) {
+            quoteText.innerHTML = "\"Believe you can and you're halfway there. Just keep up the steady pace!\" ⛵";
+        } else {
+            quoteText.innerHTML = "\"You've built an amazing foundation! Keep calm, code on, and enjoy the ride to graduation.\" 🏆";
+        }
+    }
+
     // --- INIT ---
     window.onload = function() {
         initGrid();
@@ -1802,5 +1896,6 @@
 
 </body>
 </html>
+
 
 
