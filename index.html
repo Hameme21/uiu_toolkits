@@ -169,9 +169,16 @@ button.small { padding: 6px 12px; font-size: 12px; border-radius: 6px; }
           </div>
 
           <div id="dashTeamView" class="hidden grid grid-cols-12 gap-6 h-[700px]">
-              <div class="col-span-12 md:col-span-4 lg:col-span-3 glass-panel p-6 flex flex-col h-full">
+              <div class="col-span-12 md:col-span-4 lg:col-span-3 glass-panel p-6 flex flex-col h-full relative">
                   <label class="mb-4 text-base tracking-widest text-indigo-400">Live Arena Standings</label>
-                  <div id="dashboardScoreboard" class="w-full"></div>
+                  <div id="dashboardScoreboard" class="w-full overflow-y-auto flex-1 pr-2"></div>
+                  
+                  <div id="teamLiveStatus" class="mt-4 hidden p-4 bg-emerald-500/10 border-2 border-emerald-500/50 rounded-xl text-center cursor-pointer hover:bg-emerald-500/20 transition shadow-[0_0_15px_rgba(16,185,129,0.2)]" onclick="showSection('sectionLiveAuction')">
+                      <span class="text-emerald-400 font-black tracking-widest uppercase text-sm drop-shadow-md">
+                         <span class="animate-pulse mr-1">●</span> Auction is Live<br>
+                         <span class="text-[10px] font-bold mt-1 inline-block">Go to Live Section ›</span>
+                      </span>
+                  </div>
               </div>
               <div class="col-span-12 md:col-span-8 lg:col-span-9 glass-panel p-6 flex flex-col" id="dashboardMyTeamCard">
                   <div class="flex justify-between items-center mb-4 border-b border-slate-700/50 pb-4">
@@ -289,7 +296,7 @@ button.small { padding: 6px 12px; font-size: 12px; border-radius: 6px; }
                       <span>Arena Standings</span>
                       <span class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]"></span>
                   </div>
-                  <div id="auctionScoreboard" class="w-full"></div>
+                  <div id="auctionScoreboard" class="w-full overflow-y-auto pr-2 content-start"></div>
               </div>
 
               <div class="glass-panel relative overflow-hidden h-56 shrink-0 flex flex-col">
@@ -449,10 +456,15 @@ window.previewTeamLogo = () => { const teamId = document.getElementById('loginTe
 
 // Live Auction Banner Auto-Updater
 function updateLiveIndicator() {
-    const liveIndicator = document.getElementById('viewerLiveStatus');
-    if(liveIndicator) {
-        if(activePlayer) liveIndicator.classList.remove('hidden');
-        else liveIndicator.classList.add('hidden');
+    const viewerIndicator = document.getElementById('viewerLiveStatus');
+    const teamIndicator = document.getElementById('teamLiveStatus');
+    
+    if(activePlayer) {
+        if(viewerIndicator) viewerIndicator.classList.remove('hidden');
+        if(teamIndicator) teamIndicator.classList.remove('hidden');
+    } else {
+        if(viewerIndicator) viewerIndicator.classList.add('hidden');
+        if(teamIndicator) teamIndicator.classList.add('hidden');
     }
 }
 
@@ -469,7 +481,7 @@ function resetAndStartTimer() {
     updateTimerUI();
     
     auctionTimerInterval = setInterval(() => {
-        if(isTimerPaused) return; // Pause logic
+        if(isTimerPaused) return; 
         
         auctionTimeRemaining--;
         updateTimerUI();
@@ -514,13 +526,12 @@ window.toggleTimer = () => {
     isTimerPaused = !isTimerPaused;
     document.getElementById('btnPauseTimer').textContent = isTimerPaused ? '▶️' : '⏸️';
     updateTimerUI();
-    // Emit to sync clients
     socket.emit('admin:timer_control', { paused: isTimerPaused, time: auctionTimeRemaining });
 };
 
 function handleTimerExpiry() {
     if(CURRENT_USER.role === 'admin' && activePlayer) {
-        triggerSoldFromPopup(); // Automatically pops up modal to finalize the sale
+        triggerSoldFromPopup(); 
         showToast('⏱️ Time is up! Finalize the highest bidder.');
     } else {
         showToast("⏱️ Time's up! Awaiting Admin confirmation...");
@@ -551,7 +562,7 @@ socket.on('player:bid', pl => {
     });
     if(activePlayer && activePlayer.name === pl.name) {
         updatePopupPrice(pl.price);
-        resetAndStartTimer(); // Automatically resets timer on new bid
+        resetAndStartTimer(); 
     }
     log(`<span class="text-white font-bold">${pl.name}</span> (${pl.category}) bid raised to <span class="text-emerald-400 font-bold">৳${pl.price}</span>`); 
 });
@@ -578,7 +589,7 @@ socket.on('popup:open', player => {
     updatePopupPrice(player.currentPrice || player.base || 0); 
     
     updateLiveIndicator();
-    resetAndStartTimer(); // Start 30s timer
+    resetAndStartTimer(); 
 
     if(CURRENT_USER.role==='admin') setupFileUpload(document.getElementById('popupImgContainer'), (file) => uploadFile(file).then(url => socket.emit('admin:update_player_image', { category: player.category, name: player.name, imageUrl: url })));
     
@@ -602,12 +613,12 @@ socket.on('popup:close', () => {
     updateLiveIndicator();
     if(CURRENT_USER.role === 'admin') renderLiveAdminQueue();
 });
+
 socket.on('popup:update_image', data => document.getElementById('popupImg').src = data.imageUrl);
 
 socket.on('player:sold', data => { 
     const { category, name, price, teamId, isDirect } = data.payload; STATE.teams = data.teams; 
     
-    // Fix undefined price issue: update soldPrices locally immediately
     if(!STATE.soldPrices) STATE.soldPrices = {};
     STATE.soldPrices[`${category}:${name}`] = price;
     
