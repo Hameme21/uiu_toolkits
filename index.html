@@ -241,6 +241,11 @@ button.small { padding: 6px 12px; font-size: 12px; border-radius: 6px; }
                   
                   <button onclick="closePopup()" class="absolute top-4 right-4 z-30 w-8 h-8 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-red-500/80">×</button>
 
+                  <div id="auctionTimerContainer" class="absolute top-6 left-1/2 transform -translate-x-1/2 z-40 bg-slate-900/80 backdrop-blur-md border-2 border-cyan-500/50 px-6 py-2 rounded-full flex items-center space-x-3 shadow-[0_0_20px_rgba(34,211,238,0.3)] transition-colors duration-300">
+                      <div class="w-3 h-3 rounded-full bg-cyan-400" id="auctionTimerDot"></div>
+                      <div id="auctionTimerText" class="text-3xl font-black font-mono text-cyan-400 tracking-wider">30s</div>
+                  </div>
+
                   <div class="relative z-20 p-8 mt-auto w-full">
                       <div class="flex justify-between items-end mb-4">
                           <div>
@@ -382,7 +387,11 @@ let CURRENT_USER = { role: null, teamId: null, hostId: null };
 let STATE = { teams: [], categories: [], playersSnapshot: {}, activeBids: {}, soldPrices: {}, directSigns: {}, config: { impactAmount: 0 } };
 let pendingSold = null, activePlayer = null;
 let currentActiveSectionId = 'sectionDashboard'; 
-let currentAuctionCategory = null; // Used for Admin Live Queue
+let currentAuctionCategory = null; 
+
+// TIMER STATE
+let auctionTimerInterval = null;
+let auctionTimeRemaining = 30;
 
 // DOM Refs
 const portal = document.getElementById('portal'), teamAuthOverlay = document.getElementById('teamAuthOverlay'), appContainer = document.getElementById('appContainer');
@@ -445,6 +454,55 @@ function updateLiveIndicator() {
     }
 }
 
+// --- 30 SECOND TIMER LOGIC ---
+function resetAndStartTimer() {
+    clearInterval(auctionTimerInterval);
+    auctionTimeRemaining = 30;
+    updateTimerUI();
+    
+    auctionTimerInterval = setInterval(() => {
+        auctionTimeRemaining--;
+        updateTimerUI();
+        
+        if(auctionTimeRemaining <= 0) {
+            clearInterval(auctionTimerInterval);
+            handleTimerExpiry();
+        }
+    }, 1000);
+}
+
+function updateTimerUI() {
+    const container = document.getElementById('auctionTimerContainer');
+    const text = document.getElementById('auctionTimerText');
+    const dot = document.getElementById('auctionTimerDot');
+    if(!container || !text || !dot) return;
+
+    text.textContent = `${auctionTimeRemaining}s`;
+
+    if(auctionTimeRemaining <= 10) {
+        container.classList.replace('border-cyan-500/50', 'border-red-500/80');
+        container.classList.replace('shadow-[0_0_20px_rgba(34,211,238,0.3)]', 'shadow-[0_0_30px_rgba(239,68,68,0.5)]');
+        text.classList.replace('text-cyan-400', 'text-red-400');
+        dot.classList.replace('bg-cyan-400', 'bg-red-500');
+        dot.classList.add('animate-ping');
+    } else {
+        container.classList.replace('border-red-500/80', 'border-cyan-500/50');
+        container.classList.replace('shadow-[0_0_30px_rgba(239,68,68,0.5)]', 'shadow-[0_0_20px_rgba(34,211,238,0.3)]');
+        text.classList.replace('text-red-400', 'text-cyan-400');
+        dot.classList.replace('bg-red-500', 'bg-cyan-400');
+        dot.classList.remove('animate-ping');
+    }
+}
+
+function handleTimerExpiry() {
+    if(CURRENT_USER.role === 'admin' && activePlayer) {
+        triggerSoldFromPopup();
+        showToast('⏱️ Time is up! Please finalize the sale.');
+    } else {
+        showToast("⏱️ Time's up! Awaiting Admin confirmation...");
+    }
+}
+
 // SOCKET EVENTS
 socket.on('auth:portal_error', msg => document.getElementById('portalMsg').textContent = msg);
 socket.on('auth:portal_success', d => { document.getElementById('portalMsg').className = 'mt-4 text-xs font-bold text-emerald-400'; document.getElementById('portalMsg').textContent = d.msg; });
@@ -467,7 +525,10 @@ socket.on('player:bid', pl => {
             pEls.forEach(pEl => pEl.textContent = `৳${pl.price}`);
         }
     });
-    if(activePlayer && activePlayer.name === pl.name) updatePopupPrice(pl.price); 
+    if(activePlayer && activePlayer.name === pl.name) {
+        updatePopupPrice(pl.price);
+        resetAndStartTimer(); // Reset timer on new bid
+    }
     log(`<span class="text-white font-bold">${pl.name}</span> (${pl.category}) bid raised to <span class="text-emerald-400 font-bold">৳${pl.price}</span>`); 
 });
 socket.on('admin:toast', d => showToast(d.msg));
@@ -483,6 +544,7 @@ socket.on('popup:open', player => {
     updatePopupPrice(player.currentPrice || player.base || 0); 
     
     updateLiveIndicator();
+    resetAndStartTimer(); // Start 30s timer
 
     if(CURRENT_USER.role==='admin') setupFileUpload(document.getElementById('popupImgContainer'), (file) => uploadFile(file).then(url => socket.emit('admin:update_player_image', { category: player.category, name: player.name, imageUrl: url })));
     
@@ -500,11 +562,13 @@ socket.on('popup:open', player => {
 
 socket.on('popup:close', () => { 
     activePlayer = null; 
+    clearInterval(auctionTimerInterval);
     document.getElementById('auctionPlayerPopup').classList.add('hidden'); 
     document.getElementById('auctionIdleState').classList.remove('hidden'); 
     updateLiveIndicator();
     if(CURRENT_USER.role === 'admin') renderLiveAdminQueue();
 });
+
 socket.on('popup:update_image', data => document.getElementById('popupImg').src = data.imageUrl);
 
 socket.on('player:sold', data => { 
@@ -512,6 +576,7 @@ socket.on('player:sold', data => {
     if (isDirect) { if (!STATE.directSigns) STATE.directSigns = {}; STATE.directSigns[`${category}:${name}`] = true; }
     
     activePlayer = null;
+    clearInterval(auctionTimerInterval);
     updateLiveIndicator();
     
     document.getElementById('auctionPlayerPopup').classList.add('hidden'); document.getElementById('auctionIdleState').classList.remove('hidden'); const t = STATE.teams.find(x => x.id === teamId); 
@@ -587,7 +652,6 @@ function setupUI() {
     document.getElementById('btnResetSystem').classList.toggle('hidden', !isAdmin); 
     document.getElementById('btnExportAdmin').classList.toggle('hidden', !isAdmin); 
     
-    // Setup Admin Queue UI toggles
     if (isAdmin) {
         document.getElementById('idleWaitingMessage').classList.add('hidden');
         document.getElementById('adminAuctionQueue').classList.remove('hidden');
@@ -625,7 +689,7 @@ function renderLiveAdminQueue() {
         select.innerHTML += `<option value="${c.id}" ${c.id === currentVal ? 'selected' : ''}>${c.id}</option>`;
     });
     
-    if(!select.value && STATE.categories.length > 0) select.value = STATE.categories[0].id; // Auto select first if empty
+    if(!select.value && STATE.categories.length > 0) select.value = STATE.categories[0].id; 
     currentAuctionCategory = select.value;
     
     const container = document.getElementById('queuePlayersList');
