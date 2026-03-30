@@ -185,7 +185,7 @@ button.small { padding: 6px 12px; font-size: 12px; border-radius: 6px; }
           <div id="dashViewerView" class="hidden grid grid-cols-12 gap-6 h-[750px]">
               <div class="col-span-12 md:col-span-4 lg:col-span-3 glass-panel p-6 flex flex-col h-full relative">
                   <label class="mb-4 text-base tracking-widest text-indigo-400">Live Arena Standings</label>
-                  <div id="viewerScoreboard" class="w-full overflow-y-auto flex-1"></div>
+                  <div id="viewerScoreboard" class="w-full overflow-y-auto flex-1 pr-2"></div>
                   
                   <div id="viewerLiveStatus" class="mt-4 hidden p-4 bg-emerald-500/10 border-2 border-emerald-500/50 rounded-xl text-center cursor-pointer hover:bg-emerald-500/20 transition shadow-[0_0_15px_rgba(16,185,129,0.2)]" onclick="showSection('sectionLiveAuction')">
                       <span class="text-emerald-400 font-black tracking-widest uppercase text-sm drop-shadow-md">
@@ -196,8 +196,7 @@ button.small { padding: 6px 12px; font-size: 12px; border-radius: 6px; }
               </div>
               <div class="col-span-12 md:col-span-8 lg:col-span-9 glass-panel p-6 flex flex-col h-full">
                   <label class="mb-4 text-base tracking-widest text-emerald-400 border-b border-slate-700/50 pb-4">Network Franchises & Rosters</label>
-                  <div id="viewerRostersContent" class="overflow-y-auto flex-1 pr-2 space-y-8 pb-8">
-                      </div>
+                  <div id="viewerRostersContent" class="overflow-y-auto flex-1 pr-2 space-y-8 pb-8"></div>
               </div>
           </div>
       </div>
@@ -205,9 +204,32 @@ button.small { padding: 6px 12px; font-size: 12px; border-radius: 6px; }
       <div id="sectionLiveAuction" class="hidden grid grid-cols-12 gap-6 h-[750px]">
           
           <div class="col-span-12 lg:col-span-8 flex flex-col space-y-4 h-full">
-              <div id="auctionIdleState" class="glass-panel flex-1 rounded-3xl flex flex-col items-center justify-center text-slate-500 border border-slate-700/50 border-dashed">
-                  <span class="text-5xl mb-4 opacity-50">📡</span>
-                  <p class="font-medium tracking-widest uppercase text-xs">Waiting for active player drop...</p>
+              
+              <div id="auctionIdleState" class="glass-panel flex-1 rounded-3xl flex flex-col border border-slate-700/50 border-dashed overflow-hidden relative">
+                  
+                  <div id="idleWaitingMessage" class="flex-1 flex flex-col items-center justify-center text-slate-500">
+                      <span class="text-5xl mb-4 opacity-50">📡</span>
+                      <p class="font-medium tracking-widest uppercase text-xs">Waiting for active player drop...</p>
+                  </div>
+
+                  <div id="adminAuctionQueue" class="hidden flex-1 flex flex-col p-6 lg:p-10 w-full h-full">
+                      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4 border-b border-slate-700/50 pb-4">
+                          <div>
+                              <h3 class="text-2xl font-black text-white tracking-wider">Draft Queue Control</h3>
+                              <p class="text-xs text-slate-400 uppercase tracking-widest mt-1">Select category and click player to initiate auction.</p>
+                          </div>
+                          <select id="queueCategorySelect" class="!w-48 !mb-0 bg-slate-900 border-indigo-500/50 text-indigo-300 font-bold focus:border-indigo-400" onchange="renderLiveAdminQueue()">
+                              <option value="">Select Category...</option>
+                          </select>
+                      </div>
+                      
+                      <div id="queuePlayersList" class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 overflow-y-auto flex-1 pr-2 content-start"></div>
+                      
+                      <div class="mt-6 pt-4 border-t border-slate-700/50 flex items-center bg-slate-900/50 p-4 rounded-xl border border-slate-700">
+                          <input type="checkbox" id="autoNextToggle" checked class="w-5 h-5 rounded border-slate-600 bg-slate-900 focus:ring-indigo-500 accent-indigo-500 cursor-pointer">
+                          <label for="autoNextToggle" class="!mb-0 ml-3 cursor-pointer text-slate-300 text-sm font-bold">Auto-load next unsold prospect after gavel drop</label>
+                      </div>
+                  </div>
               </div>
 
               <div id="auctionPlayerPopup" class="hidden glass-panel flex-1 rounded-3xl overflow-hidden relative group border border-indigo-500/30 shadow-[0_0_30px_rgba(99,102,241,0.1)] flex flex-col">
@@ -276,7 +298,6 @@ button.small { padding: 6px 12px; font-size: 12px; border-radius: 6px; }
       </div>
 
       <div id="sectionPlayerDatabase" class="hidden space-y-6">
-          
           <div id="adminPlayerDatabaseConfig" class="hidden glass-panel p-6">
               <h3 class="text-sm font-bold text-slate-400 uppercase mb-4">Tier Configurations</h3>
               <div class="flex space-x-2 mb-4">
@@ -286,7 +307,6 @@ button.small { padding: 6px 12px; font-size: 12px; border-radius: 6px; }
                   <button id="btnAddCat" class="small w-28 !py-2.5">Add Tier</button>
               </div>
           </div>
-
           <div id="categoriesContainer" class="space-y-8">
              <div class="text-xs text-slate-500">Initializing database...</div>
           </div>
@@ -308,9 +328,7 @@ button.small { padding: 6px 12px; font-size: 12px; border-radius: 6px; }
                       <button id="btnSaveTeams" class="green !py-3 !px-6 text-sm shadow-lg shadow-emerald-500/20">Sync Team DB ›</button>
                   </div>
               </div>
-              
               <div id="teamsConfigContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 overflow-y-auto pr-2 max-h-[600px] p-2 content-start"></div>
-              
           </div>
       </div>
 
@@ -364,11 +382,11 @@ let CURRENT_USER = { role: null, teamId: null, hostId: null };
 let STATE = { teams: [], categories: [], playersSnapshot: {}, activeBids: {}, soldPrices: {}, directSigns: {}, config: { impactAmount: 0 } };
 let pendingSold = null, activePlayer = null;
 let currentActiveSectionId = 'sectionDashboard'; 
+let currentAuctionCategory = null; // Used for Admin Live Queue
 
 // DOM Refs
 const portal = document.getElementById('portal'), teamAuthOverlay = document.getElementById('teamAuthOverlay'), appContainer = document.getElementById('appContainer');
 const fileInput = document.getElementById('globalFileInput');
-const mainContentContainer = document.getElementById('mainContentContainer');
 
 // --- SPA NAVIGATION LOGIC ---
 const showSection = (sectionId) => {
@@ -485,6 +503,7 @@ socket.on('popup:close', () => {
     document.getElementById('auctionPlayerPopup').classList.add('hidden'); 
     document.getElementById('auctionIdleState').classList.remove('hidden'); 
     updateLiveIndicator();
+    if(CURRENT_USER.role === 'admin') renderLiveAdminQueue();
 });
 socket.on('popup:update_image', data => document.getElementById('popupImg').src = data.imageUrl);
 
@@ -504,9 +523,34 @@ socket.on('player:sold', data => {
     document.getElementById('animPlayer').textContent = name; document.getElementById('animTeam').textContent = t ? t.name : teamId; document.getElementById('animPrice').textContent = price; document.getElementById('soldAnimationOverlay').classList.remove('hidden'); 
     
     hammer.style.display='block'; hammer.classList.remove('swing'); void hammer.offsetWidth; hammer.classList.add('swing'); const audio = document.getElementById('hammerAudio'); if(audio) { audio.pause(); audio.currentTime=0; audio.play().catch(e=>{}); } 
-    setTimeout(() => document.getElementById('soldAnimationOverlay').classList.add('hidden'), 3500); 
     
-    renderAll(); 
+    setTimeout(() => {
+        document.getElementById('soldAnimationOverlay').classList.add('hidden');
+        renderAll();
+        
+        // --- AUTO NEXT PLAYER LOGIC (ADMIN ONLY) ---
+        if (CURRENT_USER.role === 'admin') {
+            const autoNextToggle = document.getElementById('autoNextToggle');
+            if(autoNextToggle && autoNextToggle.checked && currentAuctionCategory === category) {
+                const players = STATE.playersSnapshot[currentAuctionCategory] || [];
+                const catConfig = STATE.categories.find(c => c.id === currentAuctionCategory);
+                if(catConfig) {
+                    const soldIdx = players.findIndex(p => p.name === name);
+                    let nextPlayer = null;
+                    for(let i = soldIdx + 1; i < players.length; i++) {
+                        let isPlayerSold = false;
+                        STATE.teams.forEach(tm => { if(tm.purchases && tm.purchases[currentAuctionCategory] === players[i].name) isPlayerSold = true; });
+                        if(!isPlayerSold) { nextPlayer = players[i]; break; }
+                    }
+                    if (nextPlayer) {
+                        const imgSrc = nextPlayer.image || "https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=400&auto=format&fit=crop";
+                        startAuctionFromQueue(currentAuctionCategory, nextPlayer.name, catConfig.base, imgSrc);
+                    }
+                }
+            }
+        }
+    }, 3500); 
+    
     log(`<span class="font-bold text-white">${isDirect ? 'RETAINED' : 'SOLD'}</span>: ${name} to <span class="text-indigo-400 font-bold">${t ? t.name : teamId}</span> for ৳${price}`); 
 });
 
@@ -543,6 +587,15 @@ function setupUI() {
     document.getElementById('btnResetSystem').classList.toggle('hidden', !isAdmin); 
     document.getElementById('btnExportAdmin').classList.toggle('hidden', !isAdmin); 
     
+    // Setup Admin Queue UI toggles
+    if (isAdmin) {
+        document.getElementById('idleWaitingMessage').classList.add('hidden');
+        document.getElementById('adminAuctionQueue').classList.remove('hidden');
+    } else {
+        document.getElementById('idleWaitingMessage').classList.remove('hidden');
+        document.getElementById('adminAuctionQueue').classList.add('hidden');
+    }
+
     showSection('sectionDashboard');
 }
 
@@ -552,13 +605,79 @@ function renderAll() {
         if(CURRENT_USER.role === 'team') renderMyTeam(); 
         if(CURRENT_USER.role === 'listener') renderViewerRosters();
         renderDatabase(); 
-        if(CURRENT_USER.role === 'admin') renderTeamConfigTable(); 
+        if(CURRENT_USER.role === 'admin') {
+            renderTeamConfigTable(); 
+            if(!activePlayer) renderLiveAdminQueue();
+        }
         if(activePlayer) { const key = `${activePlayer.category}:${activePlayer.name}`; updatePopupPrice(STATE.activeBids[key] || activePlayer.base); }
         updateLiveIndicator();
     }
 }
 
-// --- NEW TILE-BASED SCOREBOARD (For Live Auction & Dashboards) ---
+// --- ADMIN DRAFT QUEUE RENDERER ---
+function renderLiveAdminQueue() {
+    if (CURRENT_USER.role !== 'admin') return;
+    
+    const select = document.getElementById('queueCategorySelect');
+    const currentVal = select.value;
+    select.innerHTML = '<option value="">Select Category...</option>';
+    STATE.categories.forEach(c => {
+        select.innerHTML += `<option value="${c.id}" ${c.id === currentVal ? 'selected' : ''}>${c.id}</option>`;
+    });
+    
+    if(!select.value && STATE.categories.length > 0) select.value = STATE.categories[0].id; // Auto select first if empty
+    currentAuctionCategory = select.value;
+    
+    const container = document.getElementById('queuePlayersList');
+    container.innerHTML = '';
+    
+    if (!currentAuctionCategory) {
+        container.innerHTML = '<div class="col-span-full flex items-center justify-center h-32 text-slate-500 text-xs tracking-widest uppercase">Please select a category above.</div>';
+        return;
+    }
+
+    const catConfig = STATE.categories.find(c => c.id === currentAuctionCategory);
+    const players = STATE.playersSnapshot[currentAuctionCategory] || [];
+    
+    let unsoldPlayers = [];
+    players.forEach(p => {
+        let isSold = false;
+        STATE.teams.forEach(t => { if(t.purchases && t.purchases[currentAuctionCategory] === p.name) isSold = true; });
+        if (!isSold) unsoldPlayers.push(p);
+    });
+
+    if (unsoldPlayers.length === 0) {
+        container.innerHTML = '<div class="col-span-full flex items-center justify-center h-32 text-emerald-500 text-xs font-bold tracking-widest uppercase">All prospects in this category are drafted.</div>';
+        return;
+    }
+
+    unsoldPlayers.forEach(p => {
+        const displayPrice = catConfig.base;
+        const imgSrc = p.image || "https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=400&auto=format&fit=crop";
+        
+        container.innerHTML += `
+            <div class="bg-slate-800/60 rounded-xl overflow-hidden border border-slate-700 hover:border-indigo-500 transition cursor-pointer group flex flex-col h-full shadow-lg"
+                 onclick="startAuctionFromQueue('${currentAuctionCategory}', '${p.name}', ${catConfig.base}, '${imgSrc}')">
+                <div class="h-28 relative overflow-hidden bg-slate-900">
+                    <img src="${imgSrc}" class="w-full h-full object-cover opacity-70 group-hover:scale-110 group-hover:opacity-100 transition duration-500">
+                    <div class="absolute inset-0 bg-indigo-500/30 opacity-0 group-hover:opacity-100 flex items-center justify-center transition">
+                        <span class="bg-indigo-600 text-white text-[10px] font-bold px-4 py-1.5 rounded-full uppercase shadow-lg tracking-wider">Start Auction</span>
+                    </div>
+                </div>
+                <div class="p-3 text-center flex-1 flex flex-col justify-center bg-slate-900/40">
+                    <div class="font-bold text-sm text-white truncate w-full tracking-wide">${p.name}</div>
+                    <div class="text-[10px] text-cyan-400 font-mono mt-1 font-bold">Base: ৳${displayPrice}</div>
+                </div>
+            </div>
+        `;
+    });
+}
+
+window.startAuctionFromQueue = (category, name, basePrice, image) => {
+    socket.emit('admin:select_player', { category, name, base: basePrice, currentPrice: basePrice, image });
+};
+
+// --- TILE-BASED SCOREBOARD ---
 function renderScoreboards() {
     const render = (containerId) => {
         const container = document.getElementById(containerId);
@@ -611,7 +730,6 @@ function generatePlayerTileHTML(player, categoryId, displayPrice, isDirect, sold
         </div>
     `;
 
-    // Special Tag for My Roster view
     if((CURRENT_USER.role === 'team' || CURRENT_USER.role === 'listener') && soldToName) {
          frostedTagContent = `
             <div class="absolute top-3 left-3 bg-black/40 backdrop-blur-md border border-white/10 text-white text-[10px] font-bold px-3 py-1.5 rounded-lg uppercase tracking-widest shadow-lg flex items-center space-x-2">
@@ -687,7 +805,7 @@ function renderViewerRosters() {
                 
                 <div class="flex-1">
                     <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5 content-start" id="viewerTeamPlayers-${t.id}">
-                        </div>
+                    </div>
                 </div>
             </div>
         `;
@@ -716,7 +834,7 @@ function renderViewerRosters() {
     });
 }
 
-// --- MY TEAM RENDERER (Uses Tiles) ---
+// --- MY TEAM RENDERER ---
 function renderMyTeam() {
     const t = STATE.teams.find(x => x.id === CURRENT_USER.teamId); 
     const div = document.getElementById('dashboardMyTeamContent'); 
