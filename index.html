@@ -2,199 +2,92 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Players Auction System</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
+<title>Command Center</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 /* --- THEME & RESET --- */
 :root {
-  --bg: #0f172a; --card: #1e293b; --text: #f8fafc; --muted: #94a3b8;
+  --bg: #0b1121; --card: rgba(30, 41, 59, 0.7); --text: #e2e8f0; --muted: #94a3b8;
   --accent: #6366f1; --accent-hover: #4f46e5;
   --success: #10b981; --danger: #ef4444; --warning: #f59e0b;
   --glass: rgba(255, 255, 255, 0.05); --border: rgba(255, 255, 255, 0.1);
 }
 * { box-sizing: border-box; font-family: 'Inter', sans-serif; }
 
-/* ANIMATED GRADIENT BACKGROUND */
 body { 
   margin: 0; 
-  background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%); 
-  background-size: 200% 200%;
-  animation: gradientBG 15s ease infinite;
+  background-color: var(--bg);
+  background-image: radial-gradient(circle at 50% 0%, #1e1b4b 0%, transparent 70%);
   color: var(--text); 
   min-height: 100vh; 
   font-size: 14px; 
-}
-@keyframes gradientBG {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+  antialiased: true;
 }
 
-/* --- LAYOUT --- */
-.container { max-width: 1400px; margin: 0 auto; padding: 20px; }
-.grid { display: grid; grid-template-columns: 1fr 400px; gap: 20px; }
-.flex { display: flex; gap: 10px; align-items: center; }
-
-/* GLOSSY GLASSMORPHISM CARDS */
-.card { 
-  background: rgba(30, 41, 59, 0.6); 
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.1); 
-  border-radius: 12px; 
-  padding: 20px; 
-  box-shadow: 0 8px 32px rgba(0,0,0,0.5), inset 0 0 20px rgba(99, 102, 241, 0.05); 
-  margin-bottom: 20px; 
-  position: relative; 
+.glass-panel {
+    background: var(--card);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--border);
 }
 
-/* --- ELEMENTS --- */
-h1 { margin: 0; font-size: 20px; font-weight: 700; letter-spacing: -0.5px; }
-label { display: block; margin-bottom: 6px; color: var(--muted); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
-
-input, select, textarea { width: 100%; background: var(--glass); border: 1px solid var(--border); color: white; padding: 10px 12px; border-radius: 6px; font-size: 13px; transition: 0.2s; outline: none; }
-input:focus, textarea:focus { border-color: var(--accent); background: rgba(255,255,255,0.08); box-shadow: 0 0 10px rgba(99, 102, 241, 0.3); }
-input.error { border-color: var(--danger) !important; background: rgba(239, 68, 68, 0.1) !important; }
-
-/* --- GLOWING & COLORFUL BUTTONS --- */
-button { 
-  background: linear-gradient(45deg, #6366f1, #8b5cf6); 
-  border: none; 
-  padding: 8px 16px; 
-  color: white; 
-  border-radius: 6px; 
-  cursor: pointer; 
-  font-weight: 700; 
-  font-size: 13px; 
-  transition: all 0.3s ease; 
-  display: inline-flex; 
-  align-items: center; 
-  justify-content: center; 
-  gap: 5px; 
-  box-shadow: 0 0 10px rgba(99, 102, 241, 0.4);
-  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
-}
-button:hover:not(:disabled) { 
-  box-shadow: 0 0 20px rgba(99, 102, 241, 0.8), 0 0 40px rgba(139, 92, 246, 0.6); 
-  transform: translateY(-2px) scale(1.02); 
-}
-button:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; transform: none; }
-
-button.ghost { 
-  background: rgba(255, 255, 255, 0.05); 
-  border: 1px solid rgba(255, 255, 255, 0.2); 
-  box-shadow: none;
-}
-button.ghost:hover:not(:disabled) { 
-  background: rgba(255, 255, 255, 0.15); 
-  box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+.neon-text-blue {
+    color: #38bdf8;
+    text-shadow: 0 0 15px rgba(56, 189, 248, 0.5);
 }
 
-button.green { 
-  background: linear-gradient(45deg, #10b981, #059669); 
-  box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
-}
-button.green:hover:not(:disabled) {
-  box-shadow: 0 0 20px rgba(16, 185, 129, 0.8), 0 0 40px rgba(5, 150, 105, 0.6);
-}
-
-button.red { 
-  background: linear-gradient(45deg, #ef4444, #dc2626); 
-  box-shadow: 0 0 10px rgba(239, 68, 68, 0.4);
-}
-button.red:hover:not(:disabled) {
-  box-shadow: 0 0 20px rgba(239, 68, 68, 0.8), 0 0 40px rgba(220, 38, 38, 0.6);
-}
-
-button.yellow { 
-  background: linear-gradient(45deg, #f59e0b, #d97706); 
-  color: #fff;
-  box-shadow: 0 0 10px rgba(245, 158, 11, 0.4);
-}
-button.yellow:hover:not(:disabled) {
-  box-shadow: 0 0 20px rgba(245, 158, 11, 0.8), 0 0 40px rgba(217, 119, 6, 0.6);
-}
-
-button.purple { 
-  background: linear-gradient(45deg, #8b5cf6, #6d28d9); 
-  box-shadow: 0 0 10px rgba(139, 92, 246, 0.4);
-}
-button.purple:hover:not(:disabled) {
-  box-shadow: 0 0 20px rgba(139, 92, 246, 0.8), 0 0 40px rgba(109, 40, 217, 0.6);
-}
-
-button.small { padding: 4px 10px; font-size: 11px; }
-
-/* --- ADMIN CONFIG GRID --- */
-.team-config-row { 
-  display: grid; 
-  grid-template-columns: 0.5fr 1.5fr 1fr 0.8fr 60px 60px 50px 40px; 
-  gap: 8px; 
-  align-items: center; 
-  margin-bottom: 8px; 
-  padding: 8px; 
-  background: rgba(0,0,0,0.2); 
-  border-radius: 8px; 
-}
-.logo-drop-zone { width: 40px; height: 40px; border-radius: 50%; border: 2px dashed var(--muted); display: flex; align-items: center; justify-content: center; cursor: pointer; overflow: hidden; background: #000; margin: 0 auto; transition: 0.2s; position: relative; }
-.logo-drop-zone:hover, .logo-drop-zone.drag-over { border-color: var(--success); background: rgba(16, 185, 129, 0.2); }
-.logo-drop-zone img { width: 100%; height: 100%; object-fit: cover; }
-.logo-drop-zone::after { content: '+'; position: absolute; color: var(--muted); font-size: 18px; pointer-events: none; }
-.logo-drop-zone:has(img)::after { content: ''; }
-
-/* --- LISTS --- */
-.players { display: flex; flex-direction: column; gap: 6px; }
-.player { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: var(--glass); border-radius: 8px; border: 1px solid transparent; transition: 0.2s; }
-.player:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.2); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
-.player.sold { opacity: 0.5; border-color: var(--accent); background: rgba(99, 102, 241, 0.1); }
-.player.bidding { border-color: var(--warning); background: rgba(245, 158, 11, 0.1); box-shadow: 0 0 20px rgba(245, 158, 11, 0.3); }
-.badge { background: rgba(255,255,255,0.1); padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; }
-.price { font-weight: 700; font-size: 15px; text-shadow: 0 0 10px rgba(255,255,255,0.3); }
-
-/* --- SCOREBOARD --- */
-.team-row { display: flex; align-items: center; justify-content: space-between; padding: 12px; background: var(--glass); border-radius: 8px; margin-bottom: 8px; border-left: 3px solid transparent; transition: 0.2s; }
-.team-row:hover { border-left-color: var(--accent); background: rgba(255,255,255,0.08); box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
-.team-logo { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; background: #000; border: 1px solid var(--border); margin-right: 10px; }
-
-/* --- OVERLAYS --- */
+/* --- OVERLAYS & MODALS --- */
 #portal, #teamAuthOverlay, .overlay { position: fixed; inset: 0; z-index: 5000; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; flex-direction: column; }
 .portal-card, .modal { 
-  background: rgba(30, 41, 59, 0.8); 
+  background: rgba(15, 23, 42, 0.9); 
   backdrop-filter: blur(15px);
   padding: 30px; 
-  border-radius: 16px; 
-  width: 400px; 
+  border-radius: 20px; 
+  width: 420px; 
   max-width: 90%; 
   border: 1px solid rgba(99, 102, 241, 0.3); 
   box-shadow: 0 0 30px rgba(99, 102, 241, 0.2), inset 0 0 20px rgba(99, 102, 241, 0.1); 
   text-align: center; 
 }
 
-/* Active Player Popup */
-#playerPopup { z-index: 4500; }
-.popup-content { 
-  width: 500px; 
-  background: rgba(30, 41, 59, 0.9); 
-  backdrop-filter: blur(20px);
-  padding: 40px; 
-  border-radius: 24px; 
-  border: 1px solid rgba(16, 185, 129, 0.3); 
-  text-align: center; 
-  position: relative; 
-  box-shadow: 0 0 60px rgba(16, 185, 129, 0.2), inset 0 0 30px rgba(16, 185, 129, 0.1); 
+/* --- ELEMENTS --- */
+label { display: block; margin-bottom: 6px; color: var(--muted); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; text-align: left; }
+input, select, textarea { width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--border); color: white; padding: 12px 16px; border-radius: 8px; font-size: 14px; transition: 0.2s; outline: none; margin-bottom: 12px; }
+input:focus, textarea:focus { border-color: var(--accent); background: rgba(0,0,0,0.5); box-shadow: 0 0 10px rgba(99, 102, 241, 0.3); }
+
+button { 
+  background: linear-gradient(135deg, #6366f1, #8b5cf6); 
+  border: none; 
+  padding: 10px 20px; 
+  color: white; 
+  border-radius: 8px; 
+  cursor: pointer; 
+  font-weight: 700; 
+  font-size: 14px; 
+  transition: all 0.3s ease; 
+  display: inline-flex; 
+  align-items: center; 
+  justify-content: center; 
+  gap: 5px; 
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
 }
-.popup-img-container { width: 160px; height: 160px; margin: 0 auto 20px; border-radius: 50%; background: #000; border: 4px solid var(--accent); overflow: hidden; position: relative; cursor: pointer; transition: 0.3s; box-shadow: 0 0 30px rgba(99, 102, 241, 0.4); }
-.popup-img-container:hover { border-color: var(--success); box-shadow: 0 0 40px rgba(16, 185, 129, 0.6); transform: scale(1.05); }
-.popup-img { width: 100%; height: 100%; object-fit: cover; }
-.popup-name { font-size: 32px; font-weight: 800; margin: 10px 0 5px; color: white; text-shadow: 0 0 15px rgba(255,255,255,0.2); }
-.popup-cat { display: inline-block; padding: 4px 12px; background: linear-gradient(45deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05)); border-radius: 20px; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: var(--text); border: 1px solid rgba(255,255,255,0.2); }
-.price-display { font-size: 64px; font-weight: 900; color: var(--warning); margin: 15px 0; text-shadow: 0 0 40px rgba(245, 158, 11, 0.6); line-height: 1; }
-.popup-controls { display: flex; align-items: center; justify-content: center; gap: 20px; margin-top: 20px; }
-.btn-control { width: 60px; height: 60px; border-radius: 50%; font-size: 28px; padding: 0; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
+button:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5); }
+button.ghost { background: var(--glass); border: 1px solid var(--border); box-shadow: none; }
+button.ghost:hover:not(:disabled) { background: rgba(255,255,255,0.1); }
+button.green { background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3); }
+button.red { background: linear-gradient(135deg, #ef4444, #dc2626); box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3); }
+button.yellow { background: linear-gradient(135deg, #f59e0b, #d97706); box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3); color: white; }
+button.small { padding: 6px 12px; font-size: 12px; border-radius: 6px; }
+
+/* --- ADMIN --- */
+.team-config-row { display: grid; grid-template-columns: 0.5fr 1.5fr 1fr 0.8fr 60px 60px 50px 40px; gap: 8px; align-items: center; margin-bottom: 8px; padding: 8px; background: rgba(0,0,0,0.2); border-radius: 8px; }
+.logo-drop-zone { width: 40px; height: 40px; border-radius: 50%; border: 2px dashed var(--muted); display: flex; align-items: center; justify-content: center; cursor: pointer; overflow: hidden; background: #000; margin: 0 auto; transition: 0.2s; position: relative; }
+.logo-drop-zone img { width: 100%; height: 100%; object-fit: cover; }
 
 /* --- TOAST --- */
 #toastContainer { position: fixed; top: 20px; right: 20px; z-index: 9000; display: flex; flex-direction: column; gap: 10px; }
-.toast { background: rgba(30, 41, 59, 0.95); backdrop-filter: blur(10px); color: white; padding: 16px 20px; border-radius: 8px; border-left: 4px solid var(--accent); box-shadow: 0 10px 30px rgba(0,0,0,0.5); animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1); font-weight: 500; display: flex; align-items: center; gap: 10px; border: 1px solid var(--border); }
+.toast { background: rgba(30, 41, 59, 0.95); color: white; padding: 16px 20px; border-radius: 8px; border-left: 4px solid var(--accent); box-shadow: 0 10px 30px rgba(0,0,0,0.5); animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1); font-weight: 500; display: flex; align-items: center; gap: 10px; }
 @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
 /* --- ANIMATIONS --- */
@@ -202,18 +95,22 @@ button.small { padding: 4px 10px; font-size: 11px; }
 #hammer.swing { display: block; animation: hammerSwing 0.6s ease-in-out forwards; }
 @keyframes hammerSwing { 0% { transform: translate(-50%, -80%) rotate(-45deg); opacity: 0; } 20% { opacity: 1; } 50% { transform: translate(-50%, -50%) rotate(45deg); } 100% { transform: translate(-50%, -50%) rotate(0deg); opacity: 0; } }
 
-.team-logo-preview { position: absolute; top: 20px; right: 20px; width: 60px; height: 60px; border-radius: 50%; border: 3px solid var(--accent); object-fit: cover; background: #000; display: none; box-shadow: 0 0 20px rgba(99, 102, 241, 0.4); }
-.tab-nav { display: flex; margin-bottom: 20px; background: rgba(0,0,0,0.3); border-radius: 8px; padding: 4px; box-shadow: inset 0 0 10px rgba(0,0,0,0.5); }
-.tab { flex: 1; padding: 10px; cursor: pointer; color: var(--muted); border-radius: 6px; text-align: center; transition: 0.3s; }
-.tab.active { background: linear-gradient(45deg, var(--accent), #8b5cf6); color: white; font-weight: 600; box-shadow: 0 0 15px rgba(99, 102, 241, 0.5); }
+.tab-nav { display: flex; margin-bottom: 20px; background: rgba(0,0,0,0.3); border-radius: 8px; padding: 4px; }
+.tab { flex: 1; padding: 10px; cursor: pointer; color: var(--muted); border-radius: 6px; text-align: center; transition: 0.3s; font-size: 13px; font-weight: 600;}
+.tab.active { background: linear-gradient(135deg, var(--accent), #8b5cf6); color: white; box-shadow: 0 0 15px rgba(99, 102, 241, 0.3); }
 .hidden { display: none !important; }
-@media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+
+/* Custom Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
 </style>
 </head>
 <body>
 
 <div id="portal">
-  <h1 style="font-size: 32px; margin-bottom: 20px; background: linear-gradient(to right, #6366f1, #10b981); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 0 10px rgba(99,102,241,0.4));">Players Auction System</h1>
+  <h1 class="text-3xl font-black mb-6 bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-emerald-400">Command Center</h1>
   <div class="portal-card">
     <div class="tab-nav">
       <div class="tab active" onclick="switchTab('manager')">Manager</div>
@@ -221,197 +118,214 @@ button.small { padding: 4px 10px; font-size: 11px; }
     </div>
     <div id="managerForm">
       <input id="mUser" placeholder="Username (Host ID)">
-      <input id="mPass" type="password" placeholder="Password" style="margin-top:10px">
-      <button onclick="managerLogin()" style="width:100%; margin-top:15px">Login</button>
-      <button onclick="managerRegister()" class="ghost" style="width:100%; margin-top:10px">Create Account</button>
+      <input id="mPass" type="password" placeholder="Password">
+      <button onclick="managerLogin()" class="w-full mt-2">Initialize Session</button>
+      <button onclick="managerRegister()" class="w-full mt-3 ghost">Create Gateway</button>
     </div>
     <div id="participantForm" class="hidden">
       <input id="pHostId" placeholder="Host ID">
-      <button onclick="connectToHost()" style="width:100%; margin-top:15px">Connect</button>
+      <button onclick="connectToHost()" class="w-full mt-2">Connect to Node</button>
     </div>
-    <div id="portalMsg" style="color:var(--danger); margin-top:15px; font-size:13px"></div>
+    <div id="portalMsg" class="mt-4 text-xs font-bold text-red-400"></div>
   </div>
 </div>
 
 <div id="teamAuthOverlay" class="hidden">
-  <div class="portal-card" style="position: relative;">
-    <img id="loginTeamLogo" class="team-logo-preview">
-    <h3>Auction Room Login</h3>
-    <div style="margin-bottom:15px; text-align:left">
-      <label>Your Role</label>
-      <select id="loginRole" onchange="toggleTeamPass()">
-        <option value="listener">Viewer / Guest</option>
-        <option value="team">Team Representative</option>
-      </select>
-    </div>
-    <div id="teamSelectGroup" class="hidden" style="text-align:left">
-      <label>Select Team</label>
+  <div class="portal-card">
+    <img id="loginTeamLogo" class="w-16 h-16 rounded-full mx-auto mb-4 border-2 border-indigo-500 hidden object-cover">
+    <h3 class="text-xl font-bold mb-6 text-white">Identity Verification</h3>
+    <label>Access Level</label>
+    <select id="loginRole" onchange="toggleTeamPass()">
+      <option value="listener">Guest / Viewer</option>
+      <option value="team">Franchise Representative</option>
+    </select>
+    <div id="teamSelectGroup" class="hidden">
+      <label>Select Franchise</label>
       <select id="loginTeamId" onchange="previewTeamLogo()"></select> 
     </div>
-    <div id="passGroup" class="hidden" style="margin-top:10px; text-align:left">
-      <label>Password</label>
+    <div id="passGroup" class="hidden">
+      <label>Security Key</label>
       <input type="password" id="loginPass">
     </div>
-    <button onclick="enterAuction()" style="width:100%; margin-top:20px">Enter Auction</button>
-    <div id="teamAuthMsg" style="color:var(--danger); margin-top:10px; font-size:12px"></div>
+    <button onclick="enterAuction()" class="w-full mt-4">Authenticate</button>
+    <div id="teamAuthMsg" class="mt-4 text-xs font-bold text-red-400"></div>
   </div>
 </div>
 
-<div id="appContainer" class="hidden">
+<div id="appContainer" class="hidden min-h-screen flex flex-col antialiased">
   <div id="toastContainer"></div>
   <input type="file" id="globalFileInput" style="display:none">
 
-  <div id="playerPopup" class="overlay hidden">
-    <div class="popup-content">
-      <button onclick="closePopup()" style="position:absolute; top:20px; right:20px; background:none; font-size:24px; color:var(--muted); padding:0; box-shadow:none; text-shadow:none;">×</button>
-      
-      <div class="popup-img-container" id="popupImgContainer" title="Click or Drag to Upload">
-          <img id="popupImg" class="popup-img" src="https://via.placeholder.com/150?text=Player">
+  <header class="flex items-center justify-between px-8 py-4 border-b border-slate-800 bg-[#0f172a]">
+      <div class="flex items-center space-x-8">
+          <h1 class="text-xl font-black tracking-wider text-white">ARENA<span class="text-indigo-500">COMMAND</span></h1>
+          <div class="hidden md:flex space-x-2">
+            <span id="roleDisplay" class="bg-indigo-500/20 text-indigo-400 text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">ROLE</span>
+          </div>
       </div>
-      
-      <div id="popupCat" class="popup-cat">Category</div>
-      <div id="popupName" class="popup-name">Player Name</div>
-      
-      <div id="adminControls" class="popup-controls hidden">
-         <button class="btn-control red" onclick="adjustBid('dec')">-</button>
-         <div id="popupPrice" class="price-display">0</div>
-         <button class="btn-control green" onclick="adjustBid('inc')">+</button>
+      <div class="flex items-center space-x-4">
+          <button id="btnExportAdmin" class="hidden ghost small">Export Data</button>
+          <button id="btnResetSystem" class="hidden red small">Wipe DB</button>
+          <button onclick="location.reload()" class="ghost small">Terminate</button>
       </div>
-      <div id="viewerControls" class="popup-controls hidden">
-         <div id="viewerPrice" class="price-display">0</div>
+  </header>
+
+  <main class="flex-1 p-6 max-w-[1600px] mx-auto w-full">
+      
+      <div id="adminPanelWrapper" class="mb-6 hidden">
+          <div class="grid grid-cols-12 gap-6">
+              <div class="col-span-12 lg:col-span-7 glass-panel rounded-2xl p-6" id="adminConfigCard">
+                  <div class="flex justify-between items-center mb-4">
+                      <h3 class="text-sm font-bold text-slate-400 uppercase">Franchise Configurations</h3>
+                      <div class="flex space-x-2">
+                          <input id="configImpact" type="number" placeholder="Impact Bonus" class="!w-32 !mb-0 !py-1 !text-xs">
+                          <button class="small ghost" onclick="saveGlobalConfig()">Save Rule</button>
+                      </div>
+                  </div>
+                  <div class="team-config-row bg-transparent !mb-1 !pb-2 border-b border-slate-700">
+                    <span class="text-[10px] text-slate-400 uppercase">ID</span>
+                    <span class="text-[10px] text-slate-400 uppercase">Name</span>
+                    <span class="text-[10px] text-slate-400 uppercase">Key</span>
+                    <span class="text-[10px] text-slate-400 uppercase">Purse</span>
+                    <span class="text-[10px] text-slate-400 uppercase text-center">Logo</span>
+                    <span></span><span></span><span></span>
+                  </div>
+                  <div id="teamsConfigContainer" class="max-h-48 overflow-y-auto pr-2"></div>
+                  <div class="flex space-x-4 mt-4">
+                    <button id="btnAddTeamRow" class="ghost small flex-1" onclick="addTeamInputRow()">+ Add Slot</button>
+                    <button id="btnSaveTeams" class="green small flex-1">Sync Teams to DB</button>
+                  </div>
+              </div>
+
+              <div class="col-span-12 lg:col-span-5 glass-panel rounded-2xl p-6">
+                  <h3 class="text-sm font-bold text-slate-400 uppercase mb-4">Player Database</h3>
+                  <div class="flex space-x-2 mb-4">
+                      <input id="newCatId" placeholder="Tier ID" class="!w-24 !mb-0 !py-2 !text-xs">
+                      <input id="newCatBase" type="number" placeholder="Base ৳" class="!w-24 !mb-0 !py-2 !text-xs">
+                      <input id="newCatInc" type="number" placeholder="Step ৳" class="!w-24 !mb-0 !py-2 !text-xs">
+                      <button id="btnAddCat" class="small flex-1">Add Tier</button>
+                  </div>
+                  <div id="categoriesContainer" class="space-y-4 max-h-48 overflow-y-auto pr-2">
+                     <div class="text-xs text-slate-500">Awaiting category initialization...</div>
+                  </div>
+              </div>
+          </div>
       </div>
 
-      <div id="adminActionButtons" class="hidden" style="margin-top:25px; display:flex; gap:10px; justify-content:center;">
-         <button class="yellow" style="padding:12px 20px; font-size:16px; font-weight:800; color:#fff;" onclick="triggerSoldFromPopup()">SOLD</button>
-         <button class="purple" style="padding:12px 20px; font-size:16px; font-weight:800; color:#fff;" onclick="triggerDirectSignPopup()">RETAIN</button>
-      </div>
+      <div class="grid grid-cols-12 gap-6">
+          
+          <div class="col-span-12 lg:col-span-3 flex flex-col space-y-6">
+              <div class="glass-panel rounded-2xl p-5 flex-1">
+                  <div class="flex justify-between items-center mb-4 text-xs font-bold text-slate-400 uppercase tracking-wider">
+                      <span>Live Arena Standings</span>
+                      <span class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]"></span>
+                  </div>
+                  <div id="scoreboard" class="space-y-3"></div>
+              </div>
 
-      <div id="teamActionButtons" class="hidden" style="margin-top:25px">
-         <button id="btnPopupImpact" class="purple" style="padding:12px 30px; font-size:16px; font-weight:800; color:#fff;">⚡ Activate Impact Purse</button>
+              <div id="myTeamCard" class="glass-panel rounded-2xl p-5 hidden">
+                  <div class="flex justify-between items-center mb-4">
+                      <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">My Franchise</div>
+                      <button id="btnExportTeam" class="ghost small !py-1 !text-[10px]">Export</button>
+                  </div>
+                  <div id="myTeamContent"></div>
+              </div>
+          </div>
+
+          <div class="col-span-12 lg:col-span-5 flex flex-col h-[600px]">
+              
+              <div id="waitingState" class="glass-panel flex-1 rounded-3xl flex flex-col items-center justify-center text-slate-500 border border-slate-700/50 border-dashed">
+                  <span class="text-4xl mb-4 opacity-50">📡</span>
+                  <p class="font-medium tracking-widest uppercase text-xs">Waiting for active player drop...</p>
+              </div>
+
+              <div id="playerPopup" class="hidden glass-panel flex-1 rounded-3xl overflow-hidden relative group border border-indigo-500/30 shadow-[0_0_30px_rgba(99,102,241,0.1)] flex flex-col">
+                  
+                  <div class="absolute inset-0 bg-gradient-to-t from-[#0b1121] via-slate-900/80 to-transparent z-10 pointer-events-none"></div>
+                  
+                  <div id="popupImgContainer" class="absolute inset-0 z-0 cursor-pointer">
+                      <img id="popupImg" src="https://via.placeholder.com/800" class="w-full h-full object-cover opacity-60 transition duration-700 group-hover:scale-105 group-hover:opacity-80">
+                  </div>
+                  
+                  <button onclick="closePopup()" class="absolute top-4 right-4 z-30 w-8 h-8 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-red-500/80 transition">×</button>
+
+                  <div class="relative z-20 p-8 mt-auto w-full">
+                      <div class="flex space-x-2 mb-3">
+                          <span id="popupCat" class="bg-cyan-500 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">CATEGORY</span>
+                      </div>
+                      <h1 id="popupName" class="text-4xl font-black leading-tight mb-6 text-white text-shadow-lg">Player Name</h1>
+                      
+                      <div id="adminControls" class="hidden flex items-center space-x-4 mb-4 bg-black/40 p-3 rounded-2xl w-max backdrop-blur-md">
+                          <button class="w-10 h-10 rounded-full bg-slate-700 hover:bg-red-500 flex items-center justify-center text-xl font-bold" onclick="adjustBid('dec')">-</button>
+                          <div class="text-center">
+                              <div class="text-[10px] text-slate-400 font-bold uppercase">Current Value</div>
+                              <div id="popupPrice" class="text-3xl font-black text-white">0</div>
+                          </div>
+                          <button class="w-10 h-10 rounded-full bg-slate-700 hover:bg-emerald-500 flex items-center justify-center text-xl font-bold" onclick="adjustBid('inc')">+</button>
+                      </div>
+
+                      <div id="viewerControls" class="hidden mb-6">
+                           <div class="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">Current Active Bid</div>
+                           <div id="viewerPrice" class="text-5xl font-black text-cyan-400 font-mono tracking-tight neon-text-blue">0</div>
+                      </div>
+
+                      <div id="adminActionButtons" class="hidden grid grid-cols-2 gap-3 mt-4">
+                          <button class="yellow !py-3 !text-lg" onclick="triggerSoldFromPopup()">GAVEL DROP (SOLD)</button>
+                          <button class="purple !py-3 !text-lg" onclick="triggerDirectSignPopup()">RETAIN FRANCHISE</button>
+                      </div>
+
+                      <div id="teamActionButtons" class="hidden mt-4">
+                          <button id="btnPopupImpact" class="w-full purple !py-3 !text-lg bg-gradient-to-r from-indigo-500 to-purple-600 shadow-[0_0_20px_rgba(139,92,246,0.4)]">⚡ Activate Impact Power</button>
+                      </div>
+                  </div>
+              </div>
+          </div>
+
+          <div class="col-span-12 lg:col-span-4 flex flex-col space-y-6">
+              
+              <div class="glass-panel rounded-3xl p-6 relative overflow-hidden flex-1 flex flex-col">
+                  <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-400 to-indigo-500"></div>
+                  <div class="flex justify-between items-center mb-4">
+                      <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">Network Log</div>
+                      <button id="clearLog" class="ghost small !py-1 !px-2 text-[10px]">Clear</button>
+                  </div>
+                  <div id="log" class="flex-1 overflow-y-auto space-y-3 pr-2 font-mono text-[11px]"></div>
+              </div>
+
+          </div>
       </div>
-      
-      <div id="popupStatus" style="color:var(--muted); margin-top:20px; font-size:13px">Waiting for bids...</div>
-    </div>
-  </div>
+  </main>
 
   <div class="overlay hidden" id="soldActionOverlay">
-    <div class="modal">
-      <h3 style="color:var(--warning); font-size:24px; margin-bottom:10px; text-shadow: 0 0 10px rgba(245,158,11,0.5);">Confirm Sale</h3>
-      <div id="soldActionDetails" style="margin-bottom:10px; font-size:16px; color:white;"></div>
+    <div class="modal !bg-slate-900 !border-warning">
+      <h3 class="text-2xl font-black text-amber-400 mb-2 drop-shadow-[0_0_10px_rgba(245,158,11,0.5)]">CONFIRM TRANSFER</h3>
+      <div id="soldActionDetails" class="mb-6 text-sm text-slate-300 font-mono"></div>
       
-      <div id="directPriceGroup" class="hidden" style="margin-bottom:15px; text-align:left">
-        <label>Retain Price (Admin Only)</label>
+      <div id="directPriceGroup" class="hidden mb-4 text-left">
+        <label>Retain Price Adjustment</label>
         <input type="number" id="directSignPrice" placeholder="Enter Amount">
       </div>
 
-      <label style="text-align:left">Select Winning Team</label>
-      <select id="soldActionTeam" style="margin-bottom:20px"></select>
-      <div class="flex" style="justify-content:center; gap:15px">
-        <button id="btnCancelSold" class="ghost">Cancel</button>
-        <button id="btnConfirmSold" class="green">Confirm Sale</button>
+      <label class="text-left">Target Franchise</label>
+      <select id="soldActionTeam" class="mb-6 w-full"></select>
+      
+      <div class="grid grid-cols-2 gap-4">
+        <button id="btnCancelSold" class="ghost">Abort</button>
+        <button id="btnConfirmSold" class="green">Execute Transfer</button>
       </div>
     </div>
   </div>
 
-  <div class="container">
-    <div class="card" style="display:flex; justify-content:space-between; align-items:center; background: linear-gradient(135deg, rgba(30,41,59,0.8), rgba(15,23,42,0.9)); border:1px solid rgba(99,102,241,0.5); box-shadow: 0 8px 32px rgba(0,0,0,0.5), inset 0 0 20px rgba(99, 102, 241, 0.1);">
-      <div class="flex">
-        <div>
-          <h1 style="background: linear-gradient(to right, #fff, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Auction Dashboard</h1>
-          <div class="flex" style="margin-top:5px">
-             <span id="roleDisplay" style="font-size:11px; color:var(--muted); background:rgba(255,255,255,0.05); padding:2px 8px; border-radius:10px"></span>
-          </div>
-        </div>
+  <div class="overlay hidden z-[9999]" id="soldAnimationOverlay" style="background: rgba(11, 17, 33, 0.95);">
+    <div class="text-center scale-125">
+      <h1 id="animTitle" class="text-7xl font-black text-amber-400 drop-shadow-[0_0_40px_rgba(245,158,11,0.6)] mb-2 tracking-widest">SOLD!</h1>
+      <h2 id="animPlayer" class="text-3xl font-bold text-white mb-6">Player Name</h2>
+      <div class="text-lg text-slate-400 uppercase tracking-widest">
+        Acquired By <br><strong id="animTeam" class="text-indigo-400 text-2xl mt-1 block">Team Name</strong>
       </div>
-      <div class="flex">
-        <img id="headerTeamLogo" class="team-logo hidden" style="width:40px; height:40px; border:2px solid var(--accent); box-shadow: 0 0 10px rgba(99, 102, 241, 0.5);">
-        <button id="btnExportAdmin" class="hidden ghost small">Export CSV</button>
-        <button id="btnResetSystem" class="hidden red small">Reset System</button>
-        <button onclick="location.reload()" class="ghost small">Logout</button>
-      </div>
-    </div>
-
-    <div class="grid">
-      <div>
-        <div class="card hidden" id="adminConfigCard">
-          <div style="margin-bottom:20px; border-bottom:1px solid var(--border); padding-bottom:15px">
-            <label>Impact Purse Rules</label>
-            <div class="flex">
-              <input id="configImpact" type="number" placeholder="Enter Bonus Amount (e.g. 500)">
-              <button class="small" onclick="saveGlobalConfig()">Save Rule</button>
-            </div>
-          </div>
-          
-          <div style="margin-bottom:20px; border-bottom:1px solid var(--border); padding-bottom:15px">
-            <label>Add Category</label>
-            <div class="flex">
-              <input id="newCatId" placeholder="ID (e.g. BAT)" style="width:80px">
-              <input id="newCatBase" type="number" placeholder="Base Price">
-              <input id="newCatInc" type="number" placeholder="Increment">
-              <button id="btnAddCat" class="small">Add</button>
-            </div>
-          </div>
-
-          <div>
-            <label>Team Settings (Click Circle or Drag Logo)</label>
-            <div class="team-config-row" style="background:transparent; padding:0 8px; margin-bottom:5px">
-              <span style="font-size:10px; color:var(--muted)">ID</span>
-              <span style="font-size:10px; color:var(--muted)">Name</span>
-              <span style="font-size:10px; color:var(--muted)">Pass</span>
-              <span style="font-size:10px; color:var(--muted)">Purse</span>
-              <span style="font-size:10px; color:var(--muted); text-align:center">Logo</span>
-              <span style="font-size:10px; color:var(--muted); text-align:center">Imp</span>
-              <span style="font-size:10px; color:var(--muted); text-align:center">Rst</span>
-              <span></span>
-            </div>
-            <div id="teamsConfigContainer"></div>
-            <div class="flex" style="margin-top:10px">
-              <button id="btnAddTeamRow" class="ghost small" style="flex:1" onclick="addTeamInputRow()">+ Add Slot</button>
-              <button id="btnSaveTeams" class="green small" style="flex:1">Save Changes</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="card">
-          <label>Players & Categories</label>
-          <div id="categoriesContainer" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:15px; margin-top:10px">
-             <div class="small" id="emptyMsg" style="color:var(--muted)">No categories yet.</div>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="flex" style="justify-content:space-between; margin-bottom:5px">
-            <label style="margin:0">Activity Log</label>
-            <button id="clearLog" class="ghost small" style="padding:2px 6px">Clear</button>
-          </div>
-          <div id="log" style="height:120px; overflow-y:auto; font-family:monospace; font-size:12px; color:var(--muted); border-top:1px solid var(--border); padding-top:5px"></div>
-        </div>
-      </div>
-
-      <div>
-        <div class="card">
-          <label>Live Scoreboard</label>
-          <div id="scoreboard" style="margin-top:10px; max-height:600px; overflow-y:auto"></div>
-        </div>
-        
-        <div class="card hidden" id="myTeamCard">
-           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px">
-            <label style="margin:0; font-size:14px; color:white">My Team</label>
-            <button id="btnExportTeam" class="ghost small">Export CSV</button>
-          </div>
-          <div id="myTeamContent"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="overlay hidden" id="soldAnimationOverlay" style="background: rgba(0,0,0,0.9);">
-    <div style="text-align:center; transform: scale(1.2);">
-      <h1 id="animTitle" style="font-size:80px; color:var(--warning); text-shadow:0 0 60px rgba(245,158,11,0.6); margin:0; letter-spacing: 5px;">SOLD!</h1>
-      <h2 id="animPlayer" style="font-size:40px; margin:20px 0; color:white;">Player Name</h2>
-      <div style="font-size:24px; color:var(--muted)">
-        Assigned to <strong id="animTeam" style="color:var(--accent); font-size:30px">Team Name</strong><br>
-        for <strong id="animPrice" style="color:var(--success); font-size:40px; display:block; margin-top:10px; text-shadow: 0 0 20px rgba(16,185,129,0.5);">0</strong>
+      <div class="mt-8">
+          <span class="text-sm text-slate-500 uppercase tracking-widest">Final Valuation</span>
+          <strong id="animPrice" class="block text-5xl font-mono text-emerald-400 mt-2 drop-shadow-[0_0_20px_rgba(16,185,129,0.5)]">0</strong>
       </div>
     </div>
   </div>
@@ -422,19 +336,15 @@ button.small { padding: 4px 10px; font-size: 11px; }
 
 <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
 <script>
-
-// 2. DEFINE YOUR BACKEND URL HERE
+// --- CORE CONFIG ---
 const BACKEND_URL = "https://auction-socket-39c2.onrender.com";
-
-// 3. Connect to the Render Server
-const socket = io(BACKEND_URL, {
-    transports: ["websocket"]
-});
+const socket = io(BACKEND_URL, { transports: ["websocket"] });
 
 let CURRENT_USER = { role: null, teamId: null, hostId: null };
 let STATE = { teams: [], categories: [], playersSnapshot: {}, activeBids: {}, soldPrices: {}, directSigns: {}, config: { impactAmount: 0 } };
 let pendingSold = null, activePlayer = null;
 
+// DOM Refs
 const portal = document.getElementById('portal'), teamAuthOverlay = document.getElementById('teamAuthOverlay'), appContainer = document.getElementById('appContainer');
 const categoriesContainer = document.getElementById('categoriesContainer'), scoreboardEl = document.getElementById('scoreboard'), teamsConfigContainer = document.getElementById('teamsConfigContainer');
 const toastContainer = document.getElementById('toastContainer'), hammer = document.getElementById('hammer');
@@ -442,8 +352,20 @@ const fileInput = document.getElementById('globalFileInput');
 
 if(hammer) hammer.addEventListener('animationend', () => { hammer.classList.remove('swing'); hammer.style.display = 'none'; });
 
-function log(msg) { const d = document.createElement('div'); d.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`; document.getElementById('log').prepend(d); }
-function showToast(msg) { const t = document.createElement('div'); t.className = 'toast'; t.innerHTML = `<span>🔔</span> ${msg}`; toastContainer.appendChild(t); setTimeout(() => t.remove(), 4000); }
+// UI Helpers
+function log(msg) { 
+    const d = document.createElement('div'); 
+    d.className = "bg-slate-800/50 border border-slate-700/50 p-2 rounded-lg text-slate-300 flex items-start space-x-2";
+    d.innerHTML = `<span class="text-indigo-400 mt-0.5">›</span> <span class="flex-1">${msg}</span>`;
+    document.getElementById('log').prepend(d); 
+}
+function showToast(msg) { 
+    const t = document.createElement('div'); 
+    t.className = 'toast border border-slate-700'; 
+    t.innerHTML = `<span>🔔</span> ${msg}`; 
+    toastContainer.appendChild(t); 
+    setTimeout(() => t.remove(), 4000); 
+}
 
 // --- FILE UPLOAD LOGIC ---
 function uploadFile(file) {
@@ -459,18 +381,15 @@ function uploadFile(file) {
 function setupFileUpload(triggerEl, callback) {
     triggerEl.onclick = () => {
         fileInput.onchange = (e) => {
-            if(e.target.files[0]) {
-                callback(e.target.files[0]);
-                fileInput.value = ''; 
-            }
+            if(e.target.files[0]) { callback(e.target.files[0]); fileInput.value = ''; }
         };
         fileInput.click();
     };
-    triggerEl.ondragover = (e) => { e.preventDefault(); triggerEl.classList.add('drag-over'); };
-    triggerEl.ondragleave = () => triggerEl.classList.remove('drag-over');
+    triggerEl.ondragover = (e) => { e.preventDefault(); triggerEl.classList.add('border-emerald-500', 'bg-emerald-500/10'); };
+    triggerEl.ondragleave = () => triggerEl.classList.remove('border-emerald-500', 'bg-emerald-500/10');
     triggerEl.ondrop = (e) => { 
         e.preventDefault(); 
-        triggerEl.classList.remove('drag-over'); 
+        triggerEl.classList.remove('border-emerald-500', 'bg-emerald-500/10'); 
         if(e.dataTransfer.files[0]) callback(e.dataTransfer.files[0]); 
     };
 }
@@ -482,17 +401,18 @@ window.managerRegister = () => { const u = document.getElementById('mUser').valu
 window.connectToHost = () => { const h = document.getElementById('pHostId').value.trim(); if(h) socket.emit('participant:connect', h); };
 window.toggleTeamPass = () => { const isTeam = document.getElementById('loginRole').value === 'team'; document.getElementById('teamSelectGroup').classList.toggle('hidden', !isTeam); document.getElementById('passGroup').classList.toggle('hidden', !isTeam); };
 window.enterAuction = () => { const role = document.getElementById('loginRole').value, teamId = document.getElementById('loginTeamId').value, pass = document.getElementById('loginPass').value; socket.emit('team:login', { hostId: CURRENT_USER.hostId, teamId, password: pass, role }); };
-window.previewTeamLogo = () => { const teamId = document.getElementById('loginTeamId').value, team = STATE.teams.find(t => t.id === teamId), img = document.getElementById('loginTeamLogo'); if(team && team.logo) { img.src = team.logo; img.style.display = 'block'; } else { img.style.display = 'none'; } };
+window.previewTeamLogo = () => { const teamId = document.getElementById('loginTeamId').value, team = STATE.teams.find(t => t.id === teamId), img = document.getElementById('loginTeamLogo'); if(team && team.logo) { img.src = team.logo; img.classList.remove('hidden'); } else { img.classList.add('hidden'); } };
 window.activateImpact = (c, n) => { if(confirm('Activate Impact Power? +Purse Amount. One time use.')) socket.emit('team:activateImpact', { teamId: CURRENT_USER.teamId, category: c, playerName: n }); };
 document.getElementById('clearLog').onclick = () => { document.getElementById('log').innerHTML = ''; };
 
 // SOCKET EVENTS
 socket.on('auth:portal_error', msg => document.getElementById('portalMsg').textContent = msg);
-socket.on('auth:portal_success', d => { document.getElementById('portalMsg').style.color='#10b981'; document.getElementById('portalMsg').textContent = d.msg; });
+socket.on('auth:portal_success', d => { document.getElementById('portalMsg').className = 'mt-4 text-xs font-bold text-emerald-400'; document.getElementById('portalMsg').textContent = d.msg; });
 socket.on('manager:logged_in', data => { CURRENT_USER.hostId = data.username; CURRENT_USER.role = 'admin'; STATE = data.state; portal.classList.add('hidden'); appContainer.classList.remove('hidden'); setupUI(); renderAll(); });
-socket.on('init:teams_available', data => { CURRENT_USER.hostId = data.hostId; const sel = document.getElementById('loginTeamId'); sel.innerHTML = '<option value="">Select Team</option>'; data.teams.forEach(t => sel.innerHTML += `<option value="${t.id}">${t.name}</option>`); portal.classList.add('hidden'); teamAuthOverlay.classList.remove('hidden'); });
+socket.on('init:teams_available', data => { CURRENT_USER.hostId = data.hostId; const sel = document.getElementById('loginTeamId'); sel.innerHTML = '<option value="">Select Franchise</option>'; data.teams.forEach(t => sel.innerHTML += `<option value="${t.id}">${t.name}</option>`); portal.classList.add('hidden'); teamAuthOverlay.classList.remove('hidden'); });
 socket.on('auction:enter', data => { CURRENT_USER.role = data.role; CURRENT_USER.teamId = data.teamId; STATE = data.state; teamAuthOverlay.classList.add('hidden'); appContainer.classList.remove('hidden'); setupUI(); renderAll(); });
 socket.on('auth:team_error', msg => document.getElementById('teamAuthMsg').textContent = msg);
+
 socket.on('state:updated', newState => { 
     STATE = newState; 
     renderAll(); 
@@ -506,26 +426,38 @@ socket.on('state:updated', newState => {
         if (CURRENT_USER.role === 'team') {
             const myTeam = STATE.teams.find(t => t.id === CURRENT_USER.teamId);
             const btnImpact = document.getElementById('btnPopupImpact');
-            if (myTeam && myTeam.impactUsed && btnImpact) {
-                btnImpact.style.display = 'none';
-            }
+            if (myTeam && myTeam.impactUsed && btnImpact) btnImpact.style.display = 'none';
         }
     } 
 });
-socket.on('player:bid', pl => { const el = getPlayerEl(pl.category, pl.name); if(el) { el.dataset.price = pl.price; el.querySelector('.price').textContent = pl.price; el.classList.add('bidding','has-bid'); setTimeout(()=>el.classList.remove('bidding'), 300); } if(activePlayer && activePlayer.name === pl.name) updatePopupPrice(pl.price); log(`BID: ${pl.name} (${pl.category}) -> ৳${pl.price}`); });
+
+socket.on('player:bid', pl => { 
+    const el = getPlayerEl(pl.category, pl.name); 
+    if(el) { 
+        el.dataset.price = pl.price; 
+        const pEl = el.querySelector('.price');
+        if(pEl) pEl.textContent = pl.price; 
+    } 
+    if(activePlayer && activePlayer.name === pl.name) updatePopupPrice(pl.price); 
+    log(`<span class="text-white font-bold">${pl.name}</span> (${pl.category}) bid raised to <span class="text-emerald-400 font-bold">৳${pl.price}</span>`); 
+});
 
 socket.on('popup:open', player => { 
     activePlayer = player; 
+    document.getElementById('waitingState').classList.add('hidden');
     document.getElementById('playerPopup').classList.remove('hidden'); 
     document.getElementById('popupName').textContent = player.name; 
     document.getElementById('popupCat').textContent = player.category; 
-    document.getElementById('popupImg').src = player.image || "https://via.placeholder.com/150?text=Player"; 
+    document.getElementById('popupImg').src = player.image || "https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=800&auto=format&fit=crop"; 
     updatePopupPrice(player.currentPrice || player.base || 0); 
+    
     const isAdmin = CURRENT_USER.role === 'admin'; 
     const isTeam = CURRENT_USER.role === 'team';
+    
     document.getElementById('adminControls').classList.toggle('hidden', !isAdmin); 
     document.getElementById('adminActionButtons').classList.toggle('hidden', !isAdmin); 
     document.getElementById('viewerControls').classList.toggle('hidden', isAdmin); 
+    
     const teamButtons = document.getElementById('teamActionButtons');
     if(teamButtons) {
         teamButtons.classList.toggle('hidden', !isTeam);
@@ -533,43 +465,46 @@ socket.on('popup:open', player => {
             const myTeam = STATE.teams.find(t => t.id === CURRENT_USER.teamId);
             const btnImpact = document.getElementById('btnPopupImpact');
             if (myTeam && !myTeam.impactUsed) {
-                btnImpact.style.display = 'inline-flex';
+                btnImpact.style.display = 'block';
                 btnImpact.onclick = () => activateImpact(player.category, player.name);
             } else {
                 btnImpact.style.display = 'none';
             }
         }
     }
+    
     if(isAdmin) setupFileUpload(document.getElementById('popupImgContainer'), (file) => {
         uploadFile(file).then(url => socket.emit('admin:update_player_image', { category: player.category, name: player.name, imageUrl: url }));
     });
 });
 
-socket.on('popup:close', () => { activePlayer = null; document.getElementById('playerPopup').classList.add('hidden'); });
+socket.on('popup:close', () => { 
+    activePlayer = null; 
+    document.getElementById('playerPopup').classList.add('hidden'); 
+    document.getElementById('waitingState').classList.remove('hidden');
+});
 socket.on('popup:update_image', data => document.getElementById('popupImg').src = data.imageUrl);
 
 socket.on('player:sold', data => { 
     const { category, name, price, teamId, isDirect } = data.payload; 
     STATE.teams = data.teams; 
     
-    // Safety sync to ensure local STATE.directSigns captures it in case network delays state:updated
     if (isDirect) {
         if (!STATE.directSigns) STATE.directSigns = {};
         STATE.directSigns[`${category}:${name}`] = true;
     }
 
     document.getElementById('playerPopup').classList.add('hidden'); 
+    document.getElementById('waitingState').classList.remove('hidden');
     const t = STATE.teams.find(x => x.id === teamId); 
     
     const titleEl = document.getElementById('animTitle');
     if (isDirect) {
         titleEl.textContent = 'RETAINED!';
-        titleEl.style.color = '#8b5cf6';
-        titleEl.style.textShadow = '0 0 60px rgba(139, 92, 246, 0.6)';
+        titleEl.className = "text-7xl font-black text-purple-400 drop-shadow-[0_0_40px_rgba(168,85,247,0.6)] mb-2 tracking-widest";
     } else {
         titleEl.textContent = 'SOLD!';
-        titleEl.style.color = 'var(--warning)';
-        titleEl.style.textShadow = '0 0 60px rgba(245,158,11,0.6)';
+        titleEl.className = "text-7xl font-black text-amber-400 drop-shadow-[0_0_40px_rgba(245,158,11,0.6)] mb-2 tracking-widest";
     }
 
     document.getElementById('animPlayer').textContent = name; 
@@ -581,29 +516,51 @@ socket.on('player:sold', data => {
     const audio = document.getElementById('hammerAudio'); if(audio) { audio.pause(); audio.currentTime=0; audio.play().catch(e=>{}); } 
     setTimeout(() => document.getElementById('soldAnimationOverlay').classList.add('hidden'), 3500); 
     
-    const el = getPlayerEl(category, name); 
-    if(el) { 
-        el.classList.add('sold'); 
-        el.classList.remove('has-bid'); 
-        el.querySelector('.actions').innerHTML = `<div class="badge" style="background:${isDirect ? '#8b5cf6' : 'var(--accent)'}; color:white">${isDirect ? 'Retained' : 'Sold'}: ${t ? t.name : teamId}</div>`; 
-    } 
     renderScoreboard(); 
     if(CURRENT_USER.role==='team') renderMyTeam(); 
-    log(`${isDirect ? 'RETAINED' : 'SOLD'}: ${name} to ${t ? t.name : teamId} for ৳${price}`); 
+    if(CURRENT_USER.role==='admin') renderAll(); // Re-render lists to show badge
+    
+    log(`<span class="font-bold text-white">${isDirect ? 'RETAINED' : 'SOLD'}</span>: ${name} to <span class="text-indigo-400 font-bold">${t ? t.name : teamId}</span> for ৳${price}`); 
 });
+
 socket.on('admin:toast', d => showToast(d.msg));
 
 // UI Renderers
-function setupUI() { document.getElementById('roleDisplay').textContent = `Host: ${CURRENT_USER.hostId} | ${CURRENT_USER.role.toUpperCase()}`; if(CURRENT_USER.role === 'admin') { document.getElementById('adminConfigCard').classList.remove('hidden'); document.getElementById('btnResetSystem').classList.remove('hidden'); document.getElementById('btnExportAdmin').classList.remove('hidden'); renderTeamConfigForm(); document.getElementById('configImpact').value = STATE.config.impactAmount || 0; } else { document.getElementById('myTeamCard').classList.remove('hidden'); const myTeam = STATE.teams.find(t => t.id === CURRENT_USER.teamId); if(myTeam && myTeam.logo) { const logoEl = document.getElementById('headerTeamLogo'); logoEl.src = myTeam.logo; logoEl.classList.remove('hidden'); } } }
+function setupUI() { 
+    document.getElementById('roleDisplay').textContent = `${CURRENT_USER.role.toUpperCase()} // ${CURRENT_USER.hostId}`; 
+    if(CURRENT_USER.role === 'admin') { 
+        document.getElementById('adminPanelWrapper').classList.remove('hidden'); 
+        document.getElementById('btnResetSystem').classList.remove('hidden'); 
+        document.getElementById('btnExportAdmin').classList.remove('hidden'); 
+        renderTeamConfigForm(); 
+        document.getElementById('configImpact').value = STATE.config.impactAmount || 0; 
+    } else { 
+        document.getElementById('myTeamCard').classList.remove('hidden'); 
+    } 
+}
 
 function renderAll() { 
     categoriesContainer.innerHTML = ''; 
-    if(STATE.categories.length === 0) categoriesContainer.innerHTML = '<div style="padding:10px;color:var(--muted)">No categories.</div>'; 
+    if(STATE.categories.length === 0) categoriesContainer.innerHTML = '<div class="text-xs text-slate-500">No categories.</div>'; 
     STATE.categories.forEach(cat => { 
         const div = document.createElement('div'); 
-        let header = `<span class="badge">Base: ${cat.base} | Inc: ${cat.increment}</span>`; 
-        if(CURRENT_USER.role === 'admin') header += `<button class="red small" onclick="deleteCat('${cat.id}')" style="margin-left:5px">X</button>`; 
-        div.innerHTML = `<div style="display:flex;justify-content:space-between;margin-bottom:5px;"><label>${cat.id}</label><div>${header}</div></div>${CURRENT_USER.role === 'admin' ? `<textarea id="ta-${cat.id}" class="cat-ta" placeholder="Enter players (one per line)..."></textarea><div style="margin-bottom:10px"><button onclick="saveCat('${cat.id}')" class="ghost small">Save List</button> <button onclick="clearCat('${cat.id}')" class="ghost small">Clear</button></div>` : ''}<div class="players" id="playersList-${cat.id}"></div>`; 
+        div.className = "bg-slate-800/40 border border-slate-700/50 p-4 rounded-xl";
+        let header = `<span class="bg-indigo-500/20 text-indigo-300 text-[10px] px-2 py-1 rounded">Base: ${cat.base} | Step: ${cat.increment}</span>`; 
+        if(CURRENT_USER.role === 'admin') header += `<button class="red small ml-2 !py-1" onclick="deleteCat('${cat.id}')">Drop</button>`; 
+        
+        div.innerHTML = `
+            <div class="flex justify-between items-center mb-3">
+                <label class="!mb-0 !text-sm text-white">${cat.id}</label>
+                <div>${header}</div>
+            </div>
+            ${CURRENT_USER.role === 'admin' ? `
+            <textarea id="ta-${cat.id}" class="!text-xs !py-2 !mb-2" rows="3" placeholder="Enter players (one per line)..."></textarea>
+            <div class="flex space-x-2 mb-3">
+                <button onclick="saveCat('${cat.id}')" class="ghost small flex-1">Save List</button> 
+                <button onclick="clearCat('${cat.id}')" class="ghost small">Clear</button>
+            </div>` : ''}
+            <div class="players space-y-2" id="playersList-${cat.id}"></div>`; 
+            
         categoriesContainer.appendChild(div); 
         renderCategoryPlayers(cat.id, STATE.playersSnapshot[cat.id] || []); 
         if(CURRENT_USER.role === 'admin') { 
@@ -620,19 +577,30 @@ function renderCategoryPlayers(catId, players) {
     if(!container) return; 
     container.innerHTML = ''; 
     const catConfig = STATE.categories.find(c => c.id === catId); 
+    
     players.forEach(p => { 
         let isSold = false, soldTo = null; 
         STATE.teams.forEach(t => { if(t.purchases && t.purchases[catId] === p.name) { isSold=true; soldTo=t.name; }}); 
+        
         const el = document.createElement('div'); 
         el.dataset.name = p.name; 
-        el.className = `player ${isSold ? 'sold' : ''}`; 
+        
         const key = `${catId}:${p.name}`; 
         const displayPrice = STATE.activeBids[key] || STATE.soldPrices[key] || p.price || catConfig.base; 
         const isDirect = STATE.directSigns && STATE.directSigns[key];
 
         el.dataset.price = displayPrice; 
+        
+        // Styling logic based on state
+        let baseClass = "flex items-center justify-between p-3 rounded-xl border text-sm transition ";
+        if(isSold) {
+            baseClass += isDirect ? "bg-purple-500/10 border-purple-500/30 opacity-70" : "bg-indigo-500/10 border-indigo-500/30 opacity-70";
+        } else {
+            baseClass += "bg-slate-900/50 border-slate-700/50 hover:bg-slate-800 cursor-pointer";
+        }
+        el.className = baseClass;
+
         if(!isSold) { 
-            el.style.cursor = 'pointer'; 
             el.onclick = (e) => { 
                 if(e.target.tagName === 'BUTTON') return; 
                 if(CURRENT_USER.role === 'admin') socket.emit('admin:select_player', { category: catId, name: p.name, base: catConfig.base, currentPrice: displayPrice, image: p.image }); 
@@ -641,18 +609,27 @@ function renderCategoryPlayers(catId, players) {
         
         let actionHTML = ''; 
         if(isSold) {
-            actionHTML = `<div class="badge" style="background:${isDirect ? '#8b5cf6' : 'var(--accent)'};color:white">${isDirect ? 'Retained' : 'Sold'}: ${soldTo}</div>`; 
+            const badgeCol = isDirect ? 'bg-purple-500/80' : 'bg-indigo-500/80';
+            actionHTML = `<div class="text-[10px] font-bold px-2 py-1 rounded text-white ${badgeCol}">${isDirect ? 'Retained' : 'Sold'}: ${soldTo}</div>`; 
         }
-        else if(CURRENT_USER.role === 'admin') actionHTML = `<button class="yellow small" title="Reset Player" onclick="resetPlayer('${catId}','${p.name}')">↺</button>`; 
+        else if(CURRENT_USER.role === 'admin') actionHTML = `<button class="yellow small !py-1 !px-2" title="Reset Player" onclick="resetPlayer('${catId}','${p.name}')">↺</button>`; 
         else if(CURRENT_USER.role === 'team') { 
-            actionHTML = `<button class="btn-bid-req ghost small">Bid Req</button>`; 
-            const t = STATE.teams.find(x => x.id === CURRENT_USER.teamId); 
-            if(t && !t.impactUsed) actionHTML += `<button class="purple small" style="margin-left:4px" onclick="activateImpact('${catId}','${p.name}')" title="Use Impact">⚡</button>`; 
+            actionHTML = `<button class="btn-bid-req ghost small !py-1 !px-2 border-indigo-500/50 text-indigo-300 hover:bg-indigo-500/20">Bid Req</button>`; 
         } 
-        el.innerHTML = `<div class="left"><div class="badge">${catId}</div><div class="name">${p.name}</div></div><div class="right" style="display:flex;gap:8px;align-items:center"><div class="price">${displayPrice}</div><div class="actions">${actionHTML}</div></div>`; 
+        
+        el.innerHTML = `
+            <div class="flex items-center space-x-3">
+                <div class="w-2 h-2 rounded-full ${isSold ? (isDirect ? 'bg-purple-500' : 'bg-indigo-500') : 'bg-slate-600'}"></div>
+                <div class="font-bold text-white">${p.name}</div>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div class="price font-mono font-bold text-emerald-400">৳${displayPrice}</div>
+                <div class="actions">${actionHTML}</div>
+            </div>`; 
+            
         if(CURRENT_USER.role === 'team' && !isSold) { 
             const btn = el.querySelector('.btn-bid-req'); 
-            if(btn) btn.onclick = () => { socket.emit('bid:request', { category: catId, playerName: p.name, teamName: getMyTeamName() }); btn.textContent = 'Requested'; }; 
+            if(btn) btn.onclick = () => { socket.emit('bid:request', { category: catId, playerName: p.name, teamName: getMyTeamName() }); btn.textContent = 'Sent'; }; 
         } 
         container.appendChild(el); 
     }); 
@@ -662,15 +639,21 @@ function renderScoreboard() {
     scoreboardEl.innerHTML = ''; 
     STATE.teams.forEach(t => { 
         const div = document.createElement('div'); 
-        div.className = 'team-row'; 
+        div.className = 'flex justify-between items-center bg-slate-800/40 p-3 rounded-xl border border-slate-700/50 hover:bg-slate-800 transition'; 
         const logo = t.logo 
-            ? `<img src="${t.logo}" class="team-logo">` 
-            : `<div class="team-logo" style="background:var(--glass); display:flex; align-items:center; justify-content:center; font-size:10px; color:var(--muted)">-</div>`; 
+            ? `<img src="${t.logo}" class="w-10 h-10 rounded-full border border-slate-600 object-cover">` 
+            : `<div class="w-10 h-10 rounded-full bg-slate-900 border border-slate-700 flex items-center justify-center text-[10px] text-slate-500">-</div>`; 
+        
         div.innerHTML = `
-            <div class="flex" style="gap:10px">${logo}<strong>${t.name}</strong></div>
-            <div style="text-align:right">
-                <div>৳ ${t.purse}</div>
-                <div class="small" style="color:var(--muted)">${t.purchases ? Object.keys(t.purchases).length : 0} Players</div>
+            <div class="flex items-center space-x-3">
+                ${logo}
+                <div>
+                    <div class="font-bold text-sm text-white">${t.name}</div>
+                    <div class="text-[10px] text-slate-400">${t.purchases ? Object.keys(t.purchases).length : 0} PLAYERS ACQUIRED</div>
+                </div>
+            </div>
+            <div class="text-right">
+                <div class="font-bold text-cyan-400 font-mono text-lg">৳${t.purse}</div>
             </div>`; 
         scoreboardEl.appendChild(div); 
     }); 
@@ -680,12 +663,27 @@ function renderMyTeam() {
     const t = STATE.teams.find(x => x.id === CURRENT_USER.teamId); 
     const div = document.getElementById('myTeamContent'); 
     if(t) { 
-        let html = `<div style="font-size:20px;font-weight:bold;margin-bottom:10px;color:var(--success)">Purse: ৳ ${t.purse}</div>`; 
-        if(t.impactUsed) html += `<div class="small" style="color:var(--accent);margin-bottom:5px">⚡ Impact Active</div>`; 
-        html += `<strong>My Purchases:</strong><div style="margin-top:5px;display:flex;flex-wrap:wrap;gap:5px">`; 
+        let html = `
+            <div class="flex justify-between items-end mb-4 bg-slate-900/50 p-3 rounded-xl border border-slate-700/50">
+                <div class="text-xs text-slate-400 font-bold uppercase tracking-wider">Available Funds</div>
+                <div class="text-3xl font-black text-emerald-400 font-mono tracking-tight text-shadow-sm">৳${t.purse}</div>
+            </div>`; 
+            
+        if(t.impactUsed) html += `<div class="bg-indigo-500/20 text-indigo-300 text-xs font-bold px-3 py-2 rounded-lg mb-4 flex items-center"><span class="mr-2">⚡</span> Impact Power Deployed</div>`; 
+        
+        html += `<div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Roster (${t.purchases ? Object.keys(t.purchases).length : 0})</div>
+                 <div class="space-y-2">`; 
+                 
         if(t.purchases) Object.entries(t.purchases).forEach(([c,n]) => {
             const isDS = STATE.directSigns && STATE.directSigns[`${c}:${n}`];
-            html += `<span class="badge" style="${isDS ? 'background: #8b5cf6; border-color: #6d28d9;' : ''}">[${c}] ${n} ${isDS ? '(Retained)' : ''}</span>`
+            html += `
+                <div class="flex justify-between items-center bg-slate-800/30 p-2 rounded-lg border ${isDS ? 'border-purple-500/30' : 'border-slate-700/50'}">
+                    <div class="flex items-center space-x-2">
+                        <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-900 text-slate-400">${c}</span>
+                        <span class="text-sm font-bold text-white">${n}</span>
+                    </div>
+                    ${isDS ? '<span class="text-[9px] uppercase tracking-wider text-purple-400 font-bold">Retained</span>' : ''}
+                </div>`;
         }); 
         html+='</div>'; 
         div.innerHTML = html; 
@@ -695,32 +693,33 @@ function renderMyTeam() {
 function renderTeamConfigForm() { 
     teamsConfigContainer.innerHTML = ''; 
     STATE.teams.forEach(t => { 
-        const row = document.createElement('div'); row.className = 'team-config-row'; 
+        const row = document.createElement('div'); row.className = 'team-config-row border border-slate-700/50 bg-slate-800/30'; 
         const logoHtml = t.logo ? `<img src="${t.logo}">` : `<span style="font-size:10px;color:var(--muted)">Drop</span>`; 
-        row.innerHTML = `<input class="t-id" value="${t.id}" placeholder="ID"><input class="t-name" value="${t.name}" placeholder="Name"><input class="t-pass" value="${t.password||''}" placeholder="Pass"><input class="t-purse" type="number" value="${t.purse}" placeholder="Purse"><div class="logo-drop-zone">${logoHtml}</div><button class="purple small" onclick="resetImpact('${t.id}')" title="Reset Impact">⚡</button><button class="yellow small" onclick="resetTeam('${t.id}')" title="Reset Team">↺</button><button class="red small" onclick="this.parentElement.remove()">X</button>`; 
+        row.innerHTML = `
+            <input class="t-id !mb-0 !py-1 !text-xs" value="${t.id}" placeholder="ID">
+            <input class="t-name !mb-0 !py-1 !text-xs" value="${t.name}" placeholder="Name">
+            <input class="t-pass !mb-0 !py-1 !text-xs" value="${t.password||''}" placeholder="Pass">
+            <input class="t-purse !mb-0 !py-1 !text-xs" type="number" value="${t.purse}" placeholder="Purse">
+            <div class="logo-drop-zone w-8 h-8">${logoHtml}</div>
+            <button class="purple small !py-1" onclick="resetImpact('${t.id}')" title="Reset Impact">⚡</button>
+            <button class="yellow small !py-1" onclick="resetTeam('${t.id}')" title="Reset Team">↺</button>
+            <button class="red small !py-1" onclick="this.parentElement.remove()">X</button>`; 
         teamsConfigContainer.appendChild(row); 
         setupFileUpload(row.querySelector('.logo-drop-zone'), (file) => uploadFile(file).then(url => socket.emit('admin:setTeamLogo', { teamId: t.id, logoUrl: url }))); 
     }); 
 }
 
+// --- ACTIONS ---
 window.addTeamInputRow = () => { 
     STATE.teams = [];
     document.querySelectorAll('#teamsConfigContainer .team-config-row').forEach(r => { 
         const idInput = r.querySelector('.t-id'), nameInput = r.querySelector('.t-name'), passInput = r.querySelector('.t-pass'), purseInput = r.querySelector('.t-purse'), imgEl = r.querySelector('.logo-drop-zone img');
-        STATE.teams.push({ 
-            id: idInput ? idInput.value : "", 
-            name: nameInput ? nameInput.value : "", 
-            password: passInput ? passInput.value : "", 
-            purse: purseInput ? (Number(purseInput.value) || 0) : 500, 
-            logo: imgEl ? imgEl.src : null 
-        });
+        STATE.teams.push({ id: idInput ? idInput.value : "", name: nameInput ? nameInput.value : "", password: passInput ? passInput.value : "", purse: purseInput ? (Number(purseInput.value) || 0) : 500, logo: imgEl ? imgEl.src : null });
     });
-
     STATE.teams.push({ id: "", name: "", password: "", purse: 500, logo: null }); 
     renderTeamConfigForm();
 };
 
-// Controls
 window.closePopup = () => { if(CURRENT_USER.role==='admin') socket.emit('admin:close_popup'); };
 window.adjustBid = (dir) => { 
     if(!activePlayer) return; 
@@ -730,19 +729,18 @@ window.adjustBid = (dir) => {
     let next = dir === 'inc' ? current + increment : current - increment; 
     if(next >= Number(cat.base)) socket.emit('player:bid', { category: activePlayer.category, name: activePlayer.name, price: next }); 
 };
-window.updatePopupPrice = (p) => { document.getElementById('popupPrice').textContent = p; document.getElementById('viewerPrice').textContent = p; };
-window.triggerSoldFromPopup = () => openSoldConfirmation(activePlayer.category, activePlayer.name, document.getElementById('popupPrice').textContent);
-
-window.triggerDirectSignPopup = () => {
-    const currentPrice = document.getElementById('popupPrice').textContent;
-    openSoldConfirmation(activePlayer.category, activePlayer.name, currentPrice, true);
+window.updatePopupPrice = (p) => { 
+    document.getElementById('popupPrice').textContent = p; 
+    document.getElementById('viewerPrice').textContent = p; 
 };
+window.triggerSoldFromPopup = () => openSoldConfirmation(activePlayer.category, activePlayer.name, document.getElementById('popupPrice').textContent);
+window.triggerDirectSignPopup = () => openSoldConfirmation(activePlayer.category, activePlayer.name, document.getElementById('popupPrice').textContent, true);
 
 window.saveCat = (id) => { 
     const ta = document.getElementById(`ta-${id}`), config = STATE.categories.find(c=>c.id===id);
     const names = ta.value.split('\n').map(s=>s.trim()).filter(Boolean); 
     socket.emit('players:save', { category: id, players: names.map(n => ({ name: n, price: Number(config.base) || 0 })) }); 
-    showToast('Players Saved'); 
+    showToast('Tier Saved'); 
 };
 window.clearCat = (id) => { if(confirm('Clear?')) socket.emit('players:clear', { category: id }); };
 window.deleteCat = (id) => { if(confirm('Delete?')) socket.emit('admin:deleteCategory', { id }); };
@@ -755,67 +753,37 @@ document.getElementById('btnAddCat').onclick = () => {
     if(id && base > 0 && inc > 0) { 
         STATE.categories.push({ id, base, increment: inc }); 
         socket.emit('admin:updateConfig', { categories: STATE.categories }); 
-        document.getElementById('newCatId').value = '';
-        document.getElementById('newCatBase').value = '';
-        document.getElementById('newCatInc').value = '';
-    } else {
-        showToast('❌ Error: Missing or invalid category values');
-    }
+        document.getElementById('newCatId').value = ''; document.getElementById('newCatBase').value = ''; document.getElementById('newCatInc').value = '';
+    } else { showToast('❌ Error: Invalid tier values'); }
 };
 
 window.saveGlobalConfig = () => { const amt = document.getElementById('configImpact').value; socket.emit('admin:updateConfig', { impactAmount: amt }); showToast('Impact Rule Saved'); };
 window.resetImpact = (tid) => { if(confirm('Reset Impact Power?')) socket.emit('admin:resetImpact', { teamId: tid }); };
-window.resetTeam = (tid) => { if(confirm('Reset Team? (Clears purchases & purse)')) socket.emit('admin:resetTeam', { teamId: tid }); };
+window.resetTeam = (tid) => { if(confirm('Reset Team?')) socket.emit('admin:resetTeam', { teamId: tid }); };
 
 document.getElementById('btnSaveTeams').onclick = () => { 
-    const teams = []; 
-    const seenIds = new Set();
-    let hasError = false;
-
+    const teams = []; const seenIds = new Set(); let hasError = false;
     document.querySelectorAll('#teamsConfigContainer .team-config-row').forEach(r => { 
-        const idInput = r.querySelector('.t-id');
-        const nameInput = r.querySelector('.t-name');
-        const passInput = r.querySelector('.t-pass');
-        const purseInput = r.querySelector('.t-purse');
-        const imgEl = r.querySelector('.logo-drop-zone img');
-
-        const id = idInput ? idInput.value.trim() : "";
-        const name = nameInput ? nameInput.value.trim() : "";
-
-        if (idInput) idInput.classList.remove('error'); 
-
+        const idInput = r.querySelector('.t-id'), nameInput = r.querySelector('.t-name'), passInput = r.querySelector('.t-pass'), purseInput = r.querySelector('.t-purse'), imgEl = r.querySelector('.logo-drop-zone img');
+        const id = idInput ? idInput.value.trim() : ""; const name = nameInput ? nameInput.value.trim() : "";
+        if (idInput) idInput.classList.remove('border-red-500'); 
         if(id && name) {
-            if (seenIds.has(id)) { 
-                hasError = true; 
-                if (idInput) idInput.classList.add('error'); 
-            } else { 
-                seenIds.add(id); 
-                teams.push({ 
-                    id, 
-                    name, 
-                    password: passInput ? passInput.value : "", 
-                    purse: purseInput ? (Number(purseInput.value) || 0) : 500, 
-                    logo: imgEl ? imgEl.src : null 
-                }); 
-            }
+            if (seenIds.has(id)) { hasError = true; if (idInput) idInput.classList.add('border-red-500'); } 
+            else { seenIds.add(id); teams.push({ id, name, password: passInput ? passInput.value : "", purse: purseInput ? (Number(purseInput.value) || 0) : 500, logo: imgEl ? imgEl.src : null }); }
         }
     }); 
-
-    if (hasError) return showToast('❌ Error: Duplicate Team IDs found.');
-    if (teams.length === 0) return showToast('⚠️ No valid teams to save.');
-
-    socket.emit('admin:updateConfig', { teams }); 
-    showToast('Teams Saved Successfully!'); 
+    if (hasError) return showToast('❌ Error: Duplicate IDs.');
+    if (teams.length === 0) return showToast('⚠️ No teams to save.');
+    socket.emit('admin:updateConfig', { teams }); showToast('Database Synced!'); 
 };
 
-document.getElementById('btnResetSystem').onclick = () => { if(confirm('⚠️ WARNING: This will wipe all current bids and purchases. Proceed?')) socket.emit('admin:resetAll'); };
+document.getElementById('btnResetSystem').onclick = () => { if(confirm('⚠️ WIPE DB? All bids lost.')) socket.emit('admin:resetAll'); };
 
-// Updated Modal Logic to Support Assignment Price
 function openSoldConfirmation(cat, name, price, isDirect = false) { 
     const safePrice = Number(price) || 0;
     if (!isDirect && safePrice <= 0) return showToast('Cannot sell for 0');
-
     pendingSold = { category: cat, name, price: safePrice, isDirect }; 
+    
     const modal = document.getElementById('soldActionOverlay');
     const sel = document.getElementById('soldActionTeam'); 
     const priceGroup = document.getElementById('directPriceGroup');
@@ -824,32 +792,26 @@ function openSoldConfirmation(cat, name, price, isDirect = false) {
     priceGroup.classList.toggle('hidden', !isDirect);
     if(isDirect) directInput.value = safePrice;
 
-    document.getElementById('soldActionDetails').textContent = `${name} (${cat}) ${isDirect ? '(Retain)' : '@ ৳'+safePrice}`; 
+    document.getElementById('soldActionDetails').innerHTML = `<span class="text-white">${name}</span> (${cat}) <br> <span class="text-emerald-400 mt-2 block">${isDirect ? '[ RETAIN ACTION ]' : '@ ৳' + safePrice}</span>`; 
     sel.innerHTML = ''; 
     STATE.teams.forEach(t => { 
         const afford = Number(t.purse) >= (isDirect ? 0 : safePrice);
         const has = t.purchases && t.purchases[cat]; 
-        const dsUsed = isDirect && t.directSignUsed; // Prevents selection if already used
+        const dsUsed = isDirect && t.directSignUsed; 
         sel.innerHTML += `<option value="${t.id}" ${(!afford || has || dsUsed)?'disabled':''}>${t.name} (৳${t.purse})${dsUsed ? ' [Retain Used]' : ''}</option>`; 
     }); 
     modal.classList.remove('hidden'); 
 }
 
 document.getElementById('btnCancelSold').onclick = () => document.getElementById('soldActionOverlay').classList.add('hidden');
-
 document.getElementById('btnConfirmSold').onclick = (e) => { 
     const teamId = document.getElementById('soldActionTeam').value;
     let finalPrice = pendingSold.price;
-    if(pendingSold.isDirect) {
-        finalPrice = Number(document.getElementById('directSignPrice').value) || 0;
-    }
+    if(pendingSold.isDirect) finalPrice = Number(document.getElementById('directSignPrice').value) || 0;
     if(teamId) { 
         e.target.disabled = true; 
         socket.emit('player:sold', { ...pendingSold, price: finalPrice, teamId }); 
-        setTimeout(() => {
-            e.target.disabled = false; 
-            document.getElementById('soldActionOverlay').classList.add('hidden'); 
-        }, 500);
+        setTimeout(() => { e.target.disabled = false; document.getElementById('soldActionOverlay').classList.add('hidden'); }, 500);
     }
 };
 
@@ -858,19 +820,11 @@ const dlCSV = () => {
     STATE.categories.forEach(c => { 
         (STATE.playersSnapshot[c.id]||[]).forEach(p => { 
             let s="Unsold", b="-", sp=c.base, t = STATE.teams.find(x => x.purchases && x.purchases[c.id] === p.name); 
-            if(t) { 
-                const isDir = STATE.directSigns && STATE.directSigns[`${c.id}:${p.name}`];
-                s = isDir ? "Retained" : "Sold"; 
-                b = t.name; 
-                sp = STATE.soldPrices[`${c.id}:${p.name}`]; 
-            } 
+            if(t) { const isDir = STATE.directSigns && STATE.directSigns[`${c.id}:${p.name}`]; s = isDir ? "Retained" : "Sold"; b = t.name; sp = STATE.soldPrices[`${c.id}:${p.name}`]; } 
             r.push([c.id, p.name, c.base, sp, s, b]); 
         }); 
     }); 
-    const link = document.createElement("a"); 
-    link.href = "data:text/csv;charset=utf-8," + encodeURI(r.map(e=>e.join(",")).join("\n")); 
-    link.download = "auction.csv"; 
-    link.click(); 
+    const link = document.createElement("a"); link.href = "data:text/csv;charset=utf-8," + encodeURI(r.map(e=>e.join(",")).join("\n")); link.download = "auction_db.csv"; link.click(); 
 };
 document.getElementById('btnExportAdmin').onclick = dlCSV; document.getElementById('btnExportTeam').onclick = dlCSV;
 function getPlayerEl(c,n) { const l=document.getElementById(`playersList-${c}`); return l ? Array.from(l.children).find(e=>e.dataset.name===n) : null; }
