@@ -40,6 +40,11 @@ button.red { background: linear-gradient(135deg, #ef4444, #dc2626); }
 button.yellow { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; }
 button.small { padding: 6px 12px; font-size: 12px; border-radius: 6px; }
 
+/* --- ADMIN --- */
+.team-config-row { display: grid; grid-template-columns: 0.5fr 1.5fr 1fr 0.8fr 60px 60px 50px 40px; gap: 8px; align-items: center; margin-bottom: 8px; padding: 8px; background: rgba(0,0,0,0.2); border-radius: 8px; }
+.logo-drop-zone { width: 40px; height: 40px; border-radius: 50%; border: 2px dashed var(--muted); display: flex; align-items: center; justify-content: center; cursor: pointer; overflow: hidden; background: #000; margin: 0 auto; relative; }
+.logo-drop-zone img { width: 100%; height: 100%; object-fit: cover; }
+
 /* --- NAVIGATION & TABS --- */
 #topNav a { cursor: pointer; color: var(--muted); font-weight: 500; font-size: 14px; padding: 8px 12px; border-radius: 8px; }
 #topNav a.active { color: white; background: rgba(99, 102, 241, 0.1); border: 1px solid rgba(99, 102, 241, 0.2); font-weight: 600; }
@@ -169,16 +174,31 @@ button.small { padding: 6px 12px; font-size: 12px; border-radius: 6px; }
                   <div id="dashboardScoreboard" class="w-full"></div>
               </div>
               <div class="col-span-12 md:col-span-8 lg:col-span-9 glass-panel p-6 flex flex-col" id="dashboardMyTeamCard">
-                  <div class="flex justify-between items-center mb-4">
-                      <label class="text-base tracking-widest text-emerald-400">Franchise Overview</label>
-                      <button id="btnExportTeam" class="ghost small !py-1 !px-3 text-xs tracking-wider">Export Roster</button>
+                  <div class="flex justify-between items-center mb-4 border-b border-slate-700/50 pb-4">
+                      <label class="text-base tracking-widest text-emerald-400 !mb-0">Franchise Overview</label>
+                      <button id="btnExportTeam" class="ghost small !py-1.5 !px-3 text-xs tracking-wider border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10">Export Roster</button>
                   </div>
                   <div id="dashboardMyTeamContent" class="overflow-y-auto flex-1 pr-2"></div>
               </div>
           </div>
           
-          <div id="dashViewerView" class="hidden glass-panel !border-dashed flex items-center justify-center h-64 text-slate-500">
-              Connection established. Awaiting Admin to select player in Live Auction.
+          <div id="dashViewerView" class="hidden grid grid-cols-12 gap-6 h-[750px]">
+              <div class="col-span-12 md:col-span-4 lg:col-span-3 glass-panel p-6 flex flex-col h-full relative">
+                  <label class="mb-4 text-base tracking-widest text-indigo-400">Live Arena Standings</label>
+                  <div id="viewerScoreboard" class="w-full overflow-y-auto flex-1"></div>
+                  
+                  <div id="viewerLiveStatus" class="mt-4 hidden p-4 bg-emerald-500/10 border-2 border-emerald-500/50 rounded-xl text-center cursor-pointer hover:bg-emerald-500/20 transition shadow-[0_0_15px_rgba(16,185,129,0.2)]" onclick="showSection('sectionLiveAuction')">
+                      <span class="text-emerald-400 font-black tracking-widest uppercase text-sm drop-shadow-md">
+                         <span class="animate-pulse mr-1">●</span> Auction is Live<br>
+                         <span class="text-[10px] font-bold mt-1 inline-block">Go to Live Section ›</span>
+                      </span>
+                  </div>
+              </div>
+              <div class="col-span-12 md:col-span-8 lg:col-span-9 glass-panel p-6 flex flex-col h-full">
+                  <label class="mb-4 text-base tracking-widest text-emerald-400 border-b border-slate-700/50 pb-4">Network Franchises & Rosters</label>
+                  <div id="viewerRostersContent" class="overflow-y-auto flex-1 pr-2 space-y-8 pb-8">
+                      </div>
+              </div>
           </div>
       </div>
 
@@ -398,6 +418,15 @@ window.toggleTeamPass = () => { const isTeam = document.getElementById('loginRol
 window.enterAuction = () => { const role = document.getElementById('loginRole').value, teamId = document.getElementById('loginTeamId').value, pass = document.getElementById('loginPass').value; socket.emit('team:login', { hostId: CURRENT_USER.hostId, teamId, password: pass, role }); };
 window.previewTeamLogo = () => { const teamId = document.getElementById('loginTeamId').value, team = STATE.teams.find(t => t.id === teamId), img = document.getElementById('loginTeamLogo'); if(team && team.logo) { img.src = team.logo; img.classList.remove('hidden'); } else { img.classList.add('hidden'); } };
 
+// Live Auction Banner Auto-Updater
+function updateLiveIndicator() {
+    const liveIndicator = document.getElementById('viewerLiveStatus');
+    if(liveIndicator) {
+        if(activePlayer) liveIndicator.classList.remove('hidden');
+        else liveIndicator.classList.add('hidden');
+    }
+}
+
 // SOCKET EVENTS
 socket.on('auth:portal_error', msg => document.getElementById('portalMsg').textContent = msg);
 socket.on('auth:portal_success', d => { document.getElementById('portalMsg').className = 'mt-4 text-xs font-bold text-emerald-400'; document.getElementById('portalMsg').textContent = d.msg; });
@@ -411,7 +440,7 @@ socket.on('state:updated', newState => { STATE = newState; renderAll(); });
 
 // AUCTION LOGIC EVENTS
 socket.on('player:bid', pl => { 
-    const catContainers = document.querySelectorAll(`[id^="playersList-"]`);
+    const catContainers = document.querySelectorAll(`[id^="playersList-"], [id^="viewerTeamPlayers-"]`);
     catContainers.forEach(container => {
         const el = Array.from(container.children).find(e => e.dataset.name === pl.name);
         if(el) {
@@ -435,6 +464,8 @@ socket.on('popup:open', player => {
     document.getElementById('popupImg').src = player.image || "https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=800&auto=format&fit=crop"; 
     updatePopupPrice(player.currentPrice || player.base || 0); 
     
+    updateLiveIndicator();
+
     if(CURRENT_USER.role==='admin') setupFileUpload(document.getElementById('popupImgContainer'), (file) => uploadFile(file).then(url => socket.emit('admin:update_player_image', { category: player.category, name: player.name, imageUrl: url })));
     
     if (CURRENT_USER.role === 'team') {
@@ -449,12 +480,21 @@ socket.on('popup:open', player => {
     }
 });
 
-socket.on('popup:close', () => { activePlayer = null; document.getElementById('auctionPlayerPopup').classList.add('hidden'); document.getElementById('auctionIdleState').classList.remove('hidden'); });
+socket.on('popup:close', () => { 
+    activePlayer = null; 
+    document.getElementById('auctionPlayerPopup').classList.add('hidden'); 
+    document.getElementById('auctionIdleState').classList.remove('hidden'); 
+    updateLiveIndicator();
+});
 socket.on('popup:update_image', data => document.getElementById('popupImg').src = data.imageUrl);
 
 socket.on('player:sold', data => { 
     const { category, name, price, teamId, isDirect } = data.payload; STATE.teams = data.teams; 
     if (isDirect) { if (!STATE.directSigns) STATE.directSigns = {}; STATE.directSigns[`${category}:${name}`] = true; }
+    
+    activePlayer = null;
+    updateLiveIndicator();
+    
     document.getElementById('auctionPlayerPopup').classList.add('hidden'); document.getElementById('auctionIdleState').classList.remove('hidden'); const t = STATE.teams.find(x => x.id === teamId); 
     
     const titleEl = document.getElementById('animTitle');
@@ -510,25 +550,26 @@ function renderAll() {
     if(!appContainer.classList.contains('hidden')) {
         renderScoreboards(); 
         if(CURRENT_USER.role === 'team') renderMyTeam(); 
+        if(CURRENT_USER.role === 'listener') renderViewerRosters();
         renderDatabase(); 
         if(CURRENT_USER.role === 'admin') renderTeamConfigTable(); 
         if(activePlayer) { const key = `${activePlayer.category}:${activePlayer.name}`; updatePopupPrice(STATE.activeBids[key] || activePlayer.base); }
+        updateLiveIndicator();
     }
 }
 
-// --- NEW TILE-BASED SCOREBOARD (For Live Auction & Dashboard) ---
+// --- NEW TILE-BASED SCOREBOARD (For Live Auction & Dashboards) ---
 function renderScoreboards() {
     const render = (containerId) => {
         const container = document.getElementById(containerId);
         if(!container) return; 
         container.innerHTML = '';
         
-        // Use grid for tiles depending on which section it's in
-        const gridClass = containerId === 'auctionScoreboard' 
-            ? 'grid-cols-2 lg:grid-cols-2 gap-3' 
-            : 'grid-cols-1 md:grid-cols-2 gap-4';
+        let gridClass = 'grid-cols-1 md:grid-cols-2 gap-4'; 
+        if(containerId === 'auctionScoreboard') gridClass = 'grid-cols-2 lg:grid-cols-2 gap-3';
+        if(containerId === 'viewerScoreboard') gridClass = 'grid-cols-1 lg:grid-cols-2 gap-4';
             
-        container.className = `grid ${gridClass} overflow-y-auto pr-2 flex-1 content-start`;
+        container.className = `grid ${gridClass} overflow-y-auto pr-2 content-start`;
         
         STATE.teams.forEach(t => { 
             const logo = t.logo 
@@ -544,7 +585,9 @@ function renderScoreboards() {
             </div>`; 
         });
     };
-    render('auctionScoreboard'); render('dashboardScoreboard');
+    render('auctionScoreboard'); 
+    render('dashboardScoreboard');
+    render('viewerScoreboard');
 }
 
 // --- HELPER TO GENERATE PLAYER TILE HTML ---
@@ -568,11 +611,12 @@ function generatePlayerTileHTML(player, categoryId, displayPrice, isDirect, sold
         </div>
     `;
 
-    if(CURRENT_USER.role === 'team' && soldToName === STATE.teams.find(t => t.id === CURRENT_USER.teamId)?.name) {
+    // Special Tag for My Roster view
+    if((CURRENT_USER.role === 'team' || CURRENT_USER.role === 'listener') && soldToName) {
          frostedTagContent = `
             <div class="absolute top-3 left-3 bg-black/40 backdrop-blur-md border border-white/10 text-white text-[10px] font-bold px-3 py-1.5 rounded-lg uppercase tracking-widest shadow-lg flex items-center space-x-2">
                 <span class="w-2 h-2 rounded-full ${isDirect ? 'bg-purple-400' : 'bg-indigo-400'} shadow-[0_0_8px_rgba(129,140,248,0.5)]"></span>
-                <span>MY ROSTER</span>
+                <span>${categoryId}</span>
             </div>
         `;
     }
@@ -590,7 +634,7 @@ function generatePlayerTileHTML(player, categoryId, displayPrice, isDirect, sold
 
     return `
         <div class="${tileWrapperClass}" data-name="${player.name}" data-price="${displayPrice}">
-            <div class="relative h-56 w-full bg-slate-900 overflow-hidden shrink-0">
+            <div class="relative h-48 sm:h-56 w-full bg-slate-900 overflow-hidden shrink-0">
                 <img src="${imgSrc}" class="w-full h-full object-cover opacity-80 group-hover:scale-105 group-hover:opacity-100 transition duration-500">
                 <div class="absolute inset-0 bg-gradient-to-t from-[#0b1121] to-transparent"></div>
                 ${frostedTagContent}
@@ -599,12 +643,12 @@ function generatePlayerTileHTML(player, categoryId, displayPrice, isDirect, sold
             <div class="p-5 flex-1 flex flex-col z-10 bg-[#0b1121]/80">
                 <div class="flex justify-between items-start">
                     <div class="flex-1 pr-3">
-                        <h4 class="text-xl font-black text-white leading-tight drop-shadow-md mb-1">${player.name}</h4>
+                        <h4 class="text-lg sm:text-xl font-black text-white leading-tight drop-shadow-md mb-1">${player.name}</h4>
                         <div class="text-[10px] text-slate-400 uppercase tracking-widest">Prospect Profile</div>
                     </div>
                     <div class="text-right shrink-0">
                         <div class="text-[9px] text-slate-500 font-bold uppercase tracking-widest mb-1">Final Valuation</div>
-                        <div class="text-xl font-black text-cyan-400 font-mono tracking-tighter drop-shadow-[0_0_8px_rgba(34,211,238,0.3)] price">৳${displayPrice}</div>
+                        <div class="text-lg sm:text-xl font-black text-cyan-400 font-mono tracking-tighter drop-shadow-[0_0_8px_rgba(34,211,238,0.3)] price">৳${displayPrice}</div>
                     </div>
                 </div>
                 ${statusBadgeHTML}
@@ -614,7 +658,65 @@ function generatePlayerTileHTML(player, categoryId, displayPrice, isDirect, sold
     `;
 }
 
-// --- UPDATED MY TEAM RENDERER (Uses Tiles) ---
+// --- VIEWER DASHBOARD RENDERER ---
+function renderViewerRosters() {
+    const div = document.getElementById('viewerRostersContent');
+    if(!div) return;
+    div.innerHTML = '';
+
+    if(STATE.teams.length === 0) {
+        div.innerHTML = '<div class="text-center py-10 text-xs text-slate-500 uppercase tracking-widest border border-dashed border-slate-700/50 w-full rounded-2xl">No franchises available.</div>';
+        return;
+    }
+
+    STATE.teams.forEach(t => {
+        const logo = t.logo ? `<img src="${t.logo}" class="w-24 h-24 rounded-full border-2 border-slate-600 object-cover mb-4 shadow-lg bg-black">` 
+                            : `<div class="w-24 h-24 rounded-full bg-slate-900 border-2 border-slate-700 flex items-center justify-center text-[10px] text-slate-500 mb-4 shadow-lg">-</div>`; 
+        
+        const teamHtml = `
+            <div class="flex flex-col lg:flex-row gap-6 bg-slate-800/20 border border-slate-700/50 rounded-[2rem] p-6 lg:p-8 shadow-xl hover:border-indigo-500/30 transition">
+                <div class="w-full lg:w-72 shrink-0 flex flex-col items-center text-center bg-slate-900/50 p-8 rounded-3xl border border-slate-700/50 shadow-inner">
+                    ${logo}
+                    <h3 class="text-2xl font-black text-white leading-tight mb-2 w-full truncate">${t.name}</h3>
+                    <div class="text-xs text-slate-400 uppercase tracking-widest mb-6 bg-slate-800 px-4 py-1.5 rounded-lg border border-slate-700/50">${t.purchases ? Object.keys(t.purchases).length : 0} Player Roster</div>
+                    <div class="w-full text-center bg-black/40 p-4 rounded-xl border border-white/5">
+                        <div class="text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-1">Remaining Purse</div>
+                        <div class="text-3xl font-black text-cyan-400 font-mono tracking-tighter">৳${t.purse}</div>
+                    </div>
+                </div>
+                
+                <div class="flex-1">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5 content-start" id="viewerTeamPlayers-${t.id}">
+                        </div>
+                </div>
+            </div>
+        `;
+        
+        div.insertAdjacentHTML('beforeend', teamHtml);
+
+        const gridEl = document.getElementById(`viewerTeamPlayers-${t.id}`);
+        const hasPurchases = t.purchases && Object.keys(t.purchases).length > 0;
+        
+        if(!hasPurchases) {
+            gridEl.innerHTML = '<div class="col-span-full flex items-center justify-center h-full min-h-[200px]"><div class="text-center text-xs text-slate-500 uppercase tracking-widest border border-dashed border-slate-700/50 w-full rounded-2xl py-10">No players acquired yet.</div></div>';
+        } else {
+            Object.entries(t.purchases).forEach(([catId, playerName]) => {
+                const catPlayers = STATE.playersSnapshot[catId] || [];
+                const player = catPlayers.find(p => p.name === playerName);
+                const catConfig = STATE.categories.find(c => c.id === catId);
+                
+                if(player && catConfig) {
+                    const key = `${catId}:${playerName}`;
+                    const soldPrice = STATE.soldPrices[key];
+                    const isDirectDS = STATE.directSigns && STATE.directSigns[key];
+                    gridEl.innerHTML += generatePlayerTileHTML(player, catId, soldPrice, isDirectDS, t.name);
+                }
+            });
+        }
+    });
+}
+
+// --- MY TEAM RENDERER (Uses Tiles) ---
 function renderMyTeam() {
     const t = STATE.teams.find(x => x.id === CURRENT_USER.teamId); 
     const div = document.getElementById('dashboardMyTeamContent'); 
@@ -638,7 +740,7 @@ function renderMyTeam() {
     }
 
     const gridEl = document.createElement('div');
-    gridEl.className = "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-6";
+    gridEl.className = "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 pb-6";
     
     Object.entries(t.purchases).forEach(([catId, playerName]) => {
         const catPlayers = STATE.playersSnapshot[catId] || [];
