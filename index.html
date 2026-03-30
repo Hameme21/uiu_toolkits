@@ -22,7 +22,7 @@ body { margin: 0; background-color: var(--bg); background-image: radial-gradient
 .neon-text-blue { color: #38bdf8; text-shadow: 0 0 15px rgba(56, 189, 248, 0.5); }
 .hidden { display: none !important; }
 
-/* Overlays & Portals - (More Spacious) */
+/* Overlays & Portals */
 #portal, #teamAuthOverlay, .overlay { position: fixed; inset: 0; z-index: 5000; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: center; flex-direction: column; }
 .portal-card, .modal { background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(20px); padding: 30px; border-radius: 20px; width: 600px; max-width: 95%; border: 1px solid rgba(99, 102, 241, 0.3); box-shadow: 0 0 30px rgba(99, 102, 241, 0.2), inset 0 0 20px rgba(99, 102, 241, 0.1); text-align: center; }
 
@@ -39,11 +39,6 @@ button.green { background: linear-gradient(135deg, #10b981, #059669); }
 button.red { background: linear-gradient(135deg, #ef4444, #dc2626); }
 button.yellow { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; }
 button.small { padding: 6px 12px; font-size: 12px; border-radius: 6px; }
-
-/* --- ADMIN --- */
-.team-config-row { display: grid; grid-template-columns: 0.5fr 1.5fr 1fr 0.8fr 60px 60px 50px 40px; gap: 8px; align-items: center; margin-bottom: 8px; padding: 8px; background: rgba(0,0,0,0.2); border-radius: 8px; }
-.logo-drop-zone { width: 40px; height: 40px; border-radius: 50%; border: 2px dashed var(--muted); display: flex; align-items: center; justify-content: center; cursor: pointer; overflow: hidden; background: #000; margin: 0 auto; relative; }
-.logo-drop-zone img { width: 100%; height: 100%; object-fit: cover; }
 
 /* --- NAVIGATION & TABS --- */
 #topNav a { cursor: pointer; color: var(--muted); font-weight: 500; font-size: 14px; padding: 8px 12px; border-radius: 8px; }
@@ -168,22 +163,17 @@ button.small { padding: 6px 12px; font-size: 12px; border-radius: 6px; }
               </div>
           </div>
 
-          <div id="dashTeamView" class="hidden grid grid-cols-12 gap-6 h-[500px]">
-              <div class="col-span-3 glass-panel p-6 flex flex-col">
-                  <label class="mb-4">Live Arena Standings</label>
-                  <div id="dashboardScoreboard" class="space-y-3 overflow-y-auto pr-2 flex-1"></div>
+          <div id="dashTeamView" class="hidden grid grid-cols-12 gap-6 h-[700px]">
+              <div class="col-span-12 md:col-span-4 lg:col-span-3 glass-panel p-6 flex flex-col h-full">
+                  <label class="mb-4 text-base tracking-widest text-indigo-400">Live Arena Standings</label>
+                  <div id="dashboardScoreboard" class="w-full"></div>
               </div>
-              <div class="col-span-5 glass-panel p-6" id="dashboardMyTeamCard">
+              <div class="col-span-12 md:col-span-8 lg:col-span-9 glass-panel p-6 flex flex-col" id="dashboardMyTeamCard">
                   <div class="flex justify-between items-center mb-4">
-                      <label>Franchise Overview</label>
-                      <button id="btnExportTeam" class="ghost small !py-1 !text-[10px]">Export Roster</button>
+                      <label class="text-base tracking-widest text-emerald-400">Franchise Overview</label>
+                      <button id="btnExportTeam" class="ghost small !py-1 !px-3 text-xs tracking-wider">Export Roster</button>
                   </div>
-                  <div id="dashboardMyTeamContent" class="overflow-y-auto flex-1"></div>
-              </div>
-              <div class="col-span-4 dashboard-card !border-dashed flex flex-col items-center justify-center text-center !cursor-default" onclick="showSection('sectionLiveAuction')">
-                  <span class="text-5xl mb-4 opacity-70">📡</span>
-                  <p class="font-medium tracking-widest uppercase text-xs">Live Auction Room</p>
-                  <span class="text-xs font-bold text-indigo-400 mt-4 uppercase cursor-pointer">Enter Center ›</span>
+                  <div id="dashboardMyTeamContent" class="overflow-y-auto flex-1 pr-2"></div>
               </div>
           </div>
           
@@ -192,16 +182,15 @@ button.small { padding: 6px 12px; font-size: 12px; border-radius: 6px; }
           </div>
       </div>
 
-      <div id="sectionLiveAuction" class="hidden grid grid-cols-12 gap-6 h-[650px]">
+      <div id="sectionLiveAuction" class="hidden grid grid-cols-12 gap-6 h-[750px]">
           
-          <div class="col-span-12 md:col-span-8 flex flex-col space-y-4">
+          <div class="col-span-12 lg:col-span-8 flex flex-col space-y-4 h-full">
               <div id="auctionIdleState" class="glass-panel flex-1 rounded-3xl flex flex-col items-center justify-center text-slate-500 border border-slate-700/50 border-dashed">
                   <span class="text-5xl mb-4 opacity-50">📡</span>
                   <p class="font-medium tracking-widest uppercase text-xs">Waiting for active player drop...</p>
               </div>
 
               <div id="auctionPlayerPopup" class="hidden glass-panel flex-1 rounded-3xl overflow-hidden relative group border border-indigo-500/30 shadow-[0_0_30px_rgba(99,102,241,0.1)] flex flex-col">
-                  
                   <div class="absolute inset-0 bg-gradient-to-t from-[#0b1121] via-slate-900/80 to-transparent z-10 pointer-events-none"></div>
                   
                   <div id="popupImgContainer" class="absolute inset-0 z-0">
@@ -216,7 +205,7 @@ button.small { padding: 6px 12px; font-size: 12px; border-radius: 6px; }
                               <div class="flex space-x-2 mb-3">
                                   <span id="popupCat" class="bg-cyan-500 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">CATEGORY</span>
                               </div>
-                              <h1 id="popupName" class="text-4xl font-black leading-tight text-white text-shadow-lg">Player Name</h1>
+                              <h1 id="popupName" class="text-4xl lg:text-5xl font-black leading-tight text-white text-shadow-lg">Player Name</h1>
                           </div>
                           
                           <div id="adminBidControls" class="hidden flex items-center space-x-3 bg-black/40 p-3 rounded-2xl w-max backdrop-blur-md">
@@ -230,7 +219,7 @@ button.small { padding: 6px 12px; font-size: 12px; border-radius: 6px; }
 
                           <div id="viewerPriceDisplay" class="hidden text-right">
                                <div class="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">Current Highest Bid</div>
-                               <div id="viewerPrice" class="text-5xl font-black text-cyan-400 font-mono tracking-tight neon-text-blue">0</div>
+                               <div id="viewerPrice" class="text-5xl lg:text-6xl font-black text-cyan-400 font-mono tracking-tight neon-text-blue">0</div>
                           </div>
                       </div>
 
@@ -246,22 +235,22 @@ button.small { padding: 6px 12px; font-size: 12px; border-radius: 6px; }
               </div>
           </div>
 
-          <div class="col-span-12 md:col-span-4 flex flex-col space-y-4 h-full">
-              <div class="glass-panel p-5">
+          <div class="col-span-12 lg:col-span-4 flex flex-col space-y-4 h-full">
+              <div class="glass-panel p-5 flex-1 flex flex-col overflow-hidden">
                   <div class="flex justify-between items-center mb-4 text-xs font-bold text-slate-400 uppercase tracking-wider">
                       <span>Arena Standings</span>
                       <span class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]"></span>
                   </div>
-                  <div id="auctionScoreboard" class="space-y-2 max-h-40 overflow-y-auto pr-2"></div>
+                  <div id="auctionScoreboard" class="w-full"></div>
               </div>
 
-              <div class="glass-panel relative overflow-hidden flex-1 flex flex-col">
+              <div class="glass-panel relative overflow-hidden h-56 shrink-0 flex flex-col">
                   <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-400 to-indigo-500"></div>
                   <div class="flex justify-between items-center mb-4">
-                      <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">Bidding activity log</div>
-                      <button id="clearLog" class="ghost small !py-1 !px-2 text-[10px]">Clear</button>
+                      <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Bidding Network Log</div>
+                      <button id="clearLog" class="ghost small !py-1 !px-2 text-[10px]">Clear Log</button>
                   </div>
-                  <div id="log" class="flex-1 overflow-y-auto space-y-2 pr-2 font-mono text-[11px]"></div>
+                  <div id="log" class="flex-1 overflow-y-auto space-y-2 pr-2 font-mono text-[10px] leading-tight text-slate-400"></div>
               </div>
           </div>
       </div>
@@ -284,33 +273,24 @@ button.small { padding: 6px 12px; font-size: 12px; border-radius: 6px; }
       </div>
 
       <div id="sectionTeamConfig" class="hidden space-y-6">
-          <div class="glass-panel p-6">
-              <div class="flex justify-between items-center mb-4 border-b border-slate-700 pb-4">
+          <div class="glass-panel p-6 lg:p-10">
+              <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 border-b border-slate-700 pb-6 gap-4">
                   <div>
-                      <h2 class="text-2xl font-black text-white">Teams</h2>
-                      <p class="text-slate-400 text-sm mt-1">Add franchises, secure access keys, upload logos, and define global Impact power rules.</p>
+                      <h2 class="text-3xl font-black text-white tracking-wide">Franchise Configurations</h2>
+                      <p class="text-slate-400 text-sm mt-2">Manage team slots, secure access keys, upload logos, and set global Impact rules.</p>
                   </div>
-                  <div class="flex space-x-2 bg-black/30 p-2 rounded-xl border border-slate-700">
-                      <label class="!mb-0 mt-2.5 ml-2 mr-3 !text-[10px]">Impact Bonus:</label>
-                      <input id="configImpact" type="number" placeholder="Amount" class="!w-28 !mb-0 !py-2 !text-xs">
-                      <button class="small ghost !py-2" onclick="saveGlobalConfig()">Save Rule</button>
+                  <div class="flex flex-wrap items-center gap-4">
+                      <div class="flex space-x-2 bg-black/30 p-2 rounded-xl border border-slate-700 items-center">
+                          <label class="!mb-0 ml-2 mr-1 !text-[10px] text-indigo-300">Global Impact Bonus:</label>
+                          <input id="configImpact" type="number" placeholder="Amount" class="!w-24 !mb-0 !py-1.5 !text-xs font-mono">
+                          <button class="small ghost !py-1.5 border-indigo-500/30 text-indigo-300 hover:bg-indigo-500/10" onclick="saveGlobalConfig()">Save Rule</button>
+                      </div>
+                      <button id="btnSaveTeams" class="green !py-3 !px-6 text-sm shadow-lg shadow-emerald-500/20">Sync Team DB ›</button>
                   </div>
               </div>
               
-              <div class="team-config-row bg-transparent !mb-1 !pb-2 border-b border-slate-700">
-                <span class="text-[10px] text-slate-400 uppercase">ID</span>
-                <span class="text-[10px] text-slate-400 uppercase">Team Name</span>
-                <span class="text-[10px] text-slate-400 uppercase">Key</span>
-                <span class="text-[10px] text-slate-400 uppercase">৳ Purse</span>
-                <span class="text-[10px] text-slate-400 uppercase text-center">Logo</span>
-                <span></span><span></span><span></span>
-              </div>
-              <div id="teamsConfigContainer" class="space-y-3 max-h-[500px] overflow-y-auto pr-2"></div>
+              <div id="teamsConfigContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 overflow-y-auto pr-2 max-h-[600px] p-2 content-start"></div>
               
-              <div class="flex space-x-4 mt-6 border-t border-slate-700 pt-6">
-                <button id="btnAddTeamRow" class="ghost flex-1 !py-3" onclick="addTeamInputRow()">+ Add Team Slot</button>
-                <button id="btnSaveTeams" class="green flex-1 !py-3">Database Synchronization Complete ›</button>
-              </div>
           </div>
       </div>
 
@@ -389,7 +369,7 @@ const showSection = (sectionId) => {
 function log(msg) { 
     const d = document.createElement('div'); 
     d.className = "bg-slate-800/50 border border-slate-700/50 p-2 rounded-lg text-slate-300 flex items-start space-x-2";
-    d.innerHTML = `<span class="text-indigo-400 mt-0.5">›</span> <span class="flex-1">${msg}</span>`;
+    d.innerHTML = `<span class="text-indigo-500 mt-0.5">›</span> <span class="flex-1">${msg}</span>`;
     document.getElementById('log').prepend(d); 
 }
 function showToast(msg) { 
@@ -431,13 +411,12 @@ socket.on('state:updated', newState => { STATE = newState; renderAll(); });
 
 // AUCTION LOGIC EVENTS
 socket.on('player:bid', pl => { 
-    // Handle list/tile UI update gracefully across multiple renders
     const catContainers = document.querySelectorAll(`[id^="playersList-"]`);
     catContainers.forEach(container => {
         const el = Array.from(container.children).find(e => e.dataset.name === pl.name);
         if(el) {
             el.dataset.price = pl.price;
-            const pEls = el.querySelectorAll('.price'); // Class selector support
+            const pEls = el.querySelectorAll('.price'); 
             pEls.forEach(pEl => pEl.textContent = `৳${pl.price}`);
         }
     });
@@ -530,22 +509,38 @@ function setupUI() {
 function renderAll() { 
     if(!appContainer.classList.contains('hidden')) {
         renderScoreboards(); 
-        if(CURRENT_USER.role === 'team') renderMyTeam(); // Updated grid-based renderer
+        if(CURRENT_USER.role === 'team') renderMyTeam(); 
         renderDatabase(); 
         if(CURRENT_USER.role === 'admin') renderTeamConfigTable(); 
         if(activePlayer) { const key = `${activePlayer.category}:${activePlayer.name}`; updatePopupPrice(STATE.activeBids[key] || activePlayer.base); }
     }
 }
 
+// --- NEW TILE-BASED SCOREBOARD (For Live Auction & Dashboard) ---
 function renderScoreboards() {
     const render = (containerId) => {
         const container = document.getElementById(containerId);
-        if(!container) return; container.innerHTML = '';
+        if(!container) return; 
+        container.innerHTML = '';
+        
+        // Use grid for tiles depending on which section it's in
+        const gridClass = containerId === 'auctionScoreboard' 
+            ? 'grid-cols-2 lg:grid-cols-2 gap-3' 
+            : 'grid-cols-1 md:grid-cols-2 gap-4';
+            
+        container.className = `grid ${gridClass} overflow-y-auto pr-2 flex-1 content-start`;
+        
         STATE.teams.forEach(t => { 
-            const logo = t.logo ? `<img src="${t.logo}" class="w-8 h-8 rounded-full border object-cover">` : `<div class="w-8 h-8 rounded-full bg-slate-900 border flex items-center justify-center text-[10px] text-slate-500">-</div>`; 
-            container.innerHTML += `<div class="flex justify-between items-center bg-slate-800/40 p-2 rounded-xl border">
-                <div class="flex items-center space-x-2"> ${logo} <div class="font-bold text-xs text-white">${t.name}</div> </div>
-                <div class="font-bold text-cyan-400 font-mono text-sm">৳${t.purse}</div>
+            const logo = t.logo 
+                ? `<img src="${t.logo}" class="w-14 h-14 rounded-full border-2 border-slate-600 object-cover mb-3 shadow-lg bg-black">` 
+                : `<div class="w-14 h-14 rounded-full bg-slate-900 border-2 border-slate-700 flex items-center justify-center text-[10px] text-slate-500 mb-3 shadow-lg">-</div>`; 
+            
+            container.innerHTML += `
+            <div class="flex flex-col items-center text-center bg-slate-800/40 p-4 rounded-2xl border border-slate-700/50 hover:border-indigo-500/50 transition shadow-lg">
+                ${logo}
+                <div class="font-bold text-sm text-white leading-tight mb-1 w-full truncate">${t.name}</div>
+                <div class="text-[9px] text-slate-400 uppercase tracking-widest mb-3 bg-slate-900/50 px-2 py-0.5 rounded-md border border-slate-700/50">${t.purchases ? Object.keys(t.purchases).length : 0} Roster</div>
+                <div class="font-black text-cyan-400 font-mono text-base bg-slate-900/80 px-3 py-1.5 rounded-lg border border-cyan-500/20 w-full text-center tracking-tight shadow-inner">৳${t.purse}</div>
             </div>`; 
         });
     };
@@ -566,8 +561,6 @@ function generatePlayerTileHTML(player, categoryId, displayPrice, isDirect, sold
     const tileWrapperClass = `relative bg-slate-800/40 rounded-2xl overflow-hidden border ${tileBorder} hover:border-cyan-500/50 transition duration-300 group flex flex-col h-full ${opacityClass} shadow-lg`;
     const imgSrc = player.image || "https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=400&auto=format&fit=crop";
 
-    // FROSTED TAG CONTENT
-    // For general database, show Category/Draft. For MY ROSTER, change to something else.
     let frostedTagContent = `
         <div class="absolute top-3 left-3 bg-black/40 backdrop-blur-md border border-white/10 text-white text-[10px] font-bold px-3 py-1.5 rounded-lg uppercase tracking-widest shadow-lg flex items-center space-x-2">
             <span class="w-2 h-2 rounded-full ${isSold ? 'bg-slate-500' : 'bg-emerald-400'} shadow-[0_0_8px_rgba(52,211,153,0.5)]"></span>
@@ -575,7 +568,6 @@ function generatePlayerTileHTML(player, categoryId, displayPrice, isDirect, sold
         </div>
     `;
 
-    // Overwrite Tag if we are in Team Dashboard "My Team" context
     if(CURRENT_USER.role === 'team' && soldToName === STATE.teams.find(t => t.id === CURRENT_USER.teamId)?.name) {
          frostedTagContent = `
             <div class="absolute top-3 left-3 bg-black/40 backdrop-blur-md border border-white/10 text-white text-[10px] font-bold px-3 py-1.5 rounded-lg uppercase tracking-widest shadow-lg flex items-center space-x-2">
@@ -585,7 +577,6 @@ function generatePlayerTileHTML(player, categoryId, displayPrice, isDirect, sold
         `;
     }
 
-    // Status Tags Content (for sold status)
     let statusBadgeHTML = "";
     if(isSold) {
         statusBadgeHTML = `
@@ -602,12 +593,9 @@ function generatePlayerTileHTML(player, categoryId, displayPrice, isDirect, sold
             <div class="relative h-56 w-full bg-slate-900 overflow-hidden shrink-0">
                 <img src="${imgSrc}" class="w-full h-full object-cover opacity-80 group-hover:scale-105 group-hover:opacity-100 transition duration-500">
                 <div class="absolute inset-0 bg-gradient-to-t from-[#0b1121] to-transparent"></div>
-                
                 ${frostedTagContent}
-
                 <div class="hover-overlay-anchor z-10"></div>
             </div>
-            
             <div class="p-5 flex-1 flex flex-col z-10 bg-[#0b1121]/80">
                 <div class="flex justify-between items-start">
                     <div class="flex-1 pr-3">
@@ -619,9 +607,7 @@ function generatePlayerTileHTML(player, categoryId, displayPrice, isDirect, sold
                         <div class="text-xl font-black text-cyan-400 font-mono tracking-tighter drop-shadow-[0_0_8px_rgba(34,211,238,0.3)] price">৳${displayPrice}</div>
                     </div>
                 </div>
-                
                 ${statusBadgeHTML}
-
                 <div class="actions mt-auto z-10"></div>
             </div>
         </div>
@@ -636,26 +622,23 @@ function renderMyTeam() {
 
     div.innerHTML = ''; 
     
-    // Purse and Impact header (unchanged, still useful)
-    let headerHTML = `<div class="flex justify-between items-end mb-6 bg-slate-900 p-3 rounded-xl border border-slate-700/50">
-                <div class="text-xs text-slate-400 font-bold uppercase tracking-wider">Remaining Purse</div>
-                <div class="text-3xl font-black text-emerald-400 font-mono">৳${t.purse}</div>
+    let headerHTML = `<div class="flex justify-between items-end mb-6 bg-slate-900/50 p-4 rounded-2xl border border-slate-700/50 shadow-lg">
+                <div class="text-sm text-slate-400 font-bold uppercase tracking-wider">Remaining Purse Balance</div>
+                <div class="text-4xl font-black text-emerald-400 font-mono tracking-tight text-shadow-md">৳${t.purse}</div>
             </div>`; 
-    if(t.impactUsed) headerHTML += `<div class="bg-indigo-500/20 text-indigo-300 text-xs font-bold px-3 py-2 rounded-lg mb-6 flex items-center">⚡ Impact Power Deployed</div>`; 
+    if(t.impactUsed) headerHTML += `<div class="bg-indigo-500/20 text-indigo-300 text-xs font-bold px-4 py-3 rounded-xl mb-6 flex items-center uppercase tracking-widest"><span class="mr-2 text-base">⚡</span> Impact Power Deployed</div>`; 
     
     div.innerHTML = headerHTML;
 
-    // Roster grid
     const hasPurchases = t.purchases && Object.keys(t.purchases).length > 0;
     
     if(!hasPurchases) {
-        div.innerHTML += '<div class="text-center py-10 text-xs text-slate-500 uppercase tracking-widest border border-dashed border-slate-700/50 w-full rounded-2xl">No players acquired yet.</div>';
+        div.innerHTML += '<div class="text-center py-16 text-xs text-slate-500 uppercase tracking-widest border border-dashed border-slate-700/50 w-full rounded-2xl">No players acquired for roster yet.</div>';
         return;
     }
 
-    // Grid System for Tiles
     const gridEl = document.createElement('div');
-    gridEl.className = "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6";
+    gridEl.className = "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-6";
     
     Object.entries(t.purchases).forEach(([catId, playerName]) => {
         const catPlayers = STATE.playersSnapshot[catId] || [];
@@ -707,7 +690,7 @@ function renderDatabase() {
                 </div>
             </div>` : ''} 
             
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 flex-1" id="playersList-${cat.id}"></div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 flex-1" id="playersList-${cat.id}"></div>
         `; 
             
         container.appendChild(div); 
@@ -731,13 +714,10 @@ function renderDatabase() {
             const tileHTML = generatePlayerTileHTML(p, cat.id, displayPrice, isDirectDS, soldToName);
             const el = document.createElement('div'); 
             el.innerHTML = tileHTML;
-            const tileEl = el.firstElementChild; // Extract the tile div
+            const tileEl = el.firstElementChild; 
 
             const isSold = soldToName !== null;
             
-            // Populating call-to-actions/overlays specific to this database context
-
-            // Reset button for Admin if sold
             if(isAdmin && isSold) {
                 const hoverAnchor = tileEl.querySelector('.hover-overlay-anchor');
                 if(hoverAnchor) hoverAnchor.innerHTML += `
@@ -748,7 +728,6 @@ function renderDatabase() {
                 </div>`;
             }
 
-            // Action Overlay (Admin selects player for Live Auction)
             if(!isSold && isAdmin) { 
                 tileEl.classList.add('cursor-pointer');
                 tileEl.onclick = (e) => { 
@@ -764,13 +743,12 @@ function renderDatabase() {
                 `;
             }
 
-            // Bid Request Button for Team
             if(CURRENT_USER.role === 'team' && !isSold) { 
                 const actionsContainer = tileEl.querySelector('.actions');
                 if(actionsContainer) actionsContainer.innerHTML += `<div class="mt-4 pt-3 border-t border-slate-700/50"><button class="btn-bid-req w-full ghost small !py-2.5 border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10 transition uppercase tracking-wider text-[10px] font-black">Request Bid Floor</button></div>`; 
                 const btn = actionsContainer.querySelector('.btn-bid-req'); 
                 if(btn) btn.onclick = (e) => { 
-                    e.stopPropagation(); // prevent tile click if any
+                    e.stopPropagation(); 
                     socket.emit('bid:request', { category: cat.id, playerName: p.name, teamName: STATE.teams.find(x => x.id === CURRENT_USER.teamId)?.name }); 
                     btn.textContent = 'Requested'; 
                     btn.classList.add('bg-cyan-500/20');
@@ -778,24 +756,81 @@ function renderDatabase() {
             } 
             plContainer.appendChild(tileEl); 
         }); 
-        // Update admin textarea
         if(isAdmin) { const ta = div.querySelector('textarea'); if(document.activeElement !== ta && STATE.playersSnapshot[cat.id]) ta.value = STATE.playersSnapshot[cat.id].map(p=>p.name).join('\n'); } 
     }); 
 }
 
-// Renders Team Configuration Table
+// --- TILE-BASED TEAM CONFIGURATION RENDERER ---
 function renderTeamConfigTable() { 
-    const container = document.getElementById('teamsConfigContainer'); container.innerHTML = ''; 
+    const container = document.getElementById('teamsConfigContainer'); 
+    container.innerHTML = ''; 
+    
     STATE.teams.forEach(t => { 
-        const row = document.createElement('div'); row.className = 'team-config-row border border-slate-700/50 bg-slate-800/30'; const logoHtml = t.logo ? `<img src="${t.logo}">` : `<span style="font-size:10px;color:var(--muted)">Drop</span>`; 
-        row.innerHTML = `<input class="t-id !mb-0 !py-1 !text-xs" value="${t.id}" placeholder="ID"><input class="t-name !mb-0 !py-1 !text-xs" value="${t.name}" placeholder="Name"><input class="t-pass !mb-0 !py-1 !text-xs" value="${t.password||''}" placeholder="Pass"><input class="t-purse !mb-0 !py-1 !text-xs" type="number" value="${t.purse}" placeholder="৳ Purse"><div class="logo-drop-zone w-8 h-8 rounded-full">${logoHtml}</div><button class="small ghost border border-red-500/20 text-red-400 hover:bg-red-500/10" onclick="resetTeam('${t.id}')">↺</button><button class="red small" onclick="this.parentElement.remove()">Drop</button>`; 
-        container.appendChild(row); 
-        setupFileUpload(row.querySelector('.logo-drop-zone'), (file) => uploadFile(file).then(url => socket.emit('admin:setTeamLogo', { teamId: t.id, logoUrl: url }))); 
+        const tile = document.createElement('div'); 
+        tile.className = 'team-config-card bg-slate-800/40 border border-slate-700/50 p-6 rounded-3xl flex flex-col relative shadow-xl hover:border-indigo-500/50 transition'; 
+        const logoHtml = t.logo ? `<img src="${t.logo}" class="w-full h-full object-cover">` : `<span style="font-size:10px;color:var(--muted)">Drop Logo</span>`; 
+        
+        tile.innerHTML = `
+            <div class="absolute top-4 right-4 flex space-x-2">
+                <button class="small ghost !p-2 border-yellow-500/30 text-yellow-400 hover:bg-yellow-500/10 rounded-lg shadow-md" onclick="resetTeam('${t.id}')" title="Reset Team">↺</button>
+                <button class="small ghost !p-2 border-red-500/30 text-red-400 hover:bg-red-500/10 rounded-lg shadow-md" onclick="this.closest('.team-config-card').remove()" title="Delete Team">×</button>
+            </div>
+            
+            <div class="flex justify-center mb-6 mt-2">
+                <div class="logo-drop-zone w-24 h-24 rounded-full border-2 border-dashed border-slate-600 hover:border-indigo-500 bg-slate-900 overflow-hidden flex items-center justify-center cursor-pointer relative shadow-inner">
+                    ${logoHtml}
+                </div>
+            </div>
+            
+            <div class="space-y-4 flex-1">
+                <div>
+                    <label class="!mb-1.5 !text-[10px] tracking-wider">Franchise ID</label>
+                    <input class="t-id !mb-0 !py-2.5 !text-sm bg-slate-900/50 border-slate-600 focus:border-indigo-500 shadow-inner" value="${t.id}" placeholder="e.g. BLR">
+                </div>
+                <div>
+                    <label class="!mb-1.5 !text-[10px] tracking-wider">Team Name</label>
+                    <input class="t-name !mb-0 !py-2.5 !text-sm bg-slate-900/50 border-slate-600 focus:border-indigo-500 shadow-inner" value="${t.name}" placeholder="e.g. Bangalore">
+                </div>
+                <div>
+                    <label class="!mb-1.5 !text-[10px] tracking-wider">Security Key</label>
+                    <input class="t-pass !mb-0 !py-2.5 !text-sm bg-slate-900/50 border-slate-600 focus:border-indigo-500 shadow-inner" value="${t.password||''}" placeholder="Password">
+                </div>
+                <div>
+                    <label class="!mb-1.5 !text-[10px] tracking-wider">Starting Purse (৳)</label>
+                    <input class="t-purse !mb-0 !py-2.5 !text-base font-black font-mono text-emerald-400 bg-slate-900/80 border-slate-600 focus:border-emerald-500 shadow-inner" type="number" value="${t.purse}" placeholder="500">
+                </div>
+            </div>
+        `; 
+        container.appendChild(tile); 
+        setupFileUpload(tile.querySelector('.logo-drop-zone'), (file) => uploadFile(file).then(url => socket.emit('admin:setTeamLogo', { teamId: t.id, logoUrl: url }))); 
     }); 
+    
+    const addTile = document.createElement('div');
+    addTile.className = 'bg-slate-800/20 border-2 border-slate-700/50 border-dashed p-6 rounded-3xl flex flex-col items-center justify-center cursor-pointer hover:bg-slate-800/40 hover:border-indigo-500/50 transition min-h-[450px] shadow-lg';
+    addTile.onclick = addTeamInputRow;
+    addTile.innerHTML = `
+        <div class="w-20 h-20 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-400 text-4xl mb-6 shadow-inner">+</div>
+        <div class="font-bold text-slate-300 tracking-wider uppercase text-sm">Add Franchise Slot</div>
+    `;
+    container.appendChild(addTile);
 }
 
 // --- GLOBAL ACTIONS ---
-window.addTeamInputRow = () => { STATE.teams.push({ id: "", name: "", password: "", purse: 500, logo: null }); renderTeamConfigTable(); };
+window.addTeamInputRow = () => { 
+    const currentTeams = [];
+    document.querySelectorAll('#teamsConfigContainer .team-config-card').forEach(r => { 
+        const id = r.querySelector('.t-id').value.trim(); 
+        const name = r.querySelector('.t-name').value.trim(); 
+        const pass = r.querySelector('.t-pass').value.trim(); 
+        const purse = Number(r.querySelector('.t-purse').value); 
+        const imgEl = r.querySelector('.logo-drop-zone img'); 
+        currentTeams.push({ id, name, password: pass, purse, logo: imgEl ? imgEl.src : null }); 
+    });
+    STATE.teams = currentTeams;
+    STATE.teams.push({ id: "", name: "", password: "", purse: 500, logo: null }); 
+    renderTeamConfigTable(); 
+};
+
 window.closePopup = () => { if(CURRENT_USER.role==='admin') socket.emit('admin:close_popup'); };
 window.adjustBid = (dir) => { if(!activePlayer) return; const cat = STATE.categories.find(c => c.id === activePlayer.category); let current = Number(document.getElementById('popupPrice').textContent) || 0; let step = Number(cat.increment) || 0; let next = dir === 'inc' ? current + step : current - step; if(next >= Number(cat.base)) socket.emit('player:bid', { category: activePlayer.category, name: activePlayer.name, price: next }); };
 window.updatePopupPrice = (p) => { document.getElementById('popupPrice').textContent = p; document.getElementById('viewerPrice').textContent = p; };
@@ -820,7 +855,14 @@ window.saveGlobalConfig = () => { const amt = document.getElementById('configImp
 window.resetTeam = (tid) => { if(confirm('Reset Team history?')) socket.emit('admin:resetTeam', { teamId: tid }); };
 document.getElementById('btnSaveTeams').onclick = () => { 
     const teams = [];
-    document.querySelectorAll('#teamsConfigContainer .team-config-row').forEach(r => { const id = r.querySelector('.t-id').value.trim(); const name = r.querySelector('.t-name').value.trim(); const pass = r.querySelector('.t-pass').value.trim(); const purse = Number(r.querySelector('.t-purse').value); const imgEl = r.querySelector('.logo-drop-zone img'); if(id && name) teams.push({ id, name, password: pass, purse, logo: imgEl ? imgEl.src : null }); });
+    document.querySelectorAll('#teamsConfigContainer .team-config-card').forEach(r => { 
+        const id = r.querySelector('.t-id').value.trim(); 
+        const name = r.querySelector('.t-name').value.trim(); 
+        const pass = r.querySelector('.t-pass').value.trim(); 
+        const purse = Number(r.querySelector('.t-purse').value); 
+        const imgEl = r.querySelector('.logo-drop-zone img'); 
+        if(id && name) teams.push({ id, name, password: pass, purse, logo: imgEl ? imgEl.src : null }); 
+    });
     if(teams.length === 0) return showToast('⚠️ No teams configured.');
     socket.emit('admin:updateConfig', { teams }); showToast('Network Synchronization Complete!'); 
 };
