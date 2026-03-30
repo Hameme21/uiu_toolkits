@@ -22,7 +22,7 @@ body { margin: 0; background-color: var(--bg); background-image: radial-gradient
 .neon-text-blue { color: #38bdf8; text-shadow: 0 0 15px rgba(56, 189, 248, 0.5); }
 .hidden { display: none !important; }
 
-/* Overlays & Portals (Updated Styling) */
+/* Overlays & Portals */
 #portal, #teamAuthOverlay, .overlay { position: fixed; inset: 0; z-index: 5000; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: center; flex-direction: column; }
 .portal-card, .modal { background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(20px); padding: 30px; border-radius: 20px; width: 420px; max-width: 90%; border: 1px solid rgba(99, 102, 241, 0.3); box-shadow: 0 0 30px rgba(99, 102, 241, 0.2), inset 0 0 20px rgba(99, 102, 241, 0.1); text-align: center; }
 
@@ -231,7 +231,6 @@ button.small { padding: 6px 12px; font-size: 12px; border-radius: 6px; }
           </div>
 
           <div class="col-span-12 md:col-span-4 flex flex-col space-y-4 h-full">
-              
               <div class="glass-panel p-5">
                   <div class="flex justify-between items-center mb-4 text-xs font-bold text-slate-400 uppercase tracking-wider">
                       <span>Arena Standings</span>
@@ -248,7 +247,6 @@ button.small { padding: 6px 12px; font-size: 12px; border-radius: 6px; }
                   </div>
                   <div id="log" class="flex-1 overflow-y-auto space-y-2 pr-2 font-mono text-[11px]"></div>
               </div>
-
           </div>
       </div>
 
@@ -264,7 +262,7 @@ button.small { padding: 6px 12px; font-size: 12px; border-radius: 6px; }
               </div>
           </div>
 
-          <div id="categoriesContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div id="categoriesContainer" class="space-y-8">
              <div class="text-xs text-slate-500">Initializing database...</div>
           </div>
       </div>
@@ -349,7 +347,7 @@ const socket = io(BACKEND_URL, { transports: ["websocket"] });
 let CURRENT_USER = { role: null, teamId: null, hostId: null };
 let STATE = { teams: [], categories: [], playersSnapshot: {}, activeBids: {}, soldPrices: {}, directSigns: {}, config: { impactAmount: 0 } };
 let pendingSold = null, activePlayer = null;
-let currentActiveSectionId = 'sectionDashboard'; // Standard initial section
+let currentActiveSectionId = 'sectionDashboard'; 
 
 // DOM Refs
 const portal = document.getElementById('portal'), teamAuthOverlay = document.getElementById('teamAuthOverlay'), appContainer = document.getElementById('appContainer');
@@ -358,28 +356,20 @@ const mainContentContainer = document.getElementById('mainContentContainer');
 
 // --- SPA NAVIGATION LOGIC ---
 const showSection = (sectionId) => {
-    // Hide current section
     const currentSection = document.getElementById(currentActiveSectionId);
     if(currentSection) currentSection.classList.add('hidden');
     
-    // Show new section
     const newSection = document.getElementById(sectionId);
     if(newSection) newSection.classList.remove('hidden');
     
-    // Update navbar state
     document.querySelectorAll('#topNav a').forEach(a => a.classList.remove('active'));
     const activeLink = document.querySelector(`#topNav a[onclick="showSection('${sectionId}')"]`);
     if(activeLink) activeLink.classList.add('active');
     
     currentActiveSectionId = sectionId;
-    
-    // Perform any setup needed when entering a specific section
-    if(sectionId === 'sectionLiveAuction' && CURRENT_USER.role === 'admin') {
-        // Render something specific if needed?
-    }
 }
 
-// UI Helpers (Updated for new aesthetic)
+// UI Helpers
 function log(msg) { 
     const d = document.createElement('div'); 
     d.className = "bg-slate-800/50 border border-slate-700/50 p-2 rounded-lg text-slate-300 flex items-start space-x-2";
@@ -425,7 +415,16 @@ socket.on('state:updated', newState => { STATE = newState; renderAll(); });
 
 // AUCTION LOGIC EVENTS
 socket.on('player:bid', pl => { 
-    const el = getPlayerEl(pl.category, pl.name); if(el) { el.dataset.price = pl.price; const pEl = el.querySelector('.price'); if(pEl) pEl.textContent = pl.price; } 
+    // Handle list/tile UI update gracefully
+    const container = document.getElementById(`playersList-${pl.category}`);
+    if(container) {
+        const el = Array.from(container.children).find(e => e.dataset.name === pl.name);
+        if(el) {
+            el.dataset.price = pl.price;
+            const pEls = el.querySelectorAll('.price'); // Updated class selector support
+            pEls.forEach(pEl => pEl.textContent = `৳${pl.price}`);
+        }
+    }
     if(activePlayer && activePlayer.name === pl.name) updatePopupPrice(pl.price); 
     log(`<span class="text-white font-bold">${pl.name}</span> (${pl.category}) bid raised to <span class="text-emerald-400 font-bold">৳${pl.price}</span>`); 
 });
@@ -441,10 +440,8 @@ socket.on('popup:open', player => {
     document.getElementById('popupImg').src = player.image || "https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=800&auto=format&fit=crop"; 
     updatePopupPrice(player.currentPrice || player.base || 0); 
     
-    // Setup file upload for player image if admin
     if(CURRENT_USER.role==='admin') setupFileUpload(document.getElementById('popupImgContainer'), (file) => uploadFile(file).then(url => socket.emit('admin:update_player_image', { category: player.category, name: player.name, imageUrl: url })));
     
-    // Team Impact logic
     if (CURRENT_USER.role === 'team') {
         const myTeam = STATE.teams.find(t => t.id === CURRENT_USER.teamId);
         const btnImpact = document.getElementById('btnPopupImpact');
@@ -456,20 +453,24 @@ socket.on('popup:open', player => {
         }
     }
 });
+
 socket.on('popup:close', () => { activePlayer = null; document.getElementById('auctionPlayerPopup').classList.add('hidden'); document.getElementById('auctionIdleState').classList.remove('hidden'); });
 socket.on('popup:update_image', data => document.getElementById('popupImg').src = data.imageUrl);
 
-// SOLD ANIMATION EVENT
 socket.on('player:sold', data => { 
     const { category, name, price, teamId, isDirect } = data.payload; STATE.teams = data.teams; 
     if (isDirect) { if (!STATE.directSigns) STATE.directSigns = {}; STATE.directSigns[`${category}:${name}`] = true; }
     document.getElementById('auctionPlayerPopup').classList.add('hidden'); document.getElementById('auctionIdleState').classList.remove('hidden'); const t = STATE.teams.find(x => x.id === teamId); 
+    
     const titleEl = document.getElementById('animTitle');
     if (isDirect) { titleEl.textContent = 'RETAINED!'; titleEl.className = "text-7xl font-black text-purple-400 drop-shadow-[0_0_40px_rgba(168,85,247,0.6)] tracking-widest"; } 
     else { titleEl.textContent = 'SOLD!'; titleEl.className = "text-7xl font-black text-amber-400 drop-shadow-[0_0_40px_rgba(245,158,11,0.6)] tracking-widest"; }
+    
     document.getElementById('animPlayer').textContent = name; document.getElementById('animTeam').textContent = t ? t.name : teamId; document.getElementById('animPrice').textContent = price; document.getElementById('soldAnimationOverlay').classList.remove('hidden'); 
+    
     hammer.style.display='block'; hammer.classList.remove('swing'); void hammer.offsetWidth; hammer.classList.add('swing'); const audio = document.getElementById('hammerAudio'); if(audio) { audio.pause(); audio.currentTime=0; audio.play().catch(e=>{}); } 
     setTimeout(() => document.getElementById('soldAnimationOverlay').classList.add('hidden'), 3500); 
+    
     renderAll(); 
     log(`<span class="font-bold text-white">${isDirect ? 'RETAINED' : 'SOLD'}</span>: ${name} to <span class="text-indigo-400 font-bold">${t ? t.name : teamId}</span> for ৳${price}`); 
 });
@@ -481,59 +482,45 @@ function setupUI() {
     const isAdmin = CURRENT_USER.role === 'admin';
     const myTeam = STATE.teams.find(t => t.id === CURRENT_USER.teamId);
 
-    // Dynamic Top Navbar based on Role
     const nav = document.getElementById('topNav');
     let navHtml = '';
     
-    // Everyone sees Dashboard
     navHtml += `<a onclick="showSection('sectionDashboard')" class="active">Dashboard</a>`;
-    
-    // Viewer/Listener: Only Dashboard, Live, Player DB
     if(isViewer) { navHtml += `<a onclick="showSection('sectionLiveAuction')">Live</a><a onclick="showSection('sectionPlayerDatabase')">Database</a>`; }
-    // Team Rep: Dashboard, Live, Player DB
     else if(isTeam) { navHtml += `<a onclick="showSection('sectionLiveAuction')">Live</a><a onclick="showSection('sectionPlayerDatabase')">Database</a>`; }
-    // Admin: Everyone + Team Config
     else if(isAdmin) { navHtml += `<a onclick="showSection('sectionLiveAuction')">Live</a><a onclick="showSection('sectionPlayerDatabase')">Database</a><a onclick="showSection('sectionTeamConfig')">Teams</a>`; }
     nav.innerHTML = navHtml;
     nav.classList.remove('hidden');
 
-    // Display identity in top bar
     document.getElementById('roleDisplay').textContent = `${CURRENT_USER.role.toUpperCase()} // ${isTeam ? (myTeam ? myTeam.name : CURRENT_USER.teamId) : CURRENT_USER.hostId}`; 
 
-    // Dynamic Dashboard View filtering
     document.getElementById('dashWelcomeName').textContent = isTeam ? (myTeam ? myTeam.name : CURRENT_USER.teamId) : CURRENT_USER.hostId;
     document.getElementById('dashAdminView').classList.toggle('hidden', !isAdmin);
     document.getElementById('dashTeamView').classList.toggle('hidden', !isTeam);
     document.getElementById('dashViewerView').classList.toggle('hidden', !isViewer);
 
-    // Live Auction Bidding UI Filtering
     document.getElementById('adminBidControls').classList.toggle('hidden', !isAdmin); 
     document.getElementById('adminActionButtons').classList.toggle('hidden', !isAdmin); 
     document.getElementById('viewerPriceDisplay').classList.toggle('hidden', isAdmin); 
     document.getElementById('teamActionButtons').classList.toggle('hidden', !isTeam);
 
-    // Admin Specific Config UIs
     document.getElementById('adminPlayerDatabaseConfig').classList.toggle('hidden', !isAdmin);
     document.getElementById('btnResetSystem').classList.toggle('hidden', !isAdmin); 
     document.getElementById('btnExportAdmin').classList.toggle('hidden', !isAdmin); 
     
-    // Initialize initial view
     showSection('sectionDashboard');
 }
 
-// Perform full re-render of dynamic elements
 function renderAll() { 
     if(!appContainer.classList.contains('hidden')) {
-        renderScoreboards(); // Renders standing lists in Dashboard/Auction/Modals
-        if(CURRENT_USER.role === 'team') renderMyTeam(); // Renders the team specifics card
-        renderDatabase(); // Renders player tiers
-        if(CURRENT_USER.role === 'admin') renderTeamConfigTable(); // Renders team configuration list
-        // Update popup state if active
+        renderScoreboards(); 
+        if(CURRENT_USER.role === 'team') renderMyTeam(); 
+        renderDatabase(); // Call updated Tile UI database renderer
+        if(CURRENT_USER.role === 'admin') renderTeamConfigTable(); 
         if(activePlayer) { const key = `${activePlayer.category}:${activePlayer.name}`; updatePopupPrice(STATE.activeBids[key] || activePlayer.base); }
     }
 }
 
-// Renders standings in dynamic containers
 function renderScoreboards() {
     const render = (containerId) => {
         const container = document.getElementById(containerId);
@@ -549,7 +536,6 @@ function renderScoreboards() {
     render('auctionScoreboard'); render('dashboardScoreboard');
 }
 
-// Renders Team Specifics Card (Dashboard image aesthetic)
 function renderMyTeam() {
     const t = STATE.teams.find(x => x.id === CURRENT_USER.teamId); 
     const div = document.getElementById('dashboardMyTeamContent'); 
@@ -565,40 +551,165 @@ function renderMyTeam() {
     }
 }
 
-// Renders Player Tiers in Database section
+// --- NEW TILE-BASED PLAYER DATABASE RENDERER ---
 function renderDatabase() {
-    const container = document.getElementById('categoriesContainer'); container.innerHTML = ''; 
+    const container = document.getElementById('categoriesContainer'); 
+    container.innerHTML = ''; 
     const isAdmin = CURRENT_USER.role === 'admin';
-    if(STATE.categories.length === 0) container.innerHTML = '<div class="col-span-12 text-center text-xs text-slate-500">No categories established.</div>'; 
+    
+    if(STATE.categories.length === 0) {
+        container.innerHTML = '<div class="text-center py-10 text-sm text-slate-500">No categories established.</div>'; 
+        return;
+    }
+    
     STATE.categories.forEach(cat => { 
-        const div = document.createElement('div'); div.className = "bg-slate-800/40 border p-4 rounded-xl";
-        let header = `<span class="bg-indigo-500/10 text-indigo-300 text-[10px] px-2 py-1 rounded">Base: ${cat.base} | Step: ${cat.increment}</span>`; 
-        if(isAdmin) header += `<button class="red small ml-2 !py-0.5 !px-1.5" onclick="deleteCat('${cat.id}')">Drop</button>`; 
-        div.innerHTML = `<div class="flex justify-between items-center mb-3 border-b border-slate-700 pb-2"><label class="!mb-0 !text-sm text-indigo-300">${cat.id}</label><div>${header}</div></div>
-            ${isAdmin ? `<textarea id="ta-${cat.id}" class="!text-xs !py-2 !mb-2" rows="2" placeholder="Enter players..."></textarea><div class="flex space-x-2 mb-3"><button onclick="saveCat('${cat.id}')" class="ghost small flex-1">Save Tier</button> <button onclick="clearCat('${cat.id}')" class="ghost small border border-red-500/20 text-red-400 hover:bg-red-500/10">Wipe</button></div>` : ''} player lists: <div class="players space-y-2 max-h-56 overflow-y-auto pr-2" id="playersList-${cat.id}"></div>`; 
+        const div = document.createElement('div'); 
+        div.className = "bg-[#111827]/80 border border-slate-700/50 p-6 lg:p-8 rounded-3xl flex flex-col shadow-xl";
+        
+        let header = `<span class="bg-indigo-500/10 text-indigo-300 text-xs px-3 py-1.5 rounded font-medium">Base: ৳${cat.base} | Step: ৳${cat.increment}</span>`; 
+        if(isAdmin) header += `<button class="red small ml-3 !py-1 !px-2" onclick="deleteCat('${cat.id}')">Drop</button>`; 
+        
+        div.innerHTML = `
+            <div class="flex justify-between items-center mb-6 border-b border-slate-700/50 pb-4">
+                <label class="!mb-0 text-xl font-black text-white tracking-wider">${cat.id}</label>
+                <div class="flex items-center">${header}</div>
+            </div>
+            ${isAdmin ? `
+            <div class="mb-6 bg-black/20 p-4 rounded-xl border border-slate-700/50">
+                <textarea id="ta-${cat.id}" class="!text-xs !py-3 !mb-3 !bg-slate-900/50 border-slate-600" rows="2" placeholder="Enter player names (one per line)..."></textarea>
+                <div class="flex space-x-3">
+                    <button onclick="saveCat('${cat.id}')" class="ghost small flex-1 !py-2 hover:bg-indigo-500/20 hover:text-indigo-300 hover:border-indigo-500/50">Save Tier Roster</button> 
+                    <button onclick="clearCat('${cat.id}')" class="ghost small !py-2 border border-red-500/20 text-red-400 hover:bg-red-500/10">Wipe List</button>
+                </div>
+            </div>` : ''} 
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 flex-1" id="playersList-${cat.id}"></div>
+        `; 
+            
         container.appendChild(div); 
         
-        // Render Players in Tier
-        const plContainer = document.getElementById(`playersList-${cat.id}`); const players = STATE.playersSnapshot[cat.id] || [];
-        if(players.length === 0) plContainer.innerHTML = '<div class="text-center py-4 text-xs text-slate-600 border border-dashed rounded-lg">Awaiting player initialization...</div>';
+        const plContainer = document.getElementById(`playersList-${cat.id}`); 
+        const players = STATE.playersSnapshot[cat.id] || [];
+        
+        if(players.length === 0) {
+            plContainer.className = "flex items-center justify-center w-full";
+            plContainer.innerHTML = '<div class="text-center py-10 text-xs text-slate-500 uppercase tracking-widest border border-dashed border-slate-700/50 w-full rounded-2xl">Awaiting player initialization...</div>';
+        }
+        
         players.forEach(p => { 
-            let isSold = false, soldTo = null; STATE.teams.forEach(t => { if(t.purchases && t.purchases[cat.id] === p.name) { isSold=true; soldTo=t.name; }}); 
-            const key = `${cat.id}:${p.name}`, displayPrice = STATE.activeBids[key] || STATE.soldPrices[key] || p.price || cat.base, isDirect = STATE.directSigns && STATE.directSigns[key];
-            const el = document.createElement('div'); el.dataset.name = p.name; el.dataset.price = displayPrice; 
-            let baseClass = "flex items-center justify-between p-2.5 rounded-xl border text-sm transition ";
-            if(isSold) { baseClass += isDirect ? "bg-purple-500/5 border-purple-500/20 opacity-70" : "bg-indigo-500/5 border-indigo-500/20 opacity-70"; } else { baseClass += "bg-slate-900/50 border-slate-700/50 hover:bg-slate-800 cursor-pointer"; }
-            el.className = baseClass;
-            // Admin selection function
-            if(!isSold && isAdmin) { el.onclick = (e) => { if(e.target.tagName === 'BUTTON') return; socket.emit('admin:select_player', { category: cat.id, name: p.name, base: cat.base, currentPrice: displayPrice, image: p.image }); showSection('sectionLiveAuction'); }; } 
+            let isSold = false, soldTo = null; 
+            STATE.teams.forEach(t => { if(t.purchases && t.purchases[cat.id] === p.name) { isSold=true; soldTo=t.name; }}); 
             
-            let actionHTML = ''; if(isSold) { actionHTML = `<div class="text-[10px] font-bold px-2 py-1 rounded text-white ${isDirect ? 'bg-purple-500/80' : 'bg-indigo-500/80'}">${isDirect ? 'Retained' : 'Sold'}: ${soldTo}</div>`; }
-            else if(isAdmin) actionHTML = `<button class="yellow small !py-1 !px-2" title="Reset Player" onclick="resetPlayer('${cat.id}','${p.name}')">↺</button>`; 
-            else if(CURRENT_USER.role === 'team') { actionHTML = `<button class="btn-bid-req ghost small !py-1 !px-2 border-indigo-500/50 text-indigo-300 hover:bg-indigo-500/20">Bid Req</button>`; } 
-            el.innerHTML = `<div class="flex items-center space-x-2"><div class="w-1.5 h-1.5 rounded-full ${isSold ? (isDirect ? 'bg-purple-500' : 'bg-indigo-500') : 'bg-slate-600'}"></div><div class="font-bold text-xs text-white">${p.name}</div></div><div class="flex items-center space-x-3"><div class="price font-mono font-bold text-emerald-400 text-xs">৳${displayPrice}</div><div class="actions">${actionHTML}</div></div>`; 
-            if(CURRENT_USER.role === 'team' && !isSold) { const btn = el.querySelector('.btn-bid-req'); if(btn) btn.onclick = () => { socket.emit('bid:request', { category: cat.id, playerName: p.name, teamName: STATE.teams.find(x => x.id === CURRENT_USER.teamId)?.name }); btn.textContent = 'Sent'; }; } 
+            const key = `${cat.id}:${p.name}`;
+            const displayPrice = STATE.activeBids[key] || STATE.soldPrices[key] || p.price || cat.base;
+            const isDirect = STATE.directSigns && STATE.directSigns[key];
+            
+            const el = document.createElement('div'); 
+            el.dataset.name = p.name; 
+            
+            // Tile Wrapper styling
+            let tileBorder = "border-slate-700/50";
+            let opacityClass = "opacity-100";
+            
+            if(isSold) {
+                tileBorder = isDirect ? "border-purple-500/40" : "border-indigo-500/40";
+                opacityClass = "opacity-80 grayscale-[30%]";
+            }
+            
+            el.className = `relative bg-slate-800/40 rounded-2xl overflow-hidden border ${tileBorder} hover:border-cyan-500/50 transition duration-300 group flex flex-col h-full ${opacityClass} shadow-lg`;
+            
+            const imgSrc = p.image || "https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=400&auto=format&fit=crop";
+            
+            // Admin sending to live auction
+            let adminClickOverlay = "";
+            if(!isSold && isAdmin) { 
+                el.classList.add('cursor-pointer');
+                el.onclick = (e) => { 
+                    if(e.target.closest('.actions')) return; 
+                    socket.emit('admin:select_player', { category: cat.id, name: p.name, base: cat.base, currentPrice: displayPrice, image: p.image }); 
+                    showSection('sectionLiveAuction'); 
+                };
+                adminClickOverlay = `
+                    <div class="absolute inset-0 bg-indigo-500/30 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition duration-300 flex items-center justify-center z-10">
+                        <span class="bg-indigo-600 text-white text-xs font-bold px-5 py-2.5 rounded-full shadow-xl tracking-wider uppercase">Send to Live Arena</span>
+                    </div>
+                `;
+            }
+            
+            // Reset Admin Action
+            let adminResetHTML = "";
+            if(isAdmin && isSold) {
+                adminResetHTML = `
+                <div class="actions absolute top-3 right-3 z-20">
+                    <button class="bg-black/60 hover:bg-yellow-500 text-white !p-2 shadow-lg rounded-full border border-white/10 transition" title="Reset Player" onclick="resetPlayer('${cat.id}','${p.name}')">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                    </button>
+                </div>`;
+            }
+
+            // Team Bid Action
+            let teamActionHTML = "";
+            if(CURRENT_USER.role === 'team' && !isSold) { 
+                teamActionHTML = `<div class="actions mt-4 pt-3 border-t border-slate-700/50"><button class="btn-bid-req w-full ghost small !py-2.5 border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10 transition uppercase tracking-wider text-[10px] font-black">Request Bid Floor</button></div>`; 
+            }
+            
+            // Status Tags
+            let statusBadge = "";
+            if(isSold) {
+                statusBadge = `
+                <div class="mt-4 pt-3 border-t border-slate-700/50">
+                    <div class="text-center py-2.5 rounded-lg text-white ${isDirect ? 'bg-gradient-to-r from-purple-600 to-purple-800' : 'bg-gradient-to-r from-indigo-600 to-indigo-800'} shadow-md border border-white/10">
+                        <div class="text-[9px] uppercase tracking-wider font-bold opacity-80">${isDirect ? 'Retained By' : 'Acquired By'}</div>
+                        <div class="text-sm font-black tracking-wide">${soldTo}</div>
+                    </div>
+                </div>`;
+            }
+
+            el.innerHTML = `
+                <div class="relative h-56 w-full bg-slate-900 overflow-hidden shrink-0">
+                    <img src="${imgSrc}" class="w-full h-full object-cover opacity-80 group-hover:scale-105 group-hover:opacity-100 transition duration-500">
+                    <div class="absolute inset-0 bg-gradient-to-t from-[#0b1121] to-transparent"></div>
+                    
+                    <div class="absolute top-3 left-3 bg-black/40 backdrop-blur-md border border-white/10 text-white text-[10px] font-bold px-3 py-1.5 rounded-lg uppercase tracking-widest shadow-lg flex items-center space-x-2">
+                        <span class="w-2 h-2 rounded-full ${isSold ? 'bg-slate-500' : 'bg-emerald-400'} shadow-[0_0_8px_rgba(52,211,153,0.5)]"></span>
+                        <span>${cat.id}</span>
+                    </div>
+                    
+                    ${adminResetHTML}
+                    ${adminClickOverlay}
+                </div>
+                
+                <div class="p-5 flex-1 flex flex-col z-10 bg-[#0b1121]/80">
+                    <div class="flex justify-between items-start">
+                        <div class="flex-1 pr-3">
+                            <h4 class="text-xl font-black text-white leading-tight drop-shadow-md mb-1">${p.name}</h4>
+                            <div class="text-[10px] text-slate-400 uppercase tracking-widest">Prospect Profile</div>
+                        </div>
+                        <div class="text-right shrink-0">
+                            <div class="text-[9px] text-slate-500 font-bold uppercase tracking-widest mb-1">Valuation</div>
+                            <div class="text-xl font-black text-cyan-400 font-mono tracking-tighter drop-shadow-[0_0_8px_rgba(34,211,238,0.3)] price">৳${displayPrice}</div>
+                        </div>
+                    </div>
+                    
+                    ${statusBadge}
+                    ${teamActionHTML}
+                </div>
+            `; 
+            
+            // Re-attach socket events to dynamic buttons
+            if(CURRENT_USER.role === 'team' && !isSold) { 
+                const btn = el.querySelector('.btn-bid-req'); 
+                if(btn) btn.onclick = (e) => { 
+                    e.stopPropagation(); 
+                    socket.emit('bid:request', { category: cat.id, playerName: p.name, teamName: STATE.teams.find(x => x.id === CURRENT_USER.teamId)?.name }); 
+                    btn.textContent = 'Requested'; 
+                    btn.classList.add('bg-cyan-500/20');
+                }; 
+            } 
             plContainer.appendChild(el); 
         }); 
-        // Update admin textarea
+        
+        // Populate specific textareas for Admin
         if(isAdmin) { const ta = div.querySelector('textarea'); if(document.activeElement !== ta && STATE.playersSnapshot[cat.id]) ta.value = STATE.playersSnapshot[cat.id].map(p=>p.name).join('\n'); } 
     }); 
 }
@@ -610,7 +721,6 @@ function renderTeamConfigTable() {
         const row = document.createElement('div'); row.className = 'team-config-row border border-slate-700/50 bg-slate-800/30'; const logoHtml = t.logo ? `<img src="${t.logo}">` : `<span style="font-size:10px;color:var(--muted)">Drop</span>`; 
         row.innerHTML = `<input class="t-id !mb-0 !py-1 !text-xs" value="${t.id}" placeholder="ID"><input class="t-name !mb-0 !py-1 !text-xs" value="${t.name}" placeholder="Name"><input class="t-pass !mb-0 !py-1 !text-xs" value="${t.password||''}" placeholder="Pass"><input class="t-purse !mb-0 !py-1 !text-xs" type="number" value="${t.purse}" placeholder="৳ Purse"><div class="logo-drop-zone w-8 h-8 rounded-full">${logoHtml}</div><button class="small ghost border border-red-500/20 text-red-400 hover:bg-red-500/10" onclick="resetTeam('${t.id}')">↺</button><button class="red small" onclick="this.parentElement.remove()">Drop</button>`; 
         container.appendChild(row); 
-        // Handle logo upload
         setupFileUpload(row.querySelector('.logo-drop-zone'), (file) => uploadFile(file).then(url => socket.emit('admin:setTeamLogo', { teamId: t.id, logoUrl: url }))); 
     }); 
 }
@@ -661,7 +771,6 @@ document.getElementById('btnConfirmSold').onclick = (e) => { const teamId = docu
 
 const dlCSV = () => { let r=[["Tier","Player","Base","Sold Price","Status","Buyer"]]; STATE.categories.forEach(c => { (STATE.playersSnapshot[c.id]||[]).forEach(p => { let s="Unsold", b="-", sp=c.base, t = STATE.teams.find(x => x.purchases && x.purchases[c.id] === p.name); if(t) { s = (STATE.directSigns && STATE.directSigns[`${c.id}:${p.name}`]) ? "Retained" : "Sold"; b = t.name; sp = STATE.soldPrices[`${c.id}:${p.name}`]; } r.push([c.id, p.name, c.base, sp, s, b]); }); }); const link = document.createElement("a"); link.href = "data:text/csv;charset=utf-8," + encodeURI(r.map(e=>e.join(",")).join("\n")); link.download = "arena_command_db.csv"; link.click(); };
 document.getElementById('btnExportAdmin').onclick = dlCSV; document.getElementById('btnExportTeam').onclick = dlCSV;
-function getPlayerEl(c,n) { const l=document.getElementById(`playersList-${c}`); return l ? Array.from(l.children).find(e=>e.dataset.name===n) : null; }
 </script>
 </body>
 </html>
