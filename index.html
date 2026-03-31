@@ -347,6 +347,31 @@ button.small { padding: 6px 12px; font-size: 12px; border-radius: 6px; }
 
   </main>
 
+  <div class="overlay hidden" id="playerEditOverlay">
+    <div class="modal !bg-slate-900 !border-indigo-500/50">
+      <h3 class="text-2xl font-black text-white mb-6" id="playerEditTitle">Add Player</h3>
+      <input type="hidden" id="playerEditCat">
+      <input type="hidden" id="playerEditOldName">
+
+      <div class="flex justify-center mb-6">
+        <div class="w-32 h-32 rounded-xl border-2 border-dashed border-slate-600 hover:border-indigo-500 bg-slate-800 flex items-center justify-center cursor-pointer relative overflow-hidden transition" id="playerEditImgDrop">
+          <img id="playerEditImg" src="" class="hidden w-full h-full object-cover">
+          <span id="playerEditImgText" class="text-xs text-slate-400 font-bold uppercase tracking-wider">Upload Photo</span>
+        </div>
+      </div>
+
+      <div class="mb-6 text-left">
+        <label>Player Name</label>
+        <input type="text" id="playerEditName" placeholder="Enter player name...">
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        <button onclick="closePlayerEdit()" class="ghost">Cancel</button>
+        <button onclick="savePlayerEdit()" class="green">Save Player</button>
+      </div>
+    </div>
+  </div>
+
   <div class="overlay hidden z-[9999]" id="soldAnimationOverlay" style="background: rgba(11, 17, 33, 0.98);">
     <div class="text-center scale-125">
       <h1 id="animTitle" class="text-7xl font-black text-amber-400 drop-shadow-[0_0_40px_rgba(245,158,11,0.6)] mb-2 tracking-widest">SOLD!</h1>
@@ -591,8 +616,6 @@ socket.on('popup:open', player => {
     updateLiveIndicator();
     resetAndStartTimer(); 
 
-    if(CURRENT_USER.role==='admin') setupFileUpload(document.getElementById('popupImgContainer'), (file) => uploadFile(file).then(url => socket.emit('admin:update_player_image', { category: player.category, name: player.name, imageUrl: url })));
-    
     if (CURRENT_USER.role === 'team') {
         const myTeam = STATE.teams.find(t => t.id === CURRENT_USER.teamId);
         const btnImpact = document.getElementById('btnPopupImpact');
@@ -773,7 +796,7 @@ function renderLiveAdminQueue() {
         
         container.innerHTML += `
             <div class="bg-slate-800/60 rounded-xl overflow-hidden border border-slate-700 hover:border-indigo-500 transition cursor-pointer group flex flex-col h-full shadow-lg"
-                 onclick="startAuctionFromQueue('${currentAuctionCategory}', '${p.name}', ${catConfig.base}, '${imgSrc}')">
+                 onclick="startAuctionFromQueue('${currentAuctionCategory}', '${p.name.replace(/'/g, "\\'")}', ${catConfig.base}, '${imgSrc}')">
                 <div class="h-28 relative overflow-hidden bg-slate-900">
                     <img src="${imgSrc}" class="w-full h-full object-cover opacity-70 group-hover:scale-110 group-hover:opacity-100 transition duration-500">
                     <div class="absolute inset-0 bg-indigo-500/30 opacity-0 group-hover:opacity-100 flex items-center justify-center transition">
@@ -1020,10 +1043,10 @@ function renderDatabase() {
                 <div class="flex items-center">${headerActions}</div>
             </div>
             ${isAdmin ? `
-            <div class="mb-6 bg-black/20 p-4 rounded-xl border border-slate-700/50">
-                <textarea id="ta-${cat.id}" class="!text-xs !py-3 !mb-3 !bg-slate-900/50 border-slate-600" rows="2" placeholder="Enter player names (one per line)..."></textarea>
-                <div class="flex space-x-3">
-                    <button onclick="saveCat('${cat.id}')" class="ghost small flex-1 !py-2 hover:bg-indigo-500/20 hover:text-indigo-300 hover:border-indigo-500/50">Save Tier Roster</button> 
+            <div class="flex space-x-3 mb-6 bg-black/20 p-4 rounded-xl border border-slate-700/50 items-center justify-between">
+                <span class="text-xs text-slate-400 uppercase tracking-widest font-bold">Manage Roster</span>
+                <div class="flex space-x-2">
+                    <button onclick="openPlayerEdit('${cat.id}')" class="green small !py-2 px-4 shadow-lg flex items-center"><span class="mr-1 text-lg leading-none">+</span> Add Player</button>
                     <button onclick="clearCat('${cat.id}')" class="ghost small !py-2 border border-red-500/20 text-red-400 hover:bg-red-500/10">Wipe List</button>
                 </div>
             </div>` : ''} 
@@ -1057,14 +1080,20 @@ function renderDatabase() {
 
             const isSold = soldToName !== null;
             
-            if(isAdmin && isSold) {
+            if(isAdmin) {
                 const hoverAnchor = tileEl.querySelector('.hover-overlay-anchor');
-                if(hoverAnchor) hoverAnchor.innerHTML += `
-                <div class="actions absolute top-3 right-3 z-20">
-                    <button class="bg-black/60 hover:bg-yellow-500 text-white !p-2 shadow-lg rounded-full border border-white/10 transition" title="Reset Player" onclick="resetPlayer('${cat.id}','${p.name}')">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
-                    </button>
-                </div>`;
+                if(hoverAnchor) {
+                    hoverAnchor.innerHTML += `
+                    <div class="absolute top-3 right-3 z-30 flex space-x-2">
+                        <button class="bg-black/60 hover:bg-indigo-500 text-white !p-2 shadow-lg rounded-full border border-white/10 transition" title="Edit Player" onclick="event.stopPropagation(); openPlayerEdit('${cat.id}', '${p.name.replace(/'/g, "\\'")}')">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                        </button>
+                        ${isSold ? `
+                        <button class="bg-black/60 hover:bg-yellow-500 text-white !p-2 shadow-lg rounded-full border border-white/10 transition" title="Reset Player" onclick="event.stopPropagation(); resetPlayer('${cat.id}','${p.name.replace(/'/g, "\\'")}')">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                        </button>` : ''}
+                    </div>`;
+                }
             }
 
             if(!isSold && isAdmin) { 
@@ -1095,7 +1124,6 @@ function renderDatabase() {
             } 
             plContainer.appendChild(tileEl); 
         }); 
-        if(isAdmin) { const ta = div.querySelector('textarea'); if(document.activeElement !== ta && STATE.playersSnapshot[cat.id]) ta.value = STATE.playersSnapshot[cat.id].map(p=>p.name).join('\n'); } 
     }); 
 }
 
@@ -1176,8 +1204,87 @@ window.updatePopupPrice = (p) => { document.getElementById('popupPrice').textCon
 window.activateImpact = (c, n) => { if(confirm('Deploy Impact Power? One-time purse boost.')) socket.emit('team:activateImpact', { teamId: CURRENT_USER.teamId, category: c, playerName: n }); };
 document.getElementById('clearLog').onclick = () => document.getElementById('log').innerHTML = '';
 
-// Saving Tier player list
-window.saveCat = (id) => { const ta = document.getElementById(`ta-${id}`), config = STATE.categories.find(c=>c.id===id); const names = ta.value.split('\n').map(s=>s.trim()).filter(Boolean); socket.emit('players:save', { category: id, players: names.map(n => ({ name: n, price: Number(config.base) || 0 })) }); showToast('Player list saved'); };
+// Saving/Editing Players functions
+window.openPlayerEdit = (catId, playerName = null) => {
+    const modal = document.getElementById('playerEditOverlay');
+    const title = document.getElementById('playerEditTitle');
+    const catInput = document.getElementById('playerEditCat');
+    const oldNameInput = document.getElementById('playerEditOldName');
+    const nameInput = document.getElementById('playerEditName');
+    const img = document.getElementById('playerEditImg');
+    const imgText = document.getElementById('playerEditImgText');
+
+    catInput.value = catId;
+    oldNameInput.value = playerName || '';
+
+    if (playerName) {
+        title.textContent = 'Edit Player';
+        const player = (STATE.playersSnapshot[catId] || []).find(p => p.name === playerName);
+        nameInput.value = player ? player.name : '';
+        if (player && player.image) {
+            img.src = player.image;
+            img.classList.remove('hidden');
+            imgText.classList.add('hidden');
+        } else {
+            img.src = '';
+            img.classList.add('hidden');
+            imgText.classList.remove('hidden');
+        }
+    } else {
+        title.textContent = 'Add Player';
+        nameInput.value = '';
+        img.src = '';
+        img.classList.add('hidden');
+        imgText.classList.remove('hidden');
+    }
+
+    modal.classList.remove('hidden');
+    
+    // Setup file upload for the modal image
+    setupFileUpload(document.getElementById('playerEditImgDrop'), (file) => {
+        uploadFile(file).then(url => {
+            img.src = url;
+            img.classList.remove('hidden');
+            imgText.classList.add('hidden');
+        }).catch(e => showToast('Image upload failed.'));
+    });
+};
+
+window.closePlayerEdit = () => {
+    document.getElementById('playerEditOverlay').classList.add('hidden');
+};
+
+window.savePlayerEdit = () => {
+    const catId = document.getElementById('playerEditCat').value;
+    const oldName = document.getElementById('playerEditOldName').value;
+    const newName = document.getElementById('playerEditName').value.trim();
+    const imgEl = document.getElementById('playerEditImg');
+    const imageUrl = !imgEl.classList.contains('hidden') ? imgEl.src : null;
+
+    if (!newName) return showToast('Player name is required');
+
+    let players = STATE.playersSnapshot[catId] ? [...STATE.playersSnapshot[catId]] : [];
+    const config = STATE.categories.find(c => c.id === catId);
+
+    if (oldName) {
+        // Edit existing
+        const idx = players.findIndex(p => p.name === oldName);
+        if (idx !== -1) {
+            players[idx] = { ...players[idx], name: newName };
+            if (imageUrl) players[idx].image = imageUrl;
+        }
+    } else {
+        // Add new
+        if (players.find(p => p.name === newName)) return showToast('Player already exists');
+        players.push({ name: newName, price: Number(config.base) || 0, image: imageUrl });
+    }
+
+    // Save full category back to server
+    socket.emit('players:save', { category: catId, players: players });
+    closePlayerEdit();
+    showToast('Player database updated');
+};
+
 window.clearCat = (id) => { if(confirm('Drop player list in tier?')) socket.emit('players:clear', { category: id }); };
 window.deleteCat = (id) => { if(confirm('Delete Category established?')) socket.emit('admin:deleteCategory', { id }); };
 window.resetPlayer = (c,n) => { if(confirm('Wipe bidding history on player?')) socket.emit('admin:resetPlayer', { category: c, name: n }); };
