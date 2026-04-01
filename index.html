@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
 <title>ArenaCommand - Premium Auction Dashboard</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -15,7 +15,11 @@
 }
 * { box-sizing: border-box; font-family: 'Inter', sans-serif; transition: all 0.2s ease-out; }
 body { margin: 0; background-color: var(--bg); background-image: radial-gradient(circle at 50% 0%, #1e1b4b 0%, transparent 70%); color: var(--text); min-height: 100vh; font-size: 14px; -webkit-font-smoothing: antialiased; }
-::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: transparent; } ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; } ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+::-webkit-scrollbar { width: 4px; height: 4px; } ::-webkit-scrollbar-track { background: transparent; } ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; } ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+
+/* Hide scrollbar for mobile navs but keep functionality */
+.hide-scrollbar::-webkit-scrollbar { display: none; }
+.hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
 /* --- UI COMPONENTS --- */
 .glass-panel { background: var(--card); backdrop-filter: blur(12px); border: 1px solid var(--border); border-radius: 16px; p: 20px; }
@@ -23,8 +27,9 @@ body { margin: 0; background-color: var(--bg); background-image: radial-gradient
 .hidden { display: none !important; }
 
 /* Overlays & Portals */
-#portal, #teamAuthOverlay, .overlay { position: fixed; inset: 0; z-index: 5000; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: center; flex-direction: column; }
-.portal-card, .modal { background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(20px); padding: 30px; border-radius: 20px; width: 600px; max-width: 95%; border: 1px solid rgba(99, 102, 241, 0.3); box-shadow: 0 0 30px rgba(99, 102, 241, 0.2), inset 0 0 20px rgba(99, 102, 241, 0.1); text-align: center; }
+#portal, #teamAuthOverlay, .overlay { position: fixed; inset: 0; z-index: 5000; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: center; flex-direction: column; padding: 1rem; }
+.portal-card, .modal { background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(20px); padding: 20px; border-radius: 20px; width: 100%; max-width: 650px; border: 1px solid rgba(99, 102, 241, 0.3); box-shadow: 0 0 30px rgba(99, 102, 241, 0.2), inset 0 0 20px rgba(99, 102, 241, 0.1); text-align: center; max-height: 90vh; overflow-y: auto; }
+@media(min-width: 1024px) { .portal-card, .modal { padding: 30px; } }
 
 /* Form Elements */
 input, select, textarea { width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--border); color: white; padding: 12px 16px; border-radius: 8px; font-size: 14px; margin-bottom: 12px; outline: none; }
@@ -46,7 +51,7 @@ button.small { padding: 6px 12px; font-size: 12px; border-radius: 6px; }
 .logo-drop-zone img { width: 100%; height: 100%; object-fit: cover; }
 
 /* --- NAVIGATION & TABS --- */
-#topNav a { cursor: pointer; color: var(--muted); font-weight: 500; font-size: 14px; padding: 8px 12px; border-radius: 8px; }
+#topNav a { cursor: pointer; color: var(--muted); font-weight: 500; font-size: 14px; padding: 8px 12px; border-radius: 8px; white-space: nowrap; }
 #topNav a.active { color: white; background: rgba(99, 102, 241, 0.1); border: 1px solid rgba(99, 102, 241, 0.2); font-weight: 600; }
 #topNav a:hover:not(.active) { color: white; background: var(--glass); }
 
@@ -55,75 +60,79 @@ button.small { padding: 6px 12px; font-size: 12px; border-radius: 6px; }
 .tab.active { background: linear-gradient(135deg, var(--accent), #8b5cf6); color: white; box-shadow: 0 0 15px rgba(99, 102, 241, 0.3); }
 
 /* --- TOAST & ANIMATIONS --- */
-#toastContainer { position: fixed; top: 20px; right: 20px; z-index: 9000; display: flex; flex-direction: column; gap: 10px; }
-.toast { background: rgba(30, 41, 59, 0.95); color: white; padding: 16px 20px; border-radius: 8px; border-left: 4px solid var(--accent); box-shadow: 0 10px 30px rgba(0,0,0,0.5); font-weight: 500; display: flex; align-items: center; gap: 10px; animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
-@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-#hammer { width: 180px; height: 180px; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(0deg); pointer-events: none; z-index: 6000; display: none; transform-origin: bottom right; }
+#toastContainer { position: fixed; top: 10px; right: 10px; left: 10px; z-index: 9000; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+@media (min-width: 640px) { #toastContainer { top: 20px; right: 20px; left: auto; max-width: 400px; } }
+.toast { background: rgba(30, 41, 59, 0.95); color: white; padding: 16px 20px; border-radius: 8px; border-left: 4px solid var(--accent); box-shadow: 0 10px 30px rgba(0,0,0,0.5); font-weight: 500; display: flex; align-items: center; gap: 10px; pointer-events: auto; animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+@keyframes slideIn { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+@media (min-width: 640px) { @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } } }
+
+#hammer { width: 120px; height: 120px; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(0deg); pointer-events: none; z-index: 6000; display: none; transform-origin: bottom right; }
+@media (min-width: 768px) { #hammer { width: 180px; height: 180px; } }
 #hammer.swing { display: block; animation: hammerSwing 0.6s ease-in-out forwards; }
 @keyframes hammerSwing { 0% { transform: translate(-50%, -80%) rotate(-45deg); opacity: 0; } 20% { opacity: 1; } 50% { transform: translate(-50%, -50%) rotate(45deg); } 100% { transform: translate(-50%, -50%) rotate(0deg); opacity: 0; } }
 
 /* Section Specific Utilities */
-.dashboard-card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 24px; cursor: pointer; }
+.dashboard-card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 20px; cursor: pointer; }
 .dashboard-card:hover { transform: translateY(-3px); border-color: rgba(99, 102, 241, 0.4); box-shadow: 0 10px 30px rgba(99, 102, 241, 0.1); }
 </style>
 </head>
 <body>
 
 <div id="portal">
-  <div class="text-center mb-10">
-    <h1 class="text-5xl lg:text-7xl font-black tracking-widest text-white drop-shadow-[0_0_20px_rgba(168,85,247,0.5)]">
+  <div class="text-center mb-8 lg:mb-10">
+    <h1 class="text-4xl md:text-5xl lg:text-7xl font-black tracking-widest text-white drop-shadow-[0_0_20px_rgba(168,85,247,0.5)]">
       ARENA<span class="text-indigo-500">COMMAND</span>
     </h1>
-    <p class="text-slate-400 text-sm mt-3 uppercase tracking-widest">Global draft operations center 2026</p>
+    <p class="text-slate-400 text-xs lg:text-sm mt-2 lg:mt-3 uppercase tracking-widest">Global draft operations center 2026</p>
   </div>
-  <div class="portal-card lg:p-14 !w-[650px]">
-    <div class="tab-nav mb-8 p-2">
+  <div class="portal-card lg:p-14 w-full">
+    <div class="tab-nav mb-6 lg:mb-8 p-1 lg:p-2">
       <div class="tab active" onclick="switchTab('manager')">Manager</div>
       <div class="tab" onclick="switchTab('participant')">Join</div>
     </div>
     <div id="managerForm">
       <div>
         <label class="block text-slate-500 text-xs font-bold uppercase mb-2 tracking-wider">Host ID (USERNAME)</label>
-        <input id="mUser" placeholder="Enter session identifier..." class="!bg-slate-900/50 !p-4 !text-base !mb-6 border-slate-700">
+        <input id="mUser" placeholder="Enter session identifier..." class="!bg-slate-900/50 !p-3 lg:!p-4 !text-sm lg:!text-base !mb-4 lg:!mb-6 border-slate-700">
       </div>
       <div>
         <label class="block text-slate-500 text-xs font-bold uppercase mb-2 tracking-wider">Security Key (PASSWORD)</label>
-        <input id="mPass" type="password" placeholder="Enter password..." class="!bg-slate-900/50 !p-4 !text-base !mb-6 border-slate-700">
+        <input id="mPass" type="password" placeholder="Enter password..." class="!bg-slate-900/50 !p-3 lg:!p-4 !text-sm lg:!text-base !mb-4 lg:!mb-6 border-slate-700">
       </div>
-      <button onclick="managerLogin()" class="w-full mt-2 !py-4 !text-base">Initialize Session</button>
-      <button onclick="managerRegister()" class="w-full mt-4 ghost small !py-3 !text-xs">Create Gateway</button>
+      <button onclick="managerLogin()" class="w-full mt-2 !py-3 lg:!py-4 !text-sm lg:!text-base">Initialize Session</button>
+      <button onclick="managerRegister()" class="w-full mt-3 lg:mt-4 ghost small !py-3 !text-xs">Create Gateway</button>
     </div>
     <div id="participantForm" class="hidden">
       <div>
         <label class="block text-slate-500 text-xs font-bold uppercase mb-2 tracking-wider">Target Host ID</label>
-        <input id="pHostId" placeholder="Enter host session key..." class="!bg-slate-900/50 !p-4 !text-base !mb-6 border-slate-700">
+        <input id="pHostId" placeholder="Enter host session key..." class="!bg-slate-900/50 !p-3 lg:!p-4 !text-sm lg:!text-base !mb-4 lg:!mb-6 border-slate-700">
       </div>
-      <button onclick="connectToHost()" class="w-full mt-2 !py-4 !text-base">Connect to Node</button>
+      <button onclick="connectToHost()" class="w-full mt-2 !py-3 lg:!py-4 !text-sm lg:!text-base">Connect to Node</button>
     </div>
     <div id="portalMsg" class="mt-4 text-xs font-bold text-red-400"></div>
   </div>
 </div>
 
 <div id="teamAuthOverlay" class="hidden">
-  <div class="portal-card lg:p-14 !w-[650px]">
-    <img id="loginTeamLogo" class="w-20 h-20 rounded-full mx-auto mb-6 border-2 border-indigo-500 hidden object-cover shadow-lg">
-    <h3 class="text-3xl font-black mb-8 text-white tracking-wider">Verification Center</h3>
+  <div class="portal-card lg:p-14 w-full">
+    <img id="loginTeamLogo" class="w-16 h-16 lg:w-20 lg:h-20 rounded-full mx-auto mb-4 lg:mb-6 border-2 border-indigo-500 hidden object-cover shadow-lg">
+    <h3 class="text-2xl lg:text-3xl font-black mb-6 lg:mb-8 text-white tracking-wider">Verification Center</h3>
     <div>
       <label class="block text-slate-500 text-xs font-bold uppercase mb-2 tracking-wider">Access Level</label>
-      <select id="loginRole" onchange="toggleTeamPass()" class="!bg-slate-900/50 !p-4 !text-base !mb-6 border-slate-700">
+      <select id="loginRole" onchange="toggleTeamPass()" class="!bg-slate-900/50 !p-3 lg:!p-4 !text-sm lg:!text-base !mb-4 lg:!mb-6 border-slate-700">
         <option value="listener">Viewer (No Bidding)</option>
         <option value="team">Team Representative</option>
       </select>
     </div>
     <div id="teamSelectGroup" class="hidden">
       <label class="block text-slate-500 text-xs font-bold uppercase mb-2 tracking-wider">Select Team</label>
-      <select id="loginTeamId" onchange="previewTeamLogo()" class="!bg-slate-900/50 !p-4 !text-base !mb-6 border-slate-700"></select> 
+      <select id="loginTeamId" onchange="previewTeamLogo()" class="!bg-slate-900/50 !p-3 lg:!p-4 !text-sm lg:!text-base !mb-4 lg:!mb-6 border-slate-700"></select> 
     </div>
     <div id="passGroup" class="hidden">
       <label class="block text-slate-500 text-xs font-bold uppercase mb-2 tracking-wider">Security Key</label>
-      <input type="password" id="loginPass" placeholder="Enter Team security passphrase..." class="!bg-slate-900/50 !p-4 !text-base !mb-6 border-slate-700">
+      <input type="password" id="loginPass" placeholder="Enter Team passphrase..." class="!bg-slate-900/50 !p-3 lg:!p-4 !text-sm lg:!text-base !mb-4 lg:!mb-6 border-slate-700">
     </div>
-    <button onclick="enterAuction()" class="w-full mt-4 !py-4 !text-base">Authenticate</button>
+    <button onclick="enterAuction()" class="w-full mt-2 lg:mt-4 !py-3 lg:!py-4 !text-sm lg:!text-base">Authenticate</button>
     <div id="teamAuthMsg" class="mt-4 text-xs font-bold text-red-400"></div>
   </div>
 </div>
@@ -132,12 +141,21 @@ button.small { padding: 6px 12px; font-size: 12px; border-radius: 6px; }
   <div id="toastContainer"></div>
   <input type="file" id="globalFileInput" style="display:none">
 
-  <header class="flex items-center justify-between px-6 py-3 border-b border-slate-800 bg-[#0f172a] sticky top-0 z-[4000]">
-      <div class="flex items-center space-x-6">
-          <h1 class="text-lg font-black tracking-wider text-white">ARENA<span class="text-indigo-500">COMMAND</span></h1>
-          <nav id="topNav" class="hidden md:flex space-x-1"></nav>
+  <header class="flex flex-col md:flex-row items-center justify-between px-4 lg:px-6 py-3 border-b border-slate-800 bg-[#0f172a] sticky top-0 z-[4000] gap-3">
+      <div class="flex items-center justify-between w-full md:w-auto">
+          <h1 class="text-base lg:text-lg font-black tracking-wider text-white">ARENA<span class="text-indigo-500">COMMAND</span></h1>
+          
+          <div class="flex items-center space-x-2 md:hidden">
+              <span id="roleDisplayMobile" class="bg-indigo-500/10 text-indigo-400 text-[9px] font-bold px-2 py-1 rounded-full uppercase tracking-wider">Role</span>
+              <button onclick="location.reload()" class="ghost small border border-red-500/20 text-red-400 hover:bg-red-500/10 !p-1" title="Terminate">
+                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
+              </button>
+          </div>
       </div>
-      <div class="flex items-center space-x-4">
+      
+      <nav id="topNav" class="flex overflow-x-auto w-full md:w-auto space-x-1 pb-1 md:pb-0 hide-scrollbar md:justify-center hidden-override"></nav>
+      
+      <div class="hidden md:flex items-center space-x-3">
           <span id="roleDisplay" class="bg-indigo-500/10 text-indigo-400 text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">Role</span>
           <button id="btnExportAdmin" class="hidden ghost small">Export DB</button>
           <button id="btnResetSystem" class="hidden red small">Wipe DB</button>
@@ -145,203 +163,207 @@ button.small { padding: 6px 12px; font-size: 12px; border-radius: 6px; }
       </div>
   </header>
 
-  <main id="mainContentContainer" class="flex-1 p-6 lg:p-10 max-w-[1700px] mx-auto w-full">
+  <main id="mainContentContainer" class="flex-1 p-4 lg:p-10 max-w-[1700px] mx-auto w-full">
       
-      <div id="sectionDashboard" class="space-y-10">
-          <h2 class="text-3xl font-black text-white">Welcome, <span id="dashWelcomeName" class="text-indigo-400"></span></h2>
+      <div id="sectionDashboard" class="space-y-6 lg:space-y-10">
+          <h2 class="text-2xl lg:text-3xl font-black text-white">Welcome, <span id="dashWelcomeName" class="text-indigo-400"></span></h2>
           
-          <div id="dashAdminView" class="hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div id="dashAdminView" class="hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
               <div class="dashboard-card flex flex-col" onclick="showSection('sectionLiveAuction')">
-                  <span class="text-4xl mb-4">Live Bidding</span>
-                  <p class="text-slate-400 text-sm flex-1">Start bidding, accept offers, and execute sales with the gavel control panel.</p>
-                  <span class="text-xs font-bold text-indigo-400 mt-4 uppercase">Launch Center ›</span>
+                  <span class="text-3xl lg:text-4xl mb-3 lg:mb-4">Live Bidding</span>
+                  <p class="text-slate-400 text-xs lg:text-sm flex-1">Start bidding, accept offers, and execute sales with the gavel control panel.</p>
+                  <span class="text-[10px] lg:text-xs font-bold text-indigo-400 mt-4 uppercase">Launch Center ›</span>
               </div>
               <div class="dashboard-card flex flex-col" onclick="showSection('sectionPlayerDatabase')">
-                  <span class="text-4xl mb-4">Players</span>
-                  <p class="text-slate-400 text-sm flex-1">Configure categories, base prices, increments, and manage player lists.</p>
-                  <span class="text-xs font-bold text-indigo-400 mt-4 uppercase">Open Database ›</span>
+                  <span class="text-3xl lg:text-4xl mb-3 lg:mb-4">Players</span>
+                  <p class="text-slate-400 text-xs lg:text-sm flex-1">Configure categories, base prices, increments, and manage player lists.</p>
+                  <span class="text-[10px] lg:text-xs font-bold text-indigo-400 mt-4 uppercase">Open Database ›</span>
               </div>
               <div class="dashboard-card flex flex-col" onclick="showSection('sectionTeamConfig')">
-                  <span class="text-4xl mb-4">Teams</span>
-                  <p class="text-slate-400 text-sm flex-1">Manage franchise IDs, names, secure passwords, logos, and starting purse amounts.</p>
-                  <span class="text-xs font-bold text-indigo-400 mt-4 uppercase">Configure Teams ›</span>
+                  <span class="text-3xl lg:text-4xl mb-3 lg:mb-4">Teams</span>
+                  <p class="text-slate-400 text-xs lg:text-sm flex-1">Manage franchise IDs, names, secure passwords, logos, and starting purse amounts.</p>
+                  <span class="text-[10px] lg:text-xs font-bold text-indigo-400 mt-4 uppercase">Configure Teams ›</span>
               </div>
           </div>
 
-          <div id="dashTeamView" class="hidden grid grid-cols-12 gap-6 h-[700px]">
-              <div class="col-span-12 md:col-span-4 lg:col-span-3 glass-panel p-6 flex flex-col h-full relative">
-                  <label class="mb-4 text-base tracking-widest text-indigo-400">Live Arena Standings</label>
+          <div id="dashTeamView" class="hidden grid grid-cols-1 md:grid-cols-12 gap-6 min-h-[500px] lg:h-[700px]">
+              <div class="col-span-1 md:col-span-4 lg:col-span-3 glass-panel p-4 lg:p-6 flex flex-col min-h-[300px] lg:h-full relative">
+                  <label class="mb-3 lg:mb-4 text-sm lg:text-base tracking-widest text-indigo-400">Live Arena Standings</label>
                   <div id="dashboardScoreboard" class="w-full overflow-y-auto flex-1 pr-2"></div>
                   
-                  <div id="teamLiveStatus" class="mt-4 hidden p-4 bg-emerald-500/10 border-2 border-emerald-500/50 rounded-xl text-center cursor-pointer hover:bg-emerald-500/20 transition shadow-[0_0_15px_rgba(16,185,129,0.2)]" onclick="showSection('sectionLiveAuction')">
-                      <span class="text-emerald-400 font-black tracking-widest uppercase text-sm drop-shadow-md">
+                  <div id="teamLiveStatus" class="mt-4 hidden p-3 lg:p-4 bg-emerald-500/10 border-2 border-emerald-500/50 rounded-xl text-center cursor-pointer hover:bg-emerald-500/20 transition shadow-[0_0_15px_rgba(16,185,129,0.2)]" onclick="showSection('sectionLiveAuction')">
+                      <span class="text-emerald-400 font-black tracking-widest uppercase text-xs lg:text-sm drop-shadow-md">
                          <span class="animate-pulse mr-1">●</span> Auction is Live<br>
-                         <span class="text-[10px] font-bold mt-1 inline-block">Go to Live Section ›</span>
+                         <span class="text-[9px] lg:text-[10px] font-bold mt-1 inline-block">Go to Live Section ›</span>
                       </span>
                   </div>
               </div>
-              <div class="col-span-12 md:col-span-8 lg:col-span-9 glass-panel p-6 flex flex-col" id="dashboardMyTeamCard">
-                  <div class="flex justify-between items-center mb-4 border-b border-slate-700/50 pb-4">
-                      <label class="text-base tracking-widest text-emerald-400 !mb-0">Franchise Overview</label>
-                      <button id="btnExportTeam" class="ghost small !py-1.5 !px-3 text-xs tracking-wider border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10">Export Roster</button>
+              <div class="col-span-1 md:col-span-8 lg:col-span-9 glass-panel p-4 lg:p-6 flex flex-col min-h-[400px]" id="dashboardMyTeamCard">
+                  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 border-b border-slate-700/50 pb-4 gap-3">
+                      <label class="text-sm lg:text-base tracking-widest text-emerald-400 !mb-0">Franchise Overview</label>
+                      <button id="btnExportTeam" class="ghost small !py-1.5 !px-3 text-[10px] lg:text-xs tracking-wider border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10 w-full sm:w-auto">Export Roster</button>
                   </div>
                   <div id="dashboardMyTeamContent" class="overflow-y-auto flex-1 pr-2"></div>
               </div>
           </div>
           
-          <div id="dashViewerView" class="hidden grid grid-cols-12 gap-6 h-[750px]">
-              <div class="col-span-12 md:col-span-4 lg:col-span-3 glass-panel p-6 flex flex-col h-full relative">
-                  <label class="mb-4 text-base tracking-widest text-indigo-400">Live Arena Standings</label>
+          <div id="dashViewerView" class="hidden grid grid-cols-1 md:grid-cols-12 gap-6 min-h-[500px] lg:h-[750px]">
+              <div class="col-span-1 md:col-span-4 lg:col-span-3 glass-panel p-4 lg:p-6 flex flex-col min-h-[300px] lg:h-full relative">
+                  <label class="mb-3 lg:mb-4 text-sm lg:text-base tracking-widest text-indigo-400">Live Arena Standings</label>
                   <div id="viewerScoreboard" class="w-full overflow-y-auto flex-1 pr-2"></div>
                   
-                  <div id="viewerLiveStatus" class="mt-4 hidden p-4 bg-emerald-500/10 border-2 border-emerald-500/50 rounded-xl text-center cursor-pointer hover:bg-emerald-500/20 transition shadow-[0_0_15px_rgba(16,185,129,0.2)]" onclick="showSection('sectionLiveAuction')">
-                      <span class="text-emerald-400 font-black tracking-widest uppercase text-sm drop-shadow-md">
+                  <div id="viewerLiveStatus" class="mt-4 hidden p-3 lg:p-4 bg-emerald-500/10 border-2 border-emerald-500/50 rounded-xl text-center cursor-pointer hover:bg-emerald-500/20 transition shadow-[0_0_15px_rgba(16,185,129,0.2)]" onclick="showSection('sectionLiveAuction')">
+                      <span class="text-emerald-400 font-black tracking-widest uppercase text-xs lg:text-sm drop-shadow-md">
                          <span class="animate-pulse mr-1">●</span> Auction is Live<br>
-                         <span class="text-[10px] font-bold mt-1 inline-block">Go to Live Section ›</span>
+                         <span class="text-[9px] lg:text-[10px] font-bold mt-1 inline-block">Go to Live Section ›</span>
                       </span>
                   </div>
               </div>
-              <div class="col-span-12 md:col-span-8 lg:col-span-9 glass-panel p-6 flex flex-col h-full">
-                  <label class="mb-4 text-base tracking-widest text-emerald-400 border-b border-slate-700/50 pb-4">Network Franchises & Rosters</label>
+              <div class="col-span-1 md:col-span-8 lg:col-span-9 glass-panel p-4 lg:p-6 flex flex-col min-h-[400px]">
+                  <label class="mb-4 text-sm lg:text-base tracking-widest text-emerald-400 border-b border-slate-700/50 pb-4">Network Franchises & Rosters</label>
                   <div id="viewerRostersContent" class="overflow-y-auto flex-1 pr-2 space-y-8 pb-8"></div>
               </div>
           </div>
       </div>
 
-      <div id="sectionLiveAuction" class="hidden grid grid-cols-12 gap-6 h-[750px]">
+      <div id="sectionLiveAuction" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6 min-h-[500px] h-auto lg:h-[750px]">
           
-          <div class="col-span-12 lg:col-span-8 flex flex-col space-y-4 h-full">
+          <div class="col-span-1 lg:col-span-8 flex flex-col space-y-4 lg:h-full">
               
-              <div id="auctionIdleState" class="glass-panel flex-1 rounded-3xl flex flex-col border border-slate-700/50 border-dashed overflow-hidden relative">
+              <div id="auctionIdleState" class="glass-panel flex-1 rounded-2xl lg:rounded-3xl flex flex-col border border-slate-700/50 border-dashed overflow-hidden relative min-h-[300px]">
                   
-                  <div id="idleWaitingMessage" class="flex-1 flex flex-col items-center justify-center text-slate-500">
-                      <span class="text-5xl mb-4 opacity-50">📡</span>
-                      <p class="font-medium tracking-widest uppercase text-xs">Waiting for active player drop...</p>
+                  <div id="idleWaitingMessage" class="flex-1 flex flex-col items-center justify-center text-slate-500 p-6 text-center">
+                      <span class="text-4xl lg:text-5xl mb-3 lg:mb-4 opacity-50">📡</span>
+                      <p class="font-medium tracking-widest uppercase text-[10px] lg:text-xs">Waiting for active player drop...</p>
                   </div>
 
-                  <div id="adminAuctionQueue" class="hidden flex-1 flex flex-col p-6 lg:p-10 w-full h-full">
-                      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4 border-b border-slate-700/50 pb-4">
+                  <div id="adminAuctionQueue" class="hidden flex-1 flex flex-col p-4 lg:p-10 w-full h-full">
+                      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 lg:mb-6 gap-3 border-b border-slate-700/50 pb-4">
                           <div>
-                              <h3 class="text-2xl font-black text-white tracking-wider">Draft Queue Control</h3>
-                              <p class="text-xs text-slate-400 uppercase tracking-widest mt-1">Select category and click player to initiate auction.</p>
+                              <h3 class="text-xl lg:text-2xl font-black text-white tracking-wider">Draft Queue Control</h3>
+                              <p class="text-[10px] lg:text-xs text-slate-400 uppercase tracking-widest mt-1">Select category & init auction.</p>
                           </div>
-                          <select id="queueCategorySelect" class="!w-48 !mb-0 bg-slate-900 border-indigo-500/50 text-indigo-300 font-bold focus:border-indigo-400" onchange="renderLiveAdminQueue()">
+                          <select id="queueCategorySelect" class="w-full sm:!w-48 !mb-0 bg-slate-900 border-indigo-500/50 text-indigo-300 font-bold focus:border-indigo-400" onchange="renderLiveAdminQueue()">
                               <option value="">Select Category...</option>
                           </select>
                       </div>
                       
-                      <div id="queuePlayersList" class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 overflow-y-auto flex-1 pr-2 content-start"></div>
+                      <div id="queuePlayersList" class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 lg:gap-4 overflow-y-auto flex-1 pr-2 content-start"></div>
                       
-                      <div class="mt-6 pt-4 border-t border-slate-700/50 flex items-center bg-slate-900/50 p-4 rounded-xl border border-slate-700">
-                          <input type="checkbox" id="autoNextToggle" checked class="w-5 h-5 rounded border-slate-600 bg-slate-900 focus:ring-indigo-500 accent-indigo-500 cursor-pointer">
-                          <label for="autoNextToggle" class="!mb-0 ml-3 cursor-pointer text-slate-300 text-sm font-bold">Auto-load next unsold prospect after gavel drop</label>
+                      <div class="mt-4 lg:mt-6 pt-3 lg:pt-4 border-t border-slate-700/50 flex flex-col sm:flex-row sm:items-center bg-slate-900/50 p-3 lg:p-4 rounded-xl border border-slate-700 gap-2">
+                          <div class="flex items-center">
+                              <input type="checkbox" id="autoNextToggle" checked class="w-4 h-4 lg:w-5 lg:h-5 rounded border-slate-600 bg-slate-900 focus:ring-indigo-500 accent-indigo-500 cursor-pointer">
+                              <label for="autoNextToggle" class="!mb-0 ml-2 lg:ml-3 cursor-pointer text-slate-300 text-xs lg:text-sm font-bold">Auto-load next unsold prospect</label>
+                          </div>
                       </div>
                   </div>
               </div>
 
-              <div id="auctionPlayerPopup" class="hidden glass-panel flex-1 rounded-3xl overflow-hidden relative group border border-indigo-500/30 shadow-[0_0_30px_rgba(99,102,241,0.1)] flex flex-col">
+              <div id="auctionPlayerPopup" class="hidden glass-panel flex-1 rounded-2xl lg:rounded-3xl overflow-hidden relative group border border-indigo-500/30 shadow-[0_0_30px_rgba(99,102,241,0.1)] flex flex-col min-h-[400px]">
                   <div class="absolute inset-0 bg-gradient-to-t from-[#0b1121] via-slate-900/80 to-transparent z-10 pointer-events-none"></div>
                   
                   <div id="popupImgContainer" class="absolute inset-0 z-0">
                       <img id="popupImg" src="" class="w-full h-full object-cover opacity-60 transition duration-700 group-hover:scale-105 group-hover:opacity-80">
                   </div>
                   
-                  <button onclick="closePopup()" class="absolute top-4 right-4 z-30 w-8 h-8 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-red-500/80">×</button>
+                  <button onclick="closePopup()" class="absolute top-3 right-3 lg:top-4 lg:right-4 z-30 w-8 h-8 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-red-500/80">×</button>
 
-                  <div id="auctionTimerContainer" class="absolute top-6 left-1/2 transform -translate-x-1/2 z-40 bg-slate-900/80 backdrop-blur-md border-2 border-cyan-500/50 px-6 py-2 rounded-full flex items-center space-x-3 shadow-[0_0_20px_rgba(34,211,238,0.3)] transition-colors duration-300">
-                      <div class="w-3 h-3 rounded-full bg-cyan-400" id="auctionTimerDot"></div>
-                      <div id="auctionTimerText" class="text-3xl font-black font-mono text-cyan-400 tracking-wider">30s</div>
-                      <button id="btnPauseTimer" class="hidden ml-2 text-lg text-white/70 hover:text-white hover:scale-110 transition focus:outline-none" onclick="toggleTimer()">⏸️</button>
+                  <div id="auctionTimerContainer" class="absolute top-4 lg:top-6 left-1/2 transform -translate-x-1/2 z-40 bg-slate-900/80 backdrop-blur-md border-2 border-cyan-500/50 px-4 py-1.5 lg:px-6 lg:py-2 rounded-full flex items-center space-x-2 lg:space-x-3 shadow-[0_0_20px_rgba(34,211,238,0.3)] transition-colors duration-300">
+                      <div class="w-2 h-2 lg:w-3 lg:h-3 rounded-full bg-cyan-400" id="auctionTimerDot"></div>
+                      <div id="auctionTimerText" class="text-xl lg:text-3xl font-black font-mono text-cyan-400 tracking-wider">30s</div>
+                      <button id="btnPauseTimer" class="hidden ml-1 lg:ml-2 text-sm lg:text-lg text-white/70 hover:text-white hover:scale-110 transition focus:outline-none" onclick="toggleTimer()">⏸️</button>
                   </div>
 
-                  <div class="relative z-20 p-8 mt-auto w-full">
-                      <div class="flex justify-between items-end mb-4">
+                  <div class="relative z-20 p-5 lg:p-8 mt-auto w-full">
+                      <div class="flex flex-col md:flex-row md:justify-between md:items-end mb-4 gap-4">
                           <div>
-                              <div class="flex space-x-2 mb-3">
-                                  <span id="popupCat" class="bg-cyan-500 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">CATEGORY</span>
+                              <div class="flex space-x-2 mb-2 lg:mb-3">
+                                  <span id="popupCat" class="bg-cyan-500 text-white text-[9px] lg:text-[10px] font-bold px-2 py-0.5 lg:px-3 lg:py-1 rounded-full uppercase tracking-wider">CATEGORY</span>
                               </div>
-                              <h1 id="popupName" class="text-4xl lg:text-5xl font-black leading-tight text-white text-shadow-lg">Player Name</h1>
+                              <h1 id="popupName" class="text-3xl lg:text-5xl font-black leading-tight text-white text-shadow-lg break-words">Player Name</h1>
                           </div>
                           
-                          <div id="adminBidControls" class="hidden flex items-center space-x-3 bg-black/40 p-3 rounded-2xl w-max backdrop-blur-md">
-                              <button class="w-10 h-10 rounded-full bg-slate-700 hover:bg-red-500 flex items-center justify-center text-xl font-bold" onclick="adjustBid('dec')">-</button>
-                              <div class="text-center">
-                                  <div class="text-[10px] text-slate-400 font-bold uppercase mb-0.5">Value</div>
-                                  <div id="popupPrice" class="text-3xl font-black text-white font-mono">0</div>
+                          <div id="adminBidControls" class="hidden flex items-center justify-between w-full md:w-auto space-x-3 bg-black/60 md:bg-black/40 p-3 rounded-2xl backdrop-blur-md">
+                              <button class="w-10 h-10 lg:w-10 lg:h-10 rounded-full bg-slate-700 hover:bg-red-500 flex items-center justify-center text-xl font-bold shrink-0" onclick="adjustBid('dec')">-</button>
+                              <div class="text-center flex-1 px-2">
+                                  <div class="text-[9px] lg:text-[10px] text-slate-400 font-bold uppercase mb-0.5">Value</div>
+                                  <div id="popupPrice" class="text-2xl lg:text-3xl font-black text-white font-mono">0</div>
                               </div>
-                              <button class="w-10 h-10 rounded-full bg-slate-700 hover:bg-emerald-500 flex items-center justify-center text-xl font-bold" onclick="adjustBid('inc')">+</button>
+                              <button class="w-10 h-10 lg:w-10 lg:h-10 rounded-full bg-slate-700 hover:bg-emerald-500 flex items-center justify-center text-xl font-bold shrink-0" onclick="adjustBid('inc')">+</button>
                           </div>
 
-                          <div id="viewerPriceDisplay" class="hidden text-right">
-                               <div class="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">Current Highest Bid</div>
-                               <div id="viewerPrice" class="text-5xl lg:text-6xl font-black text-cyan-400 font-mono tracking-tight neon-text-blue">0</div>
+                          <div id="viewerPriceDisplay" class="hidden md:text-right mt-2 md:mt-0">
+                               <div class="text-[9px] lg:text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">Current Highest Bid</div>
+                               <div id="viewerPrice" class="text-4xl lg:text-6xl font-black text-cyan-400 font-mono tracking-tight neon-text-blue">0</div>
                           </div>
                       </div>
 
-                      <div id="adminActionButtons" class="hidden grid grid-cols-2 gap-3 mt-4">
-                          <button class="yellow !py-3.5 !text-lg" onclick="triggerSoldFromPopup()">GAVEL DROP (SOLD)</button>
-                          <button class="purple !py-3.5 !text-lg bg-gradient-to-r from-purple-600 to-purple-800" onclick="triggerDirectSignPopup()">RETAIN TEAM MEMBER</button>
+                      <div id="adminActionButtons" class="hidden grid grid-cols-1 sm:grid-cols-2 gap-2 lg:gap-3 mt-4">
+                          <button class="yellow !py-3 lg:!py-3.5 text-xs lg:text-lg w-full" onclick="triggerSoldFromPopup()">GAVEL DROP (SOLD)</button>
+                          <button class="purple !py-3 lg:!py-3.5 text-xs lg:text-lg bg-gradient-to-r from-purple-600 to-purple-800 w-full" onclick="triggerDirectSignPopup()">RETAIN MEMBER</button>
                       </div>
 
-                      <div id="teamActionButtons" class="hidden mt-4">
-                          <button id="btnPopupImpact" class="w-full purple !py-3.5 !text-lg bg-gradient-to-r from-indigo-500 to-purple-600 shadow-[0_0_20px_rgba(139,92,246,0.4)]">⚡ DEPLOY IMPACT POWER (+Purse)</button>
+                      <div id="teamActionButtons" class="hidden mt-3 lg:mt-4">
+                          <button id="btnPopupImpact" class="w-full purple !py-3 lg:!py-3.5 text-xs lg:text-lg bg-gradient-to-r from-indigo-500 to-purple-600 shadow-[0_0_20px_rgba(139,92,246,0.4)]">⚡ DEPLOY IMPACT POWER</button>
                       </div>
                   </div>
               </div>
           </div>
 
-          <div class="col-span-12 lg:col-span-4 flex flex-col space-y-4 h-full">
-              <div class="glass-panel p-5 flex-1 flex flex-col overflow-hidden">
-                  <div class="flex justify-between items-center mb-4 text-xs font-bold text-slate-400 uppercase tracking-wider">
+          <div class="col-span-1 lg:col-span-4 flex flex-col space-y-4 h-full">
+              <div class="glass-panel p-4 lg:p-5 flex-1 flex flex-col overflow-hidden min-h-[300px]">
+                  <div class="flex justify-between items-center mb-3 lg:mb-4 text-[10px] lg:text-xs font-bold text-slate-400 uppercase tracking-wider">
                       <span>Arena Standings</span>
                       <span class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]"></span>
                   </div>
                   <div id="auctionScoreboard" class="w-full overflow-y-auto pr-2 content-start"></div>
               </div>
 
-              <div class="glass-panel relative overflow-hidden h-56 shrink-0 flex flex-col">
+              <div class="glass-panel relative overflow-hidden h-40 lg:h-56 shrink-0 flex flex-col">
                   <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-400 to-indigo-500"></div>
-                  <div class="flex justify-between items-center mb-4">
-                      <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Bidding Network Log</div>
-                      <button id="clearLog" class="ghost small !py-1 !px-2 text-[10px]">Clear Log</button>
+                  <div class="flex justify-between items-center mb-3 lg:mb-4 pt-2">
+                      <div class="text-[9px] lg:text-[10px] font-bold text-slate-400 uppercase tracking-wider">Bidding Network Log</div>
+                      <button id="clearLog" class="ghost small !py-1 !px-2 text-[9px] lg:text-[10px]">Clear</button>
                   </div>
-                  <div id="log" class="flex-1 overflow-y-auto space-y-2 pr-2 font-mono text-[10px] leading-tight text-slate-400"></div>
+                  <div id="log" class="flex-1 overflow-y-auto space-y-2 pr-2 font-mono text-[9px] lg:text-[10px] leading-tight text-slate-400"></div>
               </div>
           </div>
       </div>
 
       <div id="sectionPlayerDatabase" class="hidden space-y-6">
-          <div id="adminPlayerDatabaseConfig" class="hidden glass-panel p-6">
-              <h3 class="text-sm font-bold text-slate-400 uppercase mb-4">Tier Configurations</h3>
-              <div class="flex space-x-2 mb-4">
-                  <input id="newCatId" placeholder="Category Name (e.g., PLATINUM)" class="!mb-0 !text-xs">
-                  <input id="newCatBase" type="number" placeholder="Base ৳" class="!w-28 !mb-0 !text-xs">
-                  <input id="newCatInc" type="number" placeholder="Bid Step ৳" class="!w-28 !mb-0 !text-xs">
-                  <button id="btnAddCat" class="small w-28 !py-2.5">Add Tier</button>
+          <div id="adminPlayerDatabaseConfig" class="hidden glass-panel p-4 lg:p-6">
+              <h3 class="text-xs lg:text-sm font-bold text-slate-400 uppercase mb-4">Tier Configurations</h3>
+              <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 mb-2 lg:mb-4">
+                  <input id="newCatId" placeholder="Category Name (e.g., PLATINUM)" class="!mb-0 !text-xs w-full sm:w-auto flex-1">
+                  <div class="flex space-x-2 w-full sm:w-auto">
+                    <input id="newCatBase" type="number" placeholder="Base ৳" class="!w-full sm:!w-24 lg:!w-28 !mb-0 !text-xs">
+                    <input id="newCatInc" type="number" placeholder="Bid Step ৳" class="!w-full sm:!w-24 lg:!w-28 !mb-0 !text-xs">
+                  </div>
+                  <button id="btnAddCat" class="small w-full sm:w-28 !py-2.5 mt-2 sm:mt-0">Add Tier</button>
               </div>
           </div>
-          <div id="categoriesContainer" class="space-y-8">
+          <div id="categoriesContainer" class="space-y-6 lg:space-y-8">
              <div class="text-xs text-slate-500">Initializing database...</div>
           </div>
       </div>
 
       <div id="sectionTeamConfig" class="hidden space-y-6">
-          <div class="glass-panel p-6 lg:p-10">
-              <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 border-b border-slate-700 pb-6 gap-4">
+          <div class="glass-panel p-4 lg:p-10">
+              <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 lg:mb-8 border-b border-slate-700 pb-4 lg:pb-6 gap-4">
                   <div>
-                      <h2 class="text-3xl font-black text-white tracking-wide">Franchise Configurations</h2>
-                      <p class="text-slate-400 text-sm mt-2">Manage team slots, secure access keys, upload logos, and set global Impact rules.</p>
+                      <h2 class="text-2xl lg:text-3xl font-black text-white tracking-wide">Franchise Config</h2>
+                      <p class="text-slate-400 text-xs lg:text-sm mt-1 lg:mt-2">Manage team slots, access keys, and Impact rules.</p>
                   </div>
-                  <div class="flex flex-wrap items-center gap-4">
-                      <div class="flex space-x-2 bg-black/30 p-2 rounded-xl border border-slate-700 items-center">
-                          <label class="!mb-0 ml-2 mr-1 !text-[10px] text-indigo-300">Global Impact Bonus:</label>
-                          <input id="configImpact" type="number" placeholder="Amount" class="!w-24 !mb-0 !py-1.5 !text-xs font-mono">
-                          <button class="small ghost !py-1.5 border-indigo-500/30 text-indigo-300 hover:bg-indigo-500/10" onclick="saveGlobalConfig()">Save Rule</button>
+                  <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
+                      <div class="flex justify-between sm:justify-start space-x-2 bg-black/30 p-2 rounded-xl border border-slate-700 items-center">
+                          <label class="!mb-0 ml-1 lg:ml-2 mr-1 !text-[9px] lg:!text-[10px] text-indigo-300">Impact Bonus:</label>
+                          <input id="configImpact" type="number" placeholder="Amount" class="!w-20 lg:!w-24 !mb-0 !py-1.5 !text-xs font-mono">
+                          <button class="small ghost !py-1.5 border-indigo-500/30 text-indigo-300 hover:bg-indigo-500/10" onclick="saveGlobalConfig()">Save</button>
                       </div>
-                      <button id="btnSaveTeams" class="green !py-3 !px-6 text-sm shadow-lg shadow-emerald-500/20">Sync Team DB ›</button>
+                      <button id="btnSaveTeams" class="green !py-2.5 lg:!py-3 !px-4 lg:!px-6 text-xs lg:text-sm shadow-lg shadow-emerald-500/20">Sync Team DB ›</button>
                   </div>
               </div>
-              <div id="teamsConfigContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 overflow-y-auto pr-2 max-h-[600px] p-2 content-start"></div>
+              <div id="teamsConfigContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-6 overflow-y-auto pr-2 max-h-[70vh] lg:max-h-[600px] p-1 lg:p-2 content-start"></div>
           </div>
       </div>
 
@@ -349,59 +371,59 @@ button.small { padding: 6px 12px; font-size: 12px; border-radius: 6px; }
 
   <div class="overlay hidden" id="playerEditOverlay">
     <div class="modal !bg-slate-900 !border-indigo-500/50">
-      <h3 class="text-2xl font-black text-white mb-6" id="playerEditTitle">Add Player</h3>
+      <h3 class="text-xl lg:text-2xl font-black text-white mb-4 lg:mb-6" id="playerEditTitle">Add Player</h3>
       <input type="hidden" id="playerEditCat">
       <input type="hidden" id="playerEditOldName">
 
-      <div class="flex justify-center mb-6">
-        <div class="w-32 h-32 rounded-xl border-2 border-dashed border-slate-600 hover:border-indigo-500 bg-slate-800 flex items-center justify-center cursor-pointer relative overflow-hidden transition" id="playerEditImgDrop">
+      <div class="flex justify-center mb-4 lg:mb-6">
+        <div class="w-24 h-24 lg:w-32 lg:h-32 rounded-xl border-2 border-dashed border-slate-600 hover:border-indigo-500 bg-slate-800 flex items-center justify-center cursor-pointer relative overflow-hidden transition" id="playerEditImgDrop">
           <img id="playerEditImg" src="" class="hidden w-full h-full object-cover">
-          <span id="playerEditImgText" class="text-xs text-slate-400 font-bold uppercase tracking-wider">Upload Photo</span>
+          <span id="playerEditImgText" class="text-[10px] lg:text-xs text-slate-400 font-bold uppercase tracking-wider text-center px-2">Upload Photo</span>
         </div>
       </div>
 
-      <div class="mb-6 text-left">
+      <div class="mb-4 lg:mb-6 text-left">
         <label>Player Name</label>
         <input type="text" id="playerEditName" placeholder="Enter player name...">
       </div>
 
-      <div class="grid grid-cols-2 gap-4">
-        <button onclick="closePlayerEdit()" class="ghost">Cancel</button>
-        <button onclick="savePlayerEdit()" class="green">Save Player</button>
+      <div class="grid grid-cols-2 gap-3 lg:gap-4">
+        <button onclick="closePlayerEdit()" class="ghost text-xs lg:text-sm">Cancel</button>
+        <button onclick="savePlayerEdit()" class="green text-xs lg:text-sm">Save Player</button>
       </div>
     </div>
   </div>
 
   <div class="overlay hidden z-[9999]" id="soldAnimationOverlay" style="background: rgba(11, 17, 33, 0.98);">
-    <div class="text-center scale-125">
-      <h1 id="animTitle" class="text-7xl font-black text-amber-400 drop-shadow-[0_0_40px_rgba(245,158,11,0.6)] mb-2 tracking-widest">SOLD!</h1>
-      <h2 id="animPlayer" class="text-3xl font-bold text-white mb-6">Player Name</h2>
-      <div class="text-lg text-slate-400 uppercase tracking-widest">
-        Acquired By <br><strong id="animTeam" class="text-indigo-400 text-2xl mt-1 block">Team Name</strong>
+    <div class="text-center scale-100 lg:scale-125 px-4">
+      <h1 id="animTitle" class="text-5xl md:text-7xl font-black text-amber-400 drop-shadow-[0_0_40px_rgba(245,158,11,0.6)] mb-2 tracking-widest">SOLD!</h1>
+      <h2 id="animPlayer" class="text-2xl md:text-3xl font-bold text-white mb-4 md:mb-6">Player Name</h2>
+      <div class="text-sm md:text-lg text-slate-400 uppercase tracking-widest">
+        Acquired By <br><strong id="animTeam" class="text-indigo-400 text-xl md:text-2xl mt-1 block">Team Name</strong>
       </div>
-      <div class="mt-8">
-          <span class="text-sm text-slate-500 uppercase tracking-widest">Final Valuation</span>
-          <strong id="animPrice" class="block text-5xl font-mono text-emerald-400 mt-2 drop-shadow-[0_0_20px_rgba(16,185,129,0.5)]">0</strong>
+      <div class="mt-6 md:mt-8">
+          <span class="text-xs md:text-sm text-slate-500 uppercase tracking-widest">Final Valuation</span>
+          <strong id="animPrice" class="block text-4xl md:text-5xl font-mono text-emerald-400 mt-2 drop-shadow-[0_0_20px_rgba(16,185,129,0.5)]">0</strong>
       </div>
     </div>
   </div>
 
   <div class="overlay hidden" id="soldActionOverlay">
     <div class="modal !bg-slate-900 !border-warning">
-      <h3 class="text-2xl font-black text-amber-400 mb-2 drop-shadow-[0_0_10px_rgba(245,158,11,0.5)]">CONFIRM TRANSACTION</h3>
-      <div id="soldActionDetails" class="mb-6 text-sm text-slate-300 font-mono"></div>
+      <h3 class="text-xl lg:text-2xl font-black text-amber-400 mb-2 drop-shadow-[0_0_10px_rgba(245,158,11,0.5)]">CONFIRM</h3>
+      <div id="soldActionDetails" class="mb-4 lg:mb-6 text-xs lg:text-sm text-slate-300 font-mono"></div>
       
       <div id="directPriceGroup" class="hidden mb-4 text-left bg-black/20 p-3 rounded-xl">
-        <label class="!mb-1">Define Retain/Direct Price</label>
+        <label class="!mb-1">Define Retain Price</label>
         <input type="number" id="directSignPrice" placeholder="Enter Amount" class="!mb-0">
       </div>
 
       <label class="text-left">Transfer to Franchise</label>
-      <select id="soldActionTeam" class="mb-6 w-full"></select>
+      <select id="soldActionTeam" class="mb-4 lg:mb-6 w-full"></select>
       
-      <div class="grid grid-cols-2 gap-4">
-        <button id="btnCancelSold" class="ghost">Abort</button>
-        <button id="btnConfirmSold" class="green">Execute Gavel ›</button>
+      <div class="grid grid-cols-2 gap-3 lg:gap-4">
+        <button id="btnCancelSold" class="ghost text-xs lg:text-sm">Abort</button>
+        <button id="btnConfirmSold" class="green text-xs lg:text-sm">Execute Gavel ›</button>
       </div>
     </div>
   </div>
@@ -456,9 +478,9 @@ function log(msg) {
 function showToast(msg) { 
     const t = document.createElement('div'); 
     t.className = 'toast border border-slate-700'; 
-    t.innerHTML = `<span>🔔</span> ${msg}`; 
+    t.innerHTML = `<span>🔔</span> <span class="text-sm">${msg}</span>`; 
     document.getElementById('toastContainer').appendChild(t); 
-    setTimeout(() => t.remove(), 4000); 
+    setTimeout(() => { t.style.opacity = '0'; setTimeout(()=>t.remove(),300); }, 4000); 
 }
 
 // --- FILE UPLOAD LOGIC ---
@@ -501,11 +523,9 @@ function updateLiveEligibility() {
     const eligibility = {};
     STATE.teams.forEach(t => {
         let canBuy = true;
-        // Check 1: Already has a player from this category
         if (t.purchases && t.purchases[activePlayer.category]) {
             canBuy = false;
         } else {
-            // Check 2: Minimum Required Purse for Remaining Empty Categories
             let requiredReserve = 0;
             STATE.categories.forEach(cat => {
                 if (cat.id !== activePlayer.category) {
@@ -521,7 +541,6 @@ function updateLiveEligibility() {
         eligibility[t.id] = canBuy;
     });
 
-    // Visually Gray out teams on the Standings Boards
     const containers = [document.getElementById('auctionScoreboard'), document.getElementById('dashboardScoreboard'), document.getElementById('viewerScoreboard')];
     containers.forEach(container => {
         if (!container) return;
@@ -537,7 +556,6 @@ function updateLiveEligibility() {
         });
     });
 
-    // Visually Gray out Team's Live section if they cannot participate 
     if (CURRENT_USER.role === 'team') {
         const canIBuy = eligibility[CURRENT_USER.teamId];
         const popup = document.getElementById('auctionPlayerPopup');
@@ -564,17 +582,26 @@ function resetAndStartTimer() {
     
     updateTimerUI();
     
-    auctionTimerInterval = setInterval(() => {
-        if(isTimerPaused) return; 
+    // Server acts as clock ticker now (per recent modifications), 
+    // but we can leave this here if running on standard mode, 
+    // or keep the network broadcast approach.
+    if (CURRENT_USER.role === 'admin') {
+        socket.emit('admin:timer_control', { paused: isTimerPaused, time: auctionTimeRemaining });
         
-        auctionTimeRemaining--;
-        updateTimerUI();
-        
-        if(auctionTimeRemaining <= 0) {
-            clearInterval(auctionTimerInterval);
-            handleTimerExpiry();
-        }
-    }, 1000);
+        auctionTimerInterval = setInterval(() => {
+            if(isTimerPaused) return; 
+            
+            auctionTimeRemaining--;
+            updateTimerUI();
+            
+            socket.emit('admin:timer_control', { paused: isTimerPaused, time: auctionTimeRemaining });
+            
+            if(auctionTimeRemaining <= 0) {
+                clearInterval(auctionTimerInterval);
+                handleTimerExpiry();
+            }
+        }, 1000);
+    }
 }
 
 function updateTimerUI() {
@@ -585,10 +612,9 @@ function updateTimerUI() {
 
     text.textContent = `${auctionTimeRemaining}s`;
     
-    // Reset base classes
-    container.className = "absolute top-6 left-1/2 transform -translate-x-1/2 z-40 bg-slate-900/80 backdrop-blur-md px-6 py-2 rounded-full flex items-center space-x-3 transition-colors duration-300 border-2";
-    text.className = "text-3xl font-black font-mono tracking-wider";
-    dot.className = "w-3 h-3 rounded-full";
+    container.className = "absolute top-4 lg:top-6 left-1/2 transform -translate-x-1/2 z-40 bg-slate-900/80 backdrop-blur-md px-4 py-1.5 lg:px-6 lg:py-2 rounded-full flex items-center space-x-2 lg:space-x-3 transition-colors duration-300 border-2";
+    text.className = "text-xl lg:text-3xl font-black font-mono tracking-wider";
+    dot.className = "w-2 h-2 lg:w-3 lg:h-3 rounded-full";
 
     if (isTimerPaused) {
         container.classList.add('border-yellow-500/50', 'shadow-[0_0_20px_rgba(234,179,8,0.3)]');
@@ -652,10 +678,19 @@ socket.on('player:bid', pl => {
 });
 socket.on('admin:toast', d => showToast(d.msg));
 
-// Sync Timer across network
 socket.on('timer:sync', data => {
-    isTimerPaused = data.paused;
-    auctionTimeRemaining = data.time;
+    if (CURRENT_USER.role === 'admin') {
+        if (isTimerPaused !== data.paused || Math.abs(auctionTimeRemaining - data.time) > 2) {
+            isTimerPaused = data.paused;
+            auctionTimeRemaining = data.time;
+        } else {
+            return; 
+        }
+    } else {
+        isTimerPaused = data.paused;
+        auctionTimeRemaining = data.time;
+    }
+
     if(document.getElementById('btnPauseTimer')) {
          document.getElementById('btnPauseTimer').textContent = isTimerPaused ? '▶️' : '⏸️';
     }
@@ -691,13 +726,10 @@ socket.on('popup:close', () => {
     activePlayer = null; 
     clearInterval(auctionTimerInterval);
     document.getElementById('auctionPlayerPopup').classList.add('hidden'); 
-    
-    // Clear out gray out
     document.getElementById('auctionPlayerPopup').classList.remove('opacity-40', 'grayscale', 'pointer-events-none');
-    
     document.getElementById('auctionIdleState').classList.remove('hidden'); 
     updateLiveIndicator();
-    renderScoreboards(); // reset the scoreboard visual
+    renderScoreboards(); 
     if(CURRENT_USER.role === 'admin') renderLiveAdminQueue();
 });
 
@@ -721,8 +753,8 @@ socket.on('player:sold', data => {
     document.getElementById('auctionIdleState').classList.remove('hidden'); const t = STATE.teams.find(x => x.id === teamId); 
     
     const titleEl = document.getElementById('animTitle');
-    if (isDirect) { titleEl.textContent = 'RETAINED!'; titleEl.className = "text-7xl font-black text-purple-400 drop-shadow-[0_0_40px_rgba(168,85,247,0.6)] tracking-widest"; } 
-    else { titleEl.textContent = 'SOLD!'; titleEl.className = "text-7xl font-black text-amber-400 drop-shadow-[0_0_40px_rgba(245,158,11,0.6)] tracking-widest"; }
+    if (isDirect) { titleEl.textContent = 'RETAINED!'; titleEl.className = "text-5xl md:text-7xl font-black text-purple-400 drop-shadow-[0_0_40px_rgba(168,85,247,0.6)] tracking-widest"; } 
+    else { titleEl.textContent = 'SOLD!'; titleEl.className = "text-5xl md:text-7xl font-black text-amber-400 drop-shadow-[0_0_40px_rgba(245,158,11,0.6)] tracking-widest"; }
     
     document.getElementById('animPlayer').textContent = name; document.getElementById('animTeam').textContent = t ? t.name : teamId; document.getElementById('animPrice').textContent = price; document.getElementById('soldAnimationOverlay').classList.remove('hidden'); 
     
@@ -732,7 +764,6 @@ socket.on('player:sold', data => {
         document.getElementById('soldAnimationOverlay').classList.add('hidden');
         renderAll();
         
-        // --- AUTO NEXT PLAYER LOGIC (ADMIN ONLY) ---
         if (CURRENT_USER.role === 'admin') {
             const autoNextToggle = document.getElementById('autoNextToggle');
             if(autoNextToggle && autoNextToggle.checked && currentAuctionCategory === category) {
@@ -773,9 +804,11 @@ function setupUI() {
     else if(isTeam) { navHtml += `<a onclick="showSection('sectionLiveAuction')">Live</a><a onclick="showSection('sectionPlayerDatabase')">Database</a>`; }
     else if(isAdmin) { navHtml += `<a onclick="showSection('sectionLiveAuction')">Live</a><a onclick="showSection('sectionPlayerDatabase')">Database</a><a onclick="showSection('sectionTeamConfig')">Teams</a>`; }
     nav.innerHTML = navHtml;
-    nav.classList.remove('hidden');
+    nav.classList.remove('hidden', 'hidden-override');
 
     document.getElementById('roleDisplay').textContent = `${CURRENT_USER.role.toUpperCase()} // ${isTeam ? (myTeam ? myTeam.name : CURRENT_USER.teamId) : CURRENT_USER.hostId}`; 
+    const mobileRole = document.getElementById('roleDisplayMobile');
+    if(mobileRole) mobileRole.textContent = isTeam ? (myTeam ? myTeam.name.substring(0,6)+'..' : CURRENT_USER.teamId) : CURRENT_USER.role.toUpperCase();
 
     document.getElementById('dashWelcomeName').textContent = isTeam ? (myTeam ? myTeam.name : CURRENT_USER.teamId) : CURRENT_USER.hostId;
     document.getElementById('dashAdminView').classList.toggle('hidden', !isAdmin);
@@ -783,6 +816,7 @@ function setupUI() {
     document.getElementById('dashViewerView').classList.toggle('hidden', !isViewer);
 
     document.getElementById('adminBidControls').classList.toggle('hidden', !isAdmin); 
+    document.getElementById('adminBidControls').classList.toggle('md:flex', isAdmin); 
     document.getElementById('adminActionButtons').classList.toggle('hidden', !isAdmin); 
     document.getElementById('viewerPriceDisplay').classList.toggle('hidden', isAdmin); 
     document.getElementById('teamActionButtons').classList.toggle('hidden', !isTeam);
@@ -838,7 +872,7 @@ function renderLiveAdminQueue() {
     container.innerHTML = '';
     
     if (!currentAuctionCategory) {
-        container.innerHTML = '<div class="col-span-full flex items-center justify-center h-32 text-slate-500 text-xs tracking-widest uppercase">Please select a category above.</div>';
+        container.innerHTML = '<div class="col-span-full flex items-center justify-center h-32 text-slate-500 text-[10px] lg:text-xs tracking-widest uppercase">Select a category above.</div>';
         return;
     }
 
@@ -853,7 +887,7 @@ function renderLiveAdminQueue() {
     });
 
     if (unsoldPlayers.length === 0) {
-        container.innerHTML = '<div class="col-span-full flex items-center justify-center h-32 text-emerald-500 text-xs font-bold tracking-widest uppercase">All prospects in this category are drafted.</div>';
+        container.innerHTML = '<div class="col-span-full flex items-center justify-center h-32 text-emerald-500 text-[10px] lg:text-xs font-bold tracking-widest uppercase text-center px-4">All prospects in this category are drafted.</div>';
         return;
     }
 
@@ -864,15 +898,15 @@ function renderLiveAdminQueue() {
         container.innerHTML += `
             <div class="bg-slate-800/60 rounded-xl overflow-hidden border border-slate-700 hover:border-indigo-500 transition cursor-pointer group flex flex-col h-full shadow-lg"
                  onclick="startAuctionFromQueue('${currentAuctionCategory}', '${p.name.replace(/'/g, "\\'")}', ${catConfig.base}, '${imgSrc}')">
-                <div class="h-28 relative overflow-hidden bg-slate-900">
+                <div class="h-20 sm:h-28 relative overflow-hidden bg-slate-900">
                     <img src="${imgSrc}" class="w-full h-full object-cover opacity-70 group-hover:scale-110 group-hover:opacity-100 transition duration-500">
                     <div class="absolute inset-0 bg-indigo-500/30 opacity-0 group-hover:opacity-100 flex items-center justify-center transition">
-                        <span class="bg-indigo-600 text-white text-[10px] font-bold px-4 py-1.5 rounded-full uppercase shadow-lg tracking-wider">Start Auction</span>
+                        <span class="bg-indigo-600 text-white text-[9px] lg:text-[10px] font-bold px-3 py-1 lg:px-4 lg:py-1.5 rounded-full uppercase shadow-lg tracking-wider text-center">Start Auction</span>
                     </div>
                 </div>
-                <div class="p-3 text-center flex-1 flex flex-col justify-center bg-slate-900/40">
-                    <div class="font-bold text-sm text-white truncate w-full tracking-wide">${p.name}</div>
-                    <div class="text-[10px] text-cyan-400 font-mono mt-1 font-bold">Base: ৳${displayPrice}</div>
+                <div class="p-2 lg:p-3 text-center flex-1 flex flex-col justify-center bg-slate-900/40">
+                    <div class="font-bold text-[10px] lg:text-sm text-white truncate w-full tracking-wide">${p.name}</div>
+                    <div class="text-[9px] lg:text-[10px] text-cyan-400 font-mono mt-1 font-bold">Base: ৳${displayPrice}</div>
                 </div>
             </div>
         `;
@@ -890,24 +924,23 @@ function renderScoreboards() {
         if(!container) return; 
         container.innerHTML = '';
         
-        let gridClass = 'grid-cols-1 md:grid-cols-2 gap-4'; 
-        if(containerId === 'auctionScoreboard') gridClass = 'grid-cols-2 lg:grid-cols-2 gap-3';
-        if(containerId === 'viewerScoreboard') gridClass = 'grid-cols-1 lg:grid-cols-2 gap-4';
+        let gridClass = 'grid-cols-2 lg:grid-cols-2 gap-2 lg:gap-4'; 
+        if(containerId === 'auctionScoreboard') gridClass = 'grid-cols-2 lg:grid-cols-2 gap-2 lg:gap-3';
+        if(containerId === 'viewerScoreboard') gridClass = 'grid-cols-1 sm:grid-cols-2 gap-3 lg:gap-4';
             
         container.className = `grid ${gridClass} overflow-y-auto pr-2 content-start`;
         
         STATE.teams.forEach(t => { 
             const logo = t.logo 
-                ? `<img src="${t.logo}" class="w-14 h-14 rounded-full border-2 border-slate-600 object-cover mb-3 shadow-lg bg-black">` 
-                : `<div class="w-14 h-14 rounded-full bg-slate-900 border-2 border-slate-700 flex items-center justify-center text-[10px] text-slate-500 mb-3 shadow-lg">-</div>`; 
+                ? `<img src="${t.logo}" class="w-10 h-10 lg:w-14 lg:h-14 rounded-full border-2 border-slate-600 object-cover mb-2 lg:mb-3 shadow-lg bg-black">` 
+                : `<div class="w-10 h-10 lg:w-14 lg:h-14 rounded-full bg-slate-900 border-2 border-slate-700 flex items-center justify-center text-[9px] lg:text-[10px] text-slate-500 mb-2 lg:mb-3 shadow-lg">-</div>`; 
             
-            // Add data-team-id for the updateLiveEligibility search query
             container.innerHTML += `
-            <div data-team-id="${t.id}" class="flex flex-col items-center text-center bg-slate-800/40 p-4 rounded-2xl border border-slate-700/50 hover:border-indigo-500/50 transition shadow-lg">
+            <div data-team-id="${t.id}" class="flex flex-col items-center text-center bg-slate-800/40 p-3 lg:p-4 rounded-xl lg:rounded-2xl border border-slate-700/50 hover:border-indigo-500/50 transition shadow-lg">
                 ${logo}
-                <div class="font-bold text-sm text-white leading-tight mb-1 w-full truncate">${t.name}</div>
-                <div class="text-[9px] text-slate-400 uppercase tracking-widest mb-3 bg-slate-900/50 px-2 py-0.5 rounded-md border border-slate-700/50">${t.purchases ? Object.keys(t.purchases).length : 0} Roster</div>
-                <div class="font-black text-cyan-400 font-mono text-base bg-slate-900/80 px-3 py-1.5 rounded-lg border border-cyan-500/20 w-full text-center tracking-tight shadow-inner">৳${t.purse}</div>
+                <div class="font-bold text-[10px] lg:text-sm text-white leading-tight mb-1 w-full truncate">${t.name}</div>
+                <div class="text-[8px] lg:text-[9px] text-slate-400 uppercase tracking-widest mb-2 lg:mb-3 bg-slate-900/50 px-2 py-0.5 rounded-md border border-slate-700/50">${t.purchases ? Object.keys(t.purchases).length : 0} Roster</div>
+                <div class="font-black text-cyan-400 font-mono text-sm lg:text-base bg-slate-900/80 px-2 lg:px-3 py-1 lg:py-1.5 rounded-lg border border-cyan-500/20 w-full text-center tracking-tight shadow-inner truncate">৳${t.purse}</div>
             </div>`; 
         });
     };
@@ -915,7 +948,6 @@ function renderScoreboards() {
     render('dashboardScoreboard');
     render('viewerScoreboard');
 
-    // Run the eligibility check visually if we have an active player
     updateLiveEligibility();
 }
 
@@ -934,16 +966,16 @@ function generatePlayerTileHTML(player, categoryId, displayPrice, isDirect, sold
     const imgSrc = player.image || "https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=400&auto=format&fit=crop";
 
     let frostedTagContent = `
-        <div class="absolute top-3 left-3 bg-black/40 backdrop-blur-md border border-white/10 text-white text-[10px] font-bold px-3 py-1.5 rounded-lg uppercase tracking-widest shadow-lg flex items-center space-x-2">
-            <span class="w-2 h-2 rounded-full ${isSold ? 'bg-slate-500' : 'bg-emerald-400'} shadow-[0_0_8px_rgba(52,211,153,0.5)]"></span>
+        <div class="absolute top-2 left-2 lg:top-3 lg:left-3 bg-black/40 backdrop-blur-md border border-white/10 text-white text-[9px] lg:text-[10px] font-bold px-2 py-1 lg:px-3 lg:py-1.5 rounded-lg uppercase tracking-widest shadow-lg flex items-center space-x-1 lg:space-x-2">
+            <span class="w-1.5 h-1.5 lg:w-2 lg:h-2 rounded-full ${isSold ? 'bg-slate-500' : 'bg-emerald-400'} shadow-[0_0_8px_rgba(52,211,153,0.5)]"></span>
             <span>${categoryId}</span>
         </div>
     `;
 
     if((CURRENT_USER.role === 'team' || CURRENT_USER.role === 'listener') && soldToName) {
          frostedTagContent = `
-            <div class="absolute top-3 left-3 bg-black/40 backdrop-blur-md border border-white/10 text-white text-[10px] font-bold px-3 py-1.5 rounded-lg uppercase tracking-widest shadow-lg flex items-center space-x-2">
-                <span class="w-2 h-2 rounded-full ${isDirect ? 'bg-purple-400' : 'bg-indigo-400'} shadow-[0_0_8px_rgba(129,140,248,0.5)]"></span>
+            <div class="absolute top-2 left-2 lg:top-3 lg:left-3 bg-black/40 backdrop-blur-md border border-white/10 text-white text-[9px] lg:text-[10px] font-bold px-2 py-1 lg:px-3 lg:py-1.5 rounded-lg uppercase tracking-widest shadow-lg flex items-center space-x-1 lg:space-x-2">
+                <span class="w-1.5 h-1.5 lg:w-2 lg:h-2 rounded-full ${isDirect ? 'bg-purple-400' : 'bg-indigo-400'} shadow-[0_0_8px_rgba(129,140,248,0.5)]"></span>
                 <span>${categoryId}</span>
             </div>
         `;
@@ -952,31 +984,31 @@ function generatePlayerTileHTML(player, categoryId, displayPrice, isDirect, sold
     let statusBadgeHTML = "";
     if(isSold) {
         statusBadgeHTML = `
-        <div class="mt-4 pt-3 border-t border-slate-700/50">
-            <div class="text-center py-2.5 rounded-lg text-white ${isDirect ? 'bg-gradient-to-r from-purple-600 to-purple-800' : 'bg-gradient-to-r from-indigo-600 to-indigo-800'} shadow-md border border-white/10">
-                <div class="text-[9px] uppercase tracking-wider font-bold opacity-80">${isDirect ? 'Retained By' : 'Acquired By'}</div>
-                <div class="text-sm font-black tracking-wide">${soldToName}</div>
+        <div class="mt-3 lg:mt-4 pt-2 lg:pt-3 border-t border-slate-700/50">
+            <div class="text-center py-2 lg:py-2.5 rounded-lg text-white ${isDirect ? 'bg-gradient-to-r from-purple-600 to-purple-800' : 'bg-gradient-to-r from-indigo-600 to-indigo-800'} shadow-md border border-white/10">
+                <div class="text-[8px] lg:text-[9px] uppercase tracking-wider font-bold opacity-80">${isDirect ? 'Retained By' : 'Acquired By'}</div>
+                <div class="text-xs lg:text-sm font-black tracking-wide truncate px-2">${soldToName}</div>
             </div>
         </div>`;
     }
 
     return `
         <div class="${tileWrapperClass}" data-name="${player.name}" data-price="${displayPrice}">
-            <div class="relative h-48 sm:h-56 w-full bg-slate-900 overflow-hidden shrink-0">
+            <div class="relative h-40 sm:h-48 lg:h-56 w-full bg-slate-900 overflow-hidden shrink-0">
                 <img src="${imgSrc}" class="w-full h-full object-cover opacity-80 group-hover:scale-105 group-hover:opacity-100 transition duration-500">
                 <div class="absolute inset-0 bg-gradient-to-t from-[#0b1121] to-transparent"></div>
                 ${frostedTagContent}
                 <div class="hover-overlay-anchor z-10"></div>
             </div>
-            <div class="p-5 flex-1 flex flex-col z-10 bg-[#0b1121]/80">
+            <div class="p-3 lg:p-5 flex-1 flex flex-col z-10 bg-[#0b1121]/80">
                 <div class="flex justify-between items-start">
-                    <div class="flex-1 pr-3">
-                        <h4 class="text-lg sm:text-xl font-black text-white leading-tight drop-shadow-md mb-1">${player.name}</h4>
-                        <div class="text-[10px] text-slate-400 uppercase tracking-widest">Prospect Profile</div>
+                    <div class="flex-1 pr-2">
+                        <h4 class="text-sm sm:text-lg lg:text-xl font-black text-white leading-tight drop-shadow-md mb-1 break-words">${player.name}</h4>
+                        <div class="text-[8px] lg:text-[10px] text-slate-400 uppercase tracking-widest hidden sm:block">Prospect Profile</div>
                     </div>
                     <div class="text-right shrink-0">
-                        <div class="text-[9px] text-slate-500 font-bold uppercase tracking-widest mb-1">Final Valuation</div>
-                        <div class="text-lg sm:text-xl font-black text-cyan-400 font-mono tracking-tighter drop-shadow-[0_0_8px_rgba(34,211,238,0.3)] price">৳${displayPrice}</div>
+                        <div class="text-[8px] lg:text-[9px] text-slate-500 font-bold uppercase tracking-widest mb-1">Final Val.</div>
+                        <div class="text-sm sm:text-lg lg:text-xl font-black text-cyan-400 font-mono tracking-tighter drop-shadow-[0_0_8px_rgba(34,211,238,0.3)] price">৳${displayPrice}</div>
                     </div>
                 </div>
                 ${statusBadgeHTML}
@@ -998,23 +1030,23 @@ function renderViewerRosters() {
     }
 
     STATE.teams.forEach(t => {
-        const logo = t.logo ? `<img src="${t.logo}" class="w-24 h-24 rounded-full border-2 border-slate-600 object-cover mb-4 shadow-lg bg-black">` 
-                            : `<div class="w-24 h-24 rounded-full bg-slate-900 border-2 border-slate-700 flex items-center justify-center text-[10px] text-slate-500 mb-4 shadow-lg">-</div>`; 
+        const logo = t.logo ? `<img src="${t.logo}" class="w-16 h-16 lg:w-24 lg:h-24 rounded-full border-2 border-slate-600 object-cover mb-3 lg:mb-4 shadow-lg bg-black">` 
+                            : `<div class="w-16 h-16 lg:w-24 lg:h-24 rounded-full bg-slate-900 border-2 border-slate-700 flex items-center justify-center text-[10px] text-slate-500 mb-3 lg:mb-4 shadow-lg">-</div>`; 
         
         const teamHtml = `
-            <div class="flex flex-col lg:flex-row gap-6 bg-slate-800/20 border border-slate-700/50 rounded-[2rem] p-6 lg:p-8 shadow-xl hover:border-indigo-500/30 transition">
-                <div class="w-full lg:w-72 shrink-0 flex flex-col items-center text-center bg-slate-900/50 p-8 rounded-3xl border border-slate-700/50 shadow-inner">
+            <div class="flex flex-col lg:flex-row gap-4 lg:gap-6 bg-slate-800/20 border border-slate-700/50 rounded-2xl lg:rounded-[2rem] p-4 lg:p-8 shadow-xl hover:border-indigo-500/30 transition">
+                <div class="w-full lg:w-72 shrink-0 flex flex-col items-center text-center bg-slate-900/50 p-6 lg:p-8 rounded-2xl lg:rounded-3xl border border-slate-700/50 shadow-inner">
                     ${logo}
-                    <h3 class="text-2xl font-black text-white leading-tight mb-2 w-full truncate">${t.name}</h3>
-                    <div class="text-xs text-slate-400 uppercase tracking-widest mb-6 bg-slate-800 px-4 py-1.5 rounded-lg border border-slate-700/50">${t.purchases ? Object.keys(t.purchases).length : 0} Player Roster</div>
-                    <div class="w-full text-center bg-black/40 p-4 rounded-xl border border-white/5">
-                        <div class="text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-1">Remaining Purse</div>
-                        <div class="text-3xl font-black text-cyan-400 font-mono tracking-tighter">৳${t.purse}</div>
+                    <h3 class="text-xl lg:text-2xl font-black text-white leading-tight mb-2 w-full truncate">${t.name}</h3>
+                    <div class="text-[10px] lg:text-xs text-slate-400 uppercase tracking-widest mb-4 lg:mb-6 bg-slate-800 px-3 py-1 lg:px-4 lg:py-1.5 rounded-lg border border-slate-700/50">${t.purchases ? Object.keys(t.purchases).length : 0} Player Roster</div>
+                    <div class="w-full text-center bg-black/40 p-3 lg:p-4 rounded-xl border border-white/5">
+                        <div class="text-[9px] lg:text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-1">Remaining Purse</div>
+                        <div class="text-2xl lg:text-3xl font-black text-cyan-400 font-mono tracking-tighter">৳${t.purse}</div>
                     </div>
                 </div>
                 
                 <div class="flex-1">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5 content-start" id="viewerTeamPlayers-${t.id}">
+                    <div class="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-3 gap-3 lg:gap-5 content-start" id="viewerTeamPlayers-${t.id}">
                     </div>
                 </div>
             </div>
@@ -1026,7 +1058,7 @@ function renderViewerRosters() {
         const hasPurchases = t.purchases && Object.keys(t.purchases).length > 0;
         
         if(!hasPurchases) {
-            gridEl.innerHTML = '<div class="col-span-full flex items-center justify-center h-full min-h-[200px]"><div class="text-center text-xs text-slate-500 uppercase tracking-widest border border-dashed border-slate-700/50 w-full rounded-2xl py-10">No players acquired yet.</div></div>';
+            gridEl.innerHTML = '<div class="col-span-full flex items-center justify-center h-full min-h-[150px] lg:min-h-[200px]"><div class="text-center text-[10px] lg:text-xs text-slate-500 uppercase tracking-widest border border-dashed border-slate-700/50 w-full rounded-2xl py-8 lg:py-10">No players acquired yet.</div></div>';
         } else {
             Object.entries(t.purchases).forEach(([catId, playerName]) => {
                 const catPlayers = STATE.playersSnapshot[catId] || [];
@@ -1053,23 +1085,23 @@ function renderMyTeam() {
 
     div.innerHTML = ''; 
     
-    let headerHTML = `<div class="flex justify-between items-end mb-6 bg-slate-900/50 p-4 rounded-2xl border border-slate-700/50 shadow-lg">
-                <div class="text-sm text-slate-400 font-bold uppercase tracking-wider">Remaining Purse Balance</div>
-                <div class="text-4xl font-black text-emerald-400 font-mono tracking-tight text-shadow-md">৳${t.purse}</div>
+    let headerHTML = `<div class="flex flex-col sm:flex-row sm:justify-between items-start sm:items-end mb-4 lg:mb-6 bg-slate-900/50 p-4 rounded-xl lg:rounded-2xl border border-slate-700/50 shadow-lg gap-2">
+                <div class="text-xs lg:text-sm text-slate-400 font-bold uppercase tracking-wider">Remaining Purse Balance</div>
+                <div class="text-3xl lg:text-4xl font-black text-emerald-400 font-mono tracking-tight text-shadow-md">৳${t.purse}</div>
             </div>`; 
-    if(t.impactUsed) headerHTML += `<div class="bg-indigo-500/20 text-indigo-300 text-xs font-bold px-4 py-3 rounded-xl mb-6 flex items-center uppercase tracking-widest"><span class="mr-2 text-base">⚡</span> Impact Power Deployed</div>`; 
+    if(t.impactUsed) headerHTML += `<div class="bg-indigo-500/20 text-indigo-300 text-[10px] lg:text-xs font-bold px-3 py-2 lg:px-4 lg:py-3 rounded-lg lg:rounded-xl mb-4 lg:mb-6 flex items-center uppercase tracking-widest"><span class="mr-2 text-sm lg:text-base">⚡</span> Impact Power Deployed</div>`; 
     
     div.innerHTML = headerHTML;
 
     const hasPurchases = t.purchases && Object.keys(t.purchases).length > 0;
     
     if(!hasPurchases) {
-        div.innerHTML += '<div class="text-center py-16 text-xs text-slate-500 uppercase tracking-widest border border-dashed border-slate-700/50 w-full rounded-2xl">No players acquired for roster yet.</div>';
+        div.innerHTML += '<div class="text-center py-10 lg:py-16 text-[10px] lg:text-xs text-slate-500 uppercase tracking-widest border border-dashed border-slate-700/50 w-full rounded-2xl">No players acquired for roster yet.</div>';
         return;
     }
 
     const gridEl = document.createElement('div');
-    gridEl.className = "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 pb-6";
+    gridEl.className = "grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 lg:gap-6 pb-6";
     
     Object.entries(t.purchases).forEach(([catId, playerName]) => {
         const catPlayers = STATE.playersSnapshot[catId] || [];
@@ -1097,32 +1129,32 @@ function renderDatabase() {
     const isAdmin = CURRENT_USER.role === 'admin';
     
     if(STATE.categories.length === 0) {
-        container.innerHTML = '<div class="text-center py-10 text-sm text-slate-500">No categories established.</div>'; 
+        container.innerHTML = '<div class="text-center py-10 text-xs lg:text-sm text-slate-500">No categories established.</div>'; 
         return;
     }
     
     STATE.categories.forEach(cat => { 
         const div = document.createElement('div'); 
-        div.className = "bg-[#111827]/80 border border-slate-700/50 p-6 lg:p-8 rounded-3xl flex flex-col shadow-xl";
+        div.className = "bg-[#111827]/80 border border-slate-700/50 p-4 lg:p-8 rounded-2xl lg:rounded-3xl flex flex-col shadow-xl overflow-hidden";
         
-        let headerActions = `<span class="bg-indigo-500/10 text-indigo-300 text-xs px-3 py-1.5 rounded font-medium">Base: ৳${cat.base} | Step: ৳${cat.increment}</span>`; 
-        if(isAdmin) headerActions += `<button class="red small ml-3 !py-1 !px-2" onclick="deleteCat('${cat.id}')">Drop</button>`; 
+        let headerActions = `<span class="bg-indigo-500/10 text-indigo-300 text-[10px] lg:text-xs px-2 py-1 lg:px-3 lg:py-1.5 rounded font-medium whitespace-nowrap">Base: ৳${cat.base} | Step: ৳${cat.increment}</span>`; 
+        if(isAdmin) headerActions += `<button class="red small ml-2 lg:ml-3 !py-1 !px-2 text-[10px] lg:text-xs" onclick="deleteCat('${cat.id}')">Drop</button>`; 
         
         div.innerHTML = `
-            <div class="flex justify-between items-center mb-6 border-b border-slate-700/50 pb-4">
-                <label class="!mb-0 text-xl font-black text-white tracking-wider">${cat.id}</label>
-                <div class="flex items-center">${headerActions}</div>
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 lg:mb-6 border-b border-slate-700/50 pb-3 lg:pb-4 gap-3">
+                <label class="!mb-0 text-lg lg:text-xl font-black text-white tracking-wider">${cat.id}</label>
+                <div class="flex items-center flex-wrap gap-2">${headerActions}</div>
             </div>
             ${isAdmin ? `
-            <div class="flex space-x-3 mb-6 bg-black/20 p-4 rounded-xl border border-slate-700/50 items-center justify-between">
-                <span class="text-xs text-slate-400 uppercase tracking-widest font-bold">Manage Roster</span>
-                <div class="flex space-x-2">
-                    <button onclick="openPlayerEdit('${cat.id}')" class="green small !py-2 px-4 shadow-lg flex items-center"><span class="mr-1 text-lg leading-none">+</span> Add Player</button>
-                    <button onclick="clearCat('${cat.id}')" class="ghost small !py-2 border border-red-500/20 text-red-400 hover:bg-red-500/10">Wipe List</button>
+            <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3 mb-4 lg:mb-6 bg-black/20 p-3 lg:p-4 rounded-xl border border-slate-700/50 items-start sm:items-center justify-between">
+                <span class="text-[10px] lg:text-xs text-slate-400 uppercase tracking-widest font-bold hidden sm:inline">Manage Roster</span>
+                <div class="flex space-x-2 w-full sm:w-auto">
+                    <button onclick="openPlayerEdit('${cat.id}')" class="green small flex-1 sm:flex-none justify-center !py-1.5 lg:!py-2 px-3 lg:px-4 shadow-lg flex items-center text-[10px] lg:text-xs"><span class="mr-1 text-sm lg:text-lg leading-none">+</span> Add Player</button>
+                    <button onclick="clearCat('${cat.id}')" class="ghost small flex-1 sm:flex-none justify-center !py-1.5 lg:!py-2 border border-red-500/20 text-red-400 hover:bg-red-500/10 text-[10px] lg:text-xs">Wipe List</button>
                 </div>
             </div>` : ''} 
             
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 flex-1" id="playersList-${cat.id}"></div>
+            <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 lg:gap-6 flex-1" id="playersList-${cat.id}"></div>
         `; 
             
         container.appendChild(div); 
@@ -1131,8 +1163,8 @@ function renderDatabase() {
         const players = STATE.playersSnapshot[cat.id] || [];
         
         if(players.length === 0) {
-            plContainer.className = "flex items-center justify-center w-full";
-            plContainer.innerHTML = '<div class="text-center py-10 text-xs text-slate-500 uppercase tracking-widest border border-dashed border-slate-700/50 w-full rounded-2xl">Awaiting player initialization...</div>';
+            plContainer.className = "flex items-center justify-center w-full col-span-full";
+            plContainer.innerHTML = '<div class="text-center py-8 lg:py-10 text-[10px] lg:text-xs text-slate-500 uppercase tracking-widest border border-dashed border-slate-700/50 w-full rounded-xl lg:rounded-2xl">Awaiting player initialization...</div>';
         }
         
         players.forEach(p => { 
@@ -1155,13 +1187,13 @@ function renderDatabase() {
                 const hoverAnchor = tileEl.querySelector('.hover-overlay-anchor');
                 if(hoverAnchor) {
                     hoverAnchor.innerHTML += `
-                    <div class="absolute top-3 right-3 z-30 flex space-x-2">
-                        <button class="bg-black/60 hover:bg-indigo-500 text-white !p-2 shadow-lg rounded-full border border-white/10 transition" title="Edit Player" onclick="event.stopPropagation(); openPlayerEdit('${cat.id}', '${p.name.replace(/'/g, "\\'")}')">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                    <div class="absolute top-2 right-2 lg:top-3 lg:right-3 z-30 flex space-x-1 lg:space-x-2">
+                        <button class="bg-black/60 hover:bg-indigo-500 text-white !p-1.5 lg:!p-2 shadow-lg rounded-full border border-white/10 transition" title="Edit Player" onclick="event.stopPropagation(); openPlayerEdit('${cat.id}', '${p.name.replace(/'/g, "\\'")}')">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 lg:h-4 lg:w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
                         </button>
                         ${isSold ? `
-                        <button class="bg-black/60 hover:bg-yellow-500 text-white !p-2 shadow-lg rounded-full border border-white/10 transition" title="Reset Player" onclick="event.stopPropagation(); resetPlayer('${cat.id}','${p.name.replace(/'/g, "\\'")}')">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                        <button class="bg-black/60 hover:bg-yellow-500 text-white !p-1.5 lg:!p-2 shadow-lg rounded-full border border-white/10 transition" title="Reset Player" onclick="event.stopPropagation(); resetPlayer('${cat.id}','${p.name.replace(/'/g, "\\'")}')">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 lg:h-4 lg:w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
                         </button>` : ''}
                     </div>`;
                 }
@@ -1170,21 +1202,21 @@ function renderDatabase() {
             if(!isSold && isAdmin) { 
                 tileEl.classList.add('cursor-pointer');
                 tileEl.onclick = (e) => { 
-                    if(e.target.closest('.actions')) return; 
+                    if(e.target.closest('.actions') || e.target.closest('button')) return; 
                     socket.emit('admin:select_player', { category: cat.id, name: p.name, base: cat.base, currentPrice: displayPrice, image: p.image }); 
                     showSection('sectionLiveAuction'); 
                 };
                 const hoverAnchor = tileEl.querySelector('.hover-overlay-anchor');
                 if(hoverAnchor) hoverAnchor.innerHTML += `
                     <div class="absolute inset-0 bg-indigo-500/30 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition duration-300 flex items-center justify-center z-10">
-                        <span class="bg-indigo-600 text-white text-xs font-bold px-5 py-2.5 rounded-full shadow-xl tracking-wider uppercase">Send to Live Arena</span>
+                        <span class="bg-indigo-600 text-white text-[9px] lg:text-xs font-bold px-3 py-1.5 lg:px-5 lg:py-2.5 rounded-full shadow-xl tracking-wider uppercase text-center">Send to Live Arena</span>
                     </div>
                 `;
             }
 
             if(CURRENT_USER.role === 'team' && !isSold) { 
                 const actionsContainer = tileEl.querySelector('.actions');
-                if(actionsContainer) actionsContainer.innerHTML += `<div class="mt-4 pt-3 border-t border-slate-700/50"><button class="btn-bid-req w-full ghost small !py-2.5 border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10 transition uppercase tracking-wider text-[10px] font-black">Request Bid Floor</button></div>`; 
+                if(actionsContainer) actionsContainer.innerHTML += `<div class="mt-3 lg:mt-4 pt-2 lg:pt-3 border-t border-slate-700/50"><button class="btn-bid-req w-full ghost small !py-1.5 lg:!py-2.5 border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10 transition uppercase tracking-wider text-[9px] lg:text-[10px] font-black">Request Bid Floor</button></div>`; 
                 const btn = actionsContainer.querySelector('.btn-bid-req'); 
                 if(btn) btn.onclick = (e) => { 
                     e.stopPropagation(); 
@@ -1205,37 +1237,37 @@ function renderTeamConfigTable() {
     
     STATE.teams.forEach(t => { 
         const tile = document.createElement('div'); 
-        tile.className = 'team-config-card bg-slate-800/40 border border-slate-700/50 p-6 rounded-3xl flex flex-col relative shadow-xl hover:border-indigo-500/50 transition'; 
-        const logoHtml = t.logo ? `<img src="${t.logo}" class="w-full h-full object-cover">` : `<span style="font-size:10px;color:var(--muted)">Drop Logo</span>`; 
+        tile.className = 'team-config-card bg-slate-800/40 border border-slate-700/50 p-4 lg:p-6 rounded-2xl lg:rounded-3xl flex flex-col relative shadow-xl hover:border-indigo-500/50 transition'; 
+        const logoHtml = t.logo ? `<img src="${t.logo}" class="w-full h-full object-cover">` : `<span style="font-size:9px;color:var(--muted);text-align:center;line-height:1.2">Drop Logo</span>`; 
         
         tile.innerHTML = `
-            <div class="absolute top-4 right-4 flex space-x-2">
-                <button class="small ghost !p-2 border-yellow-500/30 text-yellow-400 hover:bg-yellow-500/10 rounded-lg shadow-md" onclick="resetTeam('${t.id}')" title="Reset Team">↺</button>
-                <button class="small ghost !p-2 border-red-500/30 text-red-400 hover:bg-red-500/10 rounded-lg shadow-md" onclick="this.closest('.team-config-card').remove()" title="Delete Team">×</button>
+            <div class="absolute top-3 right-3 lg:top-4 lg:right-4 flex space-x-1 lg:space-x-2">
+                <button class="small ghost !p-1.5 lg:!p-2 border-yellow-500/30 text-yellow-400 hover:bg-yellow-500/10 rounded-lg shadow-md" onclick="resetTeam('${t.id}')" title="Reset Team">↺</button>
+                <button class="small ghost !p-1.5 lg:!p-2 border-red-500/30 text-red-400 hover:bg-red-500/10 rounded-lg shadow-md" onclick="this.closest('.team-config-card').remove()" title="Delete Team">×</button>
             </div>
             
-            <div class="flex justify-center mb-6 mt-2">
-                <div class="logo-drop-zone w-24 h-24 rounded-full border-2 border-dashed border-slate-600 hover:border-indigo-500 bg-slate-900 overflow-hidden flex items-center justify-center cursor-pointer relative shadow-inner">
+            <div class="flex justify-center mb-4 lg:mb-6 mt-1 lg:mt-2">
+                <div class="logo-drop-zone w-16 h-16 lg:w-24 lg:h-24 rounded-full border-2 border-dashed border-slate-600 hover:border-indigo-500 bg-slate-900 overflow-hidden flex items-center justify-center cursor-pointer relative shadow-inner">
                     ${logoHtml}
                 </div>
             </div>
             
-            <div class="space-y-4 flex-1">
+            <div class="space-y-3 lg:space-y-4 flex-1">
                 <div>
-                    <label class="!mb-1.5 !text-[10px] tracking-wider">Franchise ID</label>
-                    <input class="t-id !mb-0 !py-2.5 !text-sm bg-slate-900/50 border-slate-600 focus:border-indigo-500 shadow-inner" value="${t.id}" placeholder="e.g. BLR">
+                    <label class="!mb-1 !text-[9px] lg:!text-[10px] tracking-wider">Franchise ID</label>
+                    <input class="t-id !mb-0 !py-1.5 lg:!py-2.5 !text-xs lg:!text-sm bg-slate-900/50 border-slate-600 focus:border-indigo-500 shadow-inner" value="${t.id}" placeholder="e.g. BLR">
                 </div>
                 <div>
-                    <label class="!mb-1.5 !text-[10px] tracking-wider">Team Name</label>
-                    <input class="t-name !mb-0 !py-2.5 !text-sm bg-slate-900/50 border-slate-600 focus:border-indigo-500 shadow-inner" value="${t.name}" placeholder="e.g. Bangalore">
+                    <label class="!mb-1 !text-[9px] lg:!text-[10px] tracking-wider">Team Name</label>
+                    <input class="t-name !mb-0 !py-1.5 lg:!py-2.5 !text-xs lg:!text-sm bg-slate-900/50 border-slate-600 focus:border-indigo-500 shadow-inner" value="${t.name}" placeholder="e.g. Bangalore">
                 </div>
                 <div>
-                    <label class="!mb-1.5 !text-[10px] tracking-wider">Security Key</label>
-                    <input class="t-pass !mb-0 !py-2.5 !text-sm bg-slate-900/50 border-slate-600 focus:border-indigo-500 shadow-inner" value="${t.password||''}" placeholder="Password">
+                    <label class="!mb-1 !text-[9px] lg:!text-[10px] tracking-wider">Security Key</label>
+                    <input class="t-pass !mb-0 !py-1.5 lg:!py-2.5 !text-xs lg:!text-sm bg-slate-900/50 border-slate-600 focus:border-indigo-500 shadow-inner" value="${t.password||''}" placeholder="Password">
                 </div>
                 <div>
-                    <label class="!mb-1.5 !text-[10px] tracking-wider">Starting Purse (৳)</label>
-                    <input class="t-purse !mb-0 !py-2.5 !text-base font-black font-mono text-emerald-400 bg-slate-900/80 border-slate-600 focus:border-emerald-500 shadow-inner" type="number" value="${t.purse}" placeholder="500">
+                    <label class="!mb-1 !text-[9px] lg:!text-[10px] tracking-wider">Starting Purse (৳)</label>
+                    <input class="t-purse !mb-0 !py-1.5 lg:!py-2.5 !text-sm lg:!text-base font-black font-mono text-emerald-400 bg-slate-900/80 border-slate-600 focus:border-emerald-500 shadow-inner" type="number" value="${t.purse}" placeholder="500">
                 </div>
             </div>
         `; 
@@ -1244,11 +1276,11 @@ function renderTeamConfigTable() {
     }); 
     
     const addTile = document.createElement('div');
-    addTile.className = 'bg-slate-800/20 border-2 border-slate-700/50 border-dashed p-6 rounded-3xl flex flex-col items-center justify-center cursor-pointer hover:bg-slate-800/40 hover:border-indigo-500/50 transition min-h-[450px] shadow-lg';
+    addTile.className = 'bg-slate-800/20 border-2 border-slate-700/50 border-dashed p-4 lg:p-6 rounded-2xl lg:rounded-3xl flex flex-col items-center justify-center cursor-pointer hover:bg-slate-800/40 hover:border-indigo-500/50 transition min-h-[300px] lg:min-h-[450px] shadow-lg';
     addTile.onclick = addTeamInputRow;
     addTile.innerHTML = `
-        <div class="w-20 h-20 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-400 text-4xl mb-6 shadow-inner">+</div>
-        <div class="font-bold text-slate-300 tracking-wider uppercase text-sm">Add Franchise Slot</div>
+        <div class="w-12 h-12 lg:w-20 lg:h-20 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-400 text-2xl lg:text-4xl mb-4 lg:mb-6 shadow-inner">+</div>
+        <div class="font-bold text-slate-300 tracking-wider uppercase text-xs lg:text-sm">Add Franchise Slot</div>
     `;
     container.appendChild(addTile);
 }
@@ -1275,7 +1307,7 @@ window.adjustBid = (dir) => { if(!activePlayer) return; const cat = STATE.catego
 window.updatePopupPrice = (p) => { 
     document.getElementById('popupPrice').textContent = p; 
     document.getElementById('viewerPrice').textContent = p; 
-    updateLiveEligibility(); // Dynamic Live Team Elimination Check
+    updateLiveEligibility(); 
 };
 
 window.activateImpact = (c, n) => { if(confirm('Deploy Impact Power? One-time purse boost.')) socket.emit('team:activateImpact', { teamId: CURRENT_USER.teamId, category: c, playerName: n }); };
@@ -1317,7 +1349,6 @@ window.openPlayerEdit = (catId, playerName = null) => {
 
     modal.classList.remove('hidden');
     
-    // Setup file upload for the modal image
     setupFileUpload(document.getElementById('playerEditImgDrop'), (file) => {
         uploadFile(file).then(url => {
             img.src = url;
@@ -1344,19 +1375,16 @@ window.savePlayerEdit = () => {
     const config = STATE.categories.find(c => c.id === catId);
 
     if (oldName) {
-        // Edit existing
         const idx = players.findIndex(p => p.name === oldName);
         if (idx !== -1) {
             players[idx] = { ...players[idx], name: newName };
             if (imageUrl) players[idx].image = imageUrl;
         }
     } else {
-        // Add new
         if (players.find(p => p.name === newName)) return showToast('Player already exists');
         players.push({ name: newName, price: Number(config.base) || 0, image: imageUrl });
     }
 
-    // Save full category back to server
     socket.emit('players:save', { category: catId, players: players });
     closePlayerEdit();
     showToast('Player database updated');
@@ -1366,14 +1394,12 @@ window.clearCat = (id) => { if(confirm('Drop player list in tier?')) socket.emit
 window.deleteCat = (id) => { if(confirm('Delete Category established?')) socket.emit('admin:deleteCategory', { id }); };
 window.resetPlayer = (c,n) => { if(confirm('Wipe bidding history on player?')) socket.emit('admin:resetPlayer', { category: c, name: n }); };
 
-// Adding new Category
 document.getElementById('btnAddCat').onclick = () => { 
     const id=document.getElementById('newCatId').value.trim().toUpperCase(), base=Number(document.getElementById('newCatBase').value) || 0, inc=Number(document.getElementById('newCatInc').value) || 0;
     if(id && base > 0 && inc > 0) { STATE.categories.push({ id, base, increment: inc }); socket.emit('admin:updateConfig', { categories: STATE.categories }); document.getElementById('newCatId').value = ''; document.getElementById('newCatBase').value = ''; document.getElementById('newCatInc').value = ''; } 
     else { showToast('❌ Error: Complete config required.'); }
 };
 
-// Admin Config saving
 window.saveGlobalConfig = () => { const amt = document.getElementById('configImpact').value; socket.emit('admin:updateConfig', { impactAmount: amt }); showToast('Impact Rule Saved'); };
 window.resetTeam = (tid) => { if(confirm('Reset Team history?')) socket.emit('admin:resetTeam', { teamId: tid }); };
 document.getElementById('btnSaveTeams').onclick = () => { 
@@ -1398,7 +1424,6 @@ window.triggerDirectSignPopup = () => openSoldConfirmation(activePlayer.category
 function openSoldConfirmation(cat, name, price, isDirect = false) { 
     pendingSold = { category: cat, name, price: Number(price) || 0, isDirect }; 
     
-    // Auto Pause Timer and visually show pause
     isTimerPaused = true;
     if(document.getElementById('btnPauseTimer')) {
         document.getElementById('btnPauseTimer').textContent = '▶️';
@@ -1421,7 +1446,6 @@ function openSoldConfirmation(cat, name, price, isDirect = false) {
 
 document.getElementById('btnCancelSold').onclick = () => {
     document.getElementById('soldActionOverlay').classList.add('hidden');
-    // Resume timer on cancel
     isTimerPaused = false;
     if(document.getElementById('btnPauseTimer')) {
         document.getElementById('btnPauseTimer').textContent = '⏸️';
