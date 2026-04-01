@@ -493,6 +493,65 @@ function updateLiveIndicator() {
     }
 }
 
+// --- NEW RULE: TEAM LIVE ELIGIBILITY (GRAY OUT SYSTEM) ---
+function updateLiveEligibility() {
+    if (!activePlayer) return;
+    const currentPrice = Number(document.getElementById('popupPrice').textContent) || 0;
+    
+    const eligibility = {};
+    STATE.teams.forEach(t => {
+        let canBuy = true;
+        // Check 1: Already has a player from this category
+        if (t.purchases && t.purchases[activePlayer.category]) {
+            canBuy = false;
+        } else {
+            // Check 2: Minimum Required Purse for Remaining Empty Categories
+            let requiredReserve = 0;
+            STATE.categories.forEach(cat => {
+                if (cat.id !== activePlayer.category) {
+                    if (!t.purchases || !t.purchases[cat.id]) {
+                        requiredReserve += Number(cat.base) || 0;
+                    }
+                }
+            });
+            if (Number(t.purse) - currentPrice < requiredReserve) {
+                canBuy = false;
+            }
+        }
+        eligibility[t.id] = canBuy;
+    });
+
+    // Visually Gray out teams on the Standings Boards
+    const containers = [document.getElementById('auctionScoreboard'), document.getElementById('dashboardScoreboard'), document.getElementById('viewerScoreboard')];
+    containers.forEach(container => {
+        if (!container) return;
+        Array.from(container.children).forEach((child) => {
+            const tId = child.getAttribute('data-team-id');
+            if (tId && eligibility.hasOwnProperty(tId)) {
+                if (eligibility[tId]) {
+                    child.classList.remove('opacity-40', 'grayscale', 'pointer-events-none');
+                } else {
+                    child.classList.add('opacity-40', 'grayscale', 'pointer-events-none');
+                }
+            }
+        });
+    });
+
+    // Visually Gray out Team's Live section if they cannot participate 
+    if (CURRENT_USER.role === 'team') {
+        const canIBuy = eligibility[CURRENT_USER.teamId];
+        const popup = document.getElementById('auctionPlayerPopup');
+        if (popup) {
+            if (!canIBuy) {
+                popup.classList.add('opacity-40', 'grayscale', 'pointer-events-none');
+            } else {
+                popup.classList.remove('opacity-40', 'grayscale', 'pointer-events-none');
+            }
+        }
+    }
+}
+
+
 // --- 30 SECOND TIMER LOGIC ---
 function resetAndStartTimer() {
     clearInterval(auctionTimerInterval);
@@ -632,8 +691,13 @@ socket.on('popup:close', () => {
     activePlayer = null; 
     clearInterval(auctionTimerInterval);
     document.getElementById('auctionPlayerPopup').classList.add('hidden'); 
+    
+    // Clear out gray out
+    document.getElementById('auctionPlayerPopup').classList.remove('opacity-40', 'grayscale', 'pointer-events-none');
+    
     document.getElementById('auctionIdleState').classList.remove('hidden'); 
     updateLiveIndicator();
+    renderScoreboards(); // reset the scoreboard visual
     if(CURRENT_USER.role === 'admin') renderLiveAdminQueue();
 });
 
@@ -651,7 +715,10 @@ socket.on('player:sold', data => {
     clearInterval(auctionTimerInterval);
     updateLiveIndicator();
     
-    document.getElementById('auctionPlayerPopup').classList.add('hidden'); document.getElementById('auctionIdleState').classList.remove('hidden'); const t = STATE.teams.find(x => x.id === teamId); 
+    document.getElementById('auctionPlayerPopup').classList.add('hidden'); 
+    document.getElementById('auctionPlayerPopup').classList.remove('opacity-40', 'grayscale', 'pointer-events-none');
+    
+    document.getElementById('auctionIdleState').classList.remove('hidden'); const t = STATE.teams.find(x => x.id === teamId); 
     
     const titleEl = document.getElementById('animTitle');
     if (isDirect) { titleEl.textContent = 'RETAINED!'; titleEl.className = "text-7xl font-black text-purple-400 drop-shadow-[0_0_40px_rgba(168,85,247,0.6)] tracking-widest"; } 
@@ -834,8 +901,9 @@ function renderScoreboards() {
                 ? `<img src="${t.logo}" class="w-14 h-14 rounded-full border-2 border-slate-600 object-cover mb-3 shadow-lg bg-black">` 
                 : `<div class="w-14 h-14 rounded-full bg-slate-900 border-2 border-slate-700 flex items-center justify-center text-[10px] text-slate-500 mb-3 shadow-lg">-</div>`; 
             
+            // Add data-team-id for the updateLiveEligibility search query
             container.innerHTML += `
-            <div class="flex flex-col items-center text-center bg-slate-800/40 p-4 rounded-2xl border border-slate-700/50 hover:border-indigo-500/50 transition shadow-lg">
+            <div data-team-id="${t.id}" class="flex flex-col items-center text-center bg-slate-800/40 p-4 rounded-2xl border border-slate-700/50 hover:border-indigo-500/50 transition shadow-lg">
                 ${logo}
                 <div class="font-bold text-sm text-white leading-tight mb-1 w-full truncate">${t.name}</div>
                 <div class="text-[9px] text-slate-400 uppercase tracking-widest mb-3 bg-slate-900/50 px-2 py-0.5 rounded-md border border-slate-700/50">${t.purchases ? Object.keys(t.purchases).length : 0} Roster</div>
@@ -846,6 +914,9 @@ function renderScoreboards() {
     render('auctionScoreboard'); 
     render('dashboardScoreboard');
     render('viewerScoreboard');
+
+    // Run the eligibility check visually if we have an active player
+    updateLiveEligibility();
 }
 
 // --- HELPER TO GENERATE PLAYER TILE HTML ---
@@ -1200,7 +1271,13 @@ window.addTeamInputRow = () => {
 
 window.closePopup = () => { if(CURRENT_USER.role==='admin') socket.emit('admin:close_popup'); };
 window.adjustBid = (dir) => { if(!activePlayer) return; const cat = STATE.categories.find(c => c.id === activePlayer.category); let current = Number(document.getElementById('popupPrice').textContent) || 0; let step = Number(cat.increment) || 0; let next = dir === 'inc' ? current + step : current - step; if(next >= Number(cat.base)) socket.emit('player:bid', { category: activePlayer.category, name: activePlayer.name, price: next }); };
-window.updatePopupPrice = (p) => { document.getElementById('popupPrice').textContent = p; document.getElementById('viewerPrice').textContent = p; };
+
+window.updatePopupPrice = (p) => { 
+    document.getElementById('popupPrice').textContent = p; 
+    document.getElementById('viewerPrice').textContent = p; 
+    updateLiveEligibility(); // Dynamic Live Team Elimination Check
+};
+
 window.activateImpact = (c, n) => { if(confirm('Deploy Impact Power? One-time purse boost.')) socket.emit('team:activateImpact', { teamId: CURRENT_USER.teamId, category: c, playerName: n }); };
 document.getElementById('clearLog').onclick = () => document.getElementById('log').innerHTML = '';
 
