@@ -636,6 +636,7 @@
         <button class="nav-btn" onclick="switchTab('cgpa')" id="btn-cgpa">CGPA Calc</button>
         <button class="nav-btn" onclick="switchTab('calendar')" id="btn-calendar">Calendar</button>
         <button class="nav-btn" onclick="switchTab('planner')" id="btn-planner">Course Planner</button>
+        <button class="nav-btn" onclick="switchTab('tuition')" id="btn-tuition">Tuition Calc</button>
         <button class="nav-btn" onclick="toggleTheme()" id="btn-theme" title="Toggle Theme">💻</button>
     </div>
 </nav>
@@ -674,6 +675,11 @@
                 <h3>Course Planner</h3>
                 <p>Explore the full core curriculum and map out your major elective tracks.</p>
             </div>
+            <div class="dash-card" onclick="switchTab('tuition')">
+        <div class="dash-icon">💰</div>
+        <h3>Tuition Calc</h3>
+        <p>Estimate trimester costs, apply UIU waivers, and plan your budget easily.</p>
+    </div>
         </div>
     </div>
 
@@ -872,6 +878,49 @@
             </div>
         </div>
     </div>
+    <div id="tuition-section" class="tool-section">
+    <h1 class="gradient-text">Tuition Fee Calculator</h1>
+    <p class="subtitle">Estimate Trimester Cost & Waivers for CSE</p>
+
+    <div class="section-box">
+        <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 20px;">
+            <div style="flex:1; min-width: 200px;">
+                <label style="font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 5px;">Total Credits Taken</label>
+                <input type="number" id="t-credits" placeholder="e.g., 14" step="1">
+            </div>
+            <div style="flex:1; min-width: 200px;">
+                <label style="font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 5px;">Waiver Percentage (%)</label>
+                <input type="number" id="t-waiver" placeholder="e.g., 25, 50, 100" step="1" min="0" max="100">
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 25px; background: var(--bg-body); padding: 15px; border-radius: 8px; border: 1px dashed var(--border-color);">
+            <div style="flex:1; min-width: 140px;">
+                <label style="font-size: 0.85em; color: var(--text-muted); display: block; margin-bottom: 5px;">Cost Per Credit (BDT)</label>
+                <input type="number" id="t-cost-per-credit" value="6500">
+            </div>
+            <div style="flex:1; min-width: 140px;">
+                <label style="font-size: 0.85em; color: var(--text-muted); display: block; margin-bottom: 5px;">Trimester Fee (BDT)</label>
+                <input type="number" id="t-trimester-fee" value="9500">
+            </div>
+        </div>
+        
+        <button class="btn-action btn-calc" style="width: 100%; box-shadow: 0 10px 20px rgba(0, 129, 209, 0.2); background: var(--gradient-secondary);" onclick="calculateTuition()">💸 Calculate Payable Amount</button>
+
+        <div id="tuitionResultBox" class="result-box" style="margin-top: 25px; border-color: #28a745; background: linear-gradient(135deg, var(--course-added-bg) 0%, var(--bg-body) 100%);">
+            <div style="font-size: 1.1em; color: var(--text-muted); margin-bottom: 5px;">Total Payable Amount:</div>
+            <div class="gpa-value" id="t-total-fee" style="color: #28a745; font-size: 2.2rem;">0 BDT</div>
+            
+            <hr style="border: none; border-top: 1px dashed var(--border-color); margin: 20px 0;">
+            
+            <div style="display: flex; justify-content: space-between; font-size: 0.95em; color: var(--text-muted); flex-wrap: wrap; gap: 15px; text-align: left;">
+                <div style="flex:1; min-width: 100px;">Base Tuition:<br><strong id="t-base-tuition" style="color: var(--text-main); font-size: 1.1em;">0</strong></div>
+                <div style="flex:1; min-width: 100px;">Waiver Discount:<br><strong id="t-waiver-discount" style="color: #d32f2f; font-size: 1.1em;">-0</strong></div>
+                <div style="flex:1; min-width: 100px;">Trimester Fee:<br><strong id="t-trim-fee" style="color: var(--primary-color); font-size: 1.1em;">0</strong></div>
+            </div>
+        </div>
+    </div>
+</div>
 
     <div id="calendar-section" class="tool-section">
         <h1 class="gradient-text">Spring 2026 Academic Calendar</h1>
@@ -2046,6 +2095,26 @@
             quoteText.innerHTML = "\"You've built an amazing foundation! Keep calm, code on, and enjoy the ride to graduation.\" 🏆";
         }
     }
+    // --- TUITION CALCULATOR LOGIC ---
+function calculateTuition() {
+    const credits = parseFloat(document.getElementById('t-credits').value) || 0;
+    const waiver = parseFloat(document.getElementById('t-waiver').value) || 0;
+    const costPerCredit = parseFloat(document.getElementById('t-cost-per-credit').value) || 0;
+    const trimesterFee = parseFloat(document.getElementById('t-trimester-fee').value) || 0;
+
+    // UIU specific logic: Waiver applies ONLY to the base tuition fee, not the trimester fee.
+    const baseTuition = credits * costPerCredit;
+    const waiverDiscount = baseTuition * (waiver / 100);
+    const totalFee = (baseTuition - waiverDiscount) + trimesterFee;
+
+    // Formatting numbers with commas
+    document.getElementById('t-base-tuition').innerText = baseTuition.toLocaleString('en-IN') + ' ৳';
+    document.getElementById('t-waiver-discount').innerText = '-' + waiverDiscount.toLocaleString('en-IN') + ' ৳';
+    document.getElementById('t-trim-fee').innerText = trimesterFee.toLocaleString('en-IN') + ' ৳';
+    document.getElementById('t-total-fee').innerText = totalFee.toLocaleString('en-IN') + ' ৳';
+    
+    document.getElementById('tuitionResultBox').style.display = 'block';
+}
 
     // --- INIT ---
     window.onload = function() {
