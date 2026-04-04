@@ -899,10 +899,7 @@
                 <label style="font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 5px;">Current Credits</label>
                 <input type="number" id="t-current-credits" placeholder="e.g., 13" step="0.5">
             </div>
-            <div style="flex:1; min-width: 140px;">
-                <label style="font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 5px;">General Waiver (%)</label>
-                <input type="number" id="t-waiver" placeholder="e.g., 20 (Applies to all)" step="1" min="0" max="100">
-            </div>
+           <div style="flex:1; min-width: 100px; display: none;" id="t-waiver-box">General Waiver:<br><strong id="t-waiver-discount" style="color: #d32f2f; font-size: 1.1em;">-0</strong><br><small id="t-waiver-note" style="font-size: 0.8em; color: var(--primary-color); font-weight:bold;"></small></div>
         </div>
         
         <div style="margin-bottom: 20px; padding: 15px; border-radius: 8px; background: var(--course-added-bg); border: 1px solid var(--border-color); transition: all 0.3s;">
@@ -2128,151 +2125,80 @@
             quoteText.innerHTML = "\"You've built an amazing foundation! Keep calm, code on, and enjoy the ride to graduation.\" 🏆";
         }
     }
-// --- TUITION CALCULATOR LOGIC ---
-
-// 1. Initialize the Dropdown (Call this inside window.onload)
-function initTuitionPlanner() {
-    const select = document.getElementById('t-planner-select');
-    Object.keys(uiuCurriculum).forEach(triName => {
-        const option = document.createElement('option');
-        option.value = triName;
-        option.innerText = triName;
-        select.appendChild(option);
-    });
-}
-
-// 2. Toggle the Optional Scholarship Box
-function toggleScholarshipInputs() {
-    const isChecked = document.getElementById('t-has-scholarship').checked;
-    document.getElementById('t-scholarship-inputs').style.display = isChecked ? 'flex' : 'none';
-    if (!isChecked) {
-        document.getElementById('t-scholarship').value = ''; 
-    }
-}
-
-// 3. Auto-Fill Data from Course Planner
-function loadTuitionFromPlanner() {
-    const select = document.getElementById('t-planner-select');
-    const triName = select.value;
-    
-    // Reset if nothing selected
-    if (!triName) {
-        document.getElementById('t-credits-left').innerText = "138";
-        document.getElementById('t-tris-left').innerText = "12";
-        document.getElementById('t-current-credits').value = "";
-        return;
-    }
-
-    let currentCredits = 0;
-    let prevCredits = 0;
-    let earnedCreditsBeforeThis = 0;
-    let trimesterIndex = 0;
-    let found = false;
-
-    const keys = Object.keys(uiuCurriculum);
-    for (let i = 0; i < keys.length; i++) {
-        const key = keys[i];
-        const courses = uiuCurriculum[key];
-        let triCredits = 0;
-        courses.forEach(c => triCredits += c.cr);
-
-        if (key === triName) {
-            currentCredits = triCredits;
-            trimesterIndex = i + 1; 
-            if (i > 0) {
-                // Calculate previous trimester's total credits
-                let prevCourses = uiuCurriculum[keys[i-1]];
-                prevCourses.forEach(c => prevCredits += c.cr);
-            }
-            found = true;
-        } else if (!found) {
-            earnedCreditsBeforeThis += triCredits;
-        }
-    }
-
-    // Populate Inputs
-    document.getElementById('t-current-credits').value = currentCredits;
-    
-    if (prevCredits > 0) {
-        document.getElementById('t-prev-credits').value = prevCredits;
-        document.getElementById('t-has-scholarship').checked = true;
-    } else {
-        document.getElementById('t-prev-credits').value = "";
-        document.getElementById('t-has-scholarship').checked = false;
-    }
-    toggleScholarshipInputs();
-
-    // Update Remaining Trackers
-    const totalDegreeCredits = 138;
-    const totalTrimesters = 12;
-    
-    let creditsLeft = totalDegreeCredits - (earnedCreditsBeforeThis + currentCredits);
-    let trisLeft = totalTrimesters - trimesterIndex;
-
-    document.getElementById('t-credits-left').innerText = creditsLeft > 0 ? creditsLeft : 0;
-    document.getElementById('t-tris-left').innerText = trisLeft > 0 ? trisLeft : 0;
-}
-
 // 4. Calculate Final Fees
 function calculateTuition() {
     const currentCredits = parseFloat(document.getElementById('t-current-credits').value) || 0;
-    const waiver = parseFloat(document.getElementById('t-waiver').value) || 0;
+    const waiverPct = parseFloat(document.getElementById('t-waiver').value) || 0;
     const costPerCredit = parseFloat(document.getElementById('t-cost-per-credit').value) || 0;
     const trimesterFee = parseFloat(document.getElementById('t-trimester-fee').value) || 0;
 
     // Check Scholarship Status
     const applyScholarship = document.getElementById('t-has-scholarship').checked;
     const prevCreditsInput = document.getElementById('t-prev-credits').value;
-    const scholarship = applyScholarship ? (parseFloat(document.getElementById('t-scholarship').value) || 0) : 0;
+    const scholarshipPct = applyScholarship ? (parseFloat(document.getElementById('t-scholarship').value) || 0) : 0;
 
     // A. Base Tuition
     const baseTuition = currentCredits * costPerCredit;
     
-    // B. Scholarship Logic (Capped)
+    // B. Calculate Credit Splits
     let eligibleScholarshipCredits = currentCredits;
-    let scholarshipNote = "";
+    let extraCredits = 0;
 
     if (applyScholarship && prevCreditsInput !== "") {
         const prevCredits = parseFloat(prevCreditsInput);
         eligibleScholarshipCredits = Math.min(currentCredits, prevCredits);
-        
-        if (currentCredits > prevCredits) {
-            scholarshipNote = `(Max ${eligibleScholarshipCredits} cr from prev tri)`;
-        } else {
-            scholarshipNote = `(All ${eligibleScholarshipCredits} cr covered)`;
-        }
-    } else if (applyScholarship) {
-        scholarshipNote = `(All ${eligibleScholarshipCredits} cr covered)`;
+        extraCredits = Math.max(0, currentCredits - prevCredits);
     }
 
-    const scholarshipDiscount = eligibleScholarshipCredits * costPerCredit * (scholarship / 100);
+    // C. The "Greater Of" Logic
+    let finalDiscount = 0;
+    let displayScholarshipDiscount = 0;
+    let displayWaiverDiscount = 0;
+    let scholarshipNoteText = "";
+    let waiverNoteText = "";
 
-    // C. Waiver Logic (Uncapped)
-    const waiverDiscount = currentCredits * costPerCredit * (waiver / 100);
+    if (scholarshipPct > waiverPct) {
+        // Scholarship is strictly greater. Apply Scholarship to eligible credits, and Waiver to any extra credits.
+        displayScholarshipDiscount = eligibleScholarshipCredits * costPerCredit * (scholarshipPct / 100);
+        scholarshipNoteText = `(Applied on ${eligibleScholarshipCredits} cr)`;
+        
+        displayWaiverDiscount = extraCredits * costPerCredit * (waiverPct / 100);
+        waiverNoteText = `(Applied on ${extraCredits} extra cr)`;
+        
+        finalDiscount = displayScholarshipDiscount + displayWaiverDiscount;
+    } else {
+        // Waiver is greater (or equal). It's mathematically better to just apply the Waiver to ALL credits.
+        displayWaiverDiscount = currentCredits * costPerCredit * (waiverPct / 100);
+        waiverNoteText = `(Applied on all ${currentCredits} cr. Greater than Scholarship)`;
+        
+        displayScholarshipDiscount = 0; // Scholarship goes unused because Waiver is better
+        finalDiscount = displayWaiverDiscount;
+    }
 
-    // D. Final Totals
-    const totalDiscount = Math.min(baseTuition, scholarshipDiscount + waiverDiscount);
-    const totalFee = (baseTuition - totalDiscount) + trimesterFee;
+    // Cap discount to base tuition just in case
+    finalDiscount = Math.min(baseTuition, finalDiscount);
+    const totalFee = (baseTuition - finalDiscount) + trimesterFee;
 
-    // E. Update UI Values
+    // D. Update UI Values
     document.getElementById('t-base-tuition').innerText = baseTuition.toLocaleString('en-IN') + ' ৳';
     document.getElementById('t-trim-fee').innerText = trimesterFee.toLocaleString('en-IN') + ' ৳';
     document.getElementById('t-total-fee').innerText = totalFee.toLocaleString('en-IN') + ' ৳';
     
-    // Toggle Result Boxes
+    // Toggle Result Boxes based on the winning logic
     const scholarshipBox = document.getElementById('t-scholarship-box');
-    if (scholarship > 0) {
+    if (displayScholarshipDiscount > 0) {
         scholarshipBox.style.display = 'block';
-        document.getElementById('t-scholarship-discount').innerText = '-' + scholarshipDiscount.toLocaleString('en-IN') + ' ৳';
-        document.getElementById('t-scholarship-note').innerText = scholarshipNote;
+        document.getElementById('t-scholarship-discount').innerText = '-' + displayScholarshipDiscount.toLocaleString('en-IN') + ' ৳';
+        document.getElementById('t-scholarship-note').innerText = scholarshipNoteText;
     } else {
         scholarshipBox.style.display = 'none';
     }
 
     const waiverBox = document.getElementById('t-waiver-box');
-    if (waiver > 0) {
+    if (displayWaiverDiscount > 0) {
         waiverBox.style.display = 'block';
-        document.getElementById('t-waiver-discount').innerText = '-' + waiverDiscount.toLocaleString('en-IN') + ' ৳';
+        document.getElementById('t-waiver-discount').innerText = '-' + displayWaiverDiscount.toLocaleString('en-IN') + ' ৳';
+        document.getElementById('t-waiver-note').innerText = waiverNoteText;
     } else {
         waiverBox.style.display = 'none';
     }
