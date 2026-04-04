@@ -947,7 +947,7 @@
                 
                 <div style="flex:1; min-width: 100px; display: none;" id="t-scholarship-box">Scholarship:<br><strong id="t-scholarship-discount" style="color: #d32f2f; font-size: 1.1em;">-0</strong><br><small id="t-scholarship-note" style="font-size: 0.8em; color: var(--primary-color); font-weight:bold;"></small></div>
                 
-                <div style="flex:1; min-width: 100px; display: none;" id="t-waiver-box">General Waiver:<br><strong id="t-waiver-discount" style="color: #d32f2f; font-size: 1.1em;">-0</strong><br><small style="font-size: 0.8em; color: var(--primary-color); font-weight:bold;">(Applied on all cr)</small></div>
+                <div style="flex:1; min-width: 100px; display: none;" id="t-waiver-box">General Waiver:<br><strong id="t-waiver-discount" style="color: #d32f2f; font-size: 1.1em;">-0</strong><br><small id="t-waiver-note" style="font-size: 0.8em; color: var(--primary-color); font-weight:bold;"></small></div>
                 
                 <div style="flex:1; min-width: 100px;">Trimester Fee:<br><strong id="t-trim-fee" style="color: var(--primary-color); font-size: 1.1em;">0</strong></div>
             </div>
@@ -2128,6 +2128,77 @@
             quoteText.innerHTML = "\"You've built an amazing foundation! Keep calm, code on, and enjoy the ride to graduation.\" 🏆";
         }
     }
+
+    // 1. Initialize the Dropdown (Call this inside window.onload)
+function initTuitionPlanner() {
+    const select = document.getElementById('t-planner-select');
+    Object.keys(uiuCurriculum).forEach(triName => {
+        const option = document.createElement('option');
+        option.value = triName;
+        option.innerText = triName;
+        select.appendChild(option);
+    });
+}
+
+// 2. Toggle the Optional Scholarship Box
+function toggleScholarshipInputs() {
+    const isChecked = document.getElementById('t-has-scholarship').checked;
+    document.getElementById('t-scholarship-inputs').style.display = isChecked ? 'flex' : 'none';
+    if (!isChecked) {
+        document.getElementById('t-scholarship').value = ''; 
+    }
+}
+
+// 3. Auto-Fill Data from Course Planner
+function loadTuitionFromPlanner() {
+    const select = document.getElementById('t-planner-select');
+    const triName = select.value;
+    
+    if (!triName) {
+        document.getElementById('t-credits-left').innerText = "138";
+        document.getElementById('t-tris-left').innerText = "12";
+        document.getElementById('t-current-credits').value = "";
+        return;
+    }
+
+    let currentCredits = 0, prevCredits = 0, earnedCreditsBeforeThis = 0;
+    let trimesterIndex = 0, found = false;
+    const keys = Object.keys(uiuCurriculum);
+    
+    for (let i = 0; i < keys.length; i++) {
+        const key = keys[i];
+        let triCredits = 0;
+        uiuCurriculum[key].forEach(c => triCredits += c.cr);
+
+        if (key === triName) {
+            currentCredits = triCredits;
+            trimesterIndex = i + 1; 
+            if (i > 0) {
+                uiuCurriculum[keys[i-1]].forEach(c => prevCredits += c.cr);
+            }
+            found = true;
+        } else if (!found) {
+            earnedCreditsBeforeThis += triCredits;
+        }
+    }
+
+    document.getElementById('t-current-credits').value = currentCredits;
+    
+    if (prevCredits > 0) {
+        document.getElementById('t-prev-credits').value = prevCredits;
+        document.getElementById('t-has-scholarship').checked = true;
+    } else {
+        document.getElementById('t-prev-credits').value = "";
+        document.getElementById('t-has-scholarship').checked = false;
+    }
+    toggleScholarshipInputs();
+
+    const creditsLeft = 138 - (earnedCreditsBeforeThis + currentCredits);
+    const trisLeft = 12 - trimesterIndex;
+
+    document.getElementById('t-credits-left').innerText = creditsLeft > 0 ? creditsLeft : 0;
+    document.getElementById('t-tris-left').innerText = trisLeft > 0 ? trisLeft : 0;
+}
 // 4. Calculate Final Fees
 function calculateTuition() {
     const currentCredits = parseFloat(document.getElementById('t-current-credits').value) || 0;
