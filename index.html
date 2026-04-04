@@ -880,16 +880,20 @@
     </div>
     <div id="tuition-section" class="tool-section">
     <h1 class="gradient-text">Tuition Fee Calculator</h1>
-    <p class="subtitle">Estimate Trimester Cost & Waivers for CSE</p>
+    <p class="subtitle">Estimate Trimester Cost & Scholarships for CSE</p>
 
     <div class="section-box">
-        <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 20px;">
-            <div style="flex:1; min-width: 200px;">
-                <label style="font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 5px;">Total Credits Taken</label>
-                <input type="number" id="t-credits" placeholder="e.g., 14" step="1">
+        <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 20px;">
+            <div style="flex:1; min-width: 150px;">
+                <label style="font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 5px;">Current Credits</label>
+                <input type="number" id="t-current-credits" placeholder="e.g., 13" step="1">
             </div>
-            <div style="flex:1; min-width: 200px;">
-                <label style="font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 5px;">Waiver Percentage (%)</label>
+            <div style="flex:1; min-width: 150px;">
+                <label style="font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 5px;">Previous Credits</label>
+                <input type="number" id="t-prev-credits" placeholder="e.g., 12 (Leave blank if 1st Tri)" step="1">
+            </div>
+            <div style="flex:1; min-width: 150px;">
+                <label style="font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 5px;">Scholarship (%)</label>
                 <input type="number" id="t-waiver" placeholder="e.g., 25, 50, 100" step="1" min="0" max="100">
             </div>
         </div>
@@ -901,7 +905,7 @@
             </div>
             <div style="flex:1; min-width: 140px;">
                 <label style="font-size: 0.85em; color: var(--text-muted); display: block; margin-bottom: 5px;">Trimester Fee (BDT)</label>
-                <input type="number" id="t-trimester-fee" value="9500">
+                <input type="number" id="t-trimester-fee" value="6500">
             </div>
         </div>
         
@@ -915,13 +919,13 @@
             
             <div style="display: flex; justify-content: space-between; font-size: 0.95em; color: var(--text-muted); flex-wrap: wrap; gap: 15px; text-align: left;">
                 <div style="flex:1; min-width: 100px;">Base Tuition:<br><strong id="t-base-tuition" style="color: var(--text-main); font-size: 1.1em;">0</strong></div>
-                <div style="flex:1; min-width: 100px;">Waiver Discount:<br><strong id="t-waiver-discount" style="color: #d32f2f; font-size: 1.1em;">-0</strong></div>
+                <div style="flex:1; min-width: 100px;">Scholarship Discount:<br><strong id="t-waiver-discount" style="color: #d32f2f; font-size: 1.1em;">-0</strong><br><small id="t-waiver-note" style="font-size: 0.8em; color: var(--primary-color); font-weight:bold;"></small></div>
                 <div style="flex:1; min-width: 100px;">Trimester Fee:<br><strong id="t-trim-fee" style="color: var(--primary-color); font-size: 1.1em;">0</strong></div>
             </div>
         </div>
     </div>
 </div>
-
+    
     <div id="calendar-section" class="tool-section">
         <h1 class="gradient-text">Spring 2026 Academic Calendar</h1>
         <p class="subtitle">Interactive Event Planner</p>
@@ -2095,23 +2099,52 @@
             quoteText.innerHTML = "\"You've built an amazing foundation! Keep calm, code on, and enjoy the ride to graduation.\" 🏆";
         }
     }
-    // --- TUITION CALCULATOR LOGIC ---
+// --- TUITION CALCULATOR LOGIC ---
 function calculateTuition() {
-    const credits = parseFloat(document.getElementById('t-credits').value) || 0;
+    const currentCredits = parseFloat(document.getElementById('t-current-credits').value) || 0;
+    const prevCreditsInput = document.getElementById('t-prev-credits').value;
     const waiver = parseFloat(document.getElementById('t-waiver').value) || 0;
     const costPerCredit = parseFloat(document.getElementById('t-cost-per-credit').value) || 0;
     const trimesterFee = parseFloat(document.getElementById('t-trimester-fee').value) || 0;
 
-    // UIU specific logic: Waiver applies ONLY to the base tuition fee, not the trimester fee.
-    const baseTuition = credits * costPerCredit;
-    const waiverDiscount = baseTuition * (waiver / 100);
+    // 1. Calculate Base Tuition for current credits
+    const baseTuition = currentCredits * costPerCredit;
+    
+    // 2. Scholarship Limit Logic
+    let eligibleCredits = currentCredits;
+    let noteText = "";
+
+    // If a previous credit amount is entered, limit the scholarship to the lesser value
+    if (prevCreditsInput !== "") {
+        const prevCredits = parseFloat(prevCreditsInput);
+        eligibleCredits = Math.min(currentCredits, prevCredits);
+        
+        if (currentCredits > prevCredits) {
+            noteText = `(Applied on max ${eligibleCredits} cr from prev tri)`;
+        } else {
+            noteText = `(Applied on all ${eligibleCredits} cr)`;
+        }
+    } else {
+        noteText = `(Applied on all ${eligibleCredits} cr)`;
+    }
+
+    // 3. Final Calculations
+    const waiverDiscount = eligibleCredits * costPerCredit * (waiver / 100);
     const totalFee = (baseTuition - waiverDiscount) + trimesterFee;
 
-    // Formatting numbers with commas
+    // 4. Update the UI
     document.getElementById('t-base-tuition').innerText = baseTuition.toLocaleString('en-IN') + ' ৳';
     document.getElementById('t-waiver-discount').innerText = '-' + waiverDiscount.toLocaleString('en-IN') + ' ৳';
     document.getElementById('t-trim-fee').innerText = trimesterFee.toLocaleString('en-IN') + ' ৳';
     document.getElementById('t-total-fee').innerText = totalFee.toLocaleString('en-IN') + ' ৳';
+    
+    // Show note only if a waiver exists
+    const noteEl = document.getElementById('t-waiver-note');
+    if (waiver > 0) {
+        noteEl.innerText = noteText;
+    } else {
+        noteEl.innerText = "";
+    }
     
     document.getElementById('tuitionResultBox').style.display = 'block';
 }
