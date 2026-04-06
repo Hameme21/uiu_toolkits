@@ -2131,308 +2131,267 @@
         }
     }
 
-    // --- TARGET CGPA PLANNER LOGIC ---
-function calculateGoalCGPA() {
-    const currentCGPA = parseFloat(document.getElementById('goalCurrentCGPA').value) || 0;
-    const earnedCredits = parseFloat(document.getElementById('goalEarnedCredits').value) || 0;
-    const targetCGPA = parseFloat(document.getElementById('goalTargetCGPA').value) || 0;
-    const totalDegreeCredits = parseFloat(document.getElementById('goalTotalCredits').value) || 138;
-    
-    // Validate inputs
-    if (targetCGPA <= 0 || totalDegreeCredits <= 0) {
-        alert("Please enter a valid Target CGPA and Total Degree Credits.");
-        return;
-    }
-
-    const creditsRemaining = totalDegreeCredits - earnedCredits;
-    
-    if (creditsRemaining <= 0 && earnedCredits > 0) {
-        alert("You have already completed all required credits for your degree!");
-        return;
-    }
-
-    // Mathematical Formula for Required GPA:
-    // (TargetCGPA * TotalCredits - CurrentCGPA * EarnedCredits) / RemainingCredits
-    const requiredAvg = ((targetCGPA * totalDegreeCredits) - (currentCGPA * earnedCredits)) / creditsRemaining;
-
-    const resultBox = document.getElementById('goalResultBox');
-    const resultText = document.getElementById('goalResultText');
-    const quoteText = document.getElementById('goalQuote');
-
-    // Update UI based on mathematical possibility
-    if (requiredAvg > 4.00) {
-        resultText.innerHTML = `Required Average: <strong style="color: #d32f2f;">${requiredAvg.toFixed(2)}</strong>`;
-        quoteText.innerText = "Mathematical Reality Check: It is mathematically impossible to reach this target CGPA by just taking new courses. You will need to retake previous courses to overwrite poor grades.";
-        quoteText.style.color = "#d32f2f";
-        quoteText.style.borderLeftColor = "#d32f2f";
-    } else if (requiredAvg <= 0) {
-        resultText.innerHTML = `Required Average: <strong style="color: #28a745;">0.00</strong>`;
-        quoteText.innerText = "You've mathematically secured your target! Just pass your remaining courses to graduate.";
-        quoteText.style.color = "#28a745";
-        quoteText.style.borderLeftColor = "#28a745";
-    } else {
-        resultText.innerHTML = `Required Average: <strong style="color: var(--primary-color);">${requiredAvg.toFixed(2)}</strong>`;
-        quoteText.innerText = `You need to maintain an average of ${requiredAvg.toFixed(2)} across your remaining ${creditsRemaining} credits to hit your goal. You've got this!`;
-        quoteText.style.color = "var(--primary-color)";
-        quoteText.style.borderLeftColor = "var(--primary-color)";
-    }
-    
-    resultBox.style.display = 'block';
-}
-
-// --- TUITION CALCULATOR LOGIC ---
-
-// 1. Initialize the Dropdown and Default Rows
-function initTuitionPlanner() {
-    const select = document.getElementById('t-planner-select');
-    if (!select) return;
-
-    // Fix: Clear existing to avoid duplicates on re-init
-    select.innerHTML = '<option value="">-- Select Your Current Trimester --</option>';
-
-    Object.keys(uiuCurriculum).forEach(triName => {
-        const option = document.createElement('option');
-        option.value = triName;
-        option.innerText = triName;
-        select.appendChild(option);
-    });
-    
-    // Clear and add initial row for multi-semester planner
-    const multiContainer = document.getElementById('multi-sem-container');
-    if (multiContainer) {
-        multiContainer.innerHTML = '';
-        addMultiSemRow();
-    }
-}
-
-// 2. Visibility Toggles
-function toggleWaiverInputs() {
-    const isChecked = document.getElementById('t-has-waiver').checked;
-    document.getElementById('t-waiver-inputs').style.display = isChecked ? 'block' : 'none';
-}
-
-function toggleScholarshipInputs() {
-    const isChecked = document.getElementById('t-has-scholarship').checked;
-    document.getElementById('t-scholarship-inputs').style.display = isChecked ? 'flex' : 'none';
-}
-
-// 3. Auto-Fill Data from Course Planner
-function loadTuitionFromPlanner() {
-    const select = document.getElementById('t-planner-select');
-    const triName = select.value;
-    
-    if (!triName) {
-        document.getElementById('t-credits-left').innerText = "138";
-        document.getElementById('t-tris-left').innerText = "12";
-        document.getElementById('t-current-credits').value = "";
-        return;
-    }
-
-    let currentCredits = 0;
-    let earnedCreditsBeforeThis = 0;
-    let trimesterIndex = 0;
-    let found = false;
-    const keys = Object.keys(uiuCurriculum);
-    
-    for (let i = 0; i < keys.length; i++) {
-        const key = keys[i];
-        let triCredits = 0;
-        uiuCurriculum[key].forEach(c => triCredits += c.cr);
-
-        if (key === triName) {
-            currentCredits = triCredits;
-            trimesterIndex = i + 1; 
-            found = true;
-        } else if (!found) {
-            earnedCreditsBeforeThis += triCredits;
-        }
-    }
-
-    document.getElementById('t-current-credits').value = currentCredits;
-    
-    // Automatically set previous credits for scholarship calculation
-    if (trimesterIndex > 1) {
-        let prevCredits = 0;
-        uiuCurriculum[keys[trimesterIndex - 2]].forEach(c => prevCredits += c.cr);
-        document.getElementById('t-prev-credits').value = prevCredits;
-        document.getElementById('t-has-scholarship').checked = true;
-    } else {
-        document.getElementById('t-prev-credits').value = "";
-        document.getElementById('t-has-scholarship').checked = false;
-    }
-    
-    toggleScholarshipInputs();
-
-    const creditsLeft = 138 - (earnedCreditsBeforeThis + currentCredits);
-    const trisLeft = 12 - trimesterIndex;
-
-    document.getElementById('t-credits-left').innerText = creditsLeft > 0 ? creditsLeft : 0;
-    document.getElementById('t-tris-left').innerText = trisLeft > 0 ? trisLeft : 0;
-}
-
-// 4. Calculate Current Trimester Fees (HIGHER PERCENTAGE WINS)
-function calculateTuition() {
-    const currentCredits = parseFloat(document.getElementById('t-current-credits').value) || 0;
-    const costPerCredit = parseFloat(document.getElementById('t-cost-per-credit').value) || 6500;
-    const trimesterFee = parseFloat(document.getElementById('t-trimester-fee').value) || 6500;
-
-    const hasWaiver = document.getElementById('t-has-waiver').checked;
-    const waiverPct = hasWaiver ? parseFloat(document.getElementById('t-waiver-select').value) : 0;
-
-    const hasScholarship = document.getElementById('t-has-scholarship').checked;
-    const scholarshipPct = hasScholarship ? parseFloat(document.getElementById('t-scholarship-select').value) : 0;
-    const prevCredits = parseFloat(document.getElementById('t-prev-credits').value) || 0;
-
-    const baseTuition = currentCredits * costPerCredit;
-    
-    let finalDiscount = 0;
-    let displayScholarshipDiscount = 0;
-    let displayWaiverDiscount = 0;
-    let scholarshipNoteText = "";
-    let waiverNoteText = "";
-
-    // Comparison Logic: Apply only the higher benefit
-    if (scholarshipPct > waiverPct) {
-        const eligibleCredits = Math.min(currentCredits, prevCredits);
-        displayScholarshipDiscount = eligibleCredits * costPerCredit * (scholarshipPct / 100);
-        scholarshipNoteText = `(${scholarshipPct}% applied on ${eligibleCredits} cr)`;
-        finalDiscount = displayScholarshipDiscount;
-    } 
-    else if (waiverPct >= scholarshipPct && waiverPct > 0) {
-        displayWaiverDiscount = currentCredits * costPerCredit * (waiverPct / 100);
-        waiverNoteText = `(${waiverPct}% applied on all ${currentCredits} cr)`;
-        finalDiscount = displayWaiverDiscount;
-    }
-
-    const totalFee = (baseTuition - finalDiscount) + trimesterFee;
-
-    // UI Updates
-    document.getElementById('t-base-tuition').innerText = baseTuition.toLocaleString('en-IN') + ' ৳';
-    document.getElementById('t-trim-fee').innerText = trimesterFee.toLocaleString('en-IN') + ' ৳';
-    document.getElementById('t-total-fee').innerText = totalFee.toLocaleString('en-IN') + ' ৳';
-    
-    const sBox = document.getElementById('t-scholarship-box');
-    if (displayScholarshipDiscount > 0) {
-        sBox.style.display = 'block';
-        document.getElementById('t-scholarship-discount').innerText = '-' + displayScholarshipDiscount.toLocaleString('en-IN') + ' ৳';
-        document.getElementById('t-scholarship-note').innerText = scholarshipNoteText;
-    } else {
-        sBox.style.display = 'none';
-    }
-
-    const wBox = document.getElementById('t-waiver-box');
-    if (displayWaiverDiscount > 0) {
-        wBox.style.display = 'block';
-        document.getElementById('t-waiver-discount').innerText = '-' + displayWaiverDiscount.toLocaleString('en-IN') + ' ৳';
-        document.getElementById('t-waiver-note').innerText = waiverNoteText;
-    } else {
-        wBox.style.display = 'none';
-    }
-    
-    document.getElementById('tuitionResultBox').style.display = 'block';
-}
-
-// 5. Multiple Trimester Planner Logic
-function addMultiSemRow() {
-    const container = document.getElementById('multi-sem-container');
-    const rowCount = container.children.length + 1;
-    
-    const div = document.createElement('div');
-    div.className = 'multi-sem-row';
-    div.style.display = 'flex';
-    div.style.gap = '15px';
-    div.style.alignItems = 'flex-end';
-    div.style.marginBottom = '15px';
-    
-    div.innerHTML = `
-        <div style="flex:1;">
-            <label class="sem-label" style="font-size: 0.9em; font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 5px;">Trimester ${rowCount} Credits</label>
-            <input type="number" class="multi-credits-input" placeholder="e.g. 12" value="12" step="0.5">
-        </div>
-        <div>
-            <button class="btn-delete" style="padding: 14px 18px;" onclick="this.closest('.multi-sem-row').remove(); updateMultiSemLabels();">✕</button>
-        </div>
-    `;
-    container.appendChild(div);
-}
-
-function updateMultiSemLabels() {
-    document.querySelectorAll('.multi-sem-row').forEach((row, index) => {
-        row.querySelector('.sem-label').innerText = `Trimester ${index + 1} Credits`;
-    });
-}
-
-function calculateMultiSem() {
-    let totalTuition = 0;
-    let totalCredits = 0;
-    let semCount = 0;
-    let totalDiscount = 0; // Track savings
-    
-    const costPerCredit = parseFloat(document.getElementById('t-cost-per-credit').value) || 6500;
-    const trimesterFee = parseFloat(document.getElementById('t-trimester-fee').value) || 6500;
-
-    // Grab Global Multi-Sem Discount Status
-    const hasWaiver = document.getElementById('m-has-waiver').checked;
-    const waiverPct = hasWaiver ? parseFloat(document.getElementById('m-waiver-select').value) : 0;
-    
-    const hasScholarship = document.getElementById('m-has-scholarship').checked;
-    const scholarshipPct = hasScholarship ? parseFloat(document.getElementById('m-scholarship-select').value) : 0;
-
-    const rows = document.querySelectorAll('.multi-sem-row');
-    
-    // For the very first row, base the scholarship limit on the "Current Credits" input from section 1.
-    // If it's 0 (user didn't fill it out), we will forgive the limit for the first row.
-    let prevCredits = parseFloat(document.getElementById('t-current-credits').value) || 0;
-
-    rows.forEach(row => {
-        const credits = parseFloat(row.querySelector('.multi-credits-input').value) || 0;
+// --- TARGET CGPA PLANNER LOGIC ---
+    function calculateGoalCGPA() {
+        const currentCGPA = parseFloat(document.getElementById('goalCurrentCGPA').value) || 0;
+        const earnedCredits = parseFloat(document.getElementById('goalEarnedCredits').value) || 0;
+        const targetCGPA = parseFloat(document.getElementById('goalTargetCGPA').value) || 0;
+        const totalDegreeCredits = parseFloat(document.getElementById('goalTotalCredits').value) || 138;
         
-        if (credits > 0) {
-            let baseTuition = credits * costPerCredit;
-            let rowDiscount = 0;
-
-            // Higher Percentage Wins Logic
-            if (scholarshipPct > waiverPct) {
-                // If prevCredits is 0, just use current row credits to be forgiving
-                let eligibleCredits = (prevCredits === 0) ? credits : Math.min(credits, prevCredits);
-                rowDiscount = eligibleCredits * costPerCredit * (scholarshipPct / 100);
-            } else if (waiverPct >= scholarshipPct && waiverPct > 0) {
-                // Waiver applies to all credits
-                rowDiscount = credits * costPerCredit * (waiverPct / 100);
-            }
-
-            totalTuition += (baseTuition - rowDiscount) + trimesterFee;
-            totalCredits += credits;
-            totalDiscount += rowDiscount;
-            semCount++;
-            
-            // This row's credits become the limit for the next row's scholarship
-            prevCredits = credits; 
+        if (targetCGPA <= 0 || totalDegreeCredits <= 0) {
+            alert("Please enter a valid Target CGPA and Total Degree Credits.");
+            return;
         }
-    });
 
-    // Update UI
-    document.getElementById('t-multi-total').innerText = totalTuition.toLocaleString('en-IN') + ' BDT';
-    document.getElementById('t-multi-credits-total').innerText = totalCredits;
-    document.getElementById('t-multi-sem-total').innerText = semCount;
-    
-    // Display total savings
-    const savedText = document.getElementById('t-multi-saved');
-    if (totalDiscount > 0) {
-        savedText.innerText = `Estimated Total Savings: -${totalDiscount.toLocaleString('en-IN')} ৳`;
-        savedText.style.display = 'block';
-    } else {
-        savedText.style.display = 'none';
+        const creditsRemaining = totalDegreeCredits - earnedCredits;
+        if (creditsRemaining <= 0 && earnedCredits > 0) {
+            alert("You have already completed all required credits for your degree!");
+            return;
+        }
+
+        const requiredAvg = ((targetCGPA * totalDegreeCredits) - (currentCGPA * earnedCredits)) / creditsRemaining;
+        const resultBox = document.getElementById('goalResultBox');
+        const resultText = document.getElementById('goalResultText');
+        const quoteText = document.getElementById('goalQuote');
+
+        if (requiredAvg > 4.00) {
+            resultText.innerHTML = `Required Average: <strong style="color: #d32f2f;">${requiredAvg.toFixed(2)}</strong>`;
+            quoteText.innerText = "Mathematical Reality Check: It is mathematically impossible to reach this target CGPA by just taking new courses. You will need to retake previous courses to overwrite poor grades.";
+            quoteText.style.color = "#d32f2f";
+            quoteText.style.borderLeftColor = "#d32f2f";
+        } else if (requiredAvg <= 0) {
+            resultText.innerHTML = `Required Average: <strong style="color: #28a745;">0.00</strong>`;
+            quoteText.innerText = "You've mathematically secured your target! Just pass your remaining courses to graduate.";
+            quoteText.style.color = "#28a745";
+            quoteText.style.borderLeftColor = "#28a745";
+        } else {
+            resultText.innerHTML = `Required Average: <strong style="color: var(--primary-color);">${requiredAvg.toFixed(2)}</strong>`;
+            quoteText.innerText = `You need to maintain an average of ${requiredAvg.toFixed(2)} across your remaining ${creditsRemaining} credits to hit your goal. You've got this!`;
+            quoteText.style.color = "var(--primary-color)";
+            quoteText.style.borderLeftColor = "var(--primary-color)";
+        }
+        resultBox.style.display = 'block';
     }
 
-    document.getElementById('multiSemResultBox').style.display = 'block';
-}
+    // --- TUITION CALCULATOR LOGIC ---
+    function initTuitionPlanner() {
+        const select = document.getElementById('t-planner-select');
+        if (!select) return;
 
-    document.getElementById('t-multi-total').innerText = totalTuition.toLocaleString('en-IN') + ' BDT';
-    document.getElementById('t-multi-credits-total').innerText = totalCredits;
-    document.getElementById('t-multi-sem-total').innerText = semCount;
-    document.getElementById('multiSemResultBox').style.display = 'block';
-}
+        select.innerHTML = '<option value="">-- Select Your Current Trimester --</option>';
+
+        Object.keys(uiuCurriculum).forEach(triName => {
+            const option = document.createElement('option');
+            option.value = triName;
+            option.innerText = triName;
+            select.appendChild(option);
+        });
+        
+        const multiContainer = document.getElementById('multi-sem-container');
+        if (multiContainer) {
+            multiContainer.innerHTML = '';
+            addMultiSemRow();
+        }
+    }
+
+    function toggleWaiverInputs() {
+        const isChecked = document.getElementById('t-has-waiver').checked;
+        document.getElementById('t-waiver-inputs').style.display = isChecked ? 'block' : 'none';
+    }
+
+    function toggleScholarshipInputs() {
+        const isChecked = document.getElementById('t-has-scholarship').checked;
+        document.getElementById('t-scholarship-inputs').style.display = isChecked ? 'flex' : 'none';
+    }
+
+    function loadTuitionFromPlanner() {
+        const select = document.getElementById('t-planner-select');
+        const triName = select.value;
+        
+        if (!triName) {
+            document.getElementById('t-credits-left').innerText = "138";
+            document.getElementById('t-tris-left').innerText = "12";
+            document.getElementById('t-current-credits').value = "";
+            return;
+        }
+
+        let currentCredits = 0, earnedCreditsBeforeThis = 0, trimesterIndex = 0, found = false;
+        const keys = Object.keys(uiuCurriculum);
+        
+        for (let i = 0; i < keys.length; i++) {
+            const key = keys[i];
+            let triCredits = 0;
+            uiuCurriculum[key].forEach(c => triCredits += c.cr);
+
+            if (key === triName) {
+                currentCredits = triCredits;
+                trimesterIndex = i + 1; 
+                found = true;
+            } else if (!found) {
+                earnedCreditsBeforeThis += triCredits;
+            }
+        }
+
+        document.getElementById('t-current-credits').value = currentCredits;
+        
+        if (trimesterIndex > 1) {
+            let prevCredits = 0;
+            uiuCurriculum[keys[trimesterIndex - 2]].forEach(c => prevCredits += c.cr);
+            document.getElementById('t-prev-credits').value = prevCredits;
+            document.getElementById('t-has-scholarship').checked = true;
+        } else {
+            document.getElementById('t-prev-credits').value = "";
+            document.getElementById('t-has-scholarship').checked = false;
+        }
+        
+        toggleScholarshipInputs();
+
+        const creditsLeft = 138 - (earnedCreditsBeforeThis + currentCredits);
+        const trisLeft = 12 - trimesterIndex;
+
+        document.getElementById('t-credits-left').innerText = creditsLeft > 0 ? creditsLeft : 0;
+        document.getElementById('t-tris-left').innerText = trisLeft > 0 ? trisLeft : 0;
+    }
+
+    function calculateTuition() {
+        const currentCredits = parseFloat(document.getElementById('t-current-credits').value) || 0;
+        const costPerCredit = parseFloat(document.getElementById('t-cost-per-credit').value) || 6500;
+        const trimesterFee = parseFloat(document.getElementById('t-trimester-fee').value) || 6500;
+
+        const hasWaiver = document.getElementById('t-has-waiver').checked;
+        const waiverPct = hasWaiver ? parseFloat(document.getElementById('t-waiver-select').value) : 0;
+
+        const hasScholarship = document.getElementById('t-has-scholarship').checked;
+        const scholarshipPct = hasScholarship ? parseFloat(document.getElementById('t-scholarship-select').value) : 0;
+        const prevCredits = parseFloat(document.getElementById('t-prev-credits').value) || 0;
+
+        const baseTuition = currentCredits * costPerCredit;
+        let finalDiscount = 0, displayScholarshipDiscount = 0, displayWaiverDiscount = 0;
+        let scholarshipNoteText = "", waiverNoteText = "";
+
+        if (scholarshipPct > waiverPct) {
+            const eligibleCredits = Math.min(currentCredits, prevCredits);
+            displayScholarshipDiscount = eligibleCredits * costPerCredit * (scholarshipPct / 100);
+            scholarshipNoteText = `(${scholarshipPct}% applied on ${eligibleCredits} cr)`;
+            finalDiscount = displayScholarshipDiscount;
+        } 
+        else if (waiverPct >= scholarshipPct && waiverPct > 0) {
+            displayWaiverDiscount = currentCredits * costPerCredit * (waiverPct / 100);
+            waiverNoteText = `(${waiverPct}% applied on all ${currentCredits} cr)`;
+            finalDiscount = displayWaiverDiscount;
+        }
+
+        const totalFee = (baseTuition - finalDiscount) + trimesterFee;
+
+        document.getElementById('t-base-tuition').innerText = baseTuition.toLocaleString('en-IN') + ' ৳';
+        document.getElementById('t-trim-fee').innerText = trimesterFee.toLocaleString('en-IN') + ' ৳';
+        document.getElementById('t-total-fee').innerText = totalFee.toLocaleString('en-IN') + ' ৳';
+        
+        const sBox = document.getElementById('t-scholarship-box');
+        if (displayScholarshipDiscount > 0) {
+            sBox.style.display = 'block';
+            document.getElementById('t-scholarship-discount').innerText = '-' + displayScholarshipDiscount.toLocaleString('en-IN') + ' ৳';
+            document.getElementById('t-scholarship-note').innerText = scholarshipNoteText;
+        } else {
+            sBox.style.display = 'none';
+        }
+
+        const wBox = document.getElementById('t-waiver-box');
+        if (displayWaiverDiscount > 0) {
+            wBox.style.display = 'block';
+            document.getElementById('t-waiver-discount').innerText = '-' + displayWaiverDiscount.toLocaleString('en-IN') + ' ৳';
+            document.getElementById('t-waiver-note').innerText = waiverNoteText;
+        } else {
+            wBox.style.display = 'none';
+        }
+        
+        document.getElementById('tuitionResultBox').style.display = 'block';
+    }
+
+    // --- MULTI-SEMESTER PLANNER LOGIC ---
+    function addMultiSemRow() {
+        const container = document.getElementById('multi-sem-container');
+        if (!container) return;
+        const rowCount = container.children.length + 1;
+        
+        const div = document.createElement('div');
+        div.className = 'multi-sem-row';
+        div.style.display = 'flex';
+        div.style.gap = '15px';
+        div.style.alignItems = 'flex-end';
+        div.style.marginBottom = '15px';
+        
+        div.innerHTML = `
+            <div style="flex:1;">
+                <label class="sem-label" style="font-size: 0.9em; font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 5px;">Trimester ${rowCount} Credits</label>
+                <input type="number" class="multi-credits-input" placeholder="e.g. 12" value="12" step="0.5">
+            </div>
+            <div>
+                <button class="btn-delete" style="padding: 14px 18px;" onclick="this.closest('.multi-sem-row').remove(); updateMultiSemLabels();">✕</button>
+            </div>
+        `;
+        container.appendChild(div);
+    }
+
+    function updateMultiSemLabels() {
+        document.querySelectorAll('.multi-sem-row').forEach((row, index) => {
+            row.querySelector('.sem-label').innerText = `Trimester ${index + 1} Credits`;
+        });
+    }
+
+    function calculateMultiSem() {
+        let totalTuition = 0, totalCredits = 0, semCount = 0, totalDiscount = 0;
+        
+        const costPerCredit = parseFloat(document.getElementById('t-cost-per-credit').value) || 6500;
+        const trimesterFee = parseFloat(document.getElementById('t-trimester-fee').value) || 6500;
+
+        const hasWaiver = document.getElementById('m-has-waiver') ? document.getElementById('m-has-waiver').checked : false;
+        const waiverPct = hasWaiver ? parseFloat(document.getElementById('m-waiver-select').value) : 0;
+        
+        const hasScholarship = document.getElementById('m-has-scholarship') ? document.getElementById('m-has-scholarship').checked : false;
+        const scholarshipPct = hasScholarship ? parseFloat(document.getElementById('m-scholarship-select').value) : 0;
+
+        const rows = document.querySelectorAll('.multi-sem-row');
+        let prevCredits = parseFloat(document.getElementById('t-current-credits').value) || 0;
+
+        rows.forEach(row => {
+            const credits = parseFloat(row.querySelector('.multi-credits-input').value) || 0;
+            if (credits > 0) {
+                let baseTuition = credits * costPerCredit;
+                let rowDiscount = 0;
+
+                if (scholarshipPct > waiverPct) {
+                    let eligibleCredits = (prevCredits === 0) ? credits : Math.min(credits, prevCredits);
+                    rowDiscount = eligibleCredits * costPerCredit * (scholarshipPct / 100);
+                } else if (waiverPct >= scholarshipPct && waiverPct > 0) {
+                    rowDiscount = credits * costPerCredit * (waiverPct / 100);
+                }
+
+                totalTuition += (baseTuition - rowDiscount) + trimesterFee;
+                totalCredits += credits;
+                totalDiscount += rowDiscount;
+                semCount++;
+                prevCredits = credits; 
+            }
+        });
+
+        document.getElementById('t-multi-total').innerText = totalTuition.toLocaleString('en-IN') + ' BDT';
+        document.getElementById('t-multi-credits-total').innerText = totalCredits;
+        document.getElementById('t-multi-sem-total').innerText = semCount;
+        
+        const savedText = document.getElementById('t-multi-saved');
+        if (savedText) {
+            if (totalDiscount > 0) {
+                savedText.innerText = `Estimated Total Savings: -${totalDiscount.toLocaleString('en-IN')} ৳`;
+                savedText.style.display = 'block';
+            } else {
+                savedText.style.display = 'none';
+            }
+        }
+
+        document.getElementById('multiSemResultBox').style.display = 'block';
+    }
+
     // --- INIT ---
     window.onload = function() {
         initGrid();
