@@ -2253,7 +2253,7 @@
         document.getElementById('t-tris-left').innerText = trisLeft > 0 ? trisLeft : 0;
     }
 
-    function calculateTuition() {
+   function calculateTuition() {
         const currentCredits = parseFloat(document.getElementById('t-current-credits').value) || 0;
         const costPerCredit = parseFloat(document.getElementById('t-cost-per-credit').value) || 6500;
         const trimesterFee = parseFloat(document.getElementById('t-trimester-fee').value) || 6500;
@@ -2269,13 +2269,24 @@
         let finalDiscount = 0, displayScholarshipDiscount = 0, displayWaiverDiscount = 0;
         let scholarshipNoteText = "", waiverNoteText = "";
 
+        // --- NEW LOGIC: Hybrid Stacking for Extra Credits ---
         if (scholarshipPct > waiverPct) {
             const eligibleCredits = Math.min(currentCredits, prevCredits);
+            const extraCredits = Math.max(0, currentCredits - prevCredits); // The "rest" of the credits
+            
             displayScholarshipDiscount = eligibleCredits * costPerCredit * (scholarshipPct / 100);
             scholarshipNoteText = `(${scholarshipPct}% applied on ${eligibleCredits} cr)`;
-            finalDiscount = displayScholarshipDiscount;
+            
+            // Apply waiver to the leftover credits if waiver is checked
+            if (hasWaiver && extraCredits > 0) {
+                displayWaiverDiscount = extraCredits * costPerCredit * (waiverPct / 100);
+                waiverNoteText = `(${waiverPct}% applied on ${extraCredits} leftover cr)`;
+            }
+            
+            finalDiscount = displayScholarshipDiscount + displayWaiverDiscount;
         } 
         else if (waiverPct >= scholarshipPct && waiverPct > 0) {
+            // If waiver is higher, it just applies to everything
             displayWaiverDiscount = currentCredits * costPerCredit * (waiverPct / 100);
             waiverNoteText = `(${waiverPct}% applied on all ${currentCredits} cr)`;
             finalDiscount = displayWaiverDiscount;
@@ -2307,7 +2318,6 @@
         
         document.getElementById('tuitionResultBox').style.display = 'block';
     }
-
     // --- MULTI-SEMESTER PLANNER LOGIC ---
     function addMultiSemRow() {
         const container = document.getElementById('multi-sem-container');
@@ -2339,13 +2349,12 @@
         });
     }
 
-    function calculateMultiSem() {
+function calculateMultiSem() {
         let totalTuition = 0, totalCredits = 0, semCount = 0, totalDiscount = 0;
         
         const costPerCredit = parseFloat(document.getElementById('t-cost-per-credit').value) || 6500;
         const trimesterFee = parseFloat(document.getElementById('t-trimester-fee').value) || 6500;
 
-        // Grab Global Multi-Sem Discount Checkboxes
         const hasWaiver = document.getElementById('m-has-waiver') ? document.getElementById('m-has-waiver').checked : false;
         const waiverPct = hasWaiver ? parseFloat(document.getElementById('m-waiver-select').value) : 0;
         
@@ -2353,8 +2362,6 @@
         const scholarshipPct = hasScholarship ? parseFloat(document.getElementById('m-scholarship-select').value) : 0;
 
         const rows = document.querySelectorAll('.multi-sem-row');
-        
-        // --- THE SCHOLARSHIP FIX: Get the starting limit from Section 1 ---
         let prevCredits = parseFloat(document.getElementById('t-current-credits').value) || 0;
 
         rows.forEach(row => {
@@ -2364,10 +2371,15 @@
                 let baseTuition = credits * costPerCredit;
                 let rowDiscount = 0;
 
-                // Higher Percentage Wins Logic
+                // --- NEW LOGIC: Hybrid Stacking for Multi-Sem ---
                 if (scholarshipPct > waiverPct) {
                     let eligibleCredits = (prevCredits === 0) ? credits : Math.min(credits, prevCredits);
-                    rowDiscount = eligibleCredits * costPerCredit * (scholarshipPct / 100);
+                    let extraCredits = Math.max(0, credits - eligibleCredits);
+                    
+                    let sDiscount = eligibleCredits * costPerCredit * (scholarshipPct / 100);
+                    let wDiscount = hasWaiver ? (extraCredits * costPerCredit * (waiverPct / 100)) : 0;
+                    
+                    rowDiscount = sDiscount + wDiscount;
                 } else if (waiverPct >= scholarshipPct && waiverPct > 0) {
                     rowDiscount = credits * costPerCredit * (waiverPct / 100);
                 }
@@ -2377,10 +2389,26 @@
                 totalDiscount += rowDiscount;
                 semCount++;
                 
-                // --- THE CASCADING FIX: Pass this row's credits to the next row ---
                 prevCredits = credits; 
             }
         });
+
+        document.getElementById('t-multi-total').innerText = totalTuition.toLocaleString('en-IN') + ' BDT';
+        document.getElementById('t-multi-credits-total').innerText = totalCredits;
+        document.getElementById('t-multi-sem-total').innerText = semCount;
+        
+        const savedText = document.getElementById('t-multi-saved');
+        if (savedText) {
+            if (totalDiscount > 0) {
+                savedText.innerText = `Estimated Total Savings: -${totalDiscount.toLocaleString('en-IN')} ৳`;
+                savedText.style.display = 'block';
+            } else {
+                savedText.style.display = 'none';
+            }
+        }
+
+        document.getElementById('multiSemResultBox').style.display = 'block';
+    }
 
         // Update UI
         document.getElementById('t-multi-total').innerText = totalTuition.toLocaleString('en-IN') + ' BDT';
