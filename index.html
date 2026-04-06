@@ -2102,6 +2102,55 @@
         }
     }
 
+    // --- TARGET CGPA PLANNER LOGIC ---
+function calculateGoalCGPA() {
+    const currentCGPA = parseFloat(document.getElementById('goalCurrentCGPA').value) || 0;
+    const earnedCredits = parseFloat(document.getElementById('goalEarnedCredits').value) || 0;
+    const targetCGPA = parseFloat(document.getElementById('goalTargetCGPA').value) || 0;
+    const totalDegreeCredits = parseFloat(document.getElementById('goalTotalCredits').value) || 138;
+    
+    // Validate inputs
+    if (targetCGPA <= 0 || totalDegreeCredits <= 0) {
+        alert("Please enter a valid Target CGPA and Total Degree Credits.");
+        return;
+    }
+
+    const creditsRemaining = totalDegreeCredits - earnedCredits;
+    
+    if (creditsRemaining <= 0 && earnedCredits > 0) {
+        alert("You have already completed all required credits for your degree!");
+        return;
+    }
+
+    // Mathematical Formula for Required GPA:
+    // (TargetCGPA * TotalCredits - CurrentCGPA * EarnedCredits) / RemainingCredits
+    const requiredAvg = ((targetCGPA * totalDegreeCredits) - (currentCGPA * earnedCredits)) / creditsRemaining;
+
+    const resultBox = document.getElementById('goalResultBox');
+    const resultText = document.getElementById('goalResultText');
+    const quoteText = document.getElementById('goalQuote');
+
+    // Update UI based on mathematical possibility
+    if (requiredAvg > 4.00) {
+        resultText.innerHTML = `Required Average: <strong style="color: #d32f2f;">${requiredAvg.toFixed(2)}</strong>`;
+        quoteText.innerText = "Mathematical Reality Check: It is mathematically impossible to reach this target CGPA by just taking new courses. You will need to retake previous courses to overwrite poor grades.";
+        quoteText.style.color = "#d32f2f";
+        quoteText.style.borderLeftColor = "#d32f2f";
+    } else if (requiredAvg <= 0) {
+        resultText.innerHTML = `Required Average: <strong style="color: #28a745;">0.00</strong>`;
+        quoteText.innerText = "You've mathematically secured your target! Just pass your remaining courses to graduate.";
+        quoteText.style.color = "#28a745";
+        quoteText.style.borderLeftColor = "#28a745";
+    } else {
+        resultText.innerHTML = `Required Average: <strong style="color: var(--primary-color);">${requiredAvg.toFixed(2)}</strong>`;
+        quoteText.innerText = `You need to maintain an average of ${requiredAvg.toFixed(2)} across your remaining ${creditsRemaining} credits to hit your goal. You've got this!`;
+        quoteText.style.color = "var(--primary-color)";
+        quoteText.style.borderLeftColor = "var(--primary-color)";
+    }
+    
+    resultBox.style.display = 'block';
+}
+
 // --- TUITION CALCULATOR LOGIC ---
 
 // 1. Initialize the Dropdown and Default Rows
@@ -2109,7 +2158,7 @@ function initTuitionPlanner() {
     const select = document.getElementById('t-planner-select');
     if (!select) return;
 
-    // Clear existing to avoid duplicates on re-init
+    // Fix: Clear existing to avoid duplicates on re-init
     select.innerHTML = '<option value="">-- Select Your Current Trimester --</option>';
 
     Object.keys(uiuCurriculum).forEach(triName => {
@@ -2119,7 +2168,7 @@ function initTuitionPlanner() {
         select.appendChild(option);
     });
     
-    // Clear and add initial row for multi-semester
+    // Clear and add initial row for multi-semester planner
     const multiContainer = document.getElementById('multi-sem-container');
     if (multiContainer) {
         multiContainer.innerHTML = '';
@@ -2170,11 +2219,9 @@ function loadTuitionFromPlanner() {
         }
     }
 
-    // Set input values
     document.getElementById('t-current-credits').value = currentCredits;
     
-    // Automatically set previous credits for scholarship logic
-    // If it's not the first trimester, we assume they had the full load of the previous one
+    // Automatically set previous credits for scholarship calculation
     if (trimesterIndex > 1) {
         let prevCredits = 0;
         uiuCurriculum[keys[trimesterIndex - 2]].forEach(c => prevCredits += c.cr);
@@ -2194,7 +2241,7 @@ function loadTuitionFromPlanner() {
     document.getElementById('t-tris-left').innerText = trisLeft > 0 ? trisLeft : 0;
 }
 
-// 4. Calculate Current Trimester Fees (REVISED LOGIC)
+// 4. Calculate Current Trimester Fees (HIGHER PERCENTAGE WINS)
 function calculateTuition() {
     const currentCredits = parseFloat(document.getElementById('t-current-credits').value) || 0;
     const costPerCredit = parseFloat(document.getElementById('t-cost-per-credit').value) || 6500;
@@ -2215,34 +2262,26 @@ function calculateTuition() {
     let scholarshipNoteText = "";
     let waiverNoteText = "";
 
-    // --- LOGIC: APPLY ONLY THE HIGHER BENEFIT ---
-    
+    // Comparison Logic: Apply only the higher benefit
     if (scholarshipPct > waiverPct) {
-        // Scholarship is higher: applies only to eligible credits (capped by prev sem)
         const eligibleCredits = Math.min(currentCredits, prevCredits);
         displayScholarshipDiscount = eligibleCredits * costPerCredit * (scholarshipPct / 100);
         scholarshipNoteText = `(${scholarshipPct}% applied on ${eligibleCredits} cr)`;
-        
-        displayWaiverDiscount = 0; // Waiver ignored
         finalDiscount = displayScholarshipDiscount;
     } 
     else if (waiverPct >= scholarshipPct && waiverPct > 0) {
-        // Waiver is higher or equal: applies to ALL credits
         displayWaiverDiscount = currentCredits * costPerCredit * (waiverPct / 100);
         waiverNoteText = `(${waiverPct}% applied on all ${currentCredits} cr)`;
-        
-        displayScholarshipDiscount = 0; // Scholarship ignored
         finalDiscount = displayWaiverDiscount;
     }
 
     const totalFee = (baseTuition - finalDiscount) + trimesterFee;
 
-    // Update UI
+    // UI Updates
     document.getElementById('t-base-tuition').innerText = baseTuition.toLocaleString('en-IN') + ' ৳';
     document.getElementById('t-trim-fee').innerText = trimesterFee.toLocaleString('en-IN') + ' ৳';
     document.getElementById('t-total-fee').innerText = totalFee.toLocaleString('en-IN') + ' ৳';
     
-    // Toggle Result Badges
     const sBox = document.getElementById('t-scholarship-box');
     if (displayScholarshipDiscount > 0) {
         sBox.style.display = 'block';
@@ -2264,7 +2303,7 @@ function calculateTuition() {
     document.getElementById('tuitionResultBox').style.display = 'block';
 }
 
-// 5. Multiple Trimester Logic
+// 5. Multiple Trimester Planner Logic
 function addMultiSemRow() {
     const container = document.getElementById('multi-sem-container');
     const rowCount = container.children.length + 1;
