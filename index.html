@@ -2318,7 +2318,7 @@
         
         document.getElementById('tuitionResultBox').style.display = 'block';
     }
-    // --- MULTI-SEMESTER PLANNER LOGIC ---
+ // --- MULTI-SEMESTER PLANNER LOGIC ---
     function addMultiSemRow() {
         const container = document.getElementById('multi-sem-container');
         if (!container) return;
@@ -2349,7 +2349,7 @@
         });
     }
 
-function calculateMultiSem() {
+    function calculateMultiSem() {
         let totalTuition = 0, totalCredits = 0, semCount = 0, totalDiscount = 0;
         
         const costPerCredit = parseFloat(document.getElementById('t-cost-per-credit').value) || 6500;
@@ -2393,24 +2393,6 @@ function calculateMultiSem() {
             }
         });
 
-        document.getElementById('t-multi-total').innerText = totalTuition.toLocaleString('en-IN') + ' BDT';
-        document.getElementById('t-multi-credits-total').innerText = totalCredits;
-        document.getElementById('t-multi-sem-total').innerText = semCount;
-        
-        const savedText = document.getElementById('t-multi-saved');
-        if (savedText) {
-            if (totalDiscount > 0) {
-                savedText.innerText = `Estimated Total Savings: -${totalDiscount.toLocaleString('en-IN')} ৳`;
-                savedText.style.display = 'block';
-            } else {
-                savedText.style.display = 'none';
-            }
-        }
-
-        document.getElementById('multiSemResultBox').style.display = 'block';
-    }
-
-        // Update UI
         document.getElementById('t-multi-total').innerText = totalTuition.toLocaleString('en-IN') + ' BDT';
         document.getElementById('t-multi-credits-total').innerText = totalCredits;
         document.getElementById('t-multi-sem-total').innerText = semCount;
