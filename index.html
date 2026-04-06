@@ -965,10 +965,39 @@
         </div>
     </div>
 
-    <div class="section-box" style="margin-top: 40px; background: var(--bg-container);">
+   <div class="section-box" style="margin-top: 40px; background: var(--bg-container);">
         <h2 style="color: var(--secondary-color); margin-top: 0; border-bottom: 3px solid var(--border-color); padding-bottom: 10px; font-size: 1.5em;">📅 2. Multiple Trimester Planner</h2>
         <p style="color: var(--text-muted); margin-bottom: 20px;">Plan your upcoming trimesters. Each row automatically adds the <strong style="color:var(--primary-color);">6500 BDT</strong> trimester fee.</p>
         
+        <div style="margin-bottom: 20px; padding: 15px; border-radius: 8px; background: var(--course-added-bg); border: 1px solid var(--border-color);">
+            <h3 style="margin-top: 0; margin-bottom: 10px; font-size: 1.05em; color: var(--primary-color);">Global Estimated Discounts</h3>
+            <p style="font-size: 0.85em; color: var(--text-muted); margin-top: 0; margin-bottom: 15px;">Check a box to simulate keeping a waiver or scholarship across all planned trimesters.</p>
+            <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                <div style="flex: 1; min-width: 200px;">
+                    <label style="font-weight: bold; color: var(--text-main); display: flex; align-items: center; gap: 8px; margin-bottom: 8px; cursor: pointer;">
+                        <input type="checkbox" id="m-has-waiver" style="width: 18px; height: 18px; accent-color: var(--primary-color);" onchange="document.getElementById('m-waiver-select').disabled = !this.checked">
+                        Apply Waiver
+                    </label>
+                    <select id="m-waiver-select" disabled>
+                        <option value="25">25%</option>
+                        <option value="50">50%</option>
+                        <option value="100">100%</option>
+                    </select>
+                </div>
+                <div style="flex: 1; min-width: 200px;">
+                    <label style="font-weight: bold; color: var(--text-main); display: flex; align-items: center; gap: 8px; margin-bottom: 8px; cursor: pointer;">
+                        <input type="checkbox" id="m-has-scholarship" style="width: 18px; height: 18px; accent-color: var(--primary-color);" onchange="document.getElementById('m-scholarship-select').disabled = !this.checked">
+                        Apply Scholarship
+                    </label>
+                    <select id="m-scholarship-select" disabled>
+                        <option value="25">25%</option>
+                        <option value="50">50%</option>
+                        <option value="100">100%</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
         <div id="multi-sem-container">
             </div>
         
@@ -980,9 +1009,9 @@
             <div style="font-size: 1.1em; color: var(--text-muted); margin-bottom: 5px;">Estimated Total Cost:</div>
             <div class="gpa-value" id="t-multi-total" style="color: var(--primary-color); font-size: 2.2rem;">0 BDT</div>
             <p style="margin-top: 10px; color: var(--text-muted);">Total Credits: <strong id="t-multi-credits-total">0</strong> | Total Semesters: <strong id="t-multi-sem-total">0</strong></p>
+            <p id="t-multi-saved" style="margin-top: 5px; color: #28a745; font-weight: bold; display: none;"></p>
         </div>
     </div>
-</div>
     
     <div id="calendar-section" class="tool-section">
         <h1 class="gradient-text">Spring 2026 Academic Calendar</h1>
@@ -2337,18 +2366,67 @@ function calculateMultiSem() {
     let totalTuition = 0;
     let totalCredits = 0;
     let semCount = 0;
+    let totalDiscount = 0; // Track savings
     
     const costPerCredit = parseFloat(document.getElementById('t-cost-per-credit').value) || 6500;
     const trimesterFee = parseFloat(document.getElementById('t-trimester-fee').value) || 6500;
 
-    document.querySelectorAll('.multi-credits-input').forEach(input => {
-        const credits = parseFloat(input.value) || 0;
+    // Grab Global Multi-Sem Discount Status
+    const hasWaiver = document.getElementById('m-has-waiver').checked;
+    const waiverPct = hasWaiver ? parseFloat(document.getElementById('m-waiver-select').value) : 0;
+    
+    const hasScholarship = document.getElementById('m-has-scholarship').checked;
+    const scholarshipPct = hasScholarship ? parseFloat(document.getElementById('m-scholarship-select').value) : 0;
+
+    const rows = document.querySelectorAll('.multi-sem-row');
+    
+    // For the very first row, base the scholarship limit on the "Current Credits" input from section 1.
+    // If it's 0 (user didn't fill it out), we will forgive the limit for the first row.
+    let prevCredits = parseFloat(document.getElementById('t-current-credits').value) || 0;
+
+    rows.forEach(row => {
+        const credits = parseFloat(row.querySelector('.multi-credits-input').value) || 0;
+        
         if (credits > 0) {
+            let baseTuition = credits * costPerCredit;
+            let rowDiscount = 0;
+
+            // Higher Percentage Wins Logic
+            if (scholarshipPct > waiverPct) {
+                // If prevCredits is 0, just use current row credits to be forgiving
+                let eligibleCredits = (prevCredits === 0) ? credits : Math.min(credits, prevCredits);
+                rowDiscount = eligibleCredits * costPerCredit * (scholarshipPct / 100);
+            } else if (waiverPct >= scholarshipPct && waiverPct > 0) {
+                // Waiver applies to all credits
+                rowDiscount = credits * costPerCredit * (waiverPct / 100);
+            }
+
+            totalTuition += (baseTuition - rowDiscount) + trimesterFee;
             totalCredits += credits;
-            totalTuition += (credits * costPerCredit) + trimesterFee;
+            totalDiscount += rowDiscount;
             semCount++;
+            
+            // This row's credits become the limit for the next row's scholarship
+            prevCredits = credits; 
         }
     });
+
+    // Update UI
+    document.getElementById('t-multi-total').innerText = totalTuition.toLocaleString('en-IN') + ' BDT';
+    document.getElementById('t-multi-credits-total').innerText = totalCredits;
+    document.getElementById('t-multi-sem-total').innerText = semCount;
+    
+    // Display total savings
+    const savedText = document.getElementById('t-multi-saved');
+    if (totalDiscount > 0) {
+        savedText.innerText = `Estimated Total Savings: -${totalDiscount.toLocaleString('en-IN')} ৳`;
+        savedText.style.display = 'block';
+    } else {
+        savedText.style.display = 'none';
+    }
+
+    document.getElementById('multiSemResultBox').style.display = 'block';
+}
 
     document.getElementById('t-multi-total').innerText = totalTuition.toLocaleString('en-IN') + ' BDT';
     document.getElementById('t-multi-credits-total').innerText = totalCredits;
