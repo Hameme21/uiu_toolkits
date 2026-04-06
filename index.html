@@ -2340,71 +2340,49 @@
     }
 
     function calculateMultiSem() {
-    let totalTuition = 0, totalCredits = 0, semCount = 0, totalDiscount = 0;
-    
-    const costPerCredit = parseFloat(document.getElementById('t-cost-per-credit').value) || 6500;
-    const trimesterFee = parseFloat(document.getElementById('t-trimester-fee').value) || 6500;
-
-    // Grab Global Multi-Sem Discount Checkboxes
-    const hasWaiver = document.getElementById('m-has-waiver') ? document.getElementById('m-has-waiver').checked : false;
-    const waiverPct = hasWaiver ? parseFloat(document.getElementById('m-waiver-select').value) : 0;
-    
-    const hasScholarship = document.getElementById('m-has-scholarship') ? document.getElementById('m-has-scholarship').checked : false;
-    const scholarshipPct = hasScholarship ? parseFloat(document.getElementById('m-scholarship-select').value) : 0;
-
-    const rows = document.querySelectorAll('.multi-sem-row');
-    
-    // --- THE SCHOLARSHIP FIX: Get the starting limit from Section 1 ---
-    // This looks at what you are currently taking to cap the next semester
-    let prevCredits = parseFloat(document.getElementById('t-current-credits').value) || 0;
-
-    rows.forEach(row => {
-        const credits = parseFloat(row.querySelector('.multi-credits-input').value) || 0;
+        let totalTuition = 0, totalCredits = 0, semCount = 0, totalDiscount = 0;
         
-        if (credits > 0) {
-            let baseTuition = credits * costPerCredit;
-            let rowDiscount = 0;
+        const costPerCredit = parseFloat(document.getElementById('t-cost-per-credit').value) || 6500;
+        const trimesterFee = parseFloat(document.getElementById('t-trimester-fee').value) || 6500;
 
-            // Higher Percentage Wins Logic
-            if (scholarshipPct > waiverPct) {
-                // Apply UIU rule: Scholarship only applies up to previous semester's credits
-                // (If prevCredits is exactly 0, we forgive it for the first row to avoid breaking the tool)
-                let eligibleCredits = (prevCredits === 0) ? credits : Math.min(credits, prevCredits);
-                rowDiscount = eligibleCredits * costPerCredit * (scholarshipPct / 100);
-            } else if (waiverPct >= scholarshipPct && waiverPct > 0) {
-                // Waiver has no limit, applies to all credits
-                rowDiscount = credits * costPerCredit * (waiverPct / 100);
-            }
+        // Grab Global Multi-Sem Discount Checkboxes
+        const hasWaiver = document.getElementById('m-has-waiver') ? document.getElementById('m-has-waiver').checked : false;
+        const waiverPct = hasWaiver ? parseFloat(document.getElementById('m-waiver-select').value) : 0;
+        
+        const hasScholarship = document.getElementById('m-has-scholarship') ? document.getElementById('m-has-scholarship').checked : false;
+        const scholarshipPct = hasScholarship ? parseFloat(document.getElementById('m-scholarship-select').value) : 0;
 
-            totalTuition += (baseTuition - rowDiscount) + trimesterFee;
-            totalCredits += credits;
-            totalDiscount += rowDiscount;
-            semCount++;
+        const rows = document.querySelectorAll('.multi-sem-row');
+        
+        // --- THE SCHOLARSHIP FIX: Get the starting limit from Section 1 ---
+        let prevCredits = parseFloat(document.getElementById('t-current-credits').value) || 0;
+
+        rows.forEach(row => {
+            const credits = parseFloat(row.querySelector('.multi-credits-input').value) || 0;
             
-            // --- THE CASCADING FIX: Pass this row's credits to the next row ---
-            // If Row 1 has 12 credits, Row 2's scholarship is now capped at 12.
-            prevCredits = credits; 
-        }
-    });
+            if (credits > 0) {
+                let baseTuition = credits * costPerCredit;
+                let rowDiscount = 0;
 
-    // Update UI
-    document.getElementById('t-multi-total').innerText = totalTuition.toLocaleString('en-IN') + ' BDT';
-    document.getElementById('t-multi-credits-total').innerText = totalCredits;
-    document.getElementById('t-multi-sem-total').innerText = semCount;
-    
-    const savedText = document.getElementById('t-multi-saved');
-    if (savedText) {
-        if (totalDiscount > 0) {
-            savedText.innerText = `Estimated Total Savings: -${totalDiscount.toLocaleString('en-IN')} ৳`;
-            savedText.style.display = 'block';
-        } else {
-            savedText.style.display = 'none';
-        }
-    }
+                // Higher Percentage Wins Logic
+                if (scholarshipPct > waiverPct) {
+                    let eligibleCredits = (prevCredits === 0) ? credits : Math.min(credits, prevCredits);
+                    rowDiscount = eligibleCredits * costPerCredit * (scholarshipPct / 100);
+                } else if (waiverPct >= scholarshipPct && waiverPct > 0) {
+                    rowDiscount = credits * costPerCredit * (waiverPct / 100);
+                }
 
-    document.getElementById('multiSemResultBox').style.display = 'block';
-}
+                totalTuition += (baseTuition - rowDiscount) + trimesterFee;
+                totalCredits += credits;
+                totalDiscount += rowDiscount;
+                semCount++;
+                
+                // --- THE CASCADING FIX: Pass this row's credits to the next row ---
+                prevCredits = credits; 
+            }
+        });
 
+        // Update UI
         document.getElementById('t-multi-total').innerText = totalTuition.toLocaleString('en-IN') + ' BDT';
         document.getElementById('t-multi-credits-total').innerText = totalCredits;
         document.getElementById('t-multi-sem-total').innerText = semCount;
