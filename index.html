@@ -49,8 +49,6 @@ body::before { content: ''; position: fixed; inset: 0; background: radial-gradie
 /* Typography */
 h1,h2,h3,h4 { font-family: var(--font-display); }
 .mono { font-family: var(--font-mono); }
-
-/* Hidden */
 .hidden { display: none !important; }
 
 /* ═══ OVERLAYS ═══ */
@@ -90,7 +88,7 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 #topNav a:hover:not(.active) { color: white; background: rgba(255,255,255,0.05); }
 
 /* ═══ MOBILE BOTTOM NAV ═══ */
-#mobileBottomNav { display: none; position: fixed; bottom: 0; left: 0; right: 0; z-index: 3500; background: rgba(6,9,16,0.97); backdrop-filter: blur(20px); border-top: 1px solid rgba(255,255,255,0.07); padding: 8px 0 env(safe-area-inset-bottom, 8px); }
+#mobileBottomNav { display: none; position: fixed; bottom: 0; left: 0; right: 0; z-index: 3500; background: rgba(6,9,16,0.97); backdrop-filter: blur(20px); border-top: 1px solid rgba(255,255,255,0.07); padding-top: 8px; padding-bottom: max(8px, env(safe-area-inset-bottom)); }
 #mobileBottomNav .mnav-items { display: flex; justify-content: space-around; align-items: center; }
 #mobileBottomNav .mnav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 6px 12px; cursor: pointer; color: var(--muted); border-radius: 10px; transition: all 0.2s; flex: 1; min-width: 0; }
 #mobileBottomNav .mnav-item.active { color: var(--accent-2); }
@@ -117,26 +115,28 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 .dash-card:hover { transform: translateY(-3px); border-color: rgba(124,58,237,0.25); box-shadow: 0 12px 40px rgba(124,58,237,0.08); }
 .dash-card:hover::before { opacity: 1; }
 
+/* Admin Dash Flex Wrapper */
+#dashAdminView { display: flex; flex-direction: column; gap: 24px; }
+.admin-cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; width: 100%; }
+@media (max-width: 480px) { .admin-cards-grid { grid-template-columns: 1fr 1fr; gap: 12px; } }
+
 /* ═══ RESPONSIVE LAYOUTS ═══ */
 /* Live Auction */
 #sectionLiveAuction { display: grid; grid-template-columns: 1fr 320px; gap: 16px; min-height: 680px; }
 @media (max-width: 1024px) { #sectionLiveAuction { grid-template-columns: 1fr 280px; } }
 @media (max-width: 767px) {
-  #sectionLiveAuction { grid-template-columns: 1fr; gap: 12px; min-height: auto; }
-  #auctionSidebar { display: none; }
+  /* MOBILE FIX: Allow sidebar to show and stack properly */
+  #sectionLiveAuction { grid-template-columns: 1fr; gap: 12px; min-height: auto; display: flex; flex-direction: column; }
+  #auctionSidebar { display: flex; }
 }
 
 /* Dashboard team/viewer views */
 #dashTeamView, #dashViewerView { display: grid; grid-template-columns: 260px 1fr; gap: 16px; min-height: 500px; }
 @media (max-width: 1024px) { #dashTeamView, #dashViewerView { grid-template-columns: 220px 1fr; } }
 @media (max-width: 767px) {
-  #dashTeamView, #dashViewerView { grid-template-columns: 1fr; gap: 12px; min-height: auto; }
-  #dashTeamView > div:first-child, #dashViewerView > div:first-child { display: none; }
+  /* MOBILE FIX: Use flex column-reverse so the Live status button stays on top */
+  #dashTeamView, #dashViewerView { grid-template-columns: 1fr; display: flex; flex-direction: column-reverse; gap: 12px; min-height: auto; }
 }
-
-/* Admin dash grid */
-#dashAdminView { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
-@media (max-width: 480px) { #dashAdminView { grid-template-columns: 1fr 1fr; gap: 12px; } }
 
 /* Teams Config */
 #teamsConfigContainer { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; }
@@ -241,7 +241,6 @@ header .header-right { display: flex; align-items: center; gap: 8px; }
 </head>
 <body>
 
-<!-- ═══ PORTAL ═══ -->
 <div id="portal">
   <div style="text-align:center;margin-bottom:32px">
     <div style="display:inline-flex;align-items:center;gap:4px;margin-bottom:12px">
@@ -273,7 +272,6 @@ header .header-right { display: flex; align-items: center; gap: 8px; }
   </div>
 </div>
 
-<!-- ═══ TEAM AUTH ═══ -->
 <div id="teamAuthOverlay" class="hidden">
   <div class="portal-card" style="text-align:center">
     <img id="loginTeamLogo" class="hidden" style="width:68px;height:68px;border-radius:50%;margin:0 auto 20px;border:2px solid var(--accent);object-fit:cover">
@@ -296,12 +294,10 @@ header .header-right { display: flex; align-items: center; gap: 8px; }
   </div>
 </div>
 
-<!-- ═══ APP ═══ -->
 <div id="appContainer" class="hidden" style="min-height:100vh;display:flex;flex-direction:column;position:relative;z-index:1">
   <div id="toastContainer"></div>
   <input type="file" id="globalFileInput" style="display:none">
 
-  <!-- Header -->
   <header style="display:flex;align-items:center;justify-content:space-between;padding:0 20px;height:var(--header-h);border-bottom:1px solid rgba(255,255,255,0.06);background:rgba(6,9,16,0.92);backdrop-filter:blur(20px);position:sticky;top:0;z-index:4000;gap:12px">
     <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
       <div style="width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px var(--accent-glow)"></div>
@@ -316,24 +312,20 @@ header .header-right { display: flex; align-items: center; gap: 8px; }
     </div>
   </header>
 
-  <!-- Mobile Bottom Nav -->
   <nav id="mobileBottomNav" class="hidden">
     <div class="mnav-items" id="mobileNavItems"></div>
   </nav>
 
   <main style="flex:1;padding:20px;max-width:1700px;margin:0 auto;width:100%" id="mainContentContainer">
 
-    <!-- ── DASHBOARD ── -->
     <div id="sectionDashboard">
       <div style="margin-bottom:24px">
         <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.15em;margin-bottom:6px">Operations Center</div>
         <h2 style="font-family:var(--font-display);font-size:clamp(1.3rem,3vw,2rem);font-weight:800">Welcome, <span style="color:var(--accent-2)" id="dashWelcomeName"></span></h2>
       </div>
 
-      <!-- Admin view -->
       <div id="dashAdminView" class="hidden"></div>
 
-      <!-- Team view -->
       <div id="dashTeamView" class="hidden">
         <div class="glass" style="padding:16px;display:flex;flex-direction:column">
           <div style="font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.15em;margin-bottom:14px">Live Standings</div>
@@ -351,7 +343,6 @@ header .header-right { display: flex; align-items: center; gap: 8px; }
         </div>
       </div>
 
-      <!-- Viewer view -->
       <div id="dashViewerView" class="hidden">
         <div class="glass" style="padding:16px;display:flex;flex-direction:column">
           <div style="font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.15em;margin-bottom:14px">Live Standings</div>
@@ -367,11 +358,9 @@ header .header-right { display: flex; align-items: center; gap: 8px; }
       </div>
     </div>
 
-    <!-- ── LIVE AUCTION ── -->
     <div id="sectionLiveAuction" class="hidden">
 
       <div style="display:flex;flex-direction:column;gap:14px">
-        <!-- Idle / Queue -->
         <div id="auctionIdleState" class="glass" style="flex:1;min-height:360px;display:flex;flex-direction:column;overflow:hidden">
           <div id="idleWaitingMessage" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--muted);text-align:center;padding:40px">
             <div style="font-size:42px;margin-bottom:14px;opacity:0.3">📡</div>
@@ -395,7 +384,6 @@ header .header-right { display: flex; align-items: center; gap: 8px; }
           </div>
         </div>
 
-        <!-- Active Player Popup -->
         <div id="auctionPlayerPopup" class="hidden">
           <div style="position:absolute;inset:0;background:linear-gradient(to top,#060910 0%,rgba(6,9,16,0.7) 50%,rgba(6,9,16,0.2) 100%);z-index:10;pointer-events:none"></div>
           <div id="popupImgContainer" style="position:absolute;inset:0;z-index:0">
@@ -403,7 +391,6 @@ header .header-right { display: flex; align-items: center; gap: 8px; }
           </div>
           <button onclick="closePopup()" style="position:absolute;top:12px;right:12px;z-index:30;width:30px;height:30px;border-radius:50%;background:rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.1);font-size:16px;padding:0">×</button>
 
-          <!-- Timer -->
           <div class="timer-pill" id="auctionTimerContainer">
             <div id="auctionTimerDot" style="width:8px;height:8px;border-radius:50%;background:var(--cyan)"></div>
             <div id="auctionTimerText" class="mono" style="font-size:1.3rem;font-weight:700;color:var(--cyan)">30s</div>
@@ -440,7 +427,6 @@ header .header-right { display: flex; align-items: center; gap: 8px; }
         </div>
       </div>
 
-      <!-- Right Sidebar -->
       <div id="auctionSidebar" style="display:flex;flex-direction:column;gap:14px">
         <div class="glass" style="padding:16px;flex:1;display:flex;flex-direction:column;overflow:hidden">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.15em">
@@ -460,7 +446,6 @@ header .header-right { display: flex; align-items: center; gap: 8px; }
       </div>
     </div>
 
-    <!-- ── PLAYER DATABASE ── -->
     <div id="sectionPlayerDatabase" class="hidden" style="display:flex;flex-direction:column;gap:16px">
       <div id="adminPlayerDatabaseConfig" class="hidden glass" style="padding:18px">
         <div style="font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.15em;margin-bottom:14px">Tier Configurations</div>
@@ -476,7 +461,6 @@ header .header-right { display: flex; align-items: center; gap: 8px; }
       </div>
     </div>
 
-    <!-- ── TEAM CONFIG ── -->
     <div id="sectionTeamConfig" class="hidden">
       <div class="glass" style="padding:22px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-bottom:18px;border-bottom:1px solid rgba(255,255,255,0.06);flex-wrap:wrap;gap:14px">
@@ -499,7 +483,6 @@ header .header-right { display: flex; align-items: center; gap: 8px; }
 
   </main>
 
-  <!-- ── PLAYER EDIT MODAL ── -->
   <div class="overlay hidden" id="playerEditOverlay">
     <div class="modal">
       <h3 style="font-family:var(--font-display);font-size:1.1rem;font-weight:800;margin-bottom:20px" id="playerEditTitle">Add Player</h3>
@@ -522,7 +505,6 @@ header .header-right { display: flex; align-items: center; gap: 8px; }
     </div>
   </div>
 
-  <!-- ── SOLD ANIMATION ── -->
   <div id="soldAnimationOverlay" class="hidden">
     <div style="text-align:center;padding:40px">
       <h1 id="animTitle" style="font-family:var(--font-display);font-size:clamp(2.8rem,8vw,6rem);font-weight:800;color:var(--amber);letter-spacing:0.1em;margin-bottom:8px">SOLD!</h1>
@@ -536,7 +518,6 @@ header .header-right { display: flex; align-items: center; gap: 8px; }
     </div>
   </div>
 
-  <!-- ── SOLD CONFIRM MODAL ── -->
   <div class="overlay hidden" id="soldActionOverlay">
     <div class="modal">
       <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.25);border-radius:10px;padding:7px 14px;margin-bottom:18px">
@@ -557,7 +538,6 @@ header .header-right { display: flex; align-items: center; gap: 8px; }
     </div>
   </div>
 
-  <!-- ── RTM CARD MODAL ── -->
   <div class="overlay hidden" id="rtmActionOverlay">
     <div class="modal modal-rtm" style="max-width:540px">
       <div style="margin-bottom:20px">
@@ -598,22 +578,15 @@ header .header-right { display: flex; align-items: center; gap: 8px; }
     </div>
   </div>
 
-  <!-- ── IMPORT PLAYERS MODAL ── -->
   <div class="overlay hidden" id="importPlayersOverlay">
     <div class="modal" id="importPlayersModal">
       <h3 style="font-family:var(--font-display);font-size:1.1rem;font-weight:800;margin-bottom:6px">Import Previous Players</h3>
       <p style="font-size:12px;color:var(--muted);margin-bottom:16px">Add players from the existing database to this team.</p>
 
-      <!-- Filter buttons -->
       <div class="import-filter" id="importCatFilters"></div>
-
-      <!-- Search -->
       <input type="text" id="importSearchInput" placeholder="Search player name…" style="margin-bottom:8px" oninput="filterImportList()">
-
-      <!-- Player list -->
       <div class="import-player-list" id="importPlayerList"></div>
 
-      <!-- Select all + count -->
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
         <button class="ghost small" onclick="toggleSelectAllImport()" id="btnSelectAllImport">Select All</button>
         <span style="font-size:11px;color:var(--muted)" id="importSelCount">0 selected</span>
@@ -640,9 +613,11 @@ let STATE = { teams: [], categories: [], playersSnapshot: {}, activeBids: {}, so
 let pendingSold = null, pendingRTM = null, activePlayer = null;
 let currentActiveSectionId = 'sectionDashboard';
 let currentAuctionCategory = null;
-let auctionTimerInterval = null, auctionTimeRemaining = 30, isTimerPaused = false;
 
-// Import modal state
+// --- SERVER DRIVEN TIMER MODIFICATIONS ---
+let auctionTimeRemaining = 30, isTimerPaused = false;
+window.timerHandled = false;
+
 let importTargetTeamId = null;
 let importActiveCatFilter = '';
 
@@ -748,22 +723,17 @@ function updateLiveEligibility() {
   }
 }
 
-// ── Timer ──
+// ── Timer (Now Server-Driven) ──
 function resetAndStartTimer() {
-  clearInterval(auctionTimerInterval);
+  window.timerHandled = false;
   auctionTimeRemaining = 30; isTimerPaused = false;
   const btn = document.getElementById('btnPauseTimer');
   if (btn) btn.textContent = '⏸️';
   updateTimerUI();
+  
   if (CURRENT_USER.role === 'admin') {
+    // Notify server to start controlling the time
     socket.emit('admin:timer_control', { paused: false, time: 30 });
-    auctionTimerInterval = setInterval(() => {
-      if (isTimerPaused) return;
-      auctionTimeRemaining--;
-      updateTimerUI();
-      socket.emit('admin:timer_control', { paused: false, time: auctionTimeRemaining });
-      if (auctionTimeRemaining <= 0) { clearInterval(auctionTimerInterval); handleTimerExpiry(); }
-    }, 1000);
   }
 }
 function updateTimerUI() {
@@ -782,7 +752,12 @@ window.toggleTimer = () => {
   socket.emit('admin:timer_control', { paused: isTimerPaused, time: auctionTimeRemaining });
 };
 function handleTimerExpiry() {
-  if (CURRENT_USER.role === 'admin' && activePlayer) { triggerSoldFromPopup(); showToast('⏱️ Time is up! Finalize the highest bidder.'); }
+  if (window.timerHandled) return;
+  window.timerHandled = true;
+  if (CURRENT_USER.role === 'admin' && activePlayer) { 
+    triggerSoldFromPopup(); 
+    showToast('⏱️ Time is up! Finalize the highest bidder.'); 
+  }
   else showToast("⏱️ Time's up! Awaiting Admin confirmation…");
 }
 
@@ -806,12 +781,18 @@ socket.on('player:bid', pl => {
   log(`<span style="color:white;font-weight:700">${pl.name}</span> bid → <span style="color:var(--emerald);font-weight:700">৳${pl.price}</span>`);
 });
 socket.on('admin:toast', d => showToast(d.msg));
+
+// --- Receive Timer Data from Server ---
 socket.on('timer:sync', data => {
-  if (CURRENT_USER.role === 'admin' && Math.abs(auctionTimeRemaining - data.time) <= 2 && isTimerPaused === data.paused) return;
-  isTimerPaused = data.paused; auctionTimeRemaining = data.time;
+  isTimerPaused = data.paused; 
+  auctionTimeRemaining = data.time;
   const btn = document.getElementById('btnPauseTimer');
   if (btn) btn.textContent = isTimerPaused ? '▶️' : '⏸️';
   updateTimerUI();
+  
+  if (auctionTimeRemaining <= 0) {
+      handleTimerExpiry();
+  }
 });
 
 socket.on('popup:open', player => {
@@ -831,8 +812,9 @@ socket.on('popup:open', player => {
     else if (btn) btn.style.display = 'none';
   }
 });
+
 socket.on('popup:close', () => {
-  activePlayer = null; clearInterval(auctionTimerInterval);
+  activePlayer = null; 
   const popup = document.getElementById('auctionPlayerPopup');
   popup.classList.add('hidden'); popup.style.opacity = ''; popup.style.filter = ''; popup.style.pointerEvents = '';
   document.getElementById('auctionIdleState').classList.remove('hidden');
@@ -848,7 +830,7 @@ socket.on('player:sold', data => {
   STATE.soldPrices[`${category}:${name}`] = price;
   if (isDirect && !isRTM) { if (!STATE.directSigns) STATE.directSigns = {}; STATE.directSigns[`${category}:${name}`] = true; }
   if (isRTM) { if (!STATE.rtmEvents) STATE.rtmEvents = {}; STATE.rtmEvents[`${category}:${name}`] = true; }
-  activePlayer = null; clearInterval(auctionTimerInterval); updateLiveIndicator();
+  activePlayer = null; updateLiveIndicator();
   const popup = document.getElementById('auctionPlayerPopup');
   popup.classList.add('hidden'); popup.style.opacity = ''; popup.style.filter = ''; popup.style.pointerEvents = '';
   document.getElementById('auctionIdleState').classList.remove('hidden');
@@ -890,17 +872,14 @@ socket.on('player:sold', data => {
 
 // ── Setup UI ──
 function buildNavItems(sections) {
-  // Desktop
   const nav = document.getElementById('topNav');
   nav.innerHTML = '';
   sections.forEach(s => { nav.innerHTML += `<a data-section="${s.id}" onclick="showSection('${s.id}')">${s.label}</a>`; });
   nav.classList.remove('hidden');
-  // Mobile
   const mn = document.getElementById('mobileNavItems');
   mn.innerHTML = '';
   sections.forEach(s => { mn.innerHTML += `<div class="mnav-item" data-section="${s.id}" onclick="showSection('${s.id}')"><div class="mnav-icon">${s.icon}</div><div class="mnav-label">${s.label}</div></div>`; });
   document.getElementById('mobileBottomNav').classList.remove('hidden');
-  // Set first active
   setTimeout(() => {
     document.querySelector(`#topNav a[data-section="sectionDashboard"]`)?.classList.add('active');
     document.querySelector(`#mobileNavItems [data-section="sectionDashboard"]`)?.classList.add('active');
@@ -922,28 +901,37 @@ function setupUI() {
   document.getElementById('roleDisplay').textContent = `${CURRENT_USER.role.toUpperCase()} · ${label}`;
   document.getElementById('dashWelcomeName').textContent = label;
 
-  // Build admin dash
   if (isAdmin) {
     document.getElementById('dashAdminView').classList.remove('hidden');
+    // ADMIN DASH OVERHAUL: Added Teams Overview directly into the Dashboard
     document.getElementById('dashAdminView').innerHTML = `
-      <div class="dash-card" onclick="showSection('sectionLiveAuction')">
-        <div style="font-size:28px;margin-bottom:14px">⚡</div>
-        <h3 style="font-family:var(--font-display);font-size:1rem;font-weight:700;margin-bottom:8px">Live Bidding</h3>
-        <p style="color:var(--muted);font-size:12px;line-height:1.6">Start bidding, accept offers, execute sales.</p>
-        <div style="margin-top:18px;font-size:11px;color:var(--accent-2);font-weight:700;font-family:var(--font-display);letter-spacing:0.06em">LAUNCH CENTER ›</div>
+      <div class="admin-cards-grid">
+          <div class="dash-card" onclick="showSection('sectionLiveAuction')">
+            <div style="font-size:28px;margin-bottom:14px">⚡</div>
+            <h3 style="font-family:var(--font-display);font-size:1rem;font-weight:700;margin-bottom:8px">Live Bidding</h3>
+            <p style="color:var(--muted);font-size:12px;line-height:1.6">Start bidding, accept offers, execute sales.</p>
+            <div style="margin-top:18px;font-size:11px;color:var(--accent-2);font-weight:700;font-family:var(--font-display);letter-spacing:0.06em">LAUNCH CENTER ›</div>
+          </div>
+          <div class="dash-card" onclick="showSection('sectionPlayerDatabase')">
+            <div style="font-size:28px;margin-bottom:14px">🏆</div>
+            <h3 style="font-family:var(--font-display);font-size:1rem;font-weight:700;margin-bottom:8px">Players</h3>
+            <p style="color:var(--muted);font-size:12px;line-height:1.6">Configure categories, base prices, player lists.</p>
+            <div style="margin-top:18px;font-size:11px;color:var(--accent-2);font-weight:700;font-family:var(--font-display);letter-spacing:0.06em">OPEN DATABASE ›</div>
+          </div>
+          <div class="dash-card" onclick="showSection('sectionTeamConfig')">
+            <div style="font-size:28px;margin-bottom:14px">🛡️</div>
+            <h3 style="font-family:var(--font-display);font-size:1rem;font-weight:700;margin-bottom:8px">Teams</h3>
+            <p style="color:var(--muted);font-size:12px;line-height:1.6">Manage franchise IDs, passwords, logos, purse.</p>
+            <div style="margin-top:18px;font-size:11px;color:var(--accent-2);font-weight:700;font-family:var(--font-display);letter-spacing:0.06em">CONFIGURE TEAMS ›</div>
+          </div>
       </div>
-      <div class="dash-card" onclick="showSection('sectionPlayerDatabase')">
-        <div style="font-size:28px;margin-bottom:14px">🏆</div>
-        <h3 style="font-family:var(--font-display);font-size:1rem;font-weight:700;margin-bottom:8px">Players</h3>
-        <p style="color:var(--muted);font-size:12px;line-height:1.6">Configure categories, base prices, player lists.</p>
-        <div style="margin-top:18px;font-size:11px;color:var(--accent-2);font-weight:700;font-family:var(--font-display);letter-spacing:0.06em">OPEN DATABASE ›</div>
+      
+      <div class="glass" style="padding: 20px; width: 100%;">
+          <h3 style="font-family:var(--font-display);font-size:1.1rem;font-weight:800;margin-bottom:6px">Franchise Status Overview</h3>
+          <p style="color:var(--muted);font-size:12px;margin-bottom:16px;">Live budgets and acquired players for all active teams.</p>
+          <div id="adminTeamsSummary" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px;"></div>
       </div>
-      <div class="dash-card" onclick="showSection('sectionTeamConfig')">
-        <div style="font-size:28px;margin-bottom:14px">🛡️</div>
-        <h3 style="font-family:var(--font-display);font-size:1rem;font-weight:700;margin-bottom:8px">Teams</h3>
-        <p style="color:var(--muted);font-size:12px;line-height:1.6">Manage franchise IDs, passwords, logos, purse.</p>
-        <div style="margin-top:18px;font-size:11px;color:var(--accent-2);font-weight:700;font-family:var(--font-display);letter-spacing:0.06em">CONFIGURE TEAMS ›</div>
-      </div>`;
+    `;
   }
 
   document.getElementById('dashTeamView').classList.toggle('hidden', !isTeam);
@@ -964,6 +952,44 @@ function setupUI() {
   showSection('sectionDashboard');
 }
 
+// ── Admin Dashboard Teams Summary ──
+function renderAdminTeamsSummary() {
+    if (CURRENT_USER.role !== 'admin') return;
+    const container = document.getElementById('adminTeamsSummary');
+    if (!container) return;
+    container.innerHTML = '';
+    
+    if (!STATE.teams || STATE.teams.length === 0) {
+        container.innerHTML = '<div style="color:var(--muted);font-size:12px;">No franchises configured yet.</div>';
+        return;
+    }
+
+    STATE.teams.forEach(t => {
+        let boughtHtml = '';
+        if (t.purchases && Object.keys(t.purchases).length > 0) {
+            boughtHtml = '<div style="display:flex; flex-wrap:wrap; gap:4px; margin-top:8px;">';
+            Object.entries(t.purchases).forEach(([cat, name]) => {
+                boughtHtml += `<span class="chip chip-cyan" style="font-size:8px;">${name} (${cat})</span>`;
+            });
+            boughtHtml += '</div>';
+        } else {
+            boughtHtml = '<div style="color:var(--muted); font-size:10px; margin-top:8px;">No players bought</div>';
+        }
+
+        container.innerHTML += `
+        <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:12px; padding:12px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <strong style="color:white; font-family:var(--font-display); font-size:13px;">${t.name}</strong>
+                <span class="mono" style="color:var(--emerald); font-weight:700; font-size:14px;">৳${t.purse}</span>
+            </div>
+            <div style="font-size:9px; color:var(--muted); text-transform:uppercase; margin-top:4px;">
+                ${t.purchases ? Object.keys(t.purchases).length : 0} Players Acquired
+            </div>
+            ${boughtHtml}
+        </div>`;
+    });
+}
+
 // ── Render All ──
 function renderAll() {
   if (appContainer.classList.contains('hidden')) return;
@@ -971,7 +997,13 @@ function renderAll() {
   if (CURRENT_USER.role === 'team') renderMyTeam();
   if (CURRENT_USER.role === 'listener') renderViewerRosters();
   renderDatabase();
-  if (CURRENT_USER.role === 'admin') { renderTeamConfigTable(); if (!activePlayer) renderLiveAdminQueue(); }
+  
+  if (CURRENT_USER.role === 'admin') { 
+      renderTeamConfigTable(); 
+      renderAdminTeamsSummary(); 
+      if (!activePlayer) renderLiveAdminQueue(); 
+  }
+  
   if (activePlayer) { const key = `${activePlayer.category}:${activePlayer.name}`; updatePopupPrice(STATE.activeBids[key] || activePlayer.base); }
   updateLiveIndicator();
 }
@@ -1029,7 +1061,6 @@ function renderScoreboards() {
   updateLiveEligibility();
 }
 
-// ── Player Tile ──
 function makeTileHTML(player, catId, price, isDirect, isRTM, soldToName) {
   const isSold = soldToName !== null;
   const img = player.image || 'https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=400&auto=format&fit=crop';
@@ -1065,7 +1096,6 @@ function makeTileHTML(player, catId, price, isDirect, isRTM, soldToName) {
   </div>`;
 }
 
-// ── Viewer Rosters ──
 function renderViewerRosters() {
   const div = document.getElementById('viewerRostersContent'); if (!div) return;
   div.innerHTML = '';
@@ -1094,7 +1124,6 @@ function renderViewerRosters() {
   });
 }
 
-// ── My Team ──
 function renderMyTeam() {
   const t = STATE.teams.find(x => x.id === CURRENT_USER.teamId);
   const div = document.getElementById('dashboardMyTeamContent'); if (!t || !div) return;
@@ -1118,7 +1147,6 @@ function renderMyTeam() {
   div.appendChild(grid);
 }
 
-// ── Database ──
 function renderDatabase() {
   const container = document.getElementById('categoriesContainer');
   container.innerHTML = '';
@@ -1180,9 +1208,6 @@ function renderDatabase() {
   });
 }
 
-// ═══════════════════════════════════
-// ── Team Config with Import Players ──
-// ═══════════════════════════════════
 function renderTeamConfigTable() {
   const container = document.getElementById('teamsConfigContainer');
   container.innerHTML = '';
@@ -1208,7 +1233,6 @@ function renderTeamConfigTable() {
     setupFileUpload(tile.querySelector('.logo-drop-zone'), (file) => uploadFile(file).then(url => socket.emit('admin:setTeamLogo', { teamId: t.id, logoUrl: url })));
   });
 
-  // Add franchise card
   const add = document.createElement('div');
   add.style.cssText = 'background:rgba(255,255,255,0.02);border:2px dashed rgba(255,255,255,0.08);border-radius:var(--radius-lg);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;min-height:300px;transition:all 0.2s';
   add.onmouseover = () => { add.style.borderColor = 'rgba(124,58,237,0.3)'; add.style.background = 'rgba(124,58,237,0.03)'; };
@@ -1218,7 +1242,6 @@ function renderTeamConfigTable() {
   container.appendChild(add);
 }
 
-// ── Import Players Modal ──
 window.openImportPlayersModal = (teamId) => {
   importTargetTeamId = teamId;
   importActiveCatFilter = '';
@@ -1258,16 +1281,9 @@ function renderImportPlayerList() {
   const targetTeam = STATE.teams.find(t => t.id === importTargetTeamId);
   let players = getAllPlayersFromDB();
 
-  // Filter by category
   if (importActiveCatFilter) players = players.filter(p => p.catId === importActiveCatFilter);
-
-  // Filter by search
   if (search) players = players.filter(p => p.name.toLowerCase().includes(search));
-
-  // Filter out players already on this team
-  if (targetTeam?.purchases) {
-    players = players.filter(p => targetTeam.purchases[p.catId] !== p.name);
-  }
+  if (targetTeam?.purchases) { players = players.filter(p => targetTeam.purchases[p.catId] !== p.name); }
 
   list.innerHTML = '';
   if (!players.length) {
@@ -1315,11 +1331,9 @@ window.confirmImportPlayers = () => {
   const targetTeam = STATE.teams.find(t => t.id === importTargetTeamId);
   if (!targetTeam) return;
 
-  // Build list of players to import
   const toImport = [];
   selected.forEach(cb => { toImport.push({ name: cb.dataset.name, catId: cb.dataset.cat }); });
 
-  // Validate purse
   let totalCost = 0;
   toImport.forEach(item => {
     const cat = STATE.categories.find(c => c.id === item.catId);
@@ -1333,7 +1347,6 @@ window.confirmImportPlayers = () => {
     return;
   }
 
-  // Emit each player import
   toImport.forEach(item => {
     const cat = STATE.categories.find(c => c.id === item.catId);
     const key = `${item.catId}:${item.name}`;
@@ -1353,7 +1366,6 @@ window.closeImportModal = () => {
   document.getElementById('btnSelectAllImport').textContent = 'Select All';
 };
 
-// ── Actions ──
 window.addTeamInputRow = () => {
   const current = [];
   document.querySelectorAll('#teamsConfigContainer .team-config-card').forEach(r => {
@@ -1377,7 +1389,6 @@ window.adjustBid = (dir) => {
 window.updatePopupPrice = (p) => { document.getElementById('popupPrice').textContent = p; document.getElementById('viewerPrice').textContent = p; updateLiveEligibility(); };
 window.activateImpact = (c, n) => { if (confirm('Deploy Impact Power? One-time purse boost.')) socket.emit('team:activateImpact', { teamId: CURRENT_USER.teamId, category: c, playerName: n }); };
 
-// ── Player Edit ──
 window.openPlayerEdit = (catId, playerName = null) => {
   const modal = document.getElementById('playerEditOverlay');
   document.getElementById('playerEditCat').value = catId;
@@ -1446,7 +1457,6 @@ document.getElementById('btnSaveTeams').onclick = () => {
 };
 document.getElementById('btnResetSystem').onclick = () => { if (confirm('⚠️ FULL SYSTEM WIPE?')) socket.emit('admin:resetAll'); };
 
-// ── SOLD ──
 window.triggerSoldFromPopup = () => openSoldConfirmation(activePlayer.category, activePlayer.name, document.getElementById('popupPrice').textContent, false, false);
 
 function pauseTimerForModal() {
@@ -1479,7 +1489,6 @@ document.getElementById('btnConfirmSold').onclick = (e) => {
   if (teamId) { e.target.disabled = true; socket.emit('player:sold', { ...pendingSold, price: finalPrice, teamId }); setTimeout(() => { e.target.disabled = false; document.getElementById('soldActionOverlay').classList.add('hidden'); }, 500); }
 };
 
-// ── RTM ──
 window.triggerRTMPopup = () => {
   if (!activePlayer) return;
   const currentBid = Number(document.getElementById('popupPrice').textContent) || 0;
@@ -1508,7 +1517,6 @@ document.getElementById('btnConfirmRTM').onclick = (e) => {
   setTimeout(() => { e.target.disabled = false; document.getElementById('rtmActionOverlay').classList.add('hidden'); pendingRTM = null; }, 600);
 };
 
-// ── Export ──
 const dlCSV = () => {
   let r = [['Tier','Player','Base','Sold Price','Status','Type','Buyer']];
   STATE.categories.forEach(c => {
