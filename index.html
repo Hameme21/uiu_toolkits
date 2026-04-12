@@ -11,7 +11,6 @@
   --surface: #0d1117;
   --card: rgba(13,17,23,0.9);
   --card-border: rgba(255,255,255,0.07);
-  --card-hover: rgba(255,255,255,0.1);
   --text: #e6edf3;
   --muted: #7d8590;
   --accent: #7c3aed;
@@ -22,7 +21,6 @@
   --emerald: #10b981;
   --emerald-glow: rgba(16,185,129,0.25);
   --amber: #f59e0b;
-  --amber-glow: rgba(245,158,11,0.25);
   --danger: #ef4444;
   --rtm: #ec4899;
   --rtm-glow: rgba(236,72,153,0.3);
@@ -32,8 +30,11 @@
   --radius: 14px;
   --radius-lg: 20px;
   --radius-xl: 28px;
+  --header-h: 58px;
+  --nav-h: 52px;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
 body { font-family: var(--font-body); background: var(--bg); color: var(--text); min-height: 100vh; font-size: 14px; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
 body::before { content: ''; position: fixed; inset: 0; background: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(124,58,237,0.12) 0%, transparent 70%), radial-gradient(ellipse 40% 30% at 80% 80%, rgba(34,211,238,0.04) 0%, transparent 60%); pointer-events: none; z-index: 0; }
 
@@ -52,18 +53,18 @@ h1,h2,h3,h4 { font-family: var(--font-display); }
 /* Hidden */
 .hidden { display: none !important; }
 
-/* Overlays */
-#portal, #teamAuthOverlay { position: fixed; inset: 0; z-index: 5000; background: rgba(6,9,16,0.95); backdrop-filter: blur(16px); display: flex; align-items: center; justify-content: center; flex-direction: column; padding: 1rem; }
-.portal-card { background: rgba(13,17,23,0.95); padding: 28px; border-radius: var(--radius-xl); width: 100%; max-width: 560px; border: 1px solid rgba(124,58,237,0.2); box-shadow: 0 0 60px rgba(124,58,237,0.1), inset 0 0 40px rgba(124,58,237,0.03); max-height: 90vh; overflow-y: auto; }
+/* ═══ OVERLAYS ═══ */
+#portal, #teamAuthOverlay { position: fixed; inset: 0; z-index: 5000; background: rgba(6,9,16,0.97); backdrop-filter: blur(16px); display: flex; align-items: center; justify-content: center; flex-direction: column; padding: 1rem; overflow-y: auto; }
+.portal-card { background: rgba(13,17,23,0.95); padding: 24px; border-radius: var(--radius-xl); width: 100%; max-width: 520px; border: 1px solid rgba(124,58,237,0.2); box-shadow: 0 0 60px rgba(124,58,237,0.1), inset 0 0 40px rgba(124,58,237,0.03); max-height: 90vh; overflow-y: auto; }
 @media(min-width:768px) { .portal-card { padding: 40px; } }
 
-/* Inputs */
-input, select, textarea { width: 100%; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); color: var(--text); padding: 11px 16px; border-radius: var(--radius); font-size: 14px; font-family: var(--font-body); margin-bottom: 14px; outline: none; transition: border-color 0.2s, background 0.2s; }
+/* ═══ INPUTS ═══ */
+input, select, textarea { width: 100%; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); color: var(--text); padding: 10px 14px; border-radius: var(--radius); font-size: 14px; font-family: var(--font-body); margin-bottom: 14px; outline: none; transition: border-color 0.2s, background 0.2s; }
 input:focus, textarea:focus, select:focus { border-color: var(--accent); background: rgba(124,58,237,0.06); box-shadow: 0 0 0 3px rgba(124,58,237,0.08); }
 select option { background: #0d1117; }
 label { display: block; margin-bottom: 6px; color: var(--muted); font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; text-align: left; }
 
-/* Buttons */
+/* ═══ BUTTONS ═══ */
 button { border: none; padding: 10px 18px; color: white; border-radius: var(--radius); cursor: pointer; font-weight: 600; font-family: var(--font-body); font-size: 13px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.18s; }
 .btn-primary { background: var(--accent); box-shadow: 0 4px 20px var(--accent-glow); }
 .btn-primary:hover:not(:disabled) { background: #6d28d9; transform: translateY(-1px); box-shadow: 0 6px 24px var(--accent-glow); }
@@ -78,93 +79,180 @@ button.pink:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 6p
 button.small { padding: 6px 12px; font-size: 12px; border-radius: 8px; }
 button:disabled { opacity: 0.4; cursor: not-allowed; }
 
-/* Tab Nav */
+/* ═══ TABS ═══ */
 .tab-nav { display: flex; background: rgba(0,0,0,0.3); border-radius: 12px; padding: 4px; border: 1px solid rgba(255,255,255,0.05); }
 .tab { flex: 1; padding: 10px; cursor: pointer; color: var(--muted); border-radius: 9px; text-align: center; font-size: 13px; font-weight: 600; font-family: var(--font-display); transition: all 0.18s; }
 .tab.active { background: var(--accent); color: white; box-shadow: 0 0 20px var(--accent-glow); }
 
-/* Top Nav */
-#topNav a { cursor: pointer; color: var(--muted); font-weight: 500; font-size: 13px; font-family: var(--font-display); padding: 7px 14px; border-radius: 10px; white-space: nowrap; transition: all 0.18s; text-decoration: none; display: inline-block; }
+/* ═══ TOP HEADER NAV ═══ */
+#topNav a { cursor: pointer; color: var(--muted); font-weight: 500; font-size: 13px; font-family: var(--font-display); padding: 7px 12px; border-radius: 10px; white-space: nowrap; transition: all 0.18s; text-decoration: none; display: inline-block; }
 #topNav a.active { color: white; background: rgba(124,58,237,0.12); border: 1px solid rgba(124,58,237,0.25); }
 #topNav a:hover:not(.active) { color: white; background: rgba(255,255,255,0.05); }
 
-/* Toast */
+/* ═══ MOBILE BOTTOM NAV ═══ */
+#mobileBottomNav { display: none; position: fixed; bottom: 0; left: 0; right: 0; z-index: 3500; background: rgba(6,9,16,0.97); backdrop-filter: blur(20px); border-top: 1px solid rgba(255,255,255,0.07); padding: 8px 0 env(safe-area-inset-bottom, 8px); }
+#mobileBottomNav .mnav-items { display: flex; justify-content: space-around; align-items: center; }
+#mobileBottomNav .mnav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 6px 12px; cursor: pointer; color: var(--muted); border-radius: 10px; transition: all 0.2s; flex: 1; min-width: 0; }
+#mobileBottomNav .mnav-item.active { color: var(--accent-2); }
+#mobileBottomNav .mnav-item .mnav-icon { font-size: 20px; line-height: 1; }
+#mobileBottomNav .mnav-item .mnav-label { font-size: 9px; font-weight: 600; font-family: var(--font-display); text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 56px; text-align: center; }
+
+@media (max-width: 767px) {
+  #mobileBottomNav { display: block; }
+  #topNav { display: none !important; }
+  body { padding-bottom: 70px; }
+  #appContainer main { padding: 16px 14px; padding-bottom: 80px; }
+}
+
+/* ═══ TOAST ═══ */
 #toastContainer { position: fixed; top: 12px; right: 12px; left: 12px; z-index: 9000; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
 @media (min-width:640px) { #toastContainer { top: 20px; right: 20px; left: auto; max-width: 380px; } }
 .toast { background: rgba(13,17,23,0.96); color: white; padding: 14px 18px; border-radius: var(--radius); border: 1px solid rgba(255,255,255,0.1); border-left: 3px solid var(--accent); box-shadow: 0 12px 40px rgba(0,0,0,0.5); font-weight: 500; font-size: 13px; display: flex; align-items: center; gap: 10px; pointer-events: auto; animation: toastIn 0.3s cubic-bezier(0.16,1,0.3,1); }
 @keyframes toastIn { from { transform: translateY(-16px) scale(0.97); opacity: 0; } to { transform: translateY(0) scale(1); opacity: 1; } }
-@media (min-width:640px) { @keyframes toastIn { from { transform: translateX(20px) scale(0.97); opacity: 0; } to { transform: translateX(0) scale(1); opacity: 1; } } }
-
-/* RTM Toast special */
 .toast.rtm { border-left-color: var(--rtm); }
 
-/* Dashboard Cards */
+/* ═══ DASHBOARD ═══ */
 .dash-card { background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius-lg); padding: 24px; cursor: pointer; transition: all 0.22s; position: relative; overflow: hidden; }
 .dash-card::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at top left, rgba(124,58,237,0.06) 0%, transparent 60%); opacity: 0; transition: opacity 0.3s; }
 .dash-card:hover { transform: translateY(-3px); border-color: rgba(124,58,237,0.25); box-shadow: 0 12px 40px rgba(124,58,237,0.08); }
 .dash-card:hover::before { opacity: 1; }
 
-/* Hammer */
-#hammer { width: 120px; height: 120px; position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%); pointer-events: none; z-index: 6000; display: none; transform-origin: bottom right; }
+/* ═══ RESPONSIVE LAYOUTS ═══ */
+/* Live Auction */
+#sectionLiveAuction { display: grid; grid-template-columns: 1fr 320px; gap: 16px; min-height: 680px; }
+@media (max-width: 1024px) { #sectionLiveAuction { grid-template-columns: 1fr 280px; } }
+@media (max-width: 767px) {
+  #sectionLiveAuction { grid-template-columns: 1fr; gap: 12px; min-height: auto; }
+  #auctionSidebar { display: none; }
+}
+
+/* Dashboard team/viewer views */
+#dashTeamView, #dashViewerView { display: grid; grid-template-columns: 260px 1fr; gap: 16px; min-height: 500px; }
+@media (max-width: 1024px) { #dashTeamView, #dashViewerView { grid-template-columns: 220px 1fr; } }
+@media (max-width: 767px) {
+  #dashTeamView, #dashViewerView { grid-template-columns: 1fr; gap: 12px; min-height: auto; }
+  #dashTeamView > div:first-child, #dashViewerView > div:first-child { display: none; }
+}
+
+/* Admin dash grid */
+#dashAdminView { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+@media (max-width: 480px) { #dashAdminView { grid-template-columns: 1fr 1fr; gap: 12px; } }
+
+/* Teams Config */
+#teamsConfigContainer { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; }
+@media (max-width: 480px) { #teamsConfigContainer { grid-template-columns: 1fr 1fr; gap: 10px; } }
+
+/* Player tiles */
+.player-grid-lg { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px; }
+@media (max-width: 480px) { .player-grid-lg { grid-template-columns: repeat(2, 1fr); gap: 10px; } }
+.player-grid-sm { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; }
+@media (max-width: 480px) { .player-grid-sm { grid-template-columns: repeat(2, 1fr); gap: 8px; } }
+
+/* Scoreboard 2-col -> 1-col on tiny */
+.scoreboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+@media (max-width: 360px) { .scoreboard-grid { grid-template-columns: 1fr; } }
+
+/* ═══ HAMMER ═══ */
+#hammer { width: 100px; height: 100px; position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%); pointer-events: none; z-index: 6000; display: none; transform-origin: bottom right; }
 #hammer.swing { display: block; animation: hammerSwing 0.6s ease-in-out forwards; }
 @keyframes hammerSwing { 0% { transform: translate(-50%,-80%) rotate(-45deg); opacity: 0; } 20% { opacity: 1; } 50% { transform: translate(-50%,-50%) rotate(45deg); } 100% { transform: translate(-50%,-50%) rotate(0deg); opacity: 0; } }
 
-/* Player Tile */
+/* ═══ PLAYER TILE ═══ */
 .player-tile { background: rgba(13,17,23,0.8); border: 1px solid var(--card-border); border-radius: var(--radius-lg); overflow: hidden; transition: all 0.22s; cursor: default; position: relative; }
 .player-tile:hover { border-color: rgba(34,211,238,0.2); box-shadow: 0 8px 32px rgba(34,211,238,0.06); }
+@media (max-width: 480px) {
+  .player-tile .player-img-h { height: 110px !important; }
+  .player-tile h4 { font-size: 12px !important; }
+  .player-tile .price { font-size: 13px !important; }
+}
 
-/* Scoreboard Tile */
-.score-tile { background: rgba(255,255,255,0.03); border: 1px solid var(--card-border); border-radius: var(--radius); padding: 14px 12px; text-align: center; transition: all 0.2s; }
+/* ═══ SCORE TILE ═══ */
+.score-tile { background: rgba(255,255,255,0.03); border: 1px solid var(--card-border); border-radius: var(--radius); padding: 12px 10px; text-align: center; transition: all 0.2s; }
 .score-tile:hover { border-color: rgba(124,58,237,0.2); }
 
-/* Timer */
-.timer-pill { position: absolute; top: 16px; left: 50%; transform: translateX(-50%); z-index: 40; backdrop-filter: blur(12px); background: rgba(6,9,16,0.75); border: 1.5px solid rgba(34,211,238,0.4); padding: 6px 20px; border-radius: 100px; display: flex; align-items: center; gap: 10px; box-shadow: 0 0 24px rgba(34,211,238,0.15); transition: all 0.3s; }
+/* ═══ TIMER ═══ */
+.timer-pill { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); z-index: 40; backdrop-filter: blur(12px); background: rgba(6,9,16,0.75); border: 1.5px solid rgba(34,211,238,0.4); padding: 5px 16px; border-radius: 100px; display: flex; align-items: center; gap: 8px; box-shadow: 0 0 24px rgba(34,211,238,0.15); transition: all 0.3s; white-space: nowrap; }
 .timer-pill.warning { border-color: rgba(239,68,68,0.6); box-shadow: 0 0 24px rgba(239,68,68,0.2); }
 .timer-pill.paused { border-color: rgba(245,158,11,0.5); box-shadow: 0 0 24px rgba(245,158,11,0.15); }
 
-/* RTM specific */
+/* ═══ RTM ═══ */
 .rtm-badge { background: linear-gradient(135deg, rgba(236,72,153,0.15), rgba(219,39,119,0.08)); border: 1px solid rgba(236,72,153,0.3); border-radius: 8px; padding: 8px 12px; display: flex; align-items: center; gap: 8px; }
 
-/* Sold overlay */
+/* ═══ OVERLAYS / MODALS ═══ */
 #soldAnimationOverlay { position: fixed; inset: 0; z-index: 9999; background: rgba(6,9,16,0.98); display: flex; align-items: center; justify-content: center; }
 .overlay { position: fixed; inset: 0; z-index: 5000; background: rgba(6,9,16,0.88); backdrop-filter: blur(12px); display: flex; align-items: center; justify-content: center; padding: 1rem; }
-.modal { background: rgba(13,17,23,0.98); padding: 24px; border-radius: var(--radius-xl); width: 100%; max-width: 520px; border: 1px solid rgba(124,58,237,0.2); box-shadow: 0 0 60px rgba(0,0,0,0.7); text-align: center; max-height: 90vh; overflow-y: auto; }
+.modal { background: rgba(13,17,23,0.98); padding: 22px; border-radius: var(--radius-xl); width: 100%; max-width: 520px; border: 1px solid rgba(124,58,237,0.2); box-shadow: 0 0 60px rgba(0,0,0,0.7); text-align: center; max-height: 90vh; overflow-y: auto; }
 @media(min-width:768px) { .modal { padding: 36px; } }
 .modal-rtm { border-color: rgba(236,72,153,0.3); box-shadow: 0 0 60px rgba(236,72,153,0.08); }
 
-/* Status chip */
+/* ═══ CHIPS ═══ */
 .chip { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 100px; font-size: 10px; font-weight: 600; font-family: var(--font-display); text-transform: uppercase; letter-spacing: 0.6px; }
 .chip-cyan { background: rgba(34,211,238,0.1); color: var(--cyan); border: 1px solid rgba(34,211,238,0.2); }
 .chip-purple { background: rgba(124,58,237,0.12); color: var(--accent-2); border: 1px solid rgba(124,58,237,0.2); }
 .chip-emerald { background: rgba(16,185,129,0.1); color: var(--emerald); border: 1px solid rgba(16,185,129,0.2); }
 .chip-pink { background: rgba(236,72,153,0.1); color: var(--rtm); border: 1px solid rgba(236,72,153,0.25); }
 
-/* Logo drop zone */
+/* ═══ LOGO ═══ */
 .logo-drop-zone { width: 48px; height: 48px; border-radius: 50%; border: 2px dashed rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; cursor: pointer; overflow: hidden; background: rgba(0,0,0,0.3); margin: 0 auto; transition: border-color 0.2s; }
 .logo-drop-zone:hover { border-color: var(--accent); }
 .logo-drop-zone img { width: 100%; height: 100%; object-fit: cover; }
 
-/* Logo large */
-.logo-lg { width: 72px; height: 72px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255,255,255,0.1); background: #0d1117; }
+/* ═══ TEAM CONFIG CARD ═══ */
+.team-config-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: var(--radius-lg); padding: 16px; display: flex; flex-direction: column; position: relative; transition: border-color 0.2s; }
+@media (max-width: 480px) { .team-config-card { padding: 12px; } }
 
-/* Separator line */
-.sep { height: 1px; background: rgba(255,255,255,0.06); margin: 20px 0; }
+/* ═══ IMPORT PLAYERS MODAL ═══ */
+#importPlayersModal { max-width: 500px; }
+.import-player-list { max-height: 280px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; margin: 12px 0; }
+.import-player-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; cursor: pointer; transition: all 0.15s; text-align: left; }
+.import-player-item:hover { background: rgba(124,58,237,0.08); border-color: rgba(124,58,237,0.25); }
+.import-player-item input[type=checkbox] { width: 15px; height: 15px; accent-color: var(--accent); flex-shrink: 0; margin: 0; margin-bottom: 0; }
+.import-player-item .pi-img { width: 36px; height: 36px; border-radius: 8px; object-fit: cover; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); flex-shrink: 0; }
+.import-player-item .pi-info { flex: 1; min-width: 0; }
+.import-player-item .pi-name { font-weight: 600; font-size: 13px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.import-player-item .pi-meta { font-size: 10px; color: var(--muted); margin-top: 2px; }
+.import-filter { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+.import-filter-btn { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); color: var(--muted); cursor: pointer; transition: all 0.15s; }
+.import-filter-btn.active { background: rgba(124,58,237,0.15); border-color: rgba(124,58,237,0.35); color: var(--accent-2); }
+
+/* ═══ POPUP ═══ */
+#auctionPlayerPopup { flex: 1; min-height: 380px; border-radius: var(--radius-lg); overflow: hidden; position: relative; border: 1px solid rgba(124,58,237,0.2); box-shadow: 0 0 40px rgba(124,58,237,0.08); }
+@media (max-width: 767px) { #auctionPlayerPopup { min-height: 300px; } }
+
+/* ═══ SECTION: PLAYER DB CONFIG ═══ */
+@media (max-width: 600px) {
+  #adminPlayerDatabaseConfig .cat-config-row { flex-direction: column; gap: 8px; }
+  #adminPlayerDatabaseConfig .cat-config-row > div { width: 100% !important; }
+}
+
+/* ═══ MISC ═══ */
+.sep { height: 1px; background: rgba(255,255,255,0.06); margin: 16px 0; }
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+@keyframes ping { 0% { transform: scale(1); opacity: 1; } 80%,100% { transform: scale(2.2); opacity: 0; } }
+
+/* ═══ HEADER RESPONSIVE ═══ */
+header .header-right { display: flex; align-items: center; gap: 8px; }
+@media (max-width: 480px) {
+  header { padding: 0 12px !important; }
+  header .header-right button { padding: 6px 10px; font-size: 11px; }
+  #roleDisplay { display: none; }
+}
 </style>
 </head>
 <body>
 
 <!-- ═══ PORTAL ═══ -->
 <div id="portal">
-  <div style="text-align:center;margin-bottom:40px">
+  <div style="text-align:center;margin-bottom:32px">
     <div style="display:inline-flex;align-items:center;gap:4px;margin-bottom:12px">
       <div style="width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 12px var(--accent-glow)"></div>
       <div style="width:4px;height:4px;border-radius:50%;background:var(--cyan);opacity:0.6"></div>
     </div>
-    <h1 style="font-family:var(--font-display);font-size:clamp(2.2rem,6vw,4rem);font-weight:800;letter-spacing:0.08em;color:white">ARENA<span style="color:var(--accent-2)">CMD</span></h1>
+    <h1 style="font-family:var(--font-display);font-size:clamp(2rem,6vw,3.8rem);font-weight:800;letter-spacing:0.08em;color:white">ARENA<span style="color:var(--accent-2)">CMD</span></h1>
     <p style="color:var(--muted);font-size:11px;letter-spacing:0.2em;text-transform:uppercase;margin-top:6px">Global Draft Operations · 2026</p>
   </div>
   <div class="portal-card">
-    <div class="tab-nav" style="margin-bottom:28px">
+    <div class="tab-nav" style="margin-bottom:24px">
       <div class="tab active" onclick="switchTab('manager')">Manager</div>
       <div class="tab" onclick="switchTab('participant')">Join Session</div>
     </div>
@@ -189,7 +277,7 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 <div id="teamAuthOverlay" class="hidden">
   <div class="portal-card" style="text-align:center">
     <img id="loginTeamLogo" class="hidden" style="width:68px;height:68px;border-radius:50%;margin:0 auto 20px;border:2px solid var(--accent);object-fit:cover">
-    <h3 style="font-family:var(--font-display);font-size:1.5rem;font-weight:800;margin-bottom:24px;letter-spacing:0.04em">Verification Center</h3>
+    <h3 style="font-family:var(--font-display);font-size:1.4rem;font-weight:800;margin-bottom:22px">Verification Center</h3>
     <label>Access Level</label>
     <select id="loginRole" onchange="toggleTeamPass()">
       <option value="listener">Viewer — No Bidding</option>
@@ -214,62 +302,48 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
   <input type="file" id="globalFileInput" style="display:none">
 
   <!-- Header -->
-  <header style="display:flex;align-items:center;justify-content:space-between;padding:0 20px;height:58px;border-bottom:1px solid rgba(255,255,255,0.06);background:rgba(6,9,16,0.9);backdrop-filter:blur(20px);position:sticky;top:0;z-index:4000;gap:16px">
-    <div style="display:flex;align-items:center;gap:10px">
+  <header style="display:flex;align-items:center;justify-content:space-between;padding:0 20px;height:var(--header-h);border-bottom:1px solid rgba(255,255,255,0.06);background:rgba(6,9,16,0.92);backdrop-filter:blur(20px);position:sticky;top:0;z-index:4000;gap:12px">
+    <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
       <div style="width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px var(--accent-glow)"></div>
       <span style="font-family:var(--font-display);font-size:15px;font-weight:800;letter-spacing:0.08em;color:white">ARENA<span style="color:var(--accent-2)">CMD</span></span>
     </div>
-    <nav id="topNav" style="display:flex;gap:2px;overflow-x:auto" class="hide-scrollbar hidden"></nav>
-    <div style="display:flex;align-items:center;gap:10px">
-      <span id="roleDisplay" class="chip chip-purple">Role</span>
+    <nav id="topNav" style="display:flex;gap:2px;overflow-x:auto;flex:1;justify-content:center" class="hide-scrollbar hidden"></nav>
+    <div class="header-right">
+      <span id="roleDisplay" class="chip chip-purple" style="white-space:nowrap">Role</span>
       <button id="btnExportAdmin" class="hidden ghost small">Export</button>
       <button id="btnResetSystem" class="hidden red small">Wipe</button>
       <button onclick="location.reload()" class="ghost small" style="color:var(--danger);border-color:rgba(239,68,68,0.2)">Exit</button>
     </div>
   </header>
 
-  <main style="flex:1;padding:24px 20px;max-width:1700px;margin:0 auto;width:100%" id="mainContentContainer">
+  <!-- Mobile Bottom Nav -->
+  <nav id="mobileBottomNav" class="hidden">
+    <div class="mnav-items" id="mobileNavItems"></div>
+  </nav>
+
+  <main style="flex:1;padding:20px;max-width:1700px;margin:0 auto;width:100%" id="mainContentContainer">
 
     <!-- ── DASHBOARD ── -->
     <div id="sectionDashboard">
-      <div style="margin-bottom:28px">
+      <div style="margin-bottom:24px">
         <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.15em;margin-bottom:6px">Operations Center</div>
-        <h2 style="font-family:var(--font-display);font-size:clamp(1.4rem,3vw,2rem);font-weight:800">Welcome, <span style="color:var(--accent-2)" id="dashWelcomeName"></span></h2>
+        <h2 style="font-family:var(--font-display);font-size:clamp(1.3rem,3vw,2rem);font-weight:800">Welcome, <span style="color:var(--accent-2)" id="dashWelcomeName"></span></h2>
       </div>
 
       <!-- Admin view -->
-      <div id="dashAdminView" class="hidden" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px">
-        <div class="dash-card" onclick="showSection('sectionLiveAuction')">
-          <div style="font-size:28px;margin-bottom:14px">⚡</div>
-          <h3 style="font-family:var(--font-display);font-size:1rem;font-weight:700;margin-bottom:8px">Live Bidding</h3>
-          <p style="color:var(--muted);font-size:12px;line-height:1.6;flex:1">Start bidding, accept offers, execute sales with gavel control.</p>
-          <div style="margin-top:18px;font-size:11px;color:var(--accent-2);font-weight:700;font-family:var(--font-display);letter-spacing:0.06em">LAUNCH CENTER ›</div>
-        </div>
-        <div class="dash-card" onclick="showSection('sectionPlayerDatabase')">
-          <div style="font-size:28px;margin-bottom:14px">🏆</div>
-          <h3 style="font-family:var(--font-display);font-size:1rem;font-weight:700;margin-bottom:8px">Players</h3>
-          <p style="color:var(--muted);font-size:12px;line-height:1.6">Configure categories, base prices, increments, player lists.</p>
-          <div style="margin-top:18px;font-size:11px;color:var(--accent-2);font-weight:700;font-family:var(--font-display);letter-spacing:0.06em">OPEN DATABASE ›</div>
-        </div>
-        <div class="dash-card" onclick="showSection('sectionTeamConfig')">
-          <div style="font-size:28px;margin-bottom:14px">🛡️</div>
-          <h3 style="font-family:var(--font-display);font-size:1rem;font-weight:700;margin-bottom:8px">Teams</h3>
-          <p style="color:var(--muted);font-size:12px;line-height:1.6">Manage franchise IDs, passwords, logos, purse amounts.</p>
-          <div style="margin-top:18px;font-size:11px;color:var(--accent-2);font-weight:700;font-family:var(--font-display);letter-spacing:0.06em">CONFIGURE TEAMS ›</div>
-        </div>
-      </div>
+      <div id="dashAdminView" class="hidden"></div>
 
       <!-- Team view -->
-      <div id="dashTeamView" class="hidden" style="display:grid;grid-template-columns:280px 1fr;gap:20px;min-height:600px">
-        <div class="glass" style="padding:20px;display:flex;flex-direction:column">
-          <div style="font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.15em;margin-bottom:16px">Live Standings</div>
+      <div id="dashTeamView" class="hidden">
+        <div class="glass" style="padding:16px;display:flex;flex-direction:column">
+          <div style="font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.15em;margin-bottom:14px">Live Standings</div>
           <div id="dashboardScoreboard" style="flex:1;overflow-y:auto"></div>
-          <div id="teamLiveStatus" class="hidden" style="margin-top:16px;padding:14px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);border-radius:12px;text-align:center;cursor:pointer;transition:all 0.2s" onclick="showSection('sectionLiveAuction')">
+          <div id="teamLiveStatus" class="hidden" style="margin-top:14px;padding:12px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);border-radius:12px;text-align:center;cursor:pointer" onclick="showSection('sectionLiveAuction')">
             <span style="color:var(--emerald);font-size:11px;font-weight:700;font-family:var(--font-display);text-transform:uppercase;letter-spacing:0.1em"><span style="animation:pulse 1.5s infinite">●</span> Auction Live · Go ›</span>
           </div>
         </div>
-        <div class="glass" style="padding:20px;display:flex;flex-direction:column">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid rgba(255,255,255,0.06)">
+        <div class="glass" style="padding:16px;display:flex;flex-direction:column">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,0.06)">
             <div style="font-size:10px;color:var(--emerald);font-weight:600;text-transform:uppercase;letter-spacing:0.15em">Franchise Overview</div>
             <button id="btnExportTeam" class="ghost small" style="color:var(--emerald);border-color:rgba(16,185,129,0.2);font-size:11px">Export Roster</button>
           </div>
@@ -278,43 +352,43 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
       </div>
 
       <!-- Viewer view -->
-      <div id="dashViewerView" class="hidden" style="display:grid;grid-template-columns:280px 1fr;gap:20px;min-height:600px">
-        <div class="glass" style="padding:20px;display:flex;flex-direction:column">
-          <div style="font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.15em;margin-bottom:16px">Live Standings</div>
+      <div id="dashViewerView" class="hidden">
+        <div class="glass" style="padding:16px;display:flex;flex-direction:column">
+          <div style="font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.15em;margin-bottom:14px">Live Standings</div>
           <div id="viewerScoreboard" style="flex:1;overflow-y:auto"></div>
-          <div id="viewerLiveStatus" class="hidden" style="margin-top:16px;padding:14px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);border-radius:12px;text-align:center;cursor:pointer" onclick="showSection('sectionLiveAuction')">
+          <div id="viewerLiveStatus" class="hidden" style="margin-top:14px;padding:12px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);border-radius:12px;text-align:center;cursor:pointer" onclick="showSection('sectionLiveAuction')">
             <span style="color:var(--emerald);font-size:11px;font-weight:700;font-family:var(--font-display);text-transform:uppercase;letter-spacing:0.1em">● Auction Live · Go ›</span>
           </div>
         </div>
-        <div class="glass" style="padding:20px;display:flex;flex-direction:column">
-          <div style="font-size:10px;color:var(--emerald);font-weight:600;text-transform:uppercase;letter-spacing:0.15em;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid rgba(255,255,255,0.06)">Network Franchises & Rosters</div>
+        <div class="glass" style="padding:16px;display:flex;flex-direction:column">
+          <div style="font-size:10px;color:var(--emerald);font-weight:600;text-transform:uppercase;letter-spacing:0.15em;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,0.06)">Network Franchises & Rosters</div>
           <div id="viewerRostersContent" style="overflow-y:auto;flex:1"></div>
         </div>
       </div>
     </div>
 
     <!-- ── LIVE AUCTION ── -->
-    <div id="sectionLiveAuction" class="hidden" style="display:grid;grid-template-columns:1fr 360px;gap:20px;min-height:680px">
+    <div id="sectionLiveAuction" class="hidden">
 
-      <div style="display:flex;flex-direction:column;gap:16px">
+      <div style="display:flex;flex-direction:column;gap:14px">
         <!-- Idle / Queue -->
-        <div id="auctionIdleState" class="glass" style="flex:1;min-height:400px;display:flex;flex-direction:column;overflow:hidden">
+        <div id="auctionIdleState" class="glass" style="flex:1;min-height:360px;display:flex;flex-direction:column;overflow:hidden">
           <div id="idleWaitingMessage" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--muted);text-align:center;padding:40px">
-            <div style="font-size:48px;margin-bottom:16px;opacity:0.3">📡</div>
+            <div style="font-size:42px;margin-bottom:14px;opacity:0.3">📡</div>
             <p style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.15em">Awaiting active player drop</p>
           </div>
-          <div id="adminAuctionQueue" class="hidden" style="flex:1;display:flex;flex-direction:column;padding:24px;height:100%">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid rgba(255,255,255,0.06)">
+          <div id="adminAuctionQueue" class="hidden" style="flex:1;display:flex;flex-direction:column;padding:20px;height:100%">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,0.06);flex-wrap:wrap;gap:10px">
               <div>
-                <h3 style="font-family:var(--font-display);font-size:1rem;font-weight:700">Draft Queue Control</h3>
+                <h3 style="font-family:var(--font-display);font-size:15px;font-weight:700">Draft Queue Control</h3>
                 <p style="color:var(--muted);font-size:11px;margin-top:3px">Select category & initialize auction</p>
               </div>
-              <select id="queueCategorySelect" style="width:180px;margin-bottom:0" onchange="renderLiveAdminQueue()">
+              <select id="queueCategorySelect" style="width:160px;margin-bottom:0" onchange="renderLiveAdminQueue()">
                 <option value="">Select Category…</option>
               </select>
             </div>
-            <div id="queuePlayersList" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px;overflow-y:auto;flex:1"></div>
-            <div style="margin-top:16px;padding:14px;background:rgba(0,0,0,0.2);border-radius:12px;border:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;gap:10px">
+            <div id="queuePlayersList" class="player-grid-sm" style="overflow-y:auto;flex:1"></div>
+            <div style="margin-top:14px;padding:12px;background:rgba(0,0,0,0.2);border-radius:12px;border:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;gap:10px">
               <input type="checkbox" id="autoNextToggle" checked style="width:16px;height:16px;accent-color:var(--accent);margin:0">
               <label for="autoNextToggle" style="margin:0;color:var(--text);font-size:12px;font-weight:500;text-transform:none;letter-spacing:0;cursor:pointer">Auto-load next unsold prospect</label>
             </div>
@@ -322,73 +396,62 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
         </div>
 
         <!-- Active Player Popup -->
-        <div id="auctionPlayerPopup" class="hidden" style="flex:1;min-height:420px;border-radius:var(--radius-lg);overflow:hidden;position:relative;border:1px solid rgba(124,58,237,0.2);box-shadow:0 0 40px rgba(124,58,237,0.08)">
+        <div id="auctionPlayerPopup" class="hidden">
           <div style="position:absolute;inset:0;background:linear-gradient(to top,#060910 0%,rgba(6,9,16,0.7) 50%,rgba(6,9,16,0.2) 100%);z-index:10;pointer-events:none"></div>
           <div id="popupImgContainer" style="position:absolute;inset:0;z-index:0">
             <img id="popupImg" src="" style="width:100%;height:100%;object-fit:cover;opacity:0.55;transition:opacity 0.5s">
           </div>
-          <button onclick="closePopup()" style="position:absolute;top:14px;right:14px;z-index:30;width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.1);font-size:16px;padding:0">×</button>
+          <button onclick="closePopup()" style="position:absolute;top:12px;right:12px;z-index:30;width:30px;height:30px;border-radius:50%;background:rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.1);font-size:16px;padding:0">×</button>
 
           <!-- Timer -->
           <div class="timer-pill" id="auctionTimerContainer">
             <div id="auctionTimerDot" style="width:8px;height:8px;border-radius:50%;background:var(--cyan)"></div>
-            <div id="auctionTimerText" class="mono" style="font-size:1.4rem;font-weight:700;color:var(--cyan)">30s</div>
-            <button id="btnPauseTimer" class="hidden" onclick="toggleTimer()" style="background:none;border:none;font-size:16px;padding:0;width:24px;height:24px">⏸️</button>
+            <div id="auctionTimerText" class="mono" style="font-size:1.3rem;font-weight:700;color:var(--cyan)">30s</div>
+            <button id="btnPauseTimer" class="hidden" onclick="toggleTimer()" style="background:none;border:none;font-size:15px;padding:0;width:22px;height:22px">⏸️</button>
           </div>
 
-          <div style="position:relative;z-index:20;padding:28px;margin-top:auto;width:100%;display:flex;flex-direction:column;height:100%;justify-content:flex-end">
-            <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap">
+          <div style="position:relative;z-index:20;padding:20px;width:100%;display:flex;flex-direction:column;height:100%;justify-content:flex-end">
+            <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap">
               <div>
-                <div style="margin-bottom:10px">
-                  <span id="popupCat" class="chip chip-cyan">CATEGORY</span>
-                </div>
-                <h1 id="popupName" style="font-family:var(--font-display);font-size:clamp(1.8rem,4vw,3rem);font-weight:800;line-height:1.1;color:white">Player Name</h1>
+                <div style="margin-bottom:8px"><span id="popupCat" class="chip chip-cyan">CATEGORY</span></div>
+                <h1 id="popupName" style="font-family:var(--font-display);font-size:clamp(1.6rem,4vw,2.8rem);font-weight:800;line-height:1.1;color:white">Player Name</h1>
               </div>
-
-              <!-- Admin bid controls -->
-              <div id="adminBidControls" class="hidden" style="display:flex;align-items:center;gap:8px;background:rgba(6,9,16,0.7);backdrop-filter:blur(12px);padding:12px 14px;border-radius:14px;border:1px solid rgba(255,255,255,0.08)">
-                <button onclick="adjustBid('dec')" style="width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);font-size:18px;padding:0;transition:background 0.2s" onmouseover="this.style.background='rgba(239,68,68,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.06)'">−</button>
-                <div style="text-align:center;min-width:80px">
-                  <div style="font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:2px">Value</div>
-                  <div id="popupPrice" class="mono" style="font-size:1.8rem;font-weight:700;color:white">0</div>
+              <div id="adminBidControls" class="hidden" style="display:flex;align-items:center;gap:8px;background:rgba(6,9,16,0.7);backdrop-filter:blur(12px);padding:10px 12px;border-radius:14px;border:1px solid rgba(255,255,255,0.08)">
+                <button onclick="adjustBid('dec')" style="width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);font-size:18px;padding:0" onmouseover="this.style.background='rgba(239,68,68,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.06)'">−</button>
+                <div style="text-align:center;min-width:72px">
+                  <div style="font-size:9px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:2px">Value</div>
+                  <div id="popupPrice" class="mono" style="font-size:1.7rem;font-weight:700;color:white">0</div>
                 </div>
-                <button onclick="adjustBid('inc')" style="width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);font-size:18px;padding:0;transition:background 0.2s" onmouseover="this.style.background='rgba(16,185,129,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.06)'">+</button>
+                <button onclick="adjustBid('inc')" style="width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);font-size:18px;padding:0" onmouseover="this.style.background='rgba(16,185,129,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.06)'">+</button>
               </div>
-
-              <!-- Viewer price -->
               <div id="viewerPriceDisplay" class="hidden" style="text-align:right">
                 <div style="font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.12em;margin-bottom:4px">Highest Bid</div>
-                <div id="viewerPrice" class="mono" style="font-size:2.8rem;font-weight:700;color:var(--cyan)">0</div>
+                <div id="viewerPrice" class="mono" style="font-size:clamp(2rem,5vw,2.8rem);font-weight:700;color:var(--cyan)">0</div>
               </div>
             </div>
-
-            <!-- Admin action buttons -->
-            <div id="adminActionButtons" class="hidden" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px">
-              <button class="yellow" onclick="triggerSoldFromPopup()" style="padding:13px;font-family:var(--font-display);letter-spacing:0.05em;font-size:13px">🔨 GAVEL DROP</button>
-              <button class="pink" onclick="triggerRTMPopup()" style="padding:13px;font-family:var(--font-display);letter-spacing:0.05em;font-size:13px">🔁 RTM CARD</button>
+            <div id="adminActionButtons" class="hidden" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px">
+              <button class="yellow" onclick="triggerSoldFromPopup()" style="padding:12px;font-family:var(--font-display);letter-spacing:0.05em;font-size:13px">🔨 GAVEL DROP</button>
+              <button class="pink" onclick="triggerRTMPopup()" style="padding:12px;font-family:var(--font-display);letter-spacing:0.05em;font-size:13px">🔁 RTM CARD</button>
             </div>
-
-            <!-- Team action buttons -->
-            <div id="teamActionButtons" class="hidden" style="margin-top:16px">
-              <button id="btnPopupImpact" style="width:100%;padding:13px;background:linear-gradient(135deg,var(--accent),#8b5cf6);font-family:var(--font-display);letter-spacing:0.05em;box-shadow:0 4px 20px var(--accent-glow)">⚡ DEPLOY IMPACT POWER</button>
+            <div id="teamActionButtons" class="hidden" style="margin-top:14px">
+              <button id="btnPopupImpact" style="width:100%;padding:12px;background:linear-gradient(135deg,var(--accent),#8b5cf6);font-family:var(--font-display);letter-spacing:0.05em;box-shadow:0 4px 20px var(--accent-glow)">⚡ DEPLOY IMPACT POWER</button>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Right sidebar -->
-      <div style="display:flex;flex-direction:column;gap:16px">
-        <div class="glass" style="padding:18px;flex:1;display:flex;flex-direction:column;overflow:hidden">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.15em">
+      <!-- Right Sidebar -->
+      <div id="auctionSidebar" style="display:flex;flex-direction:column;gap:14px">
+        <div class="glass" style="padding:16px;flex:1;display:flex;flex-direction:column;overflow:hidden">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.15em">
             <span>Arena Standings</span>
             <span style="width:7px;height:7px;border-radius:50%;background:var(--emerald);box-shadow:0 0 10px var(--emerald-glow)"></span>
           </div>
           <div id="auctionScoreboard" style="overflow-y:auto;flex:1"></div>
         </div>
-
-        <div class="glass" style="padding:18px;height:180px;display:flex;flex-direction:column;position:relative;overflow:hidden">
+        <div class="glass" style="padding:16px;height:170px;display:flex;flex-direction:column;position:relative;overflow:hidden">
           <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(to right,var(--cyan),var(--accent))"></div>
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
             <div style="font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.15em">Bid Network Log</div>
             <button id="clearLog" class="ghost small" style="font-size:10px;padding:3px 8px">Clear</button>
           </div>
@@ -398,14 +461,14 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
     </div>
 
     <!-- ── PLAYER DATABASE ── -->
-    <div id="sectionPlayerDatabase" class="hidden" style="display:flex;flex-direction:column;gap:20px">
-      <div id="adminPlayerDatabaseConfig" class="hidden glass" style="padding:20px">
-        <div style="font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.15em;margin-bottom:16px">Tier Configurations</div>
-        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end">
-          <div style="flex:1;min-width:150px"><label>Category Name</label><input id="newCatId" placeholder="e.g. PLATINUM" style="margin-bottom:0"></div>
-          <div style="width:110px"><label>Base ৳</label><input id="newCatBase" type="number" placeholder="Base" style="margin-bottom:0"></div>
-          <div style="width:110px"><label>Bid Step ৳</label><input id="newCatInc" type="number" placeholder="Step" style="margin-bottom:0"></div>
-          <button id="btnAddCat" class="btn-primary small" style="align-self:flex-end;height:42px;padding:0 20px">Add Tier</button>
+    <div id="sectionPlayerDatabase" class="hidden" style="display:flex;flex-direction:column;gap:16px">
+      <div id="adminPlayerDatabaseConfig" class="hidden glass" style="padding:18px">
+        <div style="font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.15em;margin-bottom:14px">Tier Configurations</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end" class="cat-config-row">
+          <div style="flex:1;min-width:140px"><label>Category Name</label><input id="newCatId" placeholder="e.g. PLATINUM" style="margin-bottom:0"></div>
+          <div style="width:100px"><label>Base ৳</label><input id="newCatBase" type="number" placeholder="Base" style="margin-bottom:0"></div>
+          <div style="width:100px"><label>Bid Step ৳</label><input id="newCatInc" type="number" placeholder="Step" style="margin-bottom:0"></div>
+          <button id="btnAddCat" class="btn-primary small" style="align-self:flex-end;height:40px;padding:0 18px">Add Tier</button>
         </div>
       </div>
       <div id="categoriesContainer">
@@ -415,22 +478,22 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 
     <!-- ── TEAM CONFIG ── -->
     <div id="sectionTeamConfig" class="hidden">
-      <div class="glass" style="padding:28px">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid rgba(255,255,255,0.06);flex-wrap:wrap;gap:16px">
+      <div class="glass" style="padding:22px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-bottom:18px;border-bottom:1px solid rgba(255,255,255,0.06);flex-wrap:wrap;gap:14px">
           <div>
-            <h2 style="font-family:var(--font-display);font-size:1.4rem;font-weight:800">Franchise Config</h2>
+            <h2 style="font-family:var(--font-display);font-size:1.3rem;font-weight:800">Franchise Config</h2>
             <p style="color:var(--muted);font-size:12px;margin-top:4px">Manage team slots, access keys, Impact rules</p>
           </div>
-          <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
-            <div style="display:flex;align-items:center;gap:8px;background:rgba(0,0,0,0.3);padding:8px 14px;border-radius:12px;border:1px solid rgba(255,255,255,0.06)">
-              <label style="margin:0;font-size:10px;color:var(--accent-2)">Impact Bonus:</label>
-              <input id="configImpact" type="number" placeholder="Amount" style="width:90px;margin:0;padding:6px 10px;font-size:13px">
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <div style="display:flex;align-items:center;gap:8px;background:rgba(0,0,0,0.3);padding:7px 12px;border-radius:12px;border:1px solid rgba(255,255,255,0.06)">
+              <label style="margin:0;font-size:10px;color:var(--accent-2);white-space:nowrap">Impact Bonus:</label>
+              <input id="configImpact" type="number" placeholder="Amount" style="width:80px;margin:0;padding:6px 10px;font-size:13px">
               <button class="ghost small" onclick="saveGlobalConfig()" style="color:var(--accent-2);border-color:rgba(124,58,237,0.25)">Save</button>
             </div>
-            <button id="btnSaveTeams" class="green" style="padding:10px 24px;font-family:var(--font-display);letter-spacing:0.04em">Sync Team DB ›</button>
+            <button id="btnSaveTeams" class="green" style="padding:10px 20px;font-family:var(--font-display);letter-spacing:0.04em">Sync Team DB ›</button>
           </div>
         </div>
-        <div id="teamsConfigContainer" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;max-height:70vh;overflow-y:auto;padding:2px"></div>
+        <div id="teamsConfigContainer" style="max-height:70vh;overflow-y:auto;padding:2px"></div>
       </div>
     </div>
 
@@ -439,16 +502,16 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
   <!-- ── PLAYER EDIT MODAL ── -->
   <div class="overlay hidden" id="playerEditOverlay">
     <div class="modal">
-      <h3 style="font-family:var(--font-display);font-size:1.2rem;font-weight:800;margin-bottom:24px" id="playerEditTitle">Add Player</h3>
+      <h3 style="font-family:var(--font-display);font-size:1.1rem;font-weight:800;margin-bottom:20px" id="playerEditTitle">Add Player</h3>
       <input type="hidden" id="playerEditCat">
       <input type="hidden" id="playerEditOldName">
-      <div style="display:flex;justify-content:center;margin-bottom:24px">
-        <div id="playerEditImgDrop" style="width:100px;height:100px;border-radius:var(--radius);border:2px dashed rgba(255,255,255,0.12);background:rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;position:relative;transition:border-color 0.2s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.12)'">
+      <div style="display:flex;justify-content:center;margin-bottom:20px">
+        <div id="playerEditImgDrop" style="width:90px;height:90px;border-radius:var(--radius);border:2px dashed rgba(255,255,255,0.12);background:rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;position:relative;transition:border-color 0.2s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.12)'">
           <img id="playerEditImg" src="" class="hidden" style="width:100%;height:100%;object-fit:cover">
           <span id="playerEditImgText" style="font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.08em;text-align:center;padding:8px">Upload Photo</span>
         </div>
       </div>
-      <div style="text-align:left;margin-bottom:20px">
+      <div style="text-align:left;margin-bottom:16px">
         <label>Player Name</label>
         <input type="text" id="playerEditName" placeholder="Enter player name…" style="margin-bottom:0">
       </div>
@@ -462,11 +525,11 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
   <!-- ── SOLD ANIMATION ── -->
   <div id="soldAnimationOverlay" class="hidden">
     <div style="text-align:center;padding:40px">
-      <h1 id="animTitle" style="font-family:var(--font-display);font-size:clamp(3rem,8vw,6rem);font-weight:800;color:var(--amber);letter-spacing:0.1em;margin-bottom:8px">SOLD!</h1>
-      <h2 id="animPlayer" style="font-family:var(--font-display);font-size:clamp(1.2rem,3vw,2rem);font-weight:600;color:white;margin-bottom:20px">Player Name</h2>
+      <h1 id="animTitle" style="font-family:var(--font-display);font-size:clamp(2.8rem,8vw,6rem);font-weight:800;color:var(--amber);letter-spacing:0.1em;margin-bottom:8px">SOLD!</h1>
+      <h2 id="animPlayer" style="font-family:var(--font-display);font-size:clamp(1.1rem,3vw,2rem);font-weight:600;color:white;margin-bottom:20px">Player Name</h2>
       <div style="font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:0.2em">Acquired By</div>
       <div id="animTeam" style="font-family:var(--font-display);font-size:clamp(1rem,2.5vw,1.5rem);font-weight:800;color:var(--accent-2);margin-top:6px">Team Name</div>
-      <div style="margin-top:28px">
+      <div style="margin-top:24px">
         <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.2em;margin-bottom:8px">Final Valuation</div>
         <div id="animPrice" class="mono" style="font-size:clamp(2rem,5vw,3.5rem);font-weight:700;color:var(--emerald)">0</div>
       </div>
@@ -476,17 +539,17 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
   <!-- ── SOLD CONFIRM MODAL ── -->
   <div class="overlay hidden" id="soldActionOverlay">
     <div class="modal">
-      <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.25);border-radius:10px;padding:8px 14px;margin-bottom:20px">
+      <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.25);border-radius:10px;padding:7px 14px;margin-bottom:18px">
         <span style="font-size:16px">🔨</span>
         <span style="font-family:var(--font-display);font-size:13px;font-weight:700;color:var(--amber);letter-spacing:0.06em">CONFIRM SALE</span>
       </div>
-      <div id="soldActionDetails" style="font-family:var(--font-mono);font-size:13px;color:var(--muted);margin-bottom:20px;background:rgba(0,0,0,0.3);padding:14px;border-radius:10px;border:1px solid rgba(255,255,255,0.06)"></div>
-      <div id="directPriceGroup" class="hidden" style="margin-bottom:16px;background:rgba(0,0,0,0.2);padding:14px;border-radius:10px;text-align:left">
+      <div id="soldActionDetails" style="font-family:var(--font-mono);font-size:13px;color:var(--muted);margin-bottom:18px;background:rgba(0,0,0,0.3);padding:14px;border-radius:10px;border:1px solid rgba(255,255,255,0.06)"></div>
+      <div id="directPriceGroup" class="hidden" style="margin-bottom:14px;background:rgba(0,0,0,0.2);padding:14px;border-radius:10px;text-align:left">
         <label>Define Retain Price</label>
         <input type="number" id="directSignPrice" placeholder="Enter Amount" style="margin-bottom:0">
       </div>
       <label style="text-align:left">Transfer to Franchise</label>
-      <select id="soldActionTeam" style="margin-bottom:20px"></select>
+      <select id="soldActionTeam" style="margin-bottom:18px"></select>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
         <button id="btnCancelSold" class="ghost">Abort</button>
         <button id="btnConfirmSold" class="green">Execute Gavel ›</button>
@@ -497,50 +560,68 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
   <!-- ── RTM CARD MODAL ── -->
   <div class="overlay hidden" id="rtmActionOverlay">
     <div class="modal modal-rtm" style="max-width:540px">
-      <!-- RTM Header -->
-      <div style="margin-bottom:24px">
-        <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(236,72,153,0.1);border:1px solid rgba(236,72,153,0.3);border-radius:10px;padding:8px 16px;margin-bottom:16px">
+      <div style="margin-bottom:20px">
+        <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(236,72,153,0.1);border:1px solid rgba(236,72,153,0.3);border-radius:10px;padding:7px 16px;margin-bottom:14px">
           <span style="font-size:18px">🔁</span>
           <span style="font-family:var(--font-display);font-size:14px;font-weight:800;color:var(--rtm);letter-spacing:0.08em">RIGHT TO MATCH</span>
         </div>
-        <p style="font-size:12px;color:var(--muted);line-height:1.6;max-width:400px;margin:0 auto">A franchise may invoke their RTM card to match the final bid and retain ownership of this player.</p>
+        <p style="font-size:12px;color:var(--muted);line-height:1.6;max-width:400px;margin:0 auto">A franchise may invoke RTM to match the final bid and retain ownership.</p>
       </div>
-
-      <!-- Player info -->
-      <div style="background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:16px;margin-bottom:20px;text-align:left">
+      <div style="background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:14px;margin-bottom:18px;text-align:left">
         <div style="font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.15em;margin-bottom:8px">Player on Block</div>
         <div id="rtmPlayerDetails" style="font-family:var(--font-mono);font-size:13px;color:var(--text)"></div>
         <div style="margin-top:10px;display:flex;align-items:baseline;gap:6px">
           <span style="font-size:11px;color:var(--muted)">Winning Bid:</span>
-          <span id="rtmFinalBid" class="mono" style="font-size:1.6rem;font-weight:700;color:var(--rtm)">৳0</span>
+          <span id="rtmFinalBid" class="mono" style="font-size:1.5rem;font-weight:700;color:var(--rtm)">৳0</span>
         </div>
       </div>
-
-      <!-- RTM team selector -->
-      <div style="text-align:left;margin-bottom:16px">
+      <div style="text-align:left;margin-bottom:14px">
         <label>Eligible RTM Franchise</label>
-        <div style="font-size:10px;color:var(--muted);margin-bottom:8px;margin-top:-4px;font-style:italic">Only teams that previously owned this player can invoke RTM</div>
+        <div style="font-size:10px;color:var(--muted);margin-bottom:8px;margin-top:-4px;font-style:italic">Only teams that previously owned this player</div>
         <select id="rtmTeamSelect" style="margin-bottom:0"></select>
       </div>
-
-      <!-- Eligible teams note -->
-      <div class="rtm-badge" style="margin-bottom:20px;text-align:left">
+      <div class="rtm-badge" style="margin-bottom:18px;text-align:left">
         <span style="font-size:14px;color:var(--rtm)">ℹ️</span>
         <div>
           <div style="font-size:11px;font-weight:600;color:var(--rtm);margin-bottom:2px">RTM Rules</div>
-          <div style="font-size:11px;color:var(--muted);line-height:1.5">The RTM team matches the exact winning bid. Their purse is deducted accordingly. The winning bidder does <em>not</em> acquire the player.</div>
+          <div style="font-size:11px;color:var(--muted);line-height:1.5">RTM team matches the exact winning bid. Winning bidder does <em>not</em> acquire the player.</div>
         </div>
       </div>
-
-      <!-- Transfer to high bidder -->
-      <div style="text-align:left;margin-bottom:20px">
+      <div style="text-align:left;margin-bottom:18px">
         <label>High Bidder (Unsuccessful after RTM)</label>
         <select id="rtmHighBidderTeam" style="margin-bottom:0"></select>
       </div>
-
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
         <button id="btnCancelRTM" class="ghost">Abort RTM</button>
         <button id="btnConfirmRTM" class="pink" style="font-family:var(--font-display);letter-spacing:0.05em">Invoke RTM ›</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── IMPORT PLAYERS MODAL ── -->
+  <div class="overlay hidden" id="importPlayersOverlay">
+    <div class="modal" id="importPlayersModal">
+      <h3 style="font-family:var(--font-display);font-size:1.1rem;font-weight:800;margin-bottom:6px">Import Previous Players</h3>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:16px">Add players from the existing database to this team.</p>
+
+      <!-- Filter buttons -->
+      <div class="import-filter" id="importCatFilters"></div>
+
+      <!-- Search -->
+      <input type="text" id="importSearchInput" placeholder="Search player name…" style="margin-bottom:8px" oninput="filterImportList()">
+
+      <!-- Player list -->
+      <div class="import-player-list" id="importPlayerList"></div>
+
+      <!-- Select all + count -->
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <button class="ghost small" onclick="toggleSelectAllImport()" id="btnSelectAllImport">Select All</button>
+        <span style="font-size:11px;color:var(--muted)" id="importSelCount">0 selected</span>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <button onclick="closeImportModal()" class="ghost">Cancel</button>
+        <button onclick="confirmImportPlayers()" class="btn-primary" id="btnConfirmImport">Import Selected</button>
       </div>
     </div>
   </div>
@@ -561,6 +642,10 @@ let currentActiveSectionId = 'sectionDashboard';
 let currentAuctionCategory = null;
 let auctionTimerInterval = null, auctionTimeRemaining = 30, isTimerPaused = false;
 
+// Import modal state
+let importTargetTeamId = null;
+let importActiveCatFilter = '';
+
 const portal = document.getElementById('portal');
 const teamAuthOverlay = document.getElementById('teamAuthOverlay');
 const appContainer = document.getElementById('appContainer');
@@ -571,14 +656,17 @@ const showSection = (id) => {
   document.getElementById(currentActiveSectionId)?.classList.add('hidden');
   document.getElementById(id)?.classList.remove('hidden');
   document.querySelectorAll('#topNav a').forEach(a => a.classList.remove('active'));
-  document.querySelector(`#topNav a[onclick="showSection('${id}')"]`)?.classList.add('active');
+  document.querySelector(`#topNav a[data-section="${id}"]`)?.classList.add('active');
+  document.querySelectorAll('#mobileNavItems .mnav-item').forEach(el => {
+    el.classList.toggle('active', el.getAttribute('data-section') === id);
+  });
   currentActiveSectionId = id;
 };
 
 // ── UI Helpers ──
 function log(msg) {
   const d = document.createElement('div');
-  d.style.cssText = 'padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.04);';
+  d.style.cssText = 'padding:3px 0;border-bottom:1px solid rgba(255,255,255,0.04);';
   d.innerHTML = `<span style="color:var(--accent-2)">›</span> ${msg}`;
   document.getElementById('log').prepend(d);
 }
@@ -619,7 +707,7 @@ window.toggleTeamPass = () => { const isTeam = document.getElementById('loginRol
 window.enterAuction = () => { const role = document.getElementById('loginRole').value, teamId = document.getElementById('loginTeamId').value, pass = document.getElementById('loginPass').value; socket.emit('team:login', { hostId: CURRENT_USER.hostId, teamId, password: pass, role }); };
 window.previewTeamLogo = () => { const t = STATE.teams.find(x => x.id === document.getElementById('loginTeamId').value), img = document.getElementById('loginTeamLogo'); if (t?.logo) { img.src = t.logo; img.classList.remove('hidden'); } else img.classList.add('hidden'); };
 
-// ── Live indicator ──
+// ── Live Indicator ──
 function updateLiveIndicator() {
   ['viewerLiveStatus', 'teamLiveStatus'].forEach(id => document.getElementById(id)?.classList.toggle('hidden', !activePlayer));
 }
@@ -679,22 +767,12 @@ function resetAndStartTimer() {
   }
 }
 function updateTimerUI() {
-  const c = document.getElementById('auctionTimerContainer');
-  const txt = document.getElementById('auctionTimerText');
-  const dot = document.getElementById('auctionTimerDot');
+  const c = document.getElementById('auctionTimerContainer'), txt = document.getElementById('auctionTimerText'), dot = document.getElementById('auctionTimerDot');
   if (!c || !txt || !dot) return;
   txt.textContent = `${auctionTimeRemaining}s`;
-  c.className = 'timer-pill';
-  txt.style.color = dot.style.background = 'var(--cyan)';
-  dot.style.animation = '';
-  if (isTimerPaused) {
-    c.classList.add('paused');
-    txt.style.color = dot.style.background = 'var(--amber)';
-  } else if (auctionTimeRemaining <= 10) {
-    c.classList.add('warning');
-    txt.style.color = dot.style.background = 'var(--danger)';
-    dot.style.animation = 'ping 1s infinite';
-  }
+  c.className = 'timer-pill'; txt.style.color = dot.style.background = 'var(--cyan)'; dot.style.animation = '';
+  if (isTimerPaused) { c.classList.add('paused'); txt.style.color = dot.style.background = 'var(--amber)'; }
+  else if (auctionTimeRemaining <= 10) { c.classList.add('warning'); txt.style.color = dot.style.background = 'var(--danger)'; dot.style.animation = 'ping 1s infinite'; }
 }
 window.toggleTimer = () => {
   if (CURRENT_USER.role !== 'admin') return;
@@ -753,7 +831,6 @@ socket.on('popup:open', player => {
     else if (btn) btn.style.display = 'none';
   }
 });
-
 socket.on('popup:close', () => {
   activePlayer = null; clearInterval(auctionTimerInterval);
   const popup = document.getElementById('auctionPlayerPopup');
@@ -762,7 +839,6 @@ socket.on('popup:close', () => {
   updateLiveIndicator(); renderScoreboards();
   if (CURRENT_USER.role === 'admin') renderLiveAdminQueue();
 });
-
 socket.on('popup:update_image', data => document.getElementById('popupImg').src = data.imageUrl);
 
 socket.on('player:sold', data => {
@@ -778,13 +854,9 @@ socket.on('player:sold', data => {
   document.getElementById('auctionIdleState').classList.remove('hidden');
   const t = STATE.teams.find(x => x.id === teamId);
   const titleEl = document.getElementById('animTitle');
-  if (isRTM) {
-    titleEl.textContent = 'RTM!'; titleEl.style.color = 'var(--rtm)';
-  } else if (isDirect) {
-    titleEl.textContent = 'RETAINED!'; titleEl.style.color = 'var(--accent-2)';
-  } else {
-    titleEl.textContent = 'SOLD!'; titleEl.style.color = 'var(--amber)';
-  }
+  if (isRTM) { titleEl.textContent = 'RTM!'; titleEl.style.color = 'var(--rtm)'; }
+  else if (isDirect) { titleEl.textContent = 'RETAINED!'; titleEl.style.color = 'var(--accent-2)'; }
+  else { titleEl.textContent = 'SOLD!'; titleEl.style.color = 'var(--amber)'; }
   document.getElementById('animPlayer').textContent = name;
   document.getElementById('animTeam').textContent = t ? t.name : teamId;
   document.getElementById('animPrice').textContent = `৳${price}`;
@@ -817,22 +889,65 @@ socket.on('player:sold', data => {
 });
 
 // ── Setup UI ──
+function buildNavItems(sections) {
+  // Desktop
+  const nav = document.getElementById('topNav');
+  nav.innerHTML = '';
+  sections.forEach(s => { nav.innerHTML += `<a data-section="${s.id}" onclick="showSection('${s.id}')">${s.label}</a>`; });
+  nav.classList.remove('hidden');
+  // Mobile
+  const mn = document.getElementById('mobileNavItems');
+  mn.innerHTML = '';
+  sections.forEach(s => { mn.innerHTML += `<div class="mnav-item" data-section="${s.id}" onclick="showSection('${s.id}')"><div class="mnav-icon">${s.icon}</div><div class="mnav-label">${s.label}</div></div>`; });
+  document.getElementById('mobileBottomNav').classList.remove('hidden');
+  // Set first active
+  setTimeout(() => {
+    document.querySelector(`#topNav a[data-section="sectionDashboard"]`)?.classList.add('active');
+    document.querySelector(`#mobileNavItems [data-section="sectionDashboard"]`)?.classList.add('active');
+  }, 0);
+}
+
 function setupUI() {
   const isAdmin = CURRENT_USER.role === 'admin';
   const isTeam = CURRENT_USER.role === 'team';
-  const isViewer = CURRENT_USER.role === 'listener';
   const myTeam = STATE.teams.find(t => t.id === CURRENT_USER.teamId);
-  const nav = document.getElementById('topNav');
-  nav.innerHTML = `<a onclick="showSection('sectionDashboard')" class="active">Dashboard</a>`;
-  if (isViewer || isTeam) nav.innerHTML += `<a onclick="showSection('sectionLiveAuction')">Live</a><a onclick="showSection('sectionPlayerDatabase')">Database</a>`;
-  if (isAdmin) nav.innerHTML += `<a onclick="showSection('sectionLiveAuction')">Live</a><a onclick="showSection('sectionPlayerDatabase')">Database</a><a onclick="showSection('sectionTeamConfig')">Teams</a>`;
-  nav.classList.remove('hidden');
   const label = isTeam ? (myTeam ? myTeam.name : CURRENT_USER.teamId) : CURRENT_USER.hostId;
+
+  let sections = [{ id: 'sectionDashboard', label: 'Dashboard', icon: '🏠' }];
+  if (isAdmin || isTeam || CURRENT_USER.role === 'listener') sections.push({ id: 'sectionLiveAuction', label: 'Live', icon: '⚡' });
+  sections.push({ id: 'sectionPlayerDatabase', label: 'Database', icon: '🏆' });
+  if (isAdmin) sections.push({ id: 'sectionTeamConfig', label: 'Teams', icon: '🛡️' });
+
+  buildNavItems(sections);
   document.getElementById('roleDisplay').textContent = `${CURRENT_USER.role.toUpperCase()} · ${label}`;
   document.getElementById('dashWelcomeName').textContent = label;
-  document.getElementById('dashAdminView').classList.toggle('hidden', !isAdmin);
+
+  // Build admin dash
+  if (isAdmin) {
+    document.getElementById('dashAdminView').classList.remove('hidden');
+    document.getElementById('dashAdminView').innerHTML = `
+      <div class="dash-card" onclick="showSection('sectionLiveAuction')">
+        <div style="font-size:28px;margin-bottom:14px">⚡</div>
+        <h3 style="font-family:var(--font-display);font-size:1rem;font-weight:700;margin-bottom:8px">Live Bidding</h3>
+        <p style="color:var(--muted);font-size:12px;line-height:1.6">Start bidding, accept offers, execute sales.</p>
+        <div style="margin-top:18px;font-size:11px;color:var(--accent-2);font-weight:700;font-family:var(--font-display);letter-spacing:0.06em">LAUNCH CENTER ›</div>
+      </div>
+      <div class="dash-card" onclick="showSection('sectionPlayerDatabase')">
+        <div style="font-size:28px;margin-bottom:14px">🏆</div>
+        <h3 style="font-family:var(--font-display);font-size:1rem;font-weight:700;margin-bottom:8px">Players</h3>
+        <p style="color:var(--muted);font-size:12px;line-height:1.6">Configure categories, base prices, player lists.</p>
+        <div style="margin-top:18px;font-size:11px;color:var(--accent-2);font-weight:700;font-family:var(--font-display);letter-spacing:0.06em">OPEN DATABASE ›</div>
+      </div>
+      <div class="dash-card" onclick="showSection('sectionTeamConfig')">
+        <div style="font-size:28px;margin-bottom:14px">🛡️</div>
+        <h3 style="font-family:var(--font-display);font-size:1rem;font-weight:700;margin-bottom:8px">Teams</h3>
+        <p style="color:var(--muted);font-size:12px;line-height:1.6">Manage franchise IDs, passwords, logos, purse.</p>
+        <div style="margin-top:18px;font-size:11px;color:var(--accent-2);font-weight:700;font-family:var(--font-display);letter-spacing:0.06em">CONFIGURE TEAMS ›</div>
+      </div>`;
+  }
+
   document.getElementById('dashTeamView').classList.toggle('hidden', !isTeam);
-  document.getElementById('dashViewerView').classList.toggle('hidden', !isViewer);
+  document.getElementById('dashViewerView').classList.toggle('hidden', CURRENT_USER.role !== 'listener');
   document.getElementById('adminBidControls').classList.toggle('hidden', !isAdmin);
   document.getElementById('adminActionButtons').classList.toggle('hidden', !isAdmin);
   document.getElementById('viewerPriceDisplay').classList.toggle('hidden', isAdmin);
@@ -841,6 +956,7 @@ function setupUI() {
   document.getElementById('btnResetSystem').classList.toggle('hidden', !isAdmin);
   document.getElementById('btnExportAdmin').classList.toggle('hidden', !isAdmin);
   document.getElementById('btnPauseTimer')?.classList.toggle('hidden', !isAdmin);
+
   if (isAdmin) {
     document.getElementById('idleWaitingMessage').classList.add('hidden');
     document.getElementById('adminAuctionQueue').classList.remove('hidden');
@@ -871,20 +987,24 @@ function renderLiveAdminQueue() {
   currentAuctionCategory = sel.value;
   const container = document.getElementById('queuePlayersList');
   container.innerHTML = '';
-  if (!currentAuctionCategory) { container.innerHTML = '<div style="grid-column:1/-1;display:flex;align-items:center;justify-content:center;height:120px;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:0.15em">Select a category above.</div>'; return; }
+  if (!currentAuctionCategory) { container.innerHTML = '<div style="grid-column:1/-1;display:flex;align-items:center;justify-content:center;height:100px;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:0.15em">Select a category above.</div>'; return; }
   const catConfig = STATE.categories.find(c => c.id === currentAuctionCategory);
   const players = STATE.playersSnapshot[currentAuctionCategory] || [];
   const unsold = players.filter(p => !STATE.teams.some(t => t.purchases?.[currentAuctionCategory] === p.name));
-  if (unsold.length === 0) { container.innerHTML = '<div style="grid-column:1/-1;display:flex;align-items:center;justify-content:center;height:120px;color:var(--emerald);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.1em">All prospects drafted.</div>'; return; }
+  if (!unsold.length) { container.innerHTML = '<div style="grid-column:1/-1;display:flex;align-items:center;justify-content:center;height:100px;color:var(--emerald);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.1em">All prospects drafted.</div>'; return; }
   unsold.forEach(p => {
     const imgSrc = p.image || 'https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=400&auto=format&fit=crop';
-    container.innerHTML += `<div onclick="startAuctionFromQueue('${currentAuctionCategory}','${p.name.replace(/'/g,"\\'")}',${catConfig.base},'${imgSrc}')" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:12px;overflow:hidden;cursor:pointer;transition:all 0.2s;group" onmouseover="this.style.borderColor='rgba(124,58,237,0.4)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.07)';this.style.transform=''">
-      <div style="height:80px;overflow:hidden;background:#0d1117"><img src="${imgSrc}" style="width:100%;height:100%;object-fit:cover;opacity:0.7;transition:opacity 0.3s" onmouseover="this.style.opacity='0.95'" onmouseout="this.style.opacity='0.7'"></div>
-      <div style="padding:10px;text-align:center">
-        <div style="font-family:var(--font-display);font-size:11px;font-weight:700;color:white;margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.name}</div>
+    const el = document.createElement('div');
+    el.style.cssText = 'background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:12px;overflow:hidden;cursor:pointer;transition:all 0.2s';
+    el.onmouseover = () => { el.style.borderColor = 'rgba(124,58,237,0.4)'; el.style.transform = 'translateY(-2px)'; };
+    el.onmouseout = () => { el.style.borderColor = 'rgba(255,255,255,0.07)'; el.style.transform = ''; };
+    el.onclick = () => startAuctionFromQueue(currentAuctionCategory, p.name, catConfig.base, imgSrc);
+    el.innerHTML = `<div style="height:75px;overflow:hidden;background:#0d1117"><img src="${imgSrc}" style="width:100%;height:100%;object-fit:cover;opacity:0.7"></div>
+      <div style="padding:8px;text-align:center">
+        <div style="font-family:var(--font-display);font-size:10px;font-weight:700;color:white;margin-bottom:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.name}</div>
         <div class="mono" style="font-size:10px;color:var(--cyan)">৳${catConfig.base}</div>
-      </div>
-    </div>`;
+      </div>`;
+    container.appendChild(el);
   });
 }
 
@@ -895,48 +1015,48 @@ function renderScoreboards() {
   ['auctionScoreboard','dashboardScoreboard','viewerScoreboard'].forEach(id => {
     const c = document.getElementById(id); if (!c) return;
     c.innerHTML = '';
-    c.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:10px;overflow-y:auto;align-content:start';
+    c.className = 'scoreboard-grid';
     STATE.teams.forEach(t => {
-      const logo = t.logo ? `<img src="${t.logo}" style="width:44px;height:44px;border-radius:50%;object-fit:cover;border:1.5px solid rgba(255,255,255,0.1);margin-bottom:8px;background:#0d1117">` : `<div style="width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,0.04);border:1.5px solid rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--muted);margin-bottom:8px">-</div>`;
+      const logo = t.logo ? `<img src="${t.logo}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;border:1.5px solid rgba(255,255,255,0.1);margin-bottom:6px;background:#0d1117">` : `<div style="width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,0.04);border:1.5px solid rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--muted);margin-bottom:6px">-</div>`;
       c.innerHTML += `<div data-team-id="${t.id}" class="score-tile" style="display:flex;flex-direction:column;align-items:center">
         ${logo}
-        <div style="font-family:var(--font-display);font-weight:700;font-size:11px;color:white;text-align:center;margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%">${t.name}</div>
-        <div style="font-size:9px;color:var(--muted);margin-bottom:8px">${t.purchases ? Object.keys(t.purchases).length : 0} players</div>
-        <div class="mono" style="font-size:13px;font-weight:700;color:var(--cyan);background:rgba(34,211,238,0.06);border:1px solid rgba(34,211,238,0.12);border-radius:8px;padding:4px 10px;width:100%;text-align:center">৳${t.purse}</div>
+        <div style="font-family:var(--font-display);font-weight:700;font-size:10px;color:white;text-align:center;margin-bottom:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%">${t.name}</div>
+        <div style="font-size:9px;color:var(--muted);margin-bottom:6px">${t.purchases ? Object.keys(t.purchases).length : 0} players</div>
+        <div class="mono" style="font-size:12px;font-weight:700;color:var(--cyan);background:rgba(34,211,238,0.06);border:1px solid rgba(34,211,238,0.12);border-radius:7px;padding:3px 8px;width:100%;text-align:center">৳${t.purse}</div>
       </div>`;
     });
   });
   updateLiveEligibility();
 }
 
-// ── Player Tile HTML ──
+// ── Player Tile ──
 function makeTileHTML(player, catId, price, isDirect, isRTM, soldToName) {
   const isSold = soldToName !== null;
   const img = player.image || 'https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=400&auto=format&fit=crop';
   let badge = '';
-  if (isRTM) badge = `<span class="chip chip-pink" style="position:absolute;top:10px;right:10px;z-index:5">RTM</span>`;
-  else if (isDirect) badge = `<span class="chip chip-purple" style="position:absolute;top:10px;right:10px;z-index:5">RETAIN</span>`;
+  if (isRTM) badge = `<span class="chip chip-pink" style="position:absolute;top:8px;right:8px;z-index:5">RTM</span>`;
+  else if (isDirect) badge = `<span class="chip chip-purple" style="position:absolute;top:8px;right:8px;z-index:5">RETAIN</span>`;
   let statusBar = '';
   if (isSold) {
     const bg = isRTM ? 'rgba(236,72,153,0.15)' : isDirect ? 'rgba(124,58,237,0.15)' : 'rgba(99,102,241,0.12)';
     const col = isRTM ? 'var(--rtm)' : isDirect ? 'var(--accent-2)' : '#a5b4fc';
     const lbl = isRTM ? 'RTM — Retained By' : isDirect ? 'Retained By' : 'Acquired By';
-    statusBar = `<div style="margin-top:12px;padding:10px;background:${bg};border-radius:8px;text-align:center;border:1px solid ${col}20"><div style="font-size:9px;color:${col};font-weight:600;text-transform:uppercase;letter-spacing:0.12em;margin-bottom:3px">${lbl}</div><div style="font-size:12px;font-weight:700;color:white">${soldToName}</div></div>`;
+    statusBar = `<div style="margin-top:10px;padding:8px;background:${bg};border-radius:8px;text-align:center;border:1px solid ${col}20"><div style="font-size:9px;color:${col};font-weight:600;text-transform:uppercase;letter-spacing:0.12em;margin-bottom:2px">${lbl}</div><div style="font-size:11px;font-weight:700;color:white">${soldToName}</div></div>`;
   }
   return `<div class="player-tile" data-name="${player.name}" data-price="${price}" style="${isSold ? 'opacity:0.75' : ''}">
-    <div style="position:relative;height:160px;background:#0d1117;overflow:hidden">
+    <div class="player-img-h" style="position:relative;height:140px;background:#0d1117;overflow:hidden">
       <img src="${img}" style="width:100%;height:100%;object-fit:cover;opacity:0.75;transition:transform 0.4s,opacity 0.3s" onmouseover="this.style.transform='scale(1.05)';this.style.opacity='0.9'" onmouseout="this.style.transform='';this.style.opacity='0.75'">
       <div style="position:absolute;inset:0;background:linear-gradient(to top,#060910 0%,transparent 60%)"></div>
-      <span class="chip chip-cyan" style="position:absolute;top:10px;left:10px;z-index:5">${catId}</span>
+      <span class="chip chip-cyan" style="position:absolute;top:8px;left:8px;z-index:5">${catId}</span>
       ${badge}
       <div class="hover-overlay-anchor" style="position:absolute;inset:0;z-index:10"></div>
     </div>
-    <div style="padding:14px">
-      <div style="display:flex;justify-content:space-between;align-items:start;gap:8px">
-        <h4 style="font-family:var(--font-display);font-size:14px;font-weight:700;color:white;line-height:1.3;word-break:break-word">${player.name}</h4>
+    <div style="padding:12px">
+      <div style="display:flex;justify-content:space-between;align-items:start;gap:6px">
+        <h4 style="font-family:var(--font-display);font-size:13px;font-weight:700;color:white;line-height:1.3;word-break:break-word">${player.name}</h4>
         <div style="text-align:right;flex-shrink:0">
-          <div style="font-size:9px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:2px">Val.</div>
-          <div class="mono price" style="font-size:15px;font-weight:700;color:var(--cyan)">৳${price}</div>
+          <div style="font-size:8px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:1px">Val.</div>
+          <div class="mono price" style="font-size:14px;font-weight:700;color:var(--cyan)">৳${price}</div>
         </div>
       </div>
       ${statusBar}
@@ -951,27 +1071,25 @@ function renderViewerRosters() {
   div.innerHTML = '';
   if (!STATE.teams.length) { div.innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted);font-size:12px">No franchises available.</div>'; return; }
   STATE.teams.forEach(t => {
-    const logo = t.logo ? `<img src="${t.logo}" style="width:64px;height:64px;border-radius:50%;border:2px solid rgba(255,255,255,0.1);object-fit:cover;margin-bottom:12px;background:#0d1117">` : `<div style="width:64px;height:64px;border-radius:50%;background:rgba(255,255,255,0.04);border:2px solid rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:10px;margin-bottom:12px">?</div>`;
-    div.insertAdjacentHTML('beforeend', `<div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:var(--radius-lg);padding:20px;display:flex;gap:20px;flex-wrap:wrap;margin-bottom:16px">
-      <div style="width:160px;flex-shrink:0;text-align:center;background:rgba(0,0,0,0.3);padding:20px;border-radius:var(--radius);border:1px solid rgba(255,255,255,0.05)">
+    const logo = t.logo ? `<img src="${t.logo}" style="width:56px;height:56px;border-radius:50%;border:2px solid rgba(255,255,255,0.1);object-fit:cover;margin-bottom:10px;background:#0d1117">` : `<div style="width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,0.04);border:2px solid rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:10px;margin-bottom:10px">?</div>`;
+    div.insertAdjacentHTML('beforeend', `<div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:var(--radius-lg);padding:16px;display:flex;gap:16px;flex-wrap:wrap;margin-bottom:14px">
+      <div style="width:130px;flex-shrink:0;text-align:center;background:rgba(0,0,0,0.3);padding:16px;border-radius:var(--radius);border:1px solid rgba(255,255,255,0.05)">
         ${logo}
-        <h3 style="font-family:var(--font-display);font-size:15px;font-weight:800;color:white;margin-bottom:6px">${t.name}</h3>
-        <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:0.15em;margin-bottom:12px">${t.purchases ? Object.keys(t.purchases).length : 0} Players</div>
-        <div class="mono" style="font-size:20px;font-weight:700;color:var(--cyan)">৳${t.purse}</div>
+        <h3 style="font-family:var(--font-display);font-size:13px;font-weight:800;color:white;margin-bottom:6px">${t.name}</h3>
+        <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:0.15em;margin-bottom:10px">${t.purchases ? Object.keys(t.purchases).length : 0} Players</div>
+        <div class="mono" style="font-size:18px;font-weight:700;color:var(--cyan)">৳${t.purse}</div>
       </div>
-      <div style="flex:1;display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;align-content:start" id="viewerTeamPlayers-${t.id}"></div>
+      <div style="flex:1;display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;align-content:start" id="viewerTeamPlayers-${t.id}"></div>
     </div>`);
     const grid = document.getElementById(`viewerTeamPlayers-${t.id}`);
-    if (!t.purchases || !Object.keys(t.purchases).length) { grid.innerHTML = '<div style="grid-column:1/-1;color:var(--muted);font-size:11px;padding:20px 0;text-align:center">No players acquired yet.</div>'; return; }
+    if (!t.purchases || !Object.keys(t.purchases).length) { grid.innerHTML = '<div style="grid-column:1/-1;color:var(--muted);font-size:11px;padding:20px 0;text-align:center">No players yet.</div>'; return; }
     Object.entries(t.purchases).forEach(([catId, pName]) => {
       const player = (STATE.playersSnapshot[catId] || []).find(p => p.name === pName);
       const cat = STATE.categories.find(c => c.id === catId);
       if (!player || !cat) return;
       const key = `${catId}:${pName}`;
       const price = STATE.soldPrices?.[key] || STATE.activeBids?.[key] || player.price || cat.base;
-      const isDirect = !!STATE.directSigns?.[key];
-      const isRTM = !!STATE.rtmEvents?.[key];
-      grid.innerHTML += makeTileHTML(player, catId, price, isDirect, isRTM, t.name);
+      grid.innerHTML += makeTileHTML(player, catId, price, !!STATE.directSigns?.[key], !!STATE.rtmEvents?.[key], t.name);
     });
   });
 }
@@ -980,24 +1098,22 @@ function renderViewerRosters() {
 function renderMyTeam() {
   const t = STATE.teams.find(x => x.id === CURRENT_USER.teamId);
   const div = document.getElementById('dashboardMyTeamContent'); if (!t || !div) return;
-  div.innerHTML = `<div style="background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.06);border-radius:var(--radius);padding:14px 18px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center">
+  div.innerHTML = `<div style="background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.06);border-radius:var(--radius);padding:12px 16px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center">
     <div style="font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.15em">Remaining Purse</div>
-    <div class="mono" style="font-size:1.6rem;font-weight:700;color:var(--emerald)">৳${t.purse}</div>
+    <div class="mono" style="font-size:1.4rem;font-weight:700;color:var(--emerald)">৳${t.purse}</div>
   </div>
-  ${t.impactUsed ? `<div style="background:rgba(124,58,237,0.08);border:1px solid rgba(124,58,237,0.2);border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:11px;color:var(--accent-2);font-weight:600;display:flex;align-items:center;gap:8px"><span>⚡</span> Impact Power Deployed</div>` : ''}`;
+  ${t.impactUsed ? `<div style="background:rgba(124,58,237,0.08);border:1px solid rgba(124,58,237,0.2);border-radius:10px;padding:10px 14px;margin-bottom:12px;font-size:11px;color:var(--accent-2);font-weight:600;display:flex;align-items:center;gap:8px"><span>⚡</span> Impact Power Deployed</div>` : ''}`;
   const hasPurchases = t.purchases && Object.keys(t.purchases).length > 0;
-  if (!hasPurchases) { div.innerHTML += '<div style="text-align:center;padding:40px;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:0.15em;border:1px dashed rgba(255,255,255,0.07);border-radius:var(--radius)">No players acquired yet.</div>'; return; }
+  if (!hasPurchases) { div.innerHTML += '<div style="text-align:center;padding:30px;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:0.15em;border:1px dashed rgba(255,255,255,0.07);border-radius:var(--radius)">No players acquired yet.</div>'; return; }
   const grid = document.createElement('div');
-  grid.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px';
+  grid.className = 'player-grid-lg';
   Object.entries(t.purchases).forEach(([catId, pName]) => {
     const player = (STATE.playersSnapshot[catId] || []).find(p => p.name === pName);
     const cat = STATE.categories.find(c => c.id === catId);
     if (!player || !cat) return;
     const key = `${catId}:${pName}`;
     const price = STATE.soldPrices?.[key] || STATE.activeBids?.[key] || player.price || cat.base;
-    const isRTM = !!STATE.rtmEvents?.[key];
-    const isDirect = !!STATE.directSigns?.[key];
-    grid.innerHTML += makeTileHTML(player, catId, price, isDirect, isRTM, t.name);
+    grid.innerHTML += makeTileHTML(player, catId, price, !!STATE.directSigns?.[key], !!STATE.rtmEvents?.[key], t.name);
   });
   div.appendChild(grid);
 }
@@ -1010,23 +1126,23 @@ function renderDatabase() {
   if (!STATE.categories.length) { container.innerHTML = '<div style="color:var(--muted);font-size:12px">No categories established.</div>'; return; }
   STATE.categories.forEach(cat => {
     const wrap = document.createElement('div');
-    wrap.style.cssText = 'background:rgba(13,17,23,0.8);border:1px solid rgba(255,255,255,0.06);border-radius:var(--radius-lg);padding:24px;margin-bottom:20px';
-    wrap.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid rgba(255,255,255,0.06);flex-wrap:wrap;gap:10px">
-      <h3 style="font-family:var(--font-display);font-size:1.1rem;font-weight:800;color:white">${cat.id}</h3>
+    wrap.style.cssText = 'background:rgba(13,17,23,0.8);border:1px solid rgba(255,255,255,0.06);border-radius:var(--radius-lg);padding:20px;margin-bottom:18px';
+    wrap.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,0.06);flex-wrap:wrap;gap:8px">
+      <h3 style="font-family:var(--font-display);font-size:1rem;font-weight:800;color:white">${cat.id}</h3>
       <div style="display:flex;align-items:center;gap:8px">
         <span class="chip chip-cyan">Base ৳${cat.base} · Step ৳${cat.increment}</span>
-        ${isAdmin ? `<button class="red small" onclick="deleteCat('${cat.id}')" style="padding:4px 10px;font-size:11px">Drop</button>` : ''}
+        ${isAdmin ? `<button class="red small" onclick="deleteCat('${cat.id}')" style="padding:3px 10px;font-size:11px">Drop</button>` : ''}
       </div>
     </div>
-    ${isAdmin ? `<div style="display:flex;gap:8px;margin-bottom:18px;align-items:center;background:rgba(0,0,0,0.2);padding:10px 14px;border-radius:10px;border:1px solid rgba(255,255,255,0.05)">
+    ${isAdmin ? `<div style="display:flex;gap:8px;margin-bottom:16px;align-items:center;background:rgba(0,0,0,0.2);padding:10px 12px;border-radius:10px;border:1px solid rgba(255,255,255,0.05)">
       <button onclick="openPlayerEdit('${cat.id}')" class="green small" style="font-size:11px">+ Add Player</button>
       <button onclick="clearCat('${cat.id}')" class="ghost small" style="color:var(--danger);border-color:rgba(239,68,68,0.2);font-size:11px">Wipe List</button>
     </div>` : ''}
-    <div id="playersList-${cat.id}" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px"></div>`;
+    <div id="playersList-${cat.id}" class="player-grid-lg"></div>`;
     container.appendChild(wrap);
     const plC = document.getElementById(`playersList-${cat.id}`);
     const players = STATE.playersSnapshot[cat.id] || [];
-    if (!players.length) { plC.innerHTML = '<div style="grid-column:1/-1;color:var(--muted);font-size:11px;text-align:center;padding:30px;border:1px dashed rgba(255,255,255,0.06);border-radius:var(--radius)">No players yet.</div>'; }
+    if (!players.length) { plC.innerHTML = '<div style="grid-column:1/-1;color:var(--muted);font-size:11px;text-align:center;padding:28px;border:1px dashed rgba(255,255,255,0.06);border-radius:var(--radius)">No players yet.</div>'; }
     players.forEach(p => {
       let soldToName = null;
       STATE.teams.forEach(t => { if (t.purchases?.[cat.id] === p.name) soldToName = t.name; });
@@ -1040,22 +1156,22 @@ function renderDatabase() {
       if (isAdmin) {
         const anchor = tile.querySelector('.hover-overlay-anchor');
         if (anchor) {
-          anchor.innerHTML = `<div style="position:absolute;top:8px;right:8px;display:flex;gap:6px;z-index:30">
-            <button title="Edit" onclick="event.stopPropagation();openPlayerEdit('${cat.id}','${p.name.replace(/'/g,"\\'")}');" style="width:28px;height:28px;border-radius:50%;background:rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.1);font-size:12px;padding:0;display:flex;align-items:center;justify-content:center" onmouseover="this.style.background='var(--accent)'" onmouseout="this.style.background='rgba(0,0,0,0.5)'">✏️</button>
-            ${soldToName ? `<button title="Reset" onclick="event.stopPropagation();resetPlayer('${cat.id}','${p.name.replace(/'/g,"\\'")}');" style="width:28px;height:28px;border-radius:50%;background:rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.1);font-size:12px;padding:0;display:flex;align-items:center;justify-content:center" onmouseover="this.style.background='var(--amber)'" onmouseout="this.style.background='rgba(0,0,0,0.5)'">↺</button>` : ''}
+          anchor.innerHTML = `<div style="position:absolute;top:8px;right:8px;display:flex;gap:5px;z-index:30">
+            <button title="Edit" onclick="event.stopPropagation();openPlayerEdit('${cat.id}','${p.name.replace(/'/g,"\\'")}');" style="width:26px;height:26px;border-radius:50%;background:rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.1);font-size:11px;padding:0;display:flex;align-items:center;justify-content:center" onmouseover="this.style.background='var(--accent)'" onmouseout="this.style.background='rgba(0,0,0,0.5)'">✏️</button>
+            ${soldToName ? `<button title="Reset" onclick="event.stopPropagation();resetPlayer('${cat.id}','${p.name.replace(/'/g,"\\'")}');" style="width:26px;height:26px;border-radius:50%;background:rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.1);font-size:11px;padding:0;display:flex;align-items:center;justify-content:center" onmouseover="this.style.background='var(--amber)'" onmouseout="this.style.background='rgba(0,0,0,0.5)'">↺</button>` : ''}
           </div>`;
         }
         if (!soldToName) {
           tile.style.cursor = 'pointer';
           tile.onclick = (e) => { if (e.target.closest('button')) return; socket.emit('admin:select_player', { category: cat.id, name: p.name, base: cat.base, currentPrice: price, image: p.image }); showSection('sectionLiveAuction'); };
           const hA = tile.querySelector('.hover-overlay-anchor');
-          if (hA) hA.innerHTML += `<div style="position:absolute;inset:0;background:rgba(124,58,237,0.25);opacity:0;display:flex;align-items:center;justify-content:center;transition:opacity 0.25s;border-radius:0;z-index:5" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0'"><span style="background:var(--accent);color:white;font-size:11px;font-weight:700;padding:8px 16px;border-radius:100px;font-family:var(--font-display);letter-spacing:0.06em">→ Live Arena</span></div>`;
+          if (hA) hA.innerHTML += `<div style="position:absolute;inset:0;background:rgba(124,58,237,0.25);opacity:0;display:flex;align-items:center;justify-content:center;transition:opacity 0.25s;z-index:5" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0'"><span style="background:var(--accent);color:white;font-size:11px;font-weight:700;padding:7px 14px;border-radius:100px;font-family:var(--font-display);letter-spacing:0.06em">→ Live Arena</span></div>`;
         }
       }
       if (CURRENT_USER.role === 'team' && !soldToName) {
         const acts = tile.querySelector('.actions');
         if (acts) {
-          acts.innerHTML = `<div style="margin-top:12px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.06)"><button class="ghost small btn-bid-req" style="width:100%;color:var(--cyan);border-color:rgba(34,211,238,0.2);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em">Request Bid Floor</button></div>`;
+          acts.innerHTML = `<div style="margin-top:10px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.06)"><button class="ghost small btn-bid-req" style="width:100%;color:var(--cyan);border-color:rgba(34,211,238,0.2);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em">Request Bid Floor</button></div>`;
           acts.querySelector('.btn-bid-req').onclick = (e) => { e.stopPropagation(); socket.emit('bid:request', { category: cat.id, playerName: p.name, teamName: STATE.teams.find(x => x.id === CURRENT_USER.teamId)?.name }); e.target.textContent = 'Requested ✓'; e.target.style.color = 'var(--emerald)'; };
         }
       }
@@ -1064,39 +1180,178 @@ function renderDatabase() {
   });
 }
 
-// ── Team Config ──
+// ═══════════════════════════════════
+// ── Team Config with Import Players ──
+// ═══════════════════════════════════
 function renderTeamConfigTable() {
   const container = document.getElementById('teamsConfigContainer');
   container.innerHTML = '';
   STATE.teams.forEach(t => {
     const tile = document.createElement('div');
     tile.className = 'team-config-card';
-    tile.style.cssText = 'background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:var(--radius-lg);padding:20px;display:flex;flex-direction:column;position:relative;transition:border-color 0.2s';
     const logoHtml = t.logo ? `<img src="${t.logo}" style="width:100%;height:100%;object-fit:cover">` : `<span style="font-size:9px;color:var(--muted);text-align:center">Logo</span>`;
-    tile.innerHTML = `<div style="position:absolute;top:12px;right:12px;display:flex;gap:6px">
-      <button class="ghost small" onclick="resetTeam('${t.id}')" title="Reset" style="color:var(--amber);border-color:rgba(245,158,11,0.2);padding:4px 8px;font-size:11px">↺</button>
-      <button class="ghost small" onclick="this.closest('.team-config-card').remove()" title="Delete" style="color:var(--danger);border-color:rgba(239,68,68,0.2);padding:4px 8px;font-size:11px">×</button>
+    tile.innerHTML = `<div style="position:absolute;top:10px;right:10px;display:flex;gap:5px">
+      <button class="ghost small" onclick="resetTeam('${t.id}')" title="Reset" style="color:var(--amber);border-color:rgba(245,158,11,0.2);padding:3px 7px;font-size:11px">↺</button>
+      <button class="ghost small" onclick="this.closest('.team-config-card').remove()" title="Delete" style="color:var(--danger);border-color:rgba(239,68,68,0.2);padding:3px 7px;font-size:11px">×</button>
     </div>
-    <div style="display:flex;justify-content:center;margin-bottom:16px;margin-top:4px">
-      <div class="logo-drop-zone" style="width:64px;height:64px">${logoHtml}</div>
+    <div style="display:flex;justify-content:center;margin-bottom:14px;margin-top:4px">
+      <div class="logo-drop-zone" style="width:60px;height:60px">${logoHtml}</div>
     </div>
-    <div style="display:flex;flex-direction:column;gap:10px">
-      <div><label>Franchise ID</label><input class="t-id" value="${t.id}" placeholder="e.g. BLR" style="margin:0;padding:9px 12px;font-size:13px"></div>
-      <div><label>Team Name</label><input class="t-name" value="${t.name}" placeholder="e.g. Bangalore" style="margin:0;padding:9px 12px;font-size:13px"></div>
-      <div><label>Security Key</label><input class="t-pass" value="${t.password || ''}" placeholder="Password" style="margin:0;padding:9px 12px;font-size:13px"></div>
-      <div><label>Starting Purse (৳)</label><input class="t-purse" type="number" value="${t.purse}" placeholder="500" class="mono" style="margin:0;padding:9px 12px;font-size:15px;font-weight:700;color:var(--emerald)"></div>
-    </div>`;
+    <div style="display:flex;flex-direction:column;gap:9px">
+      <div><label>Franchise ID</label><input class="t-id" value="${t.id}" placeholder="e.g. BLR" style="margin:0;padding:8px 11px;font-size:13px"></div>
+      <div><label>Team Name</label><input class="t-name" value="${t.name}" placeholder="e.g. Bangalore" style="margin:0;padding:8px 11px;font-size:13px"></div>
+      <div><label>Security Key</label><input class="t-pass" value="${t.password || ''}" placeholder="Password" style="margin:0;padding:8px 11px;font-size:13px"></div>
+      <div><label>Starting Purse (৳)</label><input class="t-purse" type="number" value="${t.purse}" placeholder="500" style="margin:0;padding:8px 11px;font-size:14px;font-weight:700;color:var(--emerald)"></div>
+    </div>
+    <button class="ghost small" style="width:100%;margin-top:12px;color:var(--cyan);border-color:rgba(34,211,238,0.2);font-size:11px;padding:8px" onclick="openImportPlayersModal('${t.id}')">📥 Import Previous Players</button>`;
     container.appendChild(tile);
     setupFileUpload(tile.querySelector('.logo-drop-zone'), (file) => uploadFile(file).then(url => socket.emit('admin:setTeamLogo', { teamId: t.id, logoUrl: url })));
   });
+
+  // Add franchise card
   const add = document.createElement('div');
-  add.style.cssText = 'background:rgba(255,255,255,0.02);border:2px dashed rgba(255,255,255,0.08);border-radius:var(--radius-lg);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;min-height:320px;transition:all 0.2s';
+  add.style.cssText = 'background:rgba(255,255,255,0.02);border:2px dashed rgba(255,255,255,0.08);border-radius:var(--radius-lg);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;min-height:300px;transition:all 0.2s';
   add.onmouseover = () => { add.style.borderColor = 'rgba(124,58,237,0.3)'; add.style.background = 'rgba(124,58,237,0.03)'; };
   add.onmouseout = () => { add.style.borderColor = 'rgba(255,255,255,0.08)'; add.style.background = 'rgba(255,255,255,0.02)'; };
   add.onclick = addTeamInputRow;
-  add.innerHTML = `<div style="width:56px;height:56px;border-radius:50%;background:rgba(124,58,237,0.1);border:1px solid rgba(124,58,237,0.2);display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:14px;color:var(--accent-2)">+</div><div style="font-family:var(--font-display);font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em">Add Franchise</div>`;
+  add.innerHTML = `<div style="width:52px;height:52px;border-radius:50%;background:rgba(124,58,237,0.1);border:1px solid rgba(124,58,237,0.2);display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:12px;color:var(--accent-2)">+</div><div style="font-family:var(--font-display);font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em">Add Franchise</div>`;
   container.appendChild(add);
 }
+
+// ── Import Players Modal ──
+window.openImportPlayersModal = (teamId) => {
+  importTargetTeamId = teamId;
+  importActiveCatFilter = '';
+  const overlay = document.getElementById('importPlayersOverlay');
+  overlay.classList.remove('hidden');
+  buildImportCatFilters();
+  renderImportPlayerList();
+};
+
+function buildImportCatFilters() {
+  const f = document.getElementById('importCatFilters');
+  f.innerHTML = `<button class="import-filter-btn active" onclick="setImportCatFilter('', this)">All</button>`;
+  STATE.categories.forEach(c => { f.innerHTML += `<button class="import-filter-btn" onclick="setImportCatFilter('${c.id}', this)">${c.id}</button>`; });
+}
+
+window.setImportCatFilter = (catId, btn) => {
+  importActiveCatFilter = catId;
+  document.querySelectorAll('.import-filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderImportPlayerList();
+};
+
+window.filterImportList = () => renderImportPlayerList();
+
+function getAllPlayersFromDB() {
+  const all = [];
+  STATE.categories.forEach(cat => {
+    const players = STATE.playersSnapshot[cat.id] || [];
+    players.forEach(p => all.push({ ...p, catId: cat.id, catBase: cat.base }));
+  });
+  return all;
+}
+
+function renderImportPlayerList() {
+  const list = document.getElementById('importPlayerList');
+  const search = (document.getElementById('importSearchInput').value || '').toLowerCase();
+  const targetTeam = STATE.teams.find(t => t.id === importTargetTeamId);
+  let players = getAllPlayersFromDB();
+
+  // Filter by category
+  if (importActiveCatFilter) players = players.filter(p => p.catId === importActiveCatFilter);
+
+  // Filter by search
+  if (search) players = players.filter(p => p.name.toLowerCase().includes(search));
+
+  // Filter out players already on this team
+  if (targetTeam?.purchases) {
+    players = players.filter(p => targetTeam.purchases[p.catId] !== p.name);
+  }
+
+  list.innerHTML = '';
+  if (!players.length) {
+    list.innerHTML = '<div style="text-align:center;padding:24px;color:var(--muted);font-size:12px">No players found.</div>';
+    updateImportSelCount();
+    return;
+  }
+
+  players.forEach(p => {
+    const img = p.image || 'https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=200&auto=format&fit=crop';
+    const soldTeam = STATE.teams.find(t => t.purchases?.[p.catId] === p.name);
+    const soldBadge = soldTeam ? `<span style="font-size:9px;color:var(--amber)">Owned by ${soldTeam.name}</span>` : `<span style="font-size:9px;color:var(--muted)">৳${p.catBase}</span>`;
+    const item = document.createElement('label');
+    item.className = 'import-player-item';
+    item.style.cursor = 'pointer';
+    item.innerHTML = `<input type="checkbox" class="import-checkbox" data-name="${p.name}" data-cat="${p.catId}" onchange="updateImportSelCount()">
+      <img class="pi-img" src="${img}" alt="">
+      <div class="pi-info">
+        <div class="pi-name">${p.name}</div>
+        <div class="pi-meta"><span class="chip chip-cyan" style="font-size:8px;padding:1px 6px">${p.catId}</span> ${soldBadge}</div>
+      </div>`;
+    list.appendChild(item);
+  });
+  updateImportSelCount();
+}
+
+window.updateImportSelCount = () => {
+  const checked = document.querySelectorAll('.import-checkbox:checked').length;
+  document.getElementById('importSelCount').textContent = `${checked} selected`;
+  document.getElementById('btnConfirmImport').textContent = checked ? `Import ${checked} Player${checked > 1 ? 's' : ''}` : 'Import Selected';
+  document.getElementById('btnConfirmImport').disabled = checked === 0;
+};
+
+window.toggleSelectAllImport = () => {
+  const boxes = document.querySelectorAll('.import-checkbox');
+  const anyUnchecked = Array.from(boxes).some(b => !b.checked);
+  boxes.forEach(b => b.checked = anyUnchecked);
+  updateImportSelCount();
+  document.getElementById('btnSelectAllImport').textContent = anyUnchecked ? 'Deselect All' : 'Select All';
+};
+
+window.confirmImportPlayers = () => {
+  const selected = document.querySelectorAll('.import-checkbox:checked');
+  if (!selected.length) return;
+  const targetTeam = STATE.teams.find(t => t.id === importTargetTeamId);
+  if (!targetTeam) return;
+
+  // Build list of players to import
+  const toImport = [];
+  selected.forEach(cb => { toImport.push({ name: cb.dataset.name, catId: cb.dataset.cat }); });
+
+  // Validate purse
+  let totalCost = 0;
+  toImport.forEach(item => {
+    const cat = STATE.categories.find(c => c.id === item.catId);
+    const key = `${item.catId}:${item.name}`;
+    const soldPrice = STATE.soldPrices?.[key] || Number(cat?.base) || 0;
+    totalCost += soldPrice;
+  });
+
+  if (totalCost > Number(targetTeam.purse)) {
+    showToast(`⚠️ Insufficient purse. Need ৳${totalCost}, have ৳${targetTeam.purse}`);
+    return;
+  }
+
+  // Emit each player import
+  toImport.forEach(item => {
+    const cat = STATE.categories.find(c => c.id === item.catId);
+    const key = `${item.catId}:${item.name}`;
+    const price = STATE.soldPrices?.[key] || Number(cat?.base) || 0;
+    socket.emit('player:sold', { category: item.catId, name: item.name, price, teamId: importTargetTeamId, isDirect: true, isRTM: false });
+  });
+
+  showToast(`✅ Imported ${toImport.length} player${toImport.length > 1 ? 's' : ''} to ${targetTeam.name}`);
+  closeImportModal();
+};
+
+window.closeImportModal = () => {
+  document.getElementById('importPlayersOverlay').classList.add('hidden');
+  importTargetTeamId = null;
+  document.getElementById('importSearchInput').value = '';
+  document.getElementById('importSelCount').textContent = '0 selected';
+  document.getElementById('btnSelectAllImport').textContent = 'Select All';
+};
 
 // ── Actions ──
 window.addTeamInputRow = () => {
@@ -1136,9 +1391,7 @@ window.openPlayerEdit = (catId, playerName = null) => {
     nameInput.value = player ? player.name : '';
     if (player?.image) { img.src = player.image; img.classList.remove('hidden'); imgTxt.classList.add('hidden'); }
     else { img.src = ''; img.classList.add('hidden'); imgTxt.classList.remove('hidden'); }
-  } else {
-    nameInput.value = ''; img.src = ''; img.classList.add('hidden'); imgTxt.classList.remove('hidden');
-  }
+  } else { nameInput.value = ''; img.src = ''; img.classList.add('hidden'); imgTxt.classList.remove('hidden'); }
   modal.classList.remove('hidden');
   setupFileUpload(document.getElementById('playerEditImgDrop'), (file) => uploadFile(file).then(url => { img.src = url; img.classList.remove('hidden'); imgTxt.classList.add('hidden'); }));
 };
@@ -1193,34 +1446,29 @@ document.getElementById('btnSaveTeams').onclick = () => {
 };
 document.getElementById('btnResetSystem').onclick = () => { if (confirm('⚠️ FULL SYSTEM WIPE?')) socket.emit('admin:resetAll'); };
 
-// ── Transaction: SOLD ──
+// ── SOLD ──
 window.triggerSoldFromPopup = () => openSoldConfirmation(activePlayer.category, activePlayer.name, document.getElementById('popupPrice').textContent, false, false);
 
 function pauseTimerForModal() {
-  isTimerPaused = true;
-  document.getElementById('btnPauseTimer').textContent = '▶️';
-  updateTimerUI();
+  isTimerPaused = true; document.getElementById('btnPauseTimer').textContent = '▶️'; updateTimerUI();
   if (CURRENT_USER.role === 'admin') socket.emit('admin:timer_control', { paused: true, time: auctionTimeRemaining });
 }
 function resumeTimerAfterModal() {
-  isTimerPaused = false;
-  document.getElementById('btnPauseTimer').textContent = '⏸️';
-  updateTimerUI();
+  isTimerPaused = false; document.getElementById('btnPauseTimer').textContent = '⏸️'; updateTimerUI();
   if (CURRENT_USER.role === 'admin') socket.emit('admin:timer_control', { paused: false, time: auctionTimeRemaining });
 }
 
 function openSoldConfirmation(cat, name, price, isDirect, isRTM = false) {
   pendingSold = { category: cat, name, price: Number(price) || 0, isDirect, isRTM };
   pauseTimerForModal();
-  const modal = document.getElementById('soldActionOverlay');
-  const sel = document.getElementById('soldActionTeam');
   const priceGroup = document.getElementById('directPriceGroup');
   priceGroup.classList.toggle('hidden', !isDirect);
   if (isDirect) document.getElementById('directSignPrice').value = pendingSold.price;
   document.getElementById('soldActionDetails').innerHTML = `<span style="color:white;font-weight:700">${name}</span> (${cat})<br><span style="color:var(--emerald);margin-top:4px;display:block">${isDirect ? isRTM ? '[ RTM RETENTION ]' : '[ TEAM RETENTION ]' : '@ ৳' + pendingSold.price}</span>`;
+  const sel = document.getElementById('soldActionTeam');
   sel.innerHTML = '';
   STATE.teams.forEach(t => sel.innerHTML += `<option value="${t.id}">${t.name} (৳${t.purse})</option>`);
-  modal.classList.remove('hidden');
+  document.getElementById('soldActionOverlay').classList.remove('hidden');
 }
 
 document.getElementById('btnCancelSold').onclick = () => { document.getElementById('soldActionOverlay').classList.add('hidden'); resumeTimerAfterModal(); };
@@ -1231,33 +1479,21 @@ document.getElementById('btnConfirmSold').onclick = (e) => {
   if (teamId) { e.target.disabled = true; socket.emit('player:sold', { ...pendingSold, price: finalPrice, teamId }); setTimeout(() => { e.target.disabled = false; document.getElementById('soldActionOverlay').classList.add('hidden'); }, 500); }
 };
 
-// ── RTM CARD LOGIC ──
+// ── RTM ──
 window.triggerRTMPopup = () => {
   if (!activePlayer) return;
-  const cat = activePlayer.category;
-  const name = activePlayer.name;
   const currentBid = Number(document.getElementById('popupPrice').textContent) || 0;
-  pendingRTM = { category: cat, name, price: currentBid };
+  pendingRTM = { category: activePlayer.category, name: activePlayer.name, price: currentBid };
   pauseTimerForModal();
-  document.getElementById('rtmPlayerDetails').innerHTML = `${name} · <span style="color:var(--accent-2)">${cat}</span>`;
+  document.getElementById('rtmPlayerDetails').innerHTML = `${activePlayer.name} · <span style="color:var(--accent-2)">${activePlayer.category}</span>`;
   document.getElementById('rtmFinalBid').textContent = `৳${currentBid}`;
-  const rtmSel = document.getElementById('rtmTeamSelect');
-  const hbSel = document.getElementById('rtmHighBidderTeam');
+  const rtmSel = document.getElementById('rtmTeamSelect'), hbSel = document.getElementById('rtmHighBidderTeam');
   rtmSel.innerHTML = '<option value="">— Select RTM franchise —</option>';
   hbSel.innerHTML = '<option value="">— Select high bidder —</option>';
-  STATE.teams.forEach(t => {
-    rtmSel.innerHTML += `<option value="${t.id}">${t.name} (Purse: ৳${t.purse})</option>`;
-    hbSel.innerHTML += `<option value="${t.id}">${t.name}</option>`;
-  });
+  STATE.teams.forEach(t => { rtmSel.innerHTML += `<option value="${t.id}">${t.name} (Purse: ৳${t.purse})</option>`; hbSel.innerHTML += `<option value="${t.id}">${t.name}</option>`; });
   document.getElementById('rtmActionOverlay').classList.remove('hidden');
 };
-
-document.getElementById('btnCancelRTM').onclick = () => {
-  document.getElementById('rtmActionOverlay').classList.add('hidden');
-  pendingRTM = null;
-  resumeTimerAfterModal();
-};
-
+document.getElementById('btnCancelRTM').onclick = () => { document.getElementById('rtmActionOverlay').classList.add('hidden'); pendingRTM = null; resumeTimerAfterModal(); };
 document.getElementById('btnConfirmRTM').onclick = (e) => {
   const rtmTeamId = document.getElementById('rtmTeamSelect').value;
   const highBidTeamId = document.getElementById('rtmHighBidderTeam').value;
