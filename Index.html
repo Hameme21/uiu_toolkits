@@ -1,10 +1,41 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UIU ToolKits | Spring 2026</title>
+    
+    <title>UIU ToolKits | Spring 2026 - Exam Routine & CGPA Calc</title>
+    <meta name="title" content="UIU ToolKits | Spring 2026 - Exam Routine & CGPA Calc">
+    <meta name="description" content="The ultimate toolkit for United International University (UIU) CSE students. Features include an Exam Clash Solver, Section Planner, CGPA Calculator, and Academic Calendar.">
+    <meta name="keywords" content="UIU, United International University, UIU Toolkit, UIU exam routine, UIU clash solver, UIU CGPA calculator, UIU section planner, CSE routine">
+    <meta name="author" content="UIU Toolkits">
+    <meta name="robots" content="index, follow">
+    <meta name="google-site-verification" content="isXFC7UeMcXcGhcH-v7tALSFT8PGR68YELXmT1WFZOc" />
+    <link rel="canonical" href="https://uiu-toolkits.vercel.app/">
+
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="UIU ToolKits"> <meta property="og:url" content="https://uiu-toolkits.vercel.app/">
+    <meta property="og:title" content="UIU ToolKits - Essential Tools for UIU Students">
+    
+    <script type="application/ld+json">
+    {
+      "@context" : "https://schema.org",
+      "@type" : "WebSite",
+      "name" : "UIU ToolKits",
+      "url" : "https://uiu-toolkits.vercel.app/"
+    }
+    </script>
+    <meta property="og:description" content="Manage your UIU routine, solve exam clashes, and calculate your CGPA easily with this all-in-one toolkit.">
+    <meta property="og:image" content="https://uiu-toolkits.vercel.app/logo.png">
+
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://uiu-toolkits.vercel.app/">
+    <meta property="twitter:title" content="UIU ToolKits - Essential Tools for UIU Students">
+    <meta property="twitter:description" content="Manage your UIU routine, solve exam clashes, and calculate your CGPA easily with this all-in-one toolkit.">
+    <meta property="twitter:image" content="https://uiu-toolkits.vercel.app/logo.png">
+
+    <link rel="icon" type="image/png" href="logo.png">
+    <link rel="apple-touch-icon" href="logo.png">
     <style>
         /* --- GLOBAL VARIABLES & THEME --- */
         :root {
@@ -32,10 +63,14 @@
             --same-day-border: #ffc107;
             --course-added-bg: #fff3e0;
             
-            --shadow: 0 4px 15px rgba(243, 112, 33, 0.15);
+            --shadow: 0 8px 30px rgba(243, 112, 33, 0.12);
             --warning-bg: #fff3cd;
             --warning-text: #856404;
             --warning-border: #ffeeba;
+
+            /* Gradients */
+            --gradient-primary: linear-gradient(135deg, #F37021 0%, #ff985c 100%);
+            --gradient-secondary: linear-gradient(135deg, #005696 0%, #0081d1 100%);
         }
 
         /* Dark Mode Override */
@@ -56,7 +91,7 @@
             --same-day-border: #9c7b16;
             --course-added-bg: #2d2318;
             
-            --shadow: 0 4px 15px rgba(0,0,0,0.5);
+            --shadow: 0 8px 30px rgba(0,0,0,0.6);
             --warning-bg: #332701;
             --warning-text: #ffc107;
             --warning-border: #664d03;
@@ -65,23 +100,39 @@
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: var(--bg-body);
+            /* Soft animated gradient background */
+            background: linear-gradient(135deg, var(--bg-body) 0%, #fff0e6 100%);
             color: var(--text-main);
             margin: 0;
             transition: background 0.3s, color 0.3s;
+            min-height: 100vh;
+        }
+
+        body.dark-mode {
+            background: linear-gradient(135deg, #121212 0%, #201510 100%);
         }
 
         /* --- NAVIGATION --- */
         nav {
-            background-color: var(--bg-container);
+            background-color: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px); /* Glassmorphism */
+            -webkit-backdrop-filter: blur(12px);
             padding: 15px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
             position: sticky;
             top: 0;
             z-index: 1000;
-            border-bottom: 3px solid var(--primary-color);
+            border-bottom: 3px solid transparent;
+            border-image: var(--gradient-primary);
+            border-image-slice: 1;
+        }
+
+        body.dark-mode nav {
+            background-color: rgba(30, 30, 30, 0.85);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
         }
 
         .logo {
@@ -100,19 +151,22 @@
         }
 
         .nav-btn {
-            padding: 8px 16px;
+            padding: 8px 18px;
             border: 2px solid var(--primary-color);
             background: transparent;
             color: var(--primary-color);
-            border-radius: 20px;
+            border-radius: 25px; /* Pill shape */
             cursor: pointer;
             font-weight: 600;
-            transition: all 0.2s;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Bouncy hover */
         }
 
         .nav-btn.active, .nav-btn:hover {
-            background: var(--primary-color);
+            background: var(--gradient-primary);
             color: white;
+            border-color: transparent;
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 6px 15px rgba(243, 112, 33, 0.3);
         }
         
         body.dark-mode .nav-btn {
@@ -121,8 +175,84 @@
         }
         body.dark-mode .nav-btn.active, 
         body.dark-mode .nav-btn:hover {
-            background: var(--primary-color);
             color: #121212;
+            box-shadow: 0 6px 15px rgba(243, 112, 33, 0.5);
+        }
+
+        /* --- DASHBOARD STYLES --- */
+        .gradient-text {
+            background: linear-gradient(45deg, var(--primary-color), #ff4081, var(--secondary-color));
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradient-shift 3s linear infinite;
+        }
+
+        @keyframes gradient-shift {
+            0% { background-position: 0% center; }
+            100% { background-position: 200% center; }
+        }
+
+        .dash-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-top: 40px;
+        }
+
+        .dash-card {
+            background: var(--bg-container);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 30px 20px;
+            text-align: center;
+            cursor: pointer;
+            box-shadow: var(--shadow);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dash-card::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 4px;
+            background: var(--gradient-primary);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .dash-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 35px rgba(243, 112, 33, 0.2);
+            border-color: var(--primary-color);
+        }
+
+        .dash-card:hover::before {
+            opacity: 1;
+        }
+
+        .dash-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            display: inline-block;
+            transition: transform 0.3s;
+        }
+
+        .dash-card:hover .dash-icon {
+            transform: scale(1.2) rotate(5deg);
+        }
+
+        .dash-card h3 {
+            color: var(--primary-color);
+            margin: 0 0 10px 0;
+            font-size: 1.4rem;
+        }
+
+        .dash-card p {
+            color: var(--text-muted);
+            margin: 0;
+            font-size: 0.95rem;
         }
 
         /* --- LAYOUT --- */
@@ -135,21 +265,21 @@
         .tool-section {
             display: none;
             background: var(--bg-container);
-            padding: 25px;
-            border-radius: 12px;
+            padding: 35px 25px;
+            border-radius: 16px;
             box-shadow: var(--shadow);
-            animation: fadeIn 0.3s;
+            animation: slideUpFade 0.4s ease-out;
             border-top: 5px solid var(--primary-color);
         }
         .tool-section.active { display: block; }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
+        @keyframes slideUpFade {
+            from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        h1 { color: var(--primary-color); margin-top: 0; text-align: center; }
-        p.subtitle { color: var(--text-muted); text-align: center; margin-bottom: 20px; }
+        h1 { color: var(--primary-color); margin-top: 0; text-align: center; font-size: 2.2em; }
+        p.subtitle { color: var(--text-muted); text-align: center; margin-bottom: 30px; font-size: 1.1em; }
 
         /* --- ALERTS --- */
         .disclaimer-box {
@@ -157,39 +287,52 @@
             color: var(--warning-text);
             border: 1px solid var(--warning-border);
             padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
             text-align: center;
             font-weight: bold;
-            font-size: 0.9em;
+            font-size: 0.95em;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.03);
         }
 
         .alert-box {
             padding: 15px;
-            border-radius: 6px;
-            margin-bottom: 10px;
+            border-radius: 10px;
+            margin-bottom: 15px;
             text-align: center;
             font-weight: bold;
             display: none;
+            animation: bounceIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
+        @keyframes bounceIn {
+            0% { transform: scale(0.9); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
         #clash-alert { background-color: var(--clash-bg); color: #d32f2f; border: 1px solid var(--clash-border); }
         #sameday-alert { background-color: var(--same-day-bg); color: #c49000; border: 1px solid var(--same-day-border); }
         #section-clash-alert { background-color: var(--clash-bg); color: #d32f2f; border: 1px solid var(--clash-border); }
         body.dark-mode #sameday-alert { color: #ffca28; }
 
         /* --- INPUTS & SEARCH --- */
-        .search-box { position: relative; max-width: 600px; margin: 0 auto 20px auto; }
+        .search-box { position: relative; max-width: 600px; margin: 0 auto 25px auto; }
         input, select {
             width: 100%;
-            padding: 12px;
-            border: 1px solid var(--border-color);
+            padding: 14px;
+            border: 2px solid var(--border-color);
             background: var(--bg-input);
             color: var(--text-main);
-            border-radius: 6px;
+            border-radius: 10px;
             font-size: 1rem;
             box-sizing: border-box;
+            transition: all 0.3s;
         }
-        input:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 2px rgba(243, 112, 33, 0.2); }
+        input:focus, select:focus { 
+            outline: none; 
+            border-color: var(--primary-color); 
+            box-shadow: 0 0 15px rgba(243, 112, 33, 0.2); 
+            transform: translateY(-2px);
+        }
 
         .suggestions {
             position: absolute; top: 100%; left: 0; right: 0;
@@ -197,143 +340,234 @@
             border: 1px solid var(--border-color);
             max-height: 250px; overflow-y: auto; z-index: 100;
             display: none;
-            border-radius: 0 0 6px 6px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border-radius: 0 0 10px 10px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
         }
         .suggestion-item {
-            padding: 10px 15px; cursor: pointer; border-bottom: 1px solid var(--border-color);
+            padding: 12px 15px; cursor: pointer; border-bottom: 1px solid var(--border-color);
             display: flex; justify-content: space-between; align-items: center;
+            transition: background 0.2s;
         }
-        .suggestion-item:hover { background-color: var(--bg-body); }
+        .suggestion-item:hover { background-color: var(--course-added-bg); padding-left: 20px; }
         .suggestion-item strong { color: var(--primary-color); }
-        .shortcut-badge { background: var(--border-color); font-size: 0.75em; padding: 2px 6px; border-radius: 4px; color: var(--text-muted); }
+        .shortcut-badge { background: var(--border-color); font-size: 0.75em; padding: 4px 8px; border-radius: 6px; color: var(--text-muted); }
 
         /* --- EXAM TABLE --- */
-        .routine-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        .routine-table { width: 100%; border-collapse: collapse; margin-top: 20px; border-radius: 10px; overflow: hidden; }
         .routine-table th, .routine-table td {
             border: 1px solid var(--border-color);
-            padding: 10px; text-align: center; vertical-align: top;
+            padding: 12px; text-align: center; vertical-align: top;
         }
-        .routine-table th { background-color: var(--table-header-bg); color: var(--table-header-text); }
+        .routine-table th { background: var(--gradient-primary); color: var(--table-header-text); font-size: 1.05em; }
         
         .added-course {
             background-color: var(--course-added-bg);
-            border-left: 4px solid var(--primary-color);
-            padding: 8px 25px 8px 8px;
-            margin-top: 5px;
-            border-radius: 4px;
+            border-left: 5px solid var(--primary-color);
+            padding: 10px 25px 10px 10px;
+            margin-top: 8px;
+            border-radius: 6px;
             font-size: 0.9em;
             text-align: left;
             position: relative;
             word-wrap: break-word;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            animation: fadeIn 0.3s;
         }
-        .added-course.clash { background-color: var(--clash-bg); border-left-color: var(--clash-border); color: #d32f2f; }
+        .added-course.clash { background-color: var(--clash-bg); border-left-color: var(--clash-border); color: #d32f2f; animation: shake 0.4s; }
         .added-course.sameday { border-left-color: var(--same-day-border); background-color: var(--same-day-bg); }
         
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+            100% { transform: translateX(0); }
+        }
+
         .remove-btn {
-            position: absolute; top: 2px; right: 5px;
-            cursor: pointer; color: var(--text-muted); font-size: 1.2em; font-weight: bold;
+            position: absolute; top: 4px; right: 8px;
+            cursor: pointer; color: var(--text-muted); font-size: 1.4em; font-weight: bold; transition: color 0.2s;
         }
         .remove-btn:hover { color: red; }
 
-        /* --- CGPA STYLES --- */
-        .section-box { border: 1px solid var(--border-color); padding: 20px; border-radius: 8px; margin-bottom: 20px; }
-        .section-title {
-            color: var(--primary-color); font-weight: bold; display: block;
-            border-left: 4px solid var(--primary-color); padding-left: 10px; margin-bottom: 15px;
+        /* --- TIMELINE GRID STYLES --- */
+        .timeline-row-cell {
+            position: relative;
+            height: 90px;
+            padding: 0 !important;
+            background-image: repeating-linear-gradient(to right, transparent, transparent calc(11.111% - 1px), var(--border-color) calc(11.111% - 1px), var(--border-color) 11.111%);
         }
-        .cgpa-table { width: 100%; margin-bottom: 15px; border-collapse: collapse; }
-        .cgpa-table th { background-color: var(--primary-color); color: white; padding: 10px; text-align: left; }
-        .cgpa-table td { padding: 10px; border-bottom: 1px solid var(--border-color); vertical-align: middle; }
+        
+        .day-col {
+            background: var(--gradient-secondary);
+            color: white;
+            font-weight: bold;
+            text-align: center;
+            vertical-align: middle;
+            border-right: 2px solid white;
+        }
+        body.dark-mode .day-col { background: #002b4d; border-right-color: #333; }
+        
+        .timeline-event {
+            position: absolute;
+            top: 5px; bottom: 5px;
+            color: white;
+            border-radius: 6px;
+            padding: 6px 10px;
+            font-size: 0.8em;
+            line-height: 1.4;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            text-align: left;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), z-index 0.2s;
+            border-left: 4px solid rgba(255,255,255,0.8);
+            white-space: nowrap;
+        }
+        
+        .timeline-event:hover {
+            transform: translateY(-5px) scale(1.02); 
+            z-index: 10;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3); 
+        }
+        
+        .remove-btn-timeline {
+            position: absolute; top: 2px; right: 5px;
+            cursor: pointer; color: rgba(255,255,255,0.8);
+            font-size: 1.2em; font-weight: bold; z-index: 2; transition: 0.2s;
+        }
+        .remove-btn-timeline:hover { color: #ff4d4d; transform: scale(1.2); }
 
-        .btn-action { width: 100%; padding: 12px; border-radius: 6px; border: none; font-weight: bold; cursor: pointer; margin-top: 10px; }
-        .btn-add { background-color: var(--secondary-color); color: white; width: auto; padding: 8px 20px; }
-        .btn-export { background-color: #28a745; color: white; width: auto; padding: 8px 20px; }
-        .btn-export:hover { background-color: #218838; }
-        .btn-calc { background-color: var(--primary-color); color: white; font-size: 1.1em; }
-        .btn-delete { background-color: #ff4d4d; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 0.8em; }
+        /* --- BUTTON & CGPA STYLES --- */
+        .section-box { 
+            border: 1px solid var(--border-color); 
+            padding: 25px; 
+            border-radius: 12px; 
+            margin-bottom: 25px; 
+            background: var(--bg-container);
+            transition: box-shadow 0.3s;
+        }
+        .section-box:hover { box-shadow: var(--shadow); }
+
+        .section-title {
+            color: var(--primary-color); font-weight: bold; display: block; font-size: 1.1em;
+            border-left: 5px solid var(--primary-color); padding-left: 12px; margin-bottom: 20px;
+        }
+        
+        .btn-action { 
+            width: 100%; padding: 14px; border-radius: 8px; border: none; font-weight: bold; 
+            cursor: pointer; margin-top: 10px; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+        }
+        .btn-action:hover { transform: translateY(-3px); box-shadow: 0 6px 15px rgba(0,0,0,0.15); }
+        .btn-add { background: var(--gradient-secondary); color: white; width: auto; padding: 10px 24px; }
+        .btn-export { background: linear-gradient(135deg, #28a745, #34ce57); color: white; width: auto; padding: 10px 24px; }
+        .btn-import { background: linear-gradient(135deg, #17a2b8, #1fc8e3); color: white; width: auto; padding: 10px 24px; }
+        .btn-calc { background: var(--gradient-primary); color: white; font-size: 1.2em; padding: 16px; }
+        .btn-delete { background-color: #ff4d4d; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.9em; transition: 0.2s; }
+        .btn-delete:hover { background-color: #ff1a1a; transform: scale(1.1); }
+
+        .cgpa-table { width: 100%; margin-bottom: 20px; border-collapse: separate; border-spacing: 0 8px; }
+        .cgpa-table th { background: transparent; color: var(--text-muted); padding: 10px; text-align: left; font-size: 0.9em; text-transform: uppercase; border-bottom: 2px solid var(--border-color); }
+        .cgpa-table td { padding: 12px 10px; background: var(--bg-input); border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); vertical-align: middle; }
+        .cgpa-table td:first-child { border-left: 1px solid var(--border-color); border-top-left-radius: 8px; border-bottom-left-radius: 8px; }
+        .cgpa-table td:last-child { border-right: 1px solid var(--border-color); border-top-right-radius: 8px; border-bottom-right-radius: 8px; }
 
         .result-box {
-            background-color: var(--course-added-bg); border: 2px solid var(--primary-color);
-            padding: 20px; border-radius: 8px; text-align: center; display: none; margin-top: 20px;
+            background: linear-gradient(135deg, var(--course-added-bg) 0%, var(--bg-body) 100%); 
+            border: 2px solid var(--primary-color);
+            padding: 30px; border-radius: 12px; text-align: center; display: none; margin-top: 25px;
+            box-shadow: inset 0 0 20px rgba(243, 112, 33, 0.05);
+            animation: bounceIn 0.5s;
         }
-        .gpa-value { font-size: 2rem; font-weight: bold; color: var(--primary-color); }
+        .gpa-value { font-size: 2.5rem; font-weight: bold; color: var(--primary-color); text-shadow: 2px 2px 4px rgba(243, 112, 33, 0.2); }
         
         .retake-controls { display: flex; align-items: center; gap: 8px; }
-        .prev-grade-wrapper { display: none; margin-top: 5px; }
+        .prev-grade-wrapper { display: none; margin-top: 8px; }
         .prev-grade-wrapper.active { display: block; animation: fadeIn 0.3s; }
-        .prev-grade-label { font-size: 0.8em; color: var(--text-muted); display: block; margin-bottom: 2px; }
-        .retake-checkbox { width: 18px; height: 18px; cursor: pointer; }
+        .prev-grade-label { font-size: 0.85em; color: var(--text-muted); display: block; margin-bottom: 4px; font-weight: bold; }
+        .retake-checkbox { width: 20px; height: 20px; cursor: pointer; accent-color: var(--primary-color); }
 
         /* --- COURSE PLANNER STYLES --- */
         .planner-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 25px;
         }
         .tri-card {
             background: var(--bg-input);
             border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 15px;
-            transition: transform 0.2s;
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
         }
-        .tri-card:hover { transform: translateY(-5px); box-shadow: var(--shadow); }
+        .tri-card::before {
+            content: ""; position: absolute; top: 0; left: 0; width: 5px; height: 100%;
+            background: var(--gradient-secondary);
+        }
+        .tri-card:hover { transform: translateY(-8px); box-shadow: var(--shadow); border-color: var(--secondary-color); }
+        
         .tri-header {
-            color: var(--primary-color);
+            color: var(--secondary-color);
             font-weight: bold;
+            font-size: 1.2em;
             border-bottom: 2px solid var(--border-color);
-            padding-bottom: 8px;
-            margin-bottom: 10px;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
             display: flex;
             justify-content: space-between;
         }
         .tri-course-list { list-style: none; padding: 0; margin: 0; }
         .tri-course-item {
-            padding: 6px 0;
+            padding: 8px 0;
             border-bottom: 1px dashed var(--border-color);
-            font-size: 0.9em;
+            font-size: 0.95em;
             display: flex;
             justify-content: space-between;
+            align-items: center;
         }
         .tri-course-item:last-child { border-bottom: none; }
         .badge-credit {
-            background-color: var(--secondary-color);
+            background: var(--gradient-primary);
             color: white;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 0.75em;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.8em;
+            font-weight: bold;
         }
         
-        /* Dropdown specific for CGPA */
         .planner-select-wrapper {
-            margin-bottom: 15px;
-            background: var(--course-added-bg);
-            padding: 15px;
-            border-radius: 8px;
+            margin-bottom: 20px;
+            background: linear-gradient(to right, var(--course-added-bg), var(--bg-container));
+            padding: 20px;
+            border-radius: 12px;
             border: 1px solid var(--primary-color);
+            border-left: 5px solid var(--primary-color);
         }
 
         /* --- FULL CALENDAR STYLES --- */
         .calendar-controls {
             display: flex; justify-content: space-between; align-items: center; 
-            margin-bottom: 15px; background: var(--bg-input); padding: 10px 20px;
-            border-radius: 8px; border: 1px solid var(--border-color);
+            margin-bottom: 20px; background: var(--bg-input); padding: 15px 25px;
+            border-radius: 12px; border: 1px solid var(--border-color);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.02);
         }
         .calendar-controls button {
-            background: var(--primary-color); color: white; border: none; 
-            padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: bold;
+            background: var(--gradient-secondary); color: white; border: none; 
+            padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold;
+            transition: 0.3s;
         }
-        .calendar-controls button:hover { background: var(--secondary-color); }
-        .calendar-controls h2 { margin: 0; color: var(--secondary-color); }
+        .calendar-controls button:hover { transform: scale(1.05); box-shadow: 0 4px 12px rgba(0, 86, 150, 0.3); }
+        .calendar-controls h2 { margin: 0; color: var(--secondary-color); font-size: 1.5em; }
 
-        .calendar-wrapper { border-radius: 8px; overflow-x: auto; border: 1px solid var(--border-color); }
+        .calendar-wrapper { border-radius: 12px; overflow-x: auto; border: 1px solid var(--border-color); box-shadow: var(--shadow); }
         
         .calendar-grid-header {
             display: grid; grid-template-columns: repeat(7, 1fr); 
-            background: var(--table-header-bg); color: var(--table-header-text); 
-            text-align: center; font-weight: bold; padding: 12px 0;
-            min-width: 650px; 
+            background: var(--gradient-primary); color: white; 
+            text-align: center; font-weight: bold; padding: 15px 0;
+            min-width: 650px; font-size: 1.1em;
         }
         
         .calendar-grid {
@@ -343,49 +577,114 @@
         }
 
         .calendar-day {
-            background: var(--bg-container); min-height: 100px; 
-            padding: 8px; display: flex; flex-direction: column; gap: 4px;
+            background: var(--bg-container); min-height: 110px; 
+            padding: 10px; display: flex; flex-direction: column; gap: 6px;
+            transition: background 0.3s;
         }
-        .calendar-day.empty { background: var(--bg-body); }
-        .day-num { font-weight: bold; font-size: 1.1em; color: var(--text-muted); text-align: right; display: block; margin-bottom: 5px; }
+        .calendar-day:hover { background: var(--bg-body); }
+        .calendar-day.empty { background: var(--bg-body); opacity: 0.6; }
+        .day-num { font-weight: bold; font-size: 1.2em; color: var(--text-muted); text-align: right; display: block; margin-bottom: 5px; }
         .event-badge {
-            font-size: 0.75em; padding: 5px 8px; border-radius: 4px; 
-            background-color: var(--course-added-bg); border-left: 3px solid var(--primary-color);
-            color: var(--text-main); font-weight: bold; line-height: 1.2;
+            font-size: 0.8em; padding: 6px 10px; border-radius: 6px; 
+            background-color: var(--course-added-bg); border-left: 4px solid var(--primary-color);
+            color: var(--text-main); font-weight: bold; line-height: 1.3;
             word-wrap: break-word; overflow-wrap: break-word; white-space: normal;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            transition: transform 0.2s;
         }
+        .event-badge:hover { transform: scale(1.02); }
 
         .event-holiday { background-color: var(--clash-bg); border-left-color: var(--clash-border); color: #d32f2f; }
         .event-exam { background-color: var(--same-day-bg); border-left-color: var(--same-day-border); color: #b08100; }
         body.dark-mode .event-exam { color: #ffca28; }
 
+        .calendar-day.today {
+            background-color: var(--course-added-bg);
+            border: 2px solid var(--primary-color);
+            box-shadow: inset 0 0 15px rgba(243, 112, 33, 0.15);
+        }
+        body.dark-mode .calendar-day.today { background-color: #3e2723; }
+        
+        .today-holiday { background-color: var(--clash-bg); color: #d32f2f; border: 1px solid var(--clash-border); }
+        .today-regular { background-color: var(--course-added-bg); color: var(--secondary-color); border: 1px solid var(--primary-color); }
+        body.dark-mode .today-holiday { color: #ff8a80; }
+        body.dark-mode .today-regular { color: #81d4fa; }
+
         @media (max-width: 600px) {
-            nav { flex-direction: column; gap: 10px; }
-            .routine-table th, .routine-table td { font-size: 0.8em; padding: 5px; }
-            .calendar-grid-header { font-size: 0.8em; }
-            .calendar-day { min-height: 80px; padding: 4px; }
-            .event-badge { font-size: 0.65em; padding: 3px; }
+            nav { flex-direction: column; gap: 10px; padding: 10px; }
+            .nav-buttons { justify-content: center; }
+            .tool-section { padding: 20px 15px; }
+            .routine-table th, .routine-table td { font-size: 0.8em; padding: 8px; }
+            .calendar-grid-header { font-size: 0.9em; }
+            .calendar-day { min-height: 80px; padding: 6px; }
+            .event-badge { font-size: 0.7em; padding: 4px; }
+            .dash-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
 
 <nav>
-    <div class="logo">🎓 UIU Toolkit</div>
+    <div class="logo">
+        <img src="logo.png" alt="UIU Toolkits Logo" style="height: 30px; width: auto; border-radius: 4px;">
+        UIU Toolkits
+    </div>
     <div class="nav-buttons">
-        <button class="nav-btn active" onclick="switchTab('exam')" id="btn-exam">Exam Routine</button>
+        <button class="nav-btn active" onclick="switchTab('dashboard')" id="btn-dashboard">Dashboard</button>
+        <button class="nav-btn" onclick="switchTab('exam')" id="btn-exam">Exam Routine</button>
         <button class="nav-btn" onclick="switchTab('sectionplanner')" id="btn-sectionplanner">Section Planner</button>
         <button class="nav-btn" onclick="switchTab('cgpa')" id="btn-cgpa">CGPA Calc</button>
-        <button class="nav-btn" onclick="switchTab('calendar')" id="btn-calendar">Academic Calendar</button>
+        <button class="nav-btn" onclick="switchTab('calendar')" id="btn-calendar">Calendar</button>
         <button class="nav-btn" onclick="switchTab('planner')" id="btn-planner">Course Planner</button>
-        <button class="nav-btn" onclick="toggleTheme()" id="btn-theme">🌙</button>
+        <button class="nav-btn" onclick="switchTab('tuition')" id="btn-tuition">Tuition Calc</button>
+        <button class="nav-btn" onclick="toggleTheme()" id="btn-theme" title="Toggle Theme">💻</button>
     </div>
 </nav>
 
 <div class="container">
 
-    <div id="exam-section" class="tool-section active">
-        <h1>Exam Clash Solver</h1>
+    <div id="dashboard-section" class="tool-section active">
+        <div style="text-align: center; margin-bottom: 30px;">
+            <h1 class="gradient-text" style="font-size: 2.8em; margin-bottom: 10px;">Welcome to UIU Toolkits! 🎓</h1>
+            <p class="subtitle" style="font-size: 1.2em; max-width: 600px; margin: 0 auto;">The ultimate survival kit for UIU CSE students. Select a tool below to get started and dominate this trimester.</p>
+        </div>
+        
+        <div class="dash-grid">
+            <div class="dash-card" onclick="switchTab('exam')">
+                <div class="dash-icon">📅</div>
+                <h3>Exam Routine</h3>
+                <p>Import your courses, detect exact overlaps, and manage final exam pressure visually.</p>
+            </div>
+            <div class="dash-card" onclick="switchTab('sectionplanner')">
+                <div class="dash-icon">🕒</div>
+                <h3>Section Planner</h3>
+                <p>Draft your perfect weekly class schedule and guarantee you never double-book labs.</p>
+            </div>
+            <div class="dash-card" onclick="switchTab('cgpa')">
+                <div class="dash-icon">📈</div>
+                <h3>CGPA Calculator</h3>
+                <p>Predict your GPA, apply retake rules, and build your target CGPA roadmap.</p>
+            </div>
+            <div class="dash-card" onclick="switchTab('calendar')">
+                <div class="dash-icon">🎉</div>
+                <h3>Academic Calendar</h3>
+                <p>Track midterms, finals, holidays, and payment deadlines for Spring 2026.</p>
+            </div>
+            <div class="dash-card" onclick="switchTab('planner')">
+                <div class="dash-icon">🗺️</div>
+                <h3>Course Planner</h3>
+                <p>Explore the full core curriculum and map out your major elective tracks.</p>
+            </div>
+            <div class="dash-card" onclick="switchTab('tuition')">
+        <div class="dash-icon">💰</div>
+        <h3>Tuition Calc</h3>
+        <p>Estimate trimester costs, apply UIU waivers, and plan your budget easily.</p>
+    </div>
+        </div>
+    </div>
+
+    <div id="exam-section" class="tool-section">
+        <h1 class="gradient-text">Exam Clash Solver</h1>
         <p class="subtitle">Spring 2026 | CSE Dept. | Updated with Official Routine</p>
 
         <div class="disclaimer-box">
@@ -400,7 +699,9 @@
             <div class="suggestions" id="suggestions"></div>
         </div>
         
-        <div style="text-align: right; margin-bottom: 10px;">
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;">
+            <input type="file" id="examCsvInput" accept=".csv" style="display: none;" onchange="importExamCSV(event)">
+            <button class="btn-action btn-import" onclick="document.getElementById('examCsvInput').click()">📤 Import Routine from CSV</button>
             <button class="btn-action btn-export" onclick="exportExamCSV()">📥 Export Routine to CSV</button>
         </div>
 
@@ -418,19 +719,19 @@
     </div>
 
     <div id="sectionplanner-section" class="tool-section">
-        <h1>Section Planner</h1>
+        <h1 class="gradient-text">Section Planner</h1>
         <p class="subtitle">Draft your Class Routine & Check Clashes</p>
 
         <div id="section-clash-alert" class="alert-box">⚠️ CLASS CLASH: You have overlapping classes at the exact same time!</div>
 
         <div class="section-box">
             <span class="section-title">Add Class Session to Routine</span>
-            <div class="search-box" style="margin-bottom: 10px; max-width: 100%;">
+            <div class="search-box" style="margin-bottom: 15px; max-width: 100%;">
                 <input type="text" id="sectionCourseSearch" placeholder="Search Course using code or keyword (e.g., spl, dbms)..." oninput="filterSectionCourses()" autocomplete="off">
                 <div class="suggestions" id="sectionSuggestions"></div>
             </div>
             
-            <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px;">
+            <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 10px;">
                 <div style="flex:2; min-width: 200px;">
                     <input type="text" id="sectionCourseSelected" placeholder="Selected Course" readonly style="background: var(--bg-body);">
                 </div>
@@ -452,60 +753,52 @@
                         </select>
                 </div>
                 <div>
-                    <button class="btn-action btn-add" style="margin-top:0;" onclick="addSectionClass()">Add to Routine</button>
+                    <button class="btn-action btn-add" style="margin-top:0; height: 100%;" onclick="addSectionClass()">Add to Routine</button>
                 </div>
             </div>
-            <small style="color:var(--text-muted);">💡 Tip: You can add the same course multiple times with different sections to visualize your alternative options!</small>
+            <small style="color:var(--text-muted); display: block; margin-top: 10px;">💡 Tip: You can add the same course multiple times with different sections to visualize your alternative options!</small>
         </div>
 
-        <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 20px;">
-            <h2 style="color: var(--secondary-color); font-size: 1.2em; margin-bottom: 0; border-bottom: 2px solid var(--border-color); padding-bottom: 5px;">Theory Routine</h2>
-            <button class="btn-action btn-export" style="margin-top: 0;" onclick="exportSectionCSV()">📥 Export Planner to CSV</button>
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 30px; flex-wrap: wrap; gap: 15px;">
+            <h2 style="color: var(--secondary-color); font-size: 1.4em; margin-bottom: 0; border-bottom: 3px solid var(--primary-color); padding-bottom: 5px;">Unified Class Routine</h2>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <input type="file" id="sectionCsvInput" accept=".csv" style="display: none;" onchange="importSectionCSV(event)">
+                <button class="btn-action btn-import" style="margin-top: 0;" onclick="document.getElementById('sectionCsvInput').click()">📤 Import Planner from CSV</button>
+                <button class="btn-action btn-export" style="margin-top: 0;" onclick="exportSectionCSV()">📥 Export Planner to CSV</button>
+            </div>
         </div>
 
-        <div style="overflow-x: auto; margin-bottom: 30px;">
-            <table class="routine-table" id="theoryRoutineTable" style="min-width: 700px; margin-top: 10px;">
+        <div style="overflow-x: auto; margin-bottom: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+            <table class="routine-table" id="unifiedRoutineTable" style="min-width: 900px; margin-top: 15px; border-collapse: collapse; border: none;">
                 <thead>
                     <tr>
-                        <th style="width:20%">Time Slot</th>
-                        <th style="width:20%">Saturday</th>
-                        <th style="width:20%">Sunday</th>
-                        <th style="width:20%">Tuesday</th>
-                        <th style="width:20%">Wednesday</th>
+                        <th style="width: 10%; background: var(--bg-input); color: var(--text-main); border: 1px solid var(--border-color);">Day</th>
+                        <th style="width: 10%; font-size: 0.85em; font-weight: normal; color: var(--text-muted); border: 1px solid var(--border-color);">8 AM - 9 AM</th>
+                        <th style="width: 10%; font-size: 0.85em; font-weight: normal; color: var(--text-muted); border: 1px solid var(--border-color);">9 AM - 10 AM</th>
+                        <th style="width: 10%; font-size: 0.85em; font-weight: normal; color: var(--text-muted); border: 1px solid var(--border-color);">10 AM - 11 AM</th>
+                        <th style="width: 10%; font-size: 0.85em; font-weight: normal; color: var(--text-muted); border: 1px solid var(--border-color);">11 AM - 12 PM</th>
+                        <th style="width: 10%; font-size: 0.85em; font-weight: normal; color: var(--text-muted); border: 1px solid var(--border-color);">12 PM - 1 PM</th>
+                        <th style="width: 10%; font-size: 0.85em; font-weight: normal; color: var(--text-muted); border: 1px solid var(--border-color);">1 PM - 2 PM</th>
+                        <th style="width: 10%; font-size: 0.85em; font-weight: normal; color: var(--text-muted); border: 1px solid var(--border-color);">2 PM - 3 PM</th>
+                        <th style="width: 10%; font-size: 0.85em; font-weight: normal; color: var(--text-muted); border: 1px solid var(--border-color);">3 PM - 4 PM</th>
+                        <th style="width: 10%; font-size: 0.85em; font-weight: normal; color: var(--text-muted); border: 1px solid var(--border-color);">4 PM - 5 PM</th>
                     </tr>
                 </thead>
-                <tbody id="theoryRoutineBody">
-                    </tbody>
-            </table>
-        </div>
-
-        <h2 style="color: var(--secondary-color); font-size: 1.2em; border-bottom: 2px solid var(--border-color); padding-bottom: 5px;">Lab Routine</h2>
-        <div style="overflow-x: auto;">
-            <table class="routine-table" id="labRoutineTable" style="min-width: 700px; margin-top: 10px;">
-                <thead>
-                    <tr>
-                        <th style="width:20%">Time Slot</th>
-                        <th style="width:20%">Saturday</th>
-                        <th style="width:20%">Sunday</th>
-                        <th style="width:20%">Tuesday</th>
-                        <th style="width:20%">Wednesday</th>
-                    </tr>
-                </thead>
-                <tbody id="labRoutineBody">
-                    </tbody>
+                <tbody id="unifiedRoutineBody">
+                </tbody>
             </table>
         </div>
     </div>
-
+        
     <div id="cgpa-section" class="tool-section">
-        <h1>CGPA Calculator</h1>
+        <h1 class="gradient-text">CGPA Calculator</h1>
         <p class="subtitle">UIU Grading Scale with Retake Support</p>
 
         <div class="section-box">
             <span class="section-title">Previous Results (Optional)</span>
-            <div style="display: flex; gap: 10px;">
-                <div style="flex:1"><label>Prev. CGPA</label><input type="number" id="prevCGPA" placeholder="e.g. 3.50" step="0.01"></div>
-                <div style="flex:1"><label>Credits Earned</label><input type="number" id="prevCredits" placeholder="e.g. 60" step="1"></div>
+            <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                <div style="flex:1; min-width: 200px;"><label style="font-weight: bold; color: var(--text-muted); margin-bottom: 5px; display: block;">Prev. CGPA</label><input type="number" id="prevCGPA" placeholder="e.g. 3.50" step="0.01"></div>
+                <div style="flex:1; min-width: 200px;"><label style="font-weight: bold; color: var(--text-muted); margin-bottom: 5px; display: block;">Credits Earned</label><input type="number" id="prevCredits" placeholder="e.g. 60" step="1"></div>
             </div>
         </div>
 
@@ -513,41 +806,218 @@
             <span class="section-title">Current Trimester</span>
             
             <div class="planner-select-wrapper">
-                <label style="font-weight:bold; color:var(--primary-color);">🚀 Auto-fill Courses from Planner:</label>
-                <select id="cgpaPlannerSelect" onchange="loadFromPlanner()" style="margin-top: 8px;">
+                <label style="font-weight:bold; color:var(--primary-color); font-size: 1.1em;">🚀 Auto-fill Courses from Planner:</label>
+                <select id="cgpaPlannerSelect" onchange="loadFromPlanner()" style="margin-top: 12px; border: 2px solid var(--primary-color);">
                     <option value="">-- Select a Trimester to Load --</option>
                 </select>
-                <small style="color:var(--text-muted); display:block; margin-top:5px;">Warning: Selecting a trimester will replace current table rows.</small>
+                <small style="color:var(--text-muted); display:block; margin-top:8px;">Warning: Selecting a trimester will replace current table rows.</small>
             </div>
 
-            <table class="cgpa-table" id="courseTable">
-                <thead>
-                    <tr>
-                        <th style="width: 5%">#</th>
-                        <th style="width: 25%">Course (Optional)</th>
-                        <th style="width: 15%">Credits</th>
-                        <th style="width: 20%">Grade</th>
-                        <th style="width: 25%">Type</th>
-                        <th style="width: 10%">X</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-            <button class="btn-action btn-add" onclick="addCourseRow()">+ Add Course</button>
+            <div style="overflow-x: auto;">
+                <table class="cgpa-table" id="courseTable" style="min-width: 600px;">
+                    <thead>
+                        <tr>
+                            <th style="width: 5%">#</th>
+                            <th style="width: 25%">Course (Optional)</th>
+                            <th style="width: 15%">Credits</th>
+                            <th style="width: 20%">Grade</th>
+                            <th style="width: 25%">Type</th>
+                            <th style="width: 10%">Drop</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <button class="btn-action btn-add" style="margin-top: 15px;" onclick="addCourseRow()">+ Add Blank Course</button>
         </div>
 
-        <button class="btn-action btn-calc" onclick="calculateCGPA()">Calculate CGPA</button>
+        <button class="btn-action btn-calc" style="margin-top: 30px; box-shadow: 0 10px 20px rgba(243, 112, 33, 0.3);" onclick="calculateCGPA()">✨ Calculate CGPA ✨</button>
 
         <div id="resultBox" class="result-box">
-            <div>Current GPA: <span class="gpa-value" id="currentGPA">0.00</span></div>
-            <div>Total CGPA: <span class="gpa-value" id="totalCGPA">0.00</span></div>
-            <p>Total Credits: <span id="totalCreditsDisplay">0</span></p>
+            <div style="margin-bottom: 10px;">Current Trimester GPA: <span class="gpa-value" id="currentGPA">0.00</span></div>
+            <div style="margin-bottom: 10px;">Overall Total CGPA: <span class="gpa-value" style="color: var(--secondary-color);" id="totalCGPA">0.00</span></div>
+            <p style="font-size: 1.1em; font-weight: bold; color: var(--text-muted);">Total Degree Credits: <span id="totalCreditsDisplay">0</span></p>
+        </div>
+
+        <h2 style="color: var(--secondary-color); margin-top: 50px; border-bottom: 3px solid var(--border-color); padding-bottom: 15px; font-size: 1.8em;">🎯 Target CGPA Planner</h2>
+        
+        <div class="section-box" style="background-color: var(--bg-container);">
+            <p style="color: var(--text-muted); margin-top: 0; margin-bottom: 25px;">Enter your current standing and graduation goal to calculate the exact average you need to maintain moving forward.</p>
+            <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 20px;">
+                <div style="flex:1; min-width: 150px;">
+                    <label style="font-size: 0.9em; font-weight: bold; color: var(--text-muted); margin-bottom: 5px; display: block;">Current CGPA</label>
+                    <input type="number" id="goalCurrentCGPA" placeholder="e.g. 3.20" step="0.01">
+                </div>
+                <div style="flex:1; min-width: 150px;">
+                    <label style="font-size: 0.9em; font-weight: bold; color: var(--text-muted); margin-bottom: 5px; display: block;">Total Earned Credits</label>
+                    <input type="number" id="goalEarnedCredits" placeholder="e.g. 60">
+                </div>
+                <div style="flex:1; min-width: 150px;">
+                    <label style="font-size: 0.9em; font-weight: bold; color: var(--text-muted); margin-bottom: 5px; display: block;">Target CGPA</label>
+                    <input type="number" id="goalTargetCGPA" placeholder="e.g. 3.50" step="0.01">
+                </div>
+                <div style="flex:1; min-width: 150px;">
+                    <label style="font-size: 0.9em; font-weight: bold; color: var(--text-muted); margin-bottom: 5px; display: block;">Completed Trimesters</label>
+                    <input type="number" id="goalCompletedTrimesters" placeholder="e.g. 5">
+                </div>
+                <div style="flex:1; min-width: 150px;">
+                    <label style="font-size: 0.9em; font-weight: bold; color: var(--text-muted); margin-bottom: 5px; display: block;">Total Degree Credits</label>
+                    <input type="number" id="goalTotalCredits" value="138" placeholder="UIU CSE standard: 138">
+                </div>
+                <div style="flex:1; min-width: 150px;">
+                    <label style="font-size: 0.9em; font-weight: bold; color: var(--text-muted); margin-bottom: 5px; display: block;">Total Trimesters</label>
+                    <input type="number" id="goalTotalTrimesters" value="12" placeholder="Standard: 12">
+                </div>
+            </div>
+            
+            <button class="btn-action btn-add" style="width: 100%; font-size: 1.2em; padding: 16px; background: var(--gradient-secondary); box-shadow: 0 8px 20px rgba(0, 86, 150, 0.3);" onclick="calculateGoalCGPA()">🚀 Calculate Required Average</button>
+            
+            <div id="goalResultBox" class="result-box" style="display: none; margin-top: 30px; background: var(--bg-body); border-color: var(--secondary-color);">
+                <div style="font-size: 1.4em; margin-bottom: 20px; color: var(--text-main);" id="goalResultText"></div>
+                <div style="font-style: italic; font-weight: bold; color: var(--primary-color); padding: 20px; border-left: 5px solid var(--primary-color); background: var(--course-added-bg); border-radius: 8px; font-size: 1.2em; box-shadow: 0 4px 10px rgba(0,0,0,0.05);" id="goalQuote"></div>
+            </div>
+        </div>
+    </div>
+    <div id="tuition-section" class="tool-section">
+    <h1 class="gradient-text">Tuition Fee Calculator</h1>
+    <p class="subtitle">Smart Fee Estimator with Planner Integration</p>
+
+    <div class="planner-select-wrapper" style="margin-bottom: 25px;">
+        <label style="font-weight:bold; color:var(--primary-color); font-size: 1.1em;">🚀 1. Current Trimester Calc (Auto-fill from Planner):</label>
+        <select id="t-planner-select" onchange="loadTuitionFromPlanner()" style="margin-top: 12px; border: 2px solid var(--primary-color);">
+            <option value="">-- Select Your Current Trimester --</option>
+        </select>
+        <div style="margin-top: 15px; display: flex; gap: 20px; font-weight: bold; color: var(--text-main); font-size: 1.1em; background: var(--bg-container); padding: 10px 15px; border-radius: 8px;">
+            <div>Credits Left: <span id="t-credits-left" style="color: var(--secondary-color);">138</span></div>
+            <div>Trimesters Left: <span id="t-tris-left" style="color: var(--secondary-color);">12</span></div>
         </div>
     </div>
 
+    <div class="section-box">
+        <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 20px;">
+            <div style="flex:1; min-width: 140px;">
+                <label style="font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 5px;">Current Credits</label>
+                <input type="number" id="t-current-credits" placeholder="e.g., 13" step="0.5">
+            </div>
+        </div>
+        
+        <div style="margin-bottom: 15px; padding: 15px; border-radius: 8px; background: var(--course-added-bg); border: 1px solid var(--border-color); transition: all 0.3s;">
+            <label style="font-weight: bold; color: var(--primary-color); display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 1.1em;">
+                <input type="checkbox" id="t-has-waiver" onchange="toggleWaiverInputs()" style="width: 20px; height: 20px; accent-color: var(--primary-color);">
+                Apply General Waiver?
+            </label>
+            <div id="t-waiver-inputs" style="display: none; margin-top: 15px; animation: slideUpFade 0.3s ease-out;">
+                <label style="font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 5px;">Waiver Percentage</label>
+                <select id="t-waiver-select" style="max-width: 200px;">
+                    <option value="25">25%</option>
+                    <option value="50">50%</option>
+                </select>
+            </div>
+        </div>
+        
+        <div style="margin-bottom: 20px; padding: 15px; border-radius: 8px; background: var(--course-added-bg); border: 1px solid var(--border-color); transition: all 0.3s;">
+            <label style="font-weight: bold; color: var(--primary-color); display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 1.1em;">
+                <input type="checkbox" id="t-has-scholarship" onchange="toggleScholarshipInputs()" style="width: 20px; height: 20px; accent-color: var(--primary-color);">
+                Apply Result-Based Scholarship?
+            </label>
+            
+            <div id="t-scholarship-inputs" style="display: none; margin-top: 15px; flex-wrap: wrap; gap: 15px; animation: slideUpFade 0.3s ease-out;">
+                <div style="flex:1; min-width: 140px;">
+                    <label style="font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 5px;">Previous Trimester Credits</label>
+                    <input type="number" id="t-prev-credits" placeholder="e.g., 12" step="0.5">
+                </div>
+                <div style="flex:1; min-width: 140px;">
+                    <label style="font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 5px;">Scholarship Percentage</label>
+                    <select id="t-scholarship-select">
+                        <option value="25">25%</option>
+                        <option value="50">50%</option>
+                        <option value="100">100%</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 25px; background: var(--bg-body); padding: 15px; border-radius: 8px; border: 1px dashed var(--border-color);">
+            <div style="flex:1; min-width: 140px;">
+                <label style="font-size: 0.85em; color: var(--text-muted); display: block; margin-bottom: 5px;">Cost Per Credit (BDT)</label>
+                <input type="number" id="t-cost-per-credit" value="6500">
+            </div>
+            <div style="flex:1; min-width: 140px;">
+                <label style="font-size: 0.85em; color: var(--text-muted); display: block; margin-bottom: 5px;">Trimester Fee (BDT)</label>
+                <input type="number" id="t-trimester-fee" value="6500">
+            </div>
+        </div>
+        
+        <button class="btn-action btn-calc" style="width: 100%; box-shadow: 0 10px 20px rgba(0, 129, 209, 0.2); background: var(--gradient-secondary);" onclick="calculateTuition()">💸 Calculate Current Trimester</button>
+
+        <div id="tuitionResultBox" class="result-box" style="margin-top: 25px; border-color: #28a745; background: linear-gradient(135deg, var(--course-added-bg) 0%, var(--bg-body) 100%);">
+            <div style="font-size: 1.1em; color: var(--text-muted); margin-bottom: 5px;">Total Payable Amount:</div>
+            <div class="gpa-value" id="t-total-fee" style="color: #28a745; font-size: 2.2rem;">0 BDT</div>
+            
+            <hr style="border: none; border-top: 1px dashed var(--border-color); margin: 20px 0;">
+            
+            <div style="display: flex; justify-content: space-between; font-size: 0.95em; color: var(--text-muted); flex-wrap: wrap; gap: 15px; text-align: left;">
+                <div style="flex:1; min-width: 100px;">Base Tuition:<br><strong id="t-base-tuition" style="color: var(--text-main); font-size: 1.1em;">0</strong></div>
+                <div style="flex:1; min-width: 100px; display: none;" id="t-scholarship-box">Scholarship:<br><strong id="t-scholarship-discount" style="color: #d32f2f; font-size: 1.1em;">-0</strong><br><small id="t-scholarship-note" style="font-size: 0.8em; color: var(--primary-color); font-weight:bold;"></small></div>
+                <div style="flex:1; min-width: 100px; display: none;" id="t-waiver-box">General Waiver:<br><strong id="t-waiver-discount" style="color: #d32f2f; font-size: 1.1em;">-0</strong><br><small id="t-waiver-note" style="font-size: 0.8em; color: var(--primary-color); font-weight:bold;"></small></div>
+                <div style="flex:1; min-width: 100px;">Trimester Fee:<br><strong id="t-trim-fee" style="color: var(--primary-color); font-size: 1.1em;">0</strong></div>
+            </div>
+        </div>
+    </div>
+
+   <div class="section-box" style="margin-top: 40px; background: var(--bg-container);">
+        <h2 style="color: var(--secondary-color); margin-top: 0; border-bottom: 3px solid var(--border-color); padding-bottom: 10px; font-size: 1.5em;">📅 2. Multiple Trimester Planner</h2>
+        <p style="color: var(--text-muted); margin-bottom: 20px;">Plan your upcoming trimesters. Each row automatically adds the <strong style="color:var(--primary-color);">6500 BDT</strong> trimester fee.</p>
+        
+        <div style="margin-bottom: 20px; padding: 15px; border-radius: 8px; background: var(--course-added-bg); border: 1px solid var(--border-color);">
+            <h3 style="margin-top: 0; margin-bottom: 10px; font-size: 1.05em; color: var(--primary-color);">Global Estimated Discounts</h3>
+            <p style="font-size: 0.85em; color: var(--text-muted); margin-top: 0; margin-bottom: 15px;">Check a box to simulate keeping a waiver or scholarship across all planned trimesters.</p>
+            <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                <div style="flex: 1; min-width: 200px;">
+                    <label style="font-weight: bold; color: var(--text-main); display: flex; align-items: center; gap: 8px; margin-bottom: 8px; cursor: pointer;">
+                        <input type="checkbox" id="m-has-waiver" style="width: 18px; height: 18px; accent-color: var(--primary-color);" onchange="document.getElementById('m-waiver-select').disabled = !this.checked">
+                        Apply Waiver
+                    </label>
+                    <select id="m-waiver-select" disabled>
+                        <option value="25">25%</option>
+                        <option value="50">50%</option>
+                        <option value="100">100%</option>
+                    </select>
+                </div>
+                <div style="flex: 1; min-width: 200px;">
+                    <label style="font-weight: bold; color: var(--text-main); display: flex; align-items: center; gap: 8px; margin-bottom: 8px; cursor: pointer;">
+                        <input type="checkbox" id="m-has-scholarship" style="width: 18px; height: 18px; accent-color: var(--primary-color);" onchange="document.getElementById('m-scholarship-select').disabled = !this.checked">
+                        Apply Scholarship
+                    </label>
+                    <select id="m-scholarship-select" disabled>
+                        <option value="25">25%</option>
+                        <option value="50">50%</option>
+                        <option value="100">100%</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div id="multi-sem-container">
+            </div>
+        
+        <button class="btn-action btn-add" style="margin-bottom: 20px;" onclick="addMultiSemRow()">+ Add Trimester</button>
+        
+        <button class="btn-action btn-calc" style="width: 100%; background: var(--gradient-primary);" onclick="calculateMultiSem()">📊 Calculate Multi-Trimester Total</button>
+        
+        <div id="multiSemResultBox" class="result-box" style="margin-top: 25px; border-color: var(--primary-color); display: none;">
+            <div style="font-size: 1.1em; color: var(--text-muted); margin-bottom: 5px;">Estimated Total Cost:</div>
+            <div class="gpa-value" id="t-multi-total" style="color: var(--primary-color); font-size: 2.2rem;">0 BDT</div>
+            <p style="margin-top: 10px; color: var(--text-muted);">Total Credits: <strong id="t-multi-credits-total">0</strong> | Total Semesters: <strong id="t-multi-sem-total">0</strong></p>
+            <p id="t-multi-saved" style="margin-top: 5px; color: #28a745; font-weight: bold; display: none;"></p>
+        </div>
+    </div>
+    
     <div id="calendar-section" class="tool-section">
-        <h1>Spring 2026 Academic Calendar</h1>
+        <h1 class="gradient-text">Spring 2026 Academic Calendar</h1>
         <p class="subtitle">Interactive Event Planner</p>
+
+        <div id="today-event-banner" style="display: none; text-align: center; padding: 20px; margin-bottom: 25px; border-radius: 12px; font-weight: bold; font-size: 1.2em; box-shadow: 0 4px 15px rgba(0,0,0,0.05);"></div>
 
         <div class="search-box">
             <input type="text" id="calendarSearch" placeholder="Search events or dates (e.g., 'Mid-Term', 'Eid', 'Mar 15')..." oninput="searchCalendarEvents()">
@@ -570,17 +1040,18 @@
     </div>
 
     <div id="planner-section" class="tool-section">
-        <h1>Course Planner</h1>
+        <h1 class="gradient-text">Course Planner</h1>
         <p class="subtitle">Recommended Roadmap for UIU CSE</p>
-        <div class="disclaimer-box">
-            💡 Tip: Go to the "CGPA Calc" tab and select your trimester to auto-load these courses!
+        
+        <div class="disclaimer-box" style="background: linear-gradient(135deg, var(--course-added-bg), var(--bg-container)); border-color: var(--primary-color); color: var(--text-main);">
+            <strong style="color: var(--primary-color); font-size: 1.2em;">💡 Pro Tip:</strong> Go to the <strong style="cursor: pointer; text-decoration: underline;" onclick="switchTab('cgpa')">CGPA Calc</strong> tab and select your trimester from the dropdown to automatically load these exact courses into your calculation!
         </div>
         
-        <h2 style="color: var(--secondary-color); margin-top: 30px; border-bottom: 2px solid var(--border-color); padding-bottom: 10px;">Core Trimesters</h2>
+        <h2 style="color: var(--secondary-color); margin-top: 40px; border-bottom: 3px solid var(--border-color); padding-bottom: 10px; font-size: 1.8em;">📘 Core Trimesters</h2>
         <div id="plannerGrid" class="planner-grid">
             </div>
 
-        <h2 style="color: var(--secondary-color); margin-top: 40px; border-bottom: 2px solid var(--border-color); padding-bottom: 10px;">Elective Tracks (Majors)</h2>
+        <h2 style="color: var(--secondary-color); margin-top: 50px; border-bottom: 3px solid var(--border-color); padding-bottom: 10px; font-size: 1.8em;">🔬 Elective Tracks (Majors)</h2>
         <div id="electiveGrid" class="planner-grid">
             </div>
     </div>
@@ -589,12 +1060,12 @@
 
 <script>
     // --- DATA: UIU CSE STANDARD CURRICULUM ---
-    const uiuCurriculum = {
+  const uiuCurriculum = {
         "1st Trimester": [
             { code: "ENG 1011", title: "Intensive English I", cr: 3.0 },
             { code: "CSE 1112", title: "Introduction to Computer Systems", cr: 1.0 },
             { code: "BDS 1201", title: "History of the Emergence of Bangladesh", cr: 2.0 },
-            { code: "MATH 1151", title: "Fundamental Calculus", cr: 3.0 }
+            { code: "MATH 1151", title: "Fundamental calculas", cr: 3.0 }
         ],
         "2nd Trimester": [
             { code: "ENG 1013", title: "Intensive English II", cr: 3.0 },
@@ -603,7 +1074,7 @@
             { code: "CSE 2213", title: "Discrete Mathematics", cr: 3.0 },
         ],
         "3rd Trimester": [
-            { code: "MATH 2183", title: "Calculus and Linear Algebra", cr: 3.0 },
+            { code: "MATH 2183", title: "Calculas & Linear algebra", cr: 3.0 },
             { code: "CSE 2215", title: "Data Structures & Algo I", cr: 3.0 },
             { code: "CSE 2216", title: "DSA I Lab", cr: 1.0 },
             { code: "PHY 2105", title: "Physics", cr: 3.0 },
@@ -673,7 +1144,6 @@
             { code: "Elective V", title: "Major Elective", cr: 3.0 },
         ]
     };
-
     // --- DATA: ELECTIVE TRACKS ---
     const electiveTracks = {
         "Computational Theory": [
@@ -744,14 +1214,14 @@
         { day: 1, time: 2, codes: ["ENG 1013", "ENG 103"], name: "Intensive English II", keywords: ["eng 2", "english"] },
         { day: 1, time: 2, codes: ["DS 3885"], name: "DS Elective", keywords: [] },
         { day: 1, time: 2, codes: ["CSE 4945"], name: "UI: Concepts and Design", keywords: ["ui", "design", "user interface"] },
-        { day: 1, time: 3, codes: ["MATH 2183", "MATH 183"], name: "Calculus & Linear Algebra", keywords: ["linear", "math", "calculus"] },
+        { day: 1, time: 3, codes: ["MATH 2183", "MATH 183"], name: "Calculas & Linear algebra", keywords: ["linear", "math", "calculas"] },
         { day: 1, time: 3, codes: ["CSE 3313", "CSE 313"], name: "Computer Architecture", keywords: ["ca", "archi"] },
         { day: 1, time: 3, codes: ["SOC 2101", "SOC 101"], name: "Society, Env. & Engineering Ethics", keywords: ["soc", "ethics"] },
         { day: 1, time: 3, codes: ["CSE 4889", "CSE 489"], name: "Machine Learning", keywords: ["ml", "machine"] },
         { day: 2, time: 1, codes: ["CSE 4621", "CSI 421"], name: "Computer Graphics", keywords: ["cg", "graphics"] },
         { day: 2, time: 1, codes: ["CSE 3521", "CSI 221"], name: "Database Management Systems", keywords: ["dbms", "database"] },
         { day: 2, time: 2, codes: ["CSE 4325", "CSE 425"], name: "Microprocessors & Microcontrollers", keywords: ["micro", "mpi"] },
-        { day: 2, time: 2, codes: ["MATH 1151", "MATH 151"], name: "Fundamental Calculus", keywords: ["calc 1", "calculus"] },
+        { day: 2, time: 2, codes: ["MATH 1151", "MATH 151"], name: "Fundamental calculas", keywords: ["calc 1", "calculas"] },
         { day: 2, time: 3, codes: ["ACT 2111", "ACT 111"], name: "Financial & Managerial Accounting", keywords: ["act", "accounting"] },
         { day: 2, time: 3, codes: ["MATH 2205", "STAT 205"], name: "Probability & Statistics", keywords: ["stat", "prob"] },
         { day: 3, time: 1, codes: ["CSE 3811", "CSI 341"], name: "Artificial Intelligence", keywords: ["ai", "artificial"] },
@@ -827,8 +1297,8 @@
         { start: "2026-03-09", end: "2026-03-09", title: "Drop course (50% refund)", type: "regular" },
         { start: "2026-03-10", end: "2026-03-10", title: "Grade Submission for incomplete Grades", type: "regular" },
         { start: "2026-03-15", end: "2026-03-15", title: "Registration (500Tk Fine)", type: "regular" },
-        { start: "2026-03-17", end: "2026-03-27", title: "Holiday: Shab-e-Qadr/Eid", type: "holiday" },
         { start: "2026-03-26", end: "2026-03-26", title: "Independence Day", type: "holiday" },
+        { start: "2026-04-12", end: "2026-04-12", title: "Last Date of 1st Installment", type: "regular" },
         { start: "2026-04-13", end: "2026-04-13", title: "Make-up class (Tue Classes)", type: "regular" },
         { start: "2026-04-14", end: "2026-04-14", title: "Holiday: Bangla New Year", type: "holiday" },
         { start: "2026-04-18", end: "2026-04-24", title: "Mid-Term Exams", type: "exam" },
@@ -850,6 +1320,7 @@
     // --- SECTION PLANNER DATA ---
     let mySectionClasses = [];
     const sectionDaysOfWeek = ["Saturday", "Sunday", "Tuesday", "Wednesday"];
+    const allTimelineDays = ["Saturday", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
     
     const theoryTimeSlots = [
         "Slot 1 (08:30 AM - 09:50 AM)",
@@ -866,7 +1337,22 @@
         "Slot 3 (02:00 PM - 04:30 PM)"
     ];
 
-    // --- CSV EXPORT LOGIC ---
+    // --- CSV PARSING & EXPORT LOGIC ---
+    function parseCSVRow(str) {
+        const regex = /("([^"]|"")*"|[^,]*)(?:,|$)/g;
+        let matches = [];
+        let match;
+        while (match = regex.exec(str)) {
+            if (match[0] === '' && match.index === regex.lastIndex) break;
+            let val = match[1];
+            if (val.startsWith('"') && val.endsWith('"')) {
+                val = val.slice(1, -1).replace(/""/g, '"');
+            }
+            matches.push(val);
+        }
+        return matches;
+    }
+
     function downloadCSV(csvContent, fileName) {
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement("a");
@@ -902,6 +1388,33 @@
         downloadCSV(csv, "Exam_Routine.csv");
     }
 
+    function importExamCSV(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const lines = e.target.result.split('\n');
+            let addedCount = 0;
+            for (let i = 1; i < lines.length; i++) {
+                if (!lines[i].trim()) continue;
+                const row = parseCSVRow(lines[i]);
+                if (row.length < 4) continue;
+                const codeStr = row[1];
+                const firstCode = codeStr.split(' / ')[0];
+                const courseData = rawRoutine.find(c => c.codes[0] === firstCode);
+                
+                if (courseData && !myCourses.some(c => c.codes[0] === courseData.codes[0])) {
+                    myCourses.push(courseData);
+                    addedCount++;
+                }
+            }
+            renderSchedule();
+            alert(`Successfully imported ${addedCount} courses into Exam Routine.`);
+        };
+        reader.readAsText(file);
+        event.target.value = ''; 
+    }
+
     function exportSectionCSV() {
         if (mySectionClasses.length === 0) {
             alert("No classes to export in your Section Planner!");
@@ -916,40 +1429,109 @@
         downloadCSV(csv, "Section_Planner.csv");
     }
 
+    function importSectionCSV(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const lines = e.target.result.split('\n');
+            let importedClasses = [];
+            for (let i = 1; i < lines.length; i++) {
+                if (!lines[i].trim()) continue;
+                const row = parseCSVRow(lines[i]);
+                if(row.length < 5) continue;
+                
+                const type = row[2];
+                const slotStr = row[4];
+                const slotIndex = type === 'Theory' ? theoryTimeSlots.indexOf(slotStr) : labTimeSlots.indexOf(slotStr);
+                
+                const newClass = {
+                    id: Date.now().toString() + i, 
+                    course: row[0],
+                    section: row[1],
+                    type: type,
+                    day: row[3],
+                    slotIndex: slotIndex > -1 ? slotIndex : 0
+                };
+                importedClasses.push(newClass);
+            }
+            mySectionClasses = importedClasses;
+            renderSectionRoutine();
+            alert(`Successfully imported ${importedClasses.length} sessions into Section Planner.`);
+        };
+        reader.readAsText(file);
+        event.target.value = ''; 
+    }
+
     // --- TAB SWITCHER ---
     function switchTab(tab) {
     document.querySelectorAll('.tool-section').forEach(el => el.classList.remove('active'));
     document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
     document.getElementById(tab + '-section').classList.add('active');
     document.getElementById('btn-' + tab).classList.add('active');
-    if (tab === 'calendar') { try { renderFullCalendar(); } catch(e) { console.error(e); } }
-    if (tab === 'planner') { 
-        // Force re-render planner if empty
+    if (tab === 'calendar') renderFullCalendar();
+    if (tab === 'planner') {
         const grid = document.getElementById('plannerGrid');
-        if (grid && grid.children.length === 0) { try { initPlanner(); } catch(e) { console.error(e); } }
+        if (grid && grid.children.length === 0) initPlanner();
     }
 }
 
     // --- THEME TOGGLE ---
-    function toggleTheme() {
-        document.body.classList.toggle('dark-mode');
+    // --- THEME TOGGLE (System -> Light -> Dark) ---
+    let currentTheme = localStorage.getItem('theme') || 'system';
+
+    function applyTheme(theme) {
         const btn = document.getElementById('btn-theme');
-        if (document.body.classList.contains('dark-mode')) {
-            btn.innerHTML = '☀️';
-            localStorage.setItem('theme', 'dark');
-        } else {
+        let isDark = false;
+
+        if (theme === 'system') {
+            // Check OS preference
+            isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            btn.innerHTML = '💻';
+        } else if (theme === 'dark') {
+            isDark = true;
             btn.innerHTML = '🌙';
-            localStorage.setItem('theme', 'light');
+        } else {
+            isDark = false;
+            btn.innerHTML = '☀️';
+        }
+
+        // Apply or remove the dark-mode CSS class
+        if (isDark) {
+            document.body.classList.add('dark-mode');
+        } else {
+            document.body.classList.remove('dark-mode');
+        }
+        
+        localStorage.setItem('theme', theme);
+        currentTheme = theme;
+    }
+
+    function toggleTheme() {
+        // Cycle through: System -> Light -> Dark -> System...
+        if (currentTheme === 'system') {
+            applyTheme('light');
+        } else if (currentTheme === 'light') {
+            applyTheme('dark');
+        } else {
+            applyTheme('system');
         }
     }
-    if (localStorage.getItem('theme') === 'dark') toggleTheme();
+
+    // Listen for OS theme changes in real-time (if user changes device settings)
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+        if (currentTheme === 'system') applyTheme('system');
+    });
+
+    // Apply the saved (or default) theme on initial load
+    applyTheme(currentTheme);
 
     // --- EXAM LOGIC ---
     function initGrid() {
         const tbody = document.getElementById('routineBody');
         tbody.innerHTML = '';
         for (let i = 1; i <= 7; i++) {
-            tbody.innerHTML += `<tr><td class="day-header">Day ${i}</td><td id="d${i}-t1"></td><td id="d${i}-t2"></td><td id="d${i}-t3"></td></tr>`;
+            tbody.innerHTML += `<tr><td class="day-header" style="font-weight:bold; color:var(--text-main);">Day ${i}</td><td id="d${i}-t1"></td><td id="d${i}-t2"></td><td id="d${i}-t3"></td></tr>`;
         }
     }
 
@@ -1025,6 +1607,32 @@
 
 
     // --- SECTION PLANNER LOGIC ---
+    function initSectionGrid() {
+        const tbody = document.getElementById('unifiedRoutineBody');
+        tbody.innerHTML = '';
+        allTimelineDays.forEach(day => {
+            // Render the Day column and a single large span column for the timeline events to float in
+            let rowHTML = `<tr>
+                <td class="day-col">${day}</td>
+                <td colspan="9" class="timeline-row-cell" id="sec-row-${day}"></td>
+            </tr>`;
+            tbody.innerHTML += rowHTML;
+        });
+
+        // Setup dropdowns on initial load
+        updateSectionDropdowns();
+    }
+
+    function parseTimeToMinutes(timeStr) {
+        let [time, modifier] = timeStr.trim().split(' ');
+        let [hours, minutes] = time.split(':');
+        hours = parseInt(hours, 10);
+        minutes = parseInt(minutes, 10);
+        if (hours === 12 && modifier === 'AM') hours = 0;
+        if (hours < 12 && modifier === 'PM') hours += 12;
+        return (hours * 60) + minutes;
+    }
+
     function updateSectionDropdowns() {
         const type = document.getElementById('sectionTypeSelect').value;
         
@@ -1055,35 +1663,95 @@
         });
     }
 
-    function initSectionGrid() {
-        // Init Theory Grid
-        const tbodyTheory = document.getElementById('theoryRoutineBody');
-        tbodyTheory.innerHTML = '';
-        theoryTimeSlots.forEach((slot, index) => {
-            let rowHTML = `<tr><td class="day-header" style="font-size:0.85em;"><strong>${slot}</strong></td>`;
-            sectionDaysOfWeek.forEach(day => {
-                rowHTML += `<td id="sec-theory-${day}-${index}"></td>`;
-            });
-            rowHTML += `</tr>`;
-            tbodyTheory.innerHTML += rowHTML;
+    function renderSectionRoutine() {
+        // Clear the timeline grid
+        allTimelineDays.forEach(day => {
+            const row = document.getElementById(`sec-row-${day}`);
+            if (row) row.innerHTML = '';
         });
+        
+        let hasClash = false;
+        
+        // Track scheduled intervals per day to detect overlapping time ranges
+        const daySchedules = {
+            "Saturday": [], "Sunday": [], "Monday": [], 
+            "Tuesday": [], "Wednesday": [], "Thursday": [], "Friday": []
+        };
 
-        // Init Lab Grid
-        const tbodyLab = document.getElementById('labRoutineBody');
-        tbodyLab.innerHTML = '';
-        labTimeSlots.forEach((slot, index) => {
-            let rowHTML = `<tr><td class="day-header" style="font-size:0.85em;"><strong>${slot}</strong></td>`;
-            sectionDaysOfWeek.forEach(day => {
-                rowHTML += `<td id="sec-lab-${day}-${index}"></td>`;
+        mySectionClasses.forEach(c => {
+            // Determine days to render
+            let daysToRender = [];
+            if (c.day === "Saturday & Tuesday") daysToRender = ["Saturday", "Tuesday"];
+            else if (c.day === "Sunday & Wednesday") daysToRender = ["Sunday", "Wednesday"];
+            else daysToRender = [c.day];
+
+            // Extract exact start and end times from slot strings
+            let timeLabel = c.type === 'Theory' ? theoryTimeSlots[c.slotIndex] : labTimeSlots[c.slotIndex];
+            let timeMatch = timeLabel.match(/\((.*?)\s*-\s*(.*?)\)/);
+            if (!timeMatch) return;
+            
+            let startStr = timeMatch[1].trim();
+            let endStr = timeMatch[2].trim();
+
+            let startMin = parseTimeToMinutes(startStr);
+            let endMin = parseTimeToMinutes(endStr);
+
+            // Our visual timeline spans from 8:00 AM (480 mins) to 5:00 PM (1020 mins) -> Total 540 mins
+            let timelineStart = 480; 
+            let timelineTotal = 540;
+
+            // Calculate exact position and width as a percentage
+            let leftPercent = ((startMin - timelineStart) / timelineTotal) * 100;
+            let widthPercent = ((endMin - startMin) / timelineTotal) * 100;
+
+            daysToRender.forEach(d => {
+                // --- NEW CLASH DETECTION LOGIC ---
+                // Check if the current class overlaps with any existing class on this day
+                // Condition for overlap: StartA < EndB AND EndA > StartB
+                let overlappingClasses = daySchedules[d].filter(existing => 
+                    startMin < existing.end && endMin > existing.start
+                );
+                
+                if (overlappingClasses.length > 0) {
+                    hasClash = true;
+                }
+
+                const cell = document.getElementById(`sec-row-${d}`);
+                if(!cell) return;
+
+                const block = document.createElement('div');
+                block.className = 'timeline-event';
+                
+                // Colors matching UCAM style: #17a2b8 (Teal/Blue) for Theory, #28a745 (Green) for Lab
+                block.style.background = c.type === 'Theory' ? 'linear-gradient(135deg, #17a2b8, #1fc8e3)' : 'linear-gradient(135deg, #28a745, #34ce57)';
+                
+                // Apply exact positions
+                block.style.left = `${leftPercent}%`;
+                block.style.width = `${widthPercent}%`;
+                
+                // Visual overlap warning (stacks them slightly offset if they clash so you can read both)
+                const clashIndex = overlappingClasses.length;
+                if(clashIndex > 0) {
+                    block.style.top = `${5 + (clashIndex * 25)}px`; // Drop it down a bit more
+                    block.style.zIndex = 5 + clashIndex;
+                    block.style.border = "2px solid #ff4d4d";
+                }
+
+                // Add to schedule history for this day to catch future loops
+                daySchedules[d].push({ start: startMin, end: endMin, id: c.id });
+
+                block.innerHTML = `
+                    <span class="remove-btn-timeline" onclick="removeSectionClass('${c.id}')">&times;</span>
+                    <strong>${c.course.split(' (')[0]}</strong><br>
+                    <small>${startStr} - ${endStr} | Sec: ${c.section}</small>
+                `;
+                block.title = `${c.course}\nType: ${c.type}\nTime: ${startStr} - ${endStr}`;
+                cell.appendChild(block);
             });
-            rowHTML += `</tr>`;
-            tbodyLab.innerHTML += rowHTML;
         });
-
-        // Setup dropdowns on initial load
-        updateSectionDropdowns();
+        
+        document.getElementById('section-clash-alert').style.display = hasClash ? 'block' : 'none';
     }
-
     function filterSectionCourses() {
         const input = document.getElementById('sectionCourseSearch').value.toLowerCase();
         const suggestionBox = document.getElementById('sectionSuggestions');
@@ -1138,60 +1806,6 @@
         renderSectionRoutine();
     }
 
-    function renderSectionRoutine() {
-        // Clear all grids
-        sectionDaysOfWeek.forEach(day => {
-            theoryTimeSlots.forEach((slot, idx) => {
-                document.getElementById(`sec-theory-${day}-${idx}`).innerHTML = '';
-            });
-            labTimeSlots.forEach((slot, idx) => {
-                document.getElementById(`sec-lab-${day}-${idx}`).innerHTML = '';
-            });
-        });
-        
-        let hasClash = false;
-        const slotMap = {};
-
-        mySectionClasses.forEach(c => {
-            // Determine which days to render based on selection
-            let daysToRender = [];
-            if (c.day === "Saturday & Tuesday") {
-                daysToRender = ["Saturday", "Tuesday"];
-            } else if (c.day === "Sunday & Wednesday") {
-                daysToRender = ["Sunday", "Wednesday"];
-            } else {
-                // Lab single days
-                daysToRender = [c.day];
-            }
-
-            daysToRender.forEach(d => {
-                const key = `sec-${c.type.toLowerCase()}-${d}-${c.slotIndex}`;
-                if (!slotMap[key]) slotMap[key] = [];
-                slotMap[key].push(c);
-            });
-        });
-
-        for (const [key, classesInSlot] of Object.entries(slotMap)) {
-            const cell = document.getElementById(key);
-            const isClash = classesInSlot.length > 1;
-            if (isClash) hasClash = true;
-
-            classesInSlot.forEach(c => {
-                const div = document.createElement('div');
-                let className = 'added-course';
-                if (isClash) className += ' clash';
-                div.className = className;
-                div.innerHTML = `<span class="remove-btn" onclick="removeSectionClass('${c.id}')">&times;</span>
-                                 <strong>${c.course.split(' (')[0]}</strong><br>
-                                 <small>${c.course.match(/\(([^)]+)\)/)[1]} | Sec: ${c.section}</small>`;
-                div.title = c.course;
-                cell.appendChild(div);
-            });
-        }
-        
-        document.getElementById('section-clash-alert').style.display = hasClash ? 'block' : 'none';
-    }
-
     function removeSectionClass(id) {
         mySectionClasses = mySectionClasses.filter(c => c.id !== id);
         renderSectionRoutine();
@@ -1206,7 +1820,7 @@
         let opts = ""; for (let g in gradePoints) opts += `<option value="${gradePoints[g]}">${g}</option>`;
         
         row.innerHTML = `
-            <td>${tbody.rows.length + 1}</td>
+            <td style="font-weight: bold; color: var(--text-muted);">${tbody.rows.length + 1}</td>
             <td style="position: relative;">
                 <input type="text" class="c-name" value="${name}" placeholder="Type to search..." oninput="searchCGPACourse(this)" autocomplete="off">
                 <div class="suggestions" style="width: 100%;"></div>
@@ -1217,7 +1831,7 @@
                 <div class="retake-controls"><input type="checkbox" class="retake-checkbox" onchange="toggleRetake(this)"><span>Retake?</span></div>
                 <div class="prev-grade-wrapper"><span class="prev-grade-label">Old Grade:</span><select class="c-grade-old">${opts}</select></div>
             </td>
-            <td><button class="btn-delete" onclick="this.closest('tr').remove(); updateRows()">✕</button></td>`;
+            <td style="text-align: center;"><button class="btn-delete" onclick="this.closest('tr').remove(); updateRows()">✕</button></td>`;
         tbody.appendChild(row);
     }
 
@@ -1342,15 +1956,53 @@
         });
     }
 
-    function loadFromPlanner() {
-        const triName = document.getElementById('cgpaPlannerSelect').value;
+  function loadFromPlanner() {
+        const select = document.getElementById('cgpaPlannerSelect');
+        const triName = select.value;
         if (!triName) return;
+
+        // 1. WARNING FOR MISSING PREVIOUS CGPA
+        // If it's not the 1st Trimester and the previous CGPA is missing, show a warning.
+        const prevCGPAInput = document.getElementById('prevCGPA');
+        if (triName !== "1st Trimester" && !prevCGPAInput.value) {
+            const proceed = confirm("⚠️ You haven't entered your Previous CGPA.\n\nAre you sure you want to continue without it? (Your Total CGPA calculation might be inaccurate)");
+            if (!proceed) {
+                select.value = ""; // Reset dropdown if user cancels
+                return;
+            }
+        }
 
         const tbody = document.querySelector("#courseTable tbody");
         if (tbody.children.length > 0) {
-            if(!confirm("Loading this trimester will replace your current list. Continue?")) return;
+            if(!confirm("Loading this trimester will replace your current list. Continue?")) {
+                select.value = ""; // Reset dropdown if user cancels
+                return;
+            }
         }
 
+        // 2. AUTO-CALCULATE PREVIOUS CREDITS
+        let calculatedPrevCredits = 0;
+        
+        // Loop through the curriculum in order to sum previous credits
+        for (const [key, courses] of Object.entries(uiuCurriculum)) {
+            if (key === triName) {
+                break; // Stop when we reach the selected trimester
+            }
+            // Add up the credits for this past trimester
+            courses.forEach(c => {
+                calculatedPrevCredits += c.cr;
+            });
+        }
+
+        // Populate the "Credits Earned" input field automatically
+        const prevCreditsInput = document.getElementById('prevCredits');
+        if (triName === "1st Trimester") {
+            prevCreditsInput.value = ""; // No previous credits for 1st trimester
+        } else {
+            prevCreditsInput.value = calculatedPrevCredits;
+        }
+
+        // 3. LOAD THE COURSES
         tbody.innerHTML = '';
 
         const courses = uiuCurriculum[triName];
@@ -1362,42 +2014,57 @@
     }
 
     // --- FULL CALENDAR LOGIC ---
-    let currentCalYear = 2026;
-    let currentCalMonth = 1; 
+    const actualToday = new Date();
+    let currentCalYear = actualToday.getFullYear();
+    let currentCalMonth = actualToday.getMonth(); 
 
-   function renderFullCalendar() {
-    const daysContainer = document.getElementById('calendar-days');
-    const monthYearDisplay = document.getElementById('month-year-display');
-    daysContainer.innerHTML = '';
-    
-    const firstDay = new Date(currentCalYear, currentCalMonth, 1).getDay();
-    const daysInMonth = new Date(currentCalYear, currentCalMonth + 1, 0).getDate();
-    
-    const monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
-    monthYearDisplay.innerText = `${monthNames[currentCalMonth]} ${currentCalYear}`;
-    
-    for (let i = 0; i < firstDay; i++) {
-        daysContainer.innerHTML += `<div class="calendar-day empty"></div>`;
-    }
-    
-    for (let day = 1; day <= daysInMonth; day++) {
-        const m = String(currentCalMonth + 1).padStart(2, '0');
-        const d = String(day).padStart(2, '0');
-        const currentCellDate = `${currentCalYear}-${m}-${d}`;
+    function renderFullCalendar() {
+        const daysContainer = document.getElementById('calendar-days');
+        const monthYearDisplay = document.getElementById('month-year-display');
+        daysContainer.innerHTML = '';
         
-        let eventsHTML = '';
-        academicEvents.forEach(evt => {
-            if (currentCellDate >= evt.start && currentCellDate <= evt.end) {
-                let typeClass = '';
-                if (evt.type === 'holiday') typeClass = 'event-holiday';
-                if (evt.type === 'exam') typeClass = 'event-exam';
-                eventsHTML += `<div class="event-badge ${typeClass}">${evt.title}</div>`;
-            }
-        });
+        const firstDay = new Date(currentCalYear, currentCalMonth, 1).getDay();
+        const daysInMonth = new Date(currentCalYear, currentCalMonth + 1, 0).getDate();
         
-        daysContainer.innerHTML += `<div class="calendar-day"><span class="day-num">${day}</span>${eventsHTML}</div>`;
+        const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        monthYearDisplay.innerText = `${monthNames[currentCalMonth]} ${currentCalYear}`;
+        
+        for (let i = 0; i < firstDay; i++) {
+            daysContainer.innerHTML += `<div class="calendar-day empty"></div>`;
+        }
+        
+        for (let day = 1; day <= daysInMonth; day++) {
+            const m = String(currentCalMonth + 1).padStart(2, '0');
+            const d = String(day).padStart(2, '0');
+            const currentCellDate = `${currentCalYear}-${m}-${d}`;
+            
+            // Check if this specific cell is exactly TODAY
+            const isToday = (currentCalYear === actualToday.getFullYear() && 
+                             currentCalMonth === actualToday.getMonth() && 
+                             day === actualToday.getDate());
+                             
+            let todayClass = isToday ? ' today' : '';
+            let eventsHTML = '';
+            
+            academicEvents.forEach(evt => {
+                if (currentCellDate >= evt.start && currentCellDate <= evt.end) {
+                    let typeClass = '';
+                    if (evt.type === 'holiday') typeClass = 'event-holiday';
+                    if (evt.type === 'exam') typeClass = 'event-exam';
+                    
+                    eventsHTML += `<div class="event-badge ${typeClass}">${evt.title}</div>`;
+                }
+            });
+            
+            daysContainer.innerHTML += `
+                <div class="calendar-day${todayClass}">
+                    <span class="day-num">${day}</span>
+                    ${eventsHTML}
+                </div>
+            `;
+        }
     }
-}
+
     function changeMonth(direction) {
         currentCalMonth += direction;
         if (currentCalMonth < 0) { currentCalMonth = 11; currentCalYear--; }
@@ -1438,6 +2105,313 @@
         }
     }
 
+    // NEW: Function to check today's events for the banner
+    function checkTodayEvents() {
+        const y = actualToday.getFullYear();
+        const m = String(actualToday.getMonth() + 1).padStart(2, '0');
+        const d = String(actualToday.getDate()).padStart(2, '0');
+        const todayStr = `${y}-${m}-${d}`;
+        
+        const banner = document.getElementById('today-event-banner');
+        
+        // Find if today falls within any event's start and end dates
+        let todayEvents = academicEvents.filter(evt => todayStr >= evt.start && todayStr <= evt.end);
+        
+        if (todayEvents.length > 0) {
+            banner.style.display = 'block';
+            let evt = todayEvents[0]; // Display the primary event if there are multiple
+            
+            if (evt.type === 'holiday') {
+                banner.className = 'today-holiday';
+                banner.innerHTML = `Congrats 🎊 , Today is Holiday: '${evt.title}'`;
+            } else {
+                banner.className = 'today-regular';
+                banner.innerHTML = `Be Ready!! Today is '${evt.title}'`;
+            }
+        } else {
+            banner.style.display = 'none';
+        }
+    }
+
+// --- TARGET CGPA PLANNER LOGIC ---
+    function calculateGoalCGPA() {
+        const currentCGPA = parseFloat(document.getElementById('goalCurrentCGPA').value) || 0;
+        const earnedCredits = parseFloat(document.getElementById('goalEarnedCredits').value) || 0;
+        const targetCGPA = parseFloat(document.getElementById('goalTargetCGPA').value) || 0;
+        const totalDegreeCredits = parseFloat(document.getElementById('goalTotalCredits').value) || 138;
+        
+        if (targetCGPA <= 0 || totalDegreeCredits <= 0) {
+            alert("Please enter a valid Target CGPA and Total Degree Credits.");
+            return;
+        }
+
+        const creditsRemaining = totalDegreeCredits - earnedCredits;
+        if (creditsRemaining <= 0 && earnedCredits > 0) {
+            alert("You have already completed all required credits for your degree!");
+            return;
+        }
+
+        const requiredAvg = ((targetCGPA * totalDegreeCredits) - (currentCGPA * earnedCredits)) / creditsRemaining;
+        const resultBox = document.getElementById('goalResultBox');
+        const resultText = document.getElementById('goalResultText');
+        const quoteText = document.getElementById('goalQuote');
+
+        if (requiredAvg > 4.00) {
+            resultText.innerHTML = `Required Average: <strong style="color: #d32f2f;">${requiredAvg.toFixed(2)}</strong>`;
+            quoteText.innerText = "Mathematical Reality Check: It is mathematically impossible to reach this target CGPA by just taking new courses. You will need to retake previous courses to overwrite poor grades.";
+            quoteText.style.color = "#d32f2f";
+            quoteText.style.borderLeftColor = "#d32f2f";
+        } else if (requiredAvg <= 0) {
+            resultText.innerHTML = `Required Average: <strong style="color: #28a745;">0.00</strong>`;
+            quoteText.innerText = "You've mathematically secured your target! Just pass your remaining courses to graduate.";
+            quoteText.style.color = "#28a745";
+            quoteText.style.borderLeftColor = "#28a745";
+        } else {
+            resultText.innerHTML = `Required Average: <strong style="color: var(--primary-color);">${requiredAvg.toFixed(2)}</strong>`;
+            quoteText.innerText = `You need to maintain an average of ${requiredAvg.toFixed(2)} across your remaining ${creditsRemaining} credits to hit your goal. You've got this!`;
+            quoteText.style.color = "var(--primary-color)";
+            quoteText.style.borderLeftColor = "var(--primary-color)";
+        }
+        resultBox.style.display = 'block';
+    }
+
+    // --- TUITION CALCULATOR LOGIC ---
+    function initTuitionPlanner() {
+        const select = document.getElementById('t-planner-select');
+        if (!select) return;
+
+        select.innerHTML = '<option value="">-- Select Your Current Trimester --</option>';
+
+        Object.keys(uiuCurriculum).forEach(triName => {
+            const option = document.createElement('option');
+            option.value = triName;
+            option.innerText = triName;
+            select.appendChild(option);
+        });
+        
+        const multiContainer = document.getElementById('multi-sem-container');
+        if (multiContainer) {
+            multiContainer.innerHTML = '';
+            addMultiSemRow();
+        }
+    }
+
+    function toggleWaiverInputs() {
+        const isChecked = document.getElementById('t-has-waiver').checked;
+        document.getElementById('t-waiver-inputs').style.display = isChecked ? 'block' : 'none';
+    }
+
+    function toggleScholarshipInputs() {
+        const isChecked = document.getElementById('t-has-scholarship').checked;
+        document.getElementById('t-scholarship-inputs').style.display = isChecked ? 'flex' : 'none';
+    }
+
+    function loadTuitionFromPlanner() {
+        const select = document.getElementById('t-planner-select');
+        const triName = select.value;
+        
+        if (!triName) {
+            document.getElementById('t-credits-left').innerText = "138";
+            document.getElementById('t-tris-left').innerText = "12";
+            document.getElementById('t-current-credits').value = "";
+            return;
+        }
+
+        let currentCredits = 0, earnedCreditsBeforeThis = 0, trimesterIndex = 0, found = false;
+        const keys = Object.keys(uiuCurriculum);
+        
+        for (let i = 0; i < keys.length; i++) {
+            const key = keys[i];
+            let triCredits = 0;
+            uiuCurriculum[key].forEach(c => triCredits += c.cr);
+
+            if (key === triName) {
+                currentCredits = triCredits;
+                trimesterIndex = i + 1; 
+                found = true;
+            } else if (!found) {
+                earnedCreditsBeforeThis += triCredits;
+            }
+        }
+
+        document.getElementById('t-current-credits').value = currentCredits;
+        
+        if (trimesterIndex > 1) {
+            let prevCredits = 0;
+            uiuCurriculum[keys[trimesterIndex - 2]].forEach(c => prevCredits += c.cr);
+            document.getElementById('t-prev-credits').value = prevCredits;
+            document.getElementById('t-has-scholarship').checked = true;
+        } else {
+            document.getElementById('t-prev-credits').value = "";
+            document.getElementById('t-has-scholarship').checked = false;
+        }
+        
+        toggleScholarshipInputs();
+
+        const creditsLeft = 138 - (earnedCreditsBeforeThis + currentCredits);
+        const trisLeft = 12 - trimesterIndex;
+
+        document.getElementById('t-credits-left').innerText = creditsLeft > 0 ? creditsLeft : 0;
+        document.getElementById('t-tris-left').innerText = trisLeft > 0 ? trisLeft : 0;
+    }
+
+   function calculateTuition() {
+        const currentCredits = parseFloat(document.getElementById('t-current-credits').value) || 0;
+        const costPerCredit = parseFloat(document.getElementById('t-cost-per-credit').value) || 6500;
+        const trimesterFee = parseFloat(document.getElementById('t-trimester-fee').value) || 6500;
+
+        const hasWaiver = document.getElementById('t-has-waiver').checked;
+        const waiverPct = hasWaiver ? parseFloat(document.getElementById('t-waiver-select').value) : 0;
+
+        const hasScholarship = document.getElementById('t-has-scholarship').checked;
+        const scholarshipPct = hasScholarship ? parseFloat(document.getElementById('t-scholarship-select').value) : 0;
+        const prevCredits = parseFloat(document.getElementById('t-prev-credits').value) || 0;
+
+        const baseTuition = currentCredits * costPerCredit;
+        let finalDiscount = 0, displayScholarshipDiscount = 0, displayWaiverDiscount = 0;
+        let scholarshipNoteText = "", waiverNoteText = "";
+
+        // --- NEW LOGIC: Hybrid Stacking for Extra Credits ---
+        if (scholarshipPct > waiverPct) {
+            const eligibleCredits = Math.min(currentCredits, prevCredits);
+            const extraCredits = Math.max(0, currentCredits - prevCredits); // The "rest" of the credits
+            
+            displayScholarshipDiscount = eligibleCredits * costPerCredit * (scholarshipPct / 100);
+            scholarshipNoteText = `(${scholarshipPct}% applied on ${eligibleCredits} cr)`;
+            
+            // Apply waiver to the leftover credits if waiver is checked
+            if (hasWaiver && extraCredits > 0) {
+                displayWaiverDiscount = extraCredits * costPerCredit * (waiverPct / 100);
+                waiverNoteText = `(${waiverPct}% applied on ${extraCredits} leftover cr)`;
+            }
+            
+            finalDiscount = displayScholarshipDiscount + displayWaiverDiscount;
+        } 
+        else if (waiverPct >= scholarshipPct && waiverPct > 0) {
+            // If waiver is higher, it just applies to everything
+            displayWaiverDiscount = currentCredits * costPerCredit * (waiverPct / 100);
+            waiverNoteText = `(${waiverPct}% applied on all ${currentCredits} cr)`;
+            finalDiscount = displayWaiverDiscount;
+        }
+
+        const totalFee = (baseTuition - finalDiscount) + trimesterFee;
+
+        document.getElementById('t-base-tuition').innerText = baseTuition.toLocaleString('en-IN') + ' ৳';
+        document.getElementById('t-trim-fee').innerText = trimesterFee.toLocaleString('en-IN') + ' ৳';
+        document.getElementById('t-total-fee').innerText = totalFee.toLocaleString('en-IN') + ' ৳';
+        
+        const sBox = document.getElementById('t-scholarship-box');
+        if (displayScholarshipDiscount > 0) {
+            sBox.style.display = 'block';
+            document.getElementById('t-scholarship-discount').innerText = '-' + displayScholarshipDiscount.toLocaleString('en-IN') + ' ৳';
+            document.getElementById('t-scholarship-note').innerText = scholarshipNoteText;
+        } else {
+            sBox.style.display = 'none';
+        }
+
+        const wBox = document.getElementById('t-waiver-box');
+        if (displayWaiverDiscount > 0) {
+            wBox.style.display = 'block';
+            document.getElementById('t-waiver-discount').innerText = '-' + displayWaiverDiscount.toLocaleString('en-IN') + ' ৳';
+            document.getElementById('t-waiver-note').innerText = waiverNoteText;
+        } else {
+            wBox.style.display = 'none';
+        }
+        
+        document.getElementById('tuitionResultBox').style.display = 'block';
+    }
+ // --- MULTI-SEMESTER PLANNER LOGIC ---
+    function addMultiSemRow() {
+        const container = document.getElementById('multi-sem-container');
+        if (!container) return;
+        const rowCount = container.children.length + 1;
+        
+        const div = document.createElement('div');
+        div.className = 'multi-sem-row';
+        div.style.display = 'flex';
+        div.style.gap = '15px';
+        div.style.alignItems = 'flex-end';
+        div.style.marginBottom = '15px';
+        
+        div.innerHTML = `
+            <div style="flex:1;">
+                <label class="sem-label" style="font-size: 0.9em; font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 5px;">Trimester ${rowCount} Credits</label>
+                <input type="number" class="multi-credits-input" placeholder="e.g. 12" value="12" step="0.5">
+            </div>
+            <div>
+                <button class="btn-delete" style="padding: 14px 18px;" onclick="this.closest('.multi-sem-row').remove(); updateMultiSemLabels();">✕</button>
+            </div>
+        `;
+        container.appendChild(div);
+    }
+
+    function updateMultiSemLabels() {
+        document.querySelectorAll('.multi-sem-row').forEach((row, index) => {
+            row.querySelector('.sem-label').innerText = `Trimester ${index + 1} Credits`;
+        });
+    }
+
+    function calculateMultiSem() {
+        let totalTuition = 0, totalCredits = 0, semCount = 0, totalDiscount = 0;
+        
+        const costPerCredit = parseFloat(document.getElementById('t-cost-per-credit').value) || 6500;
+        const trimesterFee = parseFloat(document.getElementById('t-trimester-fee').value) || 6500;
+
+        const hasWaiver = document.getElementById('m-has-waiver') ? document.getElementById('m-has-waiver').checked : false;
+        const waiverPct = hasWaiver ? parseFloat(document.getElementById('m-waiver-select').value) : 0;
+        
+        const hasScholarship = document.getElementById('m-has-scholarship') ? document.getElementById('m-has-scholarship').checked : false;
+        const scholarshipPct = hasScholarship ? parseFloat(document.getElementById('m-scholarship-select').value) : 0;
+
+        const rows = document.querySelectorAll('.multi-sem-row');
+        let prevCredits = parseFloat(document.getElementById('t-current-credits').value) || 0;
+
+        rows.forEach(row => {
+            const credits = parseFloat(row.querySelector('.multi-credits-input').value) || 0;
+            
+            if (credits > 0) {
+                let baseTuition = credits * costPerCredit;
+                let rowDiscount = 0;
+
+                // --- NEW LOGIC: Hybrid Stacking for Multi-Sem ---
+                if (scholarshipPct > waiverPct) {
+                    let eligibleCredits = (prevCredits === 0) ? credits : Math.min(credits, prevCredits);
+                    let extraCredits = Math.max(0, credits - eligibleCredits);
+                    
+                    let sDiscount = eligibleCredits * costPerCredit * (scholarshipPct / 100);
+                    let wDiscount = hasWaiver ? (extraCredits * costPerCredit * (waiverPct / 100)) : 0;
+                    
+                    rowDiscount = sDiscount + wDiscount;
+                } else if (waiverPct >= scholarshipPct && waiverPct > 0) {
+                    rowDiscount = credits * costPerCredit * (waiverPct / 100);
+                }
+
+                totalTuition += (baseTuition - rowDiscount) + trimesterFee;
+                totalCredits += credits;
+                totalDiscount += rowDiscount;
+                semCount++;
+                
+                prevCredits = credits; 
+            }
+        });
+
+        document.getElementById('t-multi-total').innerText = totalTuition.toLocaleString('en-IN') + ' BDT';
+        document.getElementById('t-multi-credits-total').innerText = totalCredits;
+        document.getElementById('t-multi-sem-total').innerText = semCount;
+        
+        const savedText = document.getElementById('t-multi-saved');
+        if (savedText) {
+            if (totalDiscount > 0) {
+                savedText.innerText = `Estimated Total Savings: -${totalDiscount.toLocaleString('en-IN')} ৳`;
+                savedText.style.display = 'block';
+            } else {
+                savedText.style.display = 'none';
+            }
+        }
+
+        document.getElementById('multiSemResultBox').style.display = 'block';
+    }
+
     // --- INIT ---
     window.onload = function() {
     try { initGrid(); } catch(e) { console.error('initGrid failed:', e); }
@@ -1445,7 +2419,7 @@
     try { initPlanner(); } catch(e) { console.error('initPlanner failed:', e); }
     try { addCourseRow(); addCourseRow(); addCourseRow(); } catch(e) { console.error('addCourseRow failed:', e); }
     try { renderFullCalendar(); } catch(e) { console.error('renderFullCalendar failed:', e); }
-    
+
     document.addEventListener('click', e => {
         if (!e.target.closest('#courseSearch')) {
             const sugg = document.getElementById('suggestions');
@@ -1461,7 +2435,7 @@
         }
         if (!e.target.closest('.c-name')) {
             document.querySelectorAll('.suggestions').forEach(s => {
-                if(s.id !== 'suggestions' && s.id !== 'calendarSuggestions' && s.id !== 'sectionSuggestions') {
+                if (s.id !== 'suggestions' && s.id !== 'calendarSuggestions' && s.id !== 'sectionSuggestions') {
                     s.style.display = 'none';
                 }
             });
@@ -1472,3 +2446,6 @@
 
 </body>
 </html>
+
+
+
