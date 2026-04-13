@@ -918,12 +918,17 @@
 
     // --- TAB SWITCHER ---
     function switchTab(tab) {
-        document.querySelectorAll('.tool-section').forEach(el => el.classList.remove('active'));
-        document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
-        document.getElementById(tab + '-section').classList.add('active');
-        document.getElementById('btn-' + tab).classList.add('active');
-        if (tab === 'calendar') renderFullCalendar();
+    document.querySelectorAll('.tool-section').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+    document.getElementById(tab + '-section').classList.add('active');
+    document.getElementById('btn-' + tab).classList.add('active');
+    if (tab === 'calendar') { try { renderFullCalendar(); } catch(e) { console.error(e); } }
+    if (tab === 'planner') { 
+        // Force re-render planner if empty
+        const grid = document.getElementById('plannerGrid');
+        if (grid && grid.children.length === 0) { try { initPlanner(); } catch(e) { console.error(e); } }
     }
+}
 
     // --- THEME TOGGLE ---
     function toggleTheme() {
@@ -1360,47 +1365,39 @@
     let currentCalYear = 2026;
     let currentCalMonth = 1; 
 
-    function renderFullCalendar() {
-        const daysContainer = document.getElementById('calendar-days');
-        const monthYearDisplay = document.getElementById('month-year-display');
-        daysContainer.innerHTML = '';
-        
-        const firstDay = new Date(currentCalYear, currentCalMonth, 1).getDay();
-        const daysInMonth = new Date(currentCalYear, currentCalMonth + 1, 0).getDate();
-        
-        const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-        monthYearDisplay.innerText = `${monthNames[currentCalMonth]} ${currentCalYear}`;
-        
-        for (let i = 0; i < firstDay; i++) {
-            daysContainer.innerHTML += `<div class="calendar-day empty"></div>`;
-        }
-        
-        for (let day = 1; day <= daysInMonth; day++) {
-            const m = String(currentCalMonth + 1).padStart(2, '0');
-            const d = String(day).padStart(2, '0');
-            const currentCellDate = `${currentCalYear}-${m}-${d}`;
-            
-            let eventsHTML = '';
-            
-            academicEvents.forEach(evt => {
-                if (currentCellDate >= evt.start && currentCellDate <= evt.end) {
-                    let typeClass = '';
-                    if (evt.type === 'holiday') typeClass = 'event-holiday';
-                    if (evt.type === 'exam') typeClass = 'event-exam';
-                    
-                    eventsHTML += `<div class="event-badge ${typeClass}">${evt.title}</div>`;
-                }
-            });
-            
-            daysContainer.innerHTML += `
-                <div class="calendar-day">
-                    <span class="day-num">${day}</span>
-                    ${eventsHTML}
-                </div>
-            `;
-        }
+   function renderFullCalendar() {
+    const daysContainer = document.getElementById('calendar-days');
+    const monthYearDisplay = document.getElementById('month-year-display');
+    daysContainer.innerHTML = '';
+    
+    const firstDay = new Date(currentCalYear, currentCalMonth, 1).getDay();
+    const daysInMonth = new Date(currentCalYear, currentCalMonth + 1, 0).getDate();
+    
+    const monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+    monthYearDisplay.innerText = `${monthNames[currentCalMonth]} ${currentCalYear}`;
+    
+    for (let i = 0; i < firstDay; i++) {
+        daysContainer.innerHTML += `<div class="calendar-day empty"></div>`;
     }
-
+    
+    for (let day = 1; day <= daysInMonth; day++) {
+        const m = String(currentCalMonth + 1).padStart(2, '0');
+        const d = String(day).padStart(2, '0');
+        const currentCellDate = `${currentCalYear}-${m}-${d}`;
+        
+        let eventsHTML = '';
+        academicEvents.forEach(evt => {
+            if (currentCellDate >= evt.start && currentCellDate <= evt.end) {
+                let typeClass = '';
+                if (evt.type === 'holiday') typeClass = 'event-holiday';
+                if (evt.type === 'exam') typeClass = 'event-exam';
+                eventsHTML += `<div class="event-badge ${typeClass}">${evt.title}</div>`;
+            }
+        });
+        
+        daysContainer.innerHTML += `<div class="calendar-day"><span class="day-num">${day}</span>${eventsHTML}</div>`;
+    }
+}
     function changeMonth(direction) {
         currentCalMonth += direction;
         if (currentCalMonth < 0) { currentCalMonth = 11; currentCalYear--; }
@@ -1443,34 +1440,34 @@
 
     // --- INIT ---
     window.onload = function() {
-        initGrid();
-        initSectionGrid(); // Initialize BOTH theory and lab section grids
-        initPlanner(); 
-        addCourseRow(); addCourseRow(); addCourseRow();
-        renderFullCalendar();
-        
-        document.addEventListener('click', e => {
-            if (!e.target.closest('#courseSearch')) {
-                const sugg = document.getElementById('suggestions');
-                if (sugg) sugg.style.display = 'none';
-            }
-            if (!e.target.closest('#calendarSearch')) {
-                const calSugg = document.getElementById('calendarSuggestions');
-                if (calSugg) calSugg.style.display = 'none';
-            }
-            if (!e.target.closest('#sectionCourseSearch')) {
-                const secSugg = document.getElementById('sectionSuggestions');
-                if (secSugg) secSugg.style.display = 'none';
-            }
-            if (!e.target.closest('.c-name')) {
-                document.querySelectorAll('.suggestions').forEach(s => {
-                    if(s.id !== 'suggestions' && s.id !== 'calendarSuggestions' && s.id !== 'sectionSuggestions') {
-                        s.style.display = 'none';
-                    }
-                });
-            }
-        });
-    };
+    try { initGrid(); } catch(e) { console.error('initGrid failed:', e); }
+    try { initSectionGrid(); } catch(e) { console.error('initSectionGrid failed:', e); }
+    try { initPlanner(); } catch(e) { console.error('initPlanner failed:', e); }
+    try { addCourseRow(); addCourseRow(); addCourseRow(); } catch(e) { console.error('addCourseRow failed:', e); }
+    try { renderFullCalendar(); } catch(e) { console.error('renderFullCalendar failed:', e); }
+    
+    document.addEventListener('click', e => {
+        if (!e.target.closest('#courseSearch')) {
+            const sugg = document.getElementById('suggestions');
+            if (sugg) sugg.style.display = 'none';
+        }
+        if (!e.target.closest('#calendarSearch')) {
+            const calSugg = document.getElementById('calendarSuggestions');
+            if (calSugg) calSugg.style.display = 'none';
+        }
+        if (!e.target.closest('#sectionCourseSearch')) {
+            const secSugg = document.getElementById('sectionSuggestions');
+            if (secSugg) secSugg.style.display = 'none';
+        }
+        if (!e.target.closest('.c-name')) {
+            document.querySelectorAll('.suggestions').forEach(s => {
+                if(s.id !== 'suggestions' && s.id !== 'calendarSuggestions' && s.id !== 'sectionSuggestions') {
+                    s.style.display = 'none';
+                }
+            });
+        }
+    });
+};
 </script>
 
 </body>
