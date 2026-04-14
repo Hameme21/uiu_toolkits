@@ -38,8 +38,11 @@ html { scroll-behavior: smooth; }
 body { font-family: var(--font-body); background: var(--bg); color: var(--text); min-height: 100vh; font-size: 14px; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
 body::before { content: ''; position: fixed; inset: 0; background: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(124,58,237,0.12) 0%, transparent 70%), radial-gradient(ellipse 40% 30% at 80% 80%, rgba(34,211,238,0.04) 0%, transparent 60%); pointer-events: none; z-index: 0; }
 
-::-webkit-scrollbar { width: 3px; height: 3px; } ::-webkit-scrollbar-track { background: transparent; } ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 10px; }
-.hide-scrollbar::-webkit-scrollbar { display: none; } .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+::-webkit-scrollbar { width: 4px; height: 4px; } 
+::-webkit-scrollbar-track { background: transparent; } 
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+.hide-scrollbar::-webkit-scrollbar { display: none; } 
+.hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
 .glass { background: var(--card); backdrop-filter: blur(20px); border: 1px solid var(--card-border); border-radius: var(--radius-lg); }
 .glass-sm { background: rgba(13,17,23,0.7); backdrop-filter: blur(12px); border: 1px solid var(--card-border); border-radius: var(--radius); }
@@ -47,9 +50,10 @@ body::before { content: ''; position: fixed; inset: 0; background: radial-gradie
 h1,h2,h3,h4 { font-family: var(--font-display); }
 .mono { font-family: var(--font-mono); }
 .hidden { display: none !important; }
+.word-break { word-break: break-word; overflow-wrap: break-word; }
 
 #portal, #teamAuthOverlay { position: fixed; inset: 0; z-index: 5000; background: rgba(6,9,16,0.97); backdrop-filter: blur(16px); display: flex; align-items: center; justify-content: center; flex-direction: column; padding: 1rem; overflow-y: auto; }
-.portal-card { background: rgba(13,17,23,0.95); padding: 24px; border-radius: var(--radius-xl); width: 100%; max-width: 520px; border: 1px solid rgba(124,58,237,0.2); box-shadow: 0 0 60px rgba(124,58,237,0.1), inset 0 0 40px rgba(124,58,237,0.03); max-height: 90vh; overflow-y: auto; }
+.portal-card { background: rgba(13,17,23,0.95); padding: 24px; border-radius: var(--radius-xl); width: 100%; max-width: 520px; border: 1px solid rgba(124,58,237,0.2); box-shadow: 0 0 60px rgba(124,58,237,0.1), inset 0 0 40px rgba(124,58,237,0.03); max-height: 95vh; overflow-y: auto; }
 @media(min-width:768px) { .portal-card { padding: 40px; } }
 
 input, select, textarea { width: 100%; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); color: var(--text); padding: 10px 14px; border-radius: var(--radius); font-size: 14px; font-family: var(--font-body); margin-bottom: 14px; outline: none; transition: border-color 0.2s, background 0.2s; }
@@ -57,7 +61,7 @@ input:focus, textarea:focus, select:focus { border-color: var(--accent); backgro
 select option { background: #0d1117; }
 label { display: block; margin-bottom: 6px; color: var(--muted); font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; text-align: left; }
 
-button { border: none; padding: 10px 18px; color: white; border-radius: var(--radius); cursor: pointer; font-weight: 600; font-family: var(--font-body); font-size: 13px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.18s; }
+button { border: none; padding: 10px 18px; color: white; border-radius: var(--radius); cursor: pointer; font-weight: 600; font-family: var(--font-body); font-size: 13px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.18s; white-space: nowrap; }
 .btn-primary { background: var(--accent); box-shadow: 0 4px 20px var(--accent-glow); }
 .btn-primary:hover:not(:disabled) { background: #6d28d9; transform: translateY(-1px); box-shadow: 0 6px 24px var(--accent-glow); }
 button.ghost { background: transparent; border: 1px solid rgba(255,255,255,0.1); color: var(--muted); }
@@ -106,7 +110,7 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 
 #dashAdminView { display: flex; flex-direction: column; gap: 24px; }
 .admin-cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; width: 100%; }
-@media (max-width: 480px) { .admin-cards-grid { grid-template-columns: 1fr 1fr; gap: 12px; } }
+@media (max-width: 480px) { .admin-cards-grid { grid-template-columns: 1fr; gap: 12px; } } /* Fixed mobile block */
 
 #sectionLiveAuction { display: grid; grid-template-columns: 1fr 320px; gap: 16px; min-height: 680px; }
 @media (max-width: 1024px) { #sectionLiveAuction { grid-template-columns: 1fr 280px; } }
@@ -122,7 +126,7 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 }
 
 #teamsConfigContainer { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; }
-@media (max-width: 480px) { #teamsConfigContainer { grid-template-columns: 1fr 1fr; gap: 10px; } }
+@media (max-width: 480px) { #teamsConfigContainer { grid-template-columns: 1fr; gap: 10px; } } /* Fixed mobile blowout */
 
 .player-grid-lg { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px; }
 @media (max-width: 480px) { .player-grid-lg { grid-template-columns: repeat(2, 1fr); gap: 10px; } }
@@ -154,8 +158,8 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 .rtm-badge { background: linear-gradient(135deg, rgba(236,72,153,0.15), rgba(219,39,119,0.08)); border: 1px solid rgba(236,72,153,0.3); border-radius: 8px; padding: 8px 12px; display: flex; align-items: center; gap: 8px; }
 
 #soldAnimationOverlay { position: fixed; inset: 0; z-index: 9999; background: rgba(6,9,16,0.98); display: flex; align-items: center; justify-content: center; }
-.overlay { position: fixed; inset: 0; z-index: 5000; background: rgba(6,9,16,0.88); backdrop-filter: blur(12px); display: flex; align-items: center; justify-content: center; padding: 1rem; }
-.modal { background: rgba(13,17,23,0.98); padding: 22px; border-radius: var(--radius-xl); width: 100%; max-width: 520px; border: 1px solid rgba(124,58,237,0.2); box-shadow: 0 0 60px rgba(0,0,0,0.7); text-align: center; max-height: 90vh; overflow-y: auto; }
+.overlay { position: fixed; inset: 0; z-index: 5000; background: rgba(6,9,16,0.88); backdrop-filter: blur(12px); display: flex; align-items: center; justify-content: center; padding: 1rem; overflow-y: auto; }
+.modal { background: rgba(13,17,23,0.98); padding: 22px; border-radius: var(--radius-xl); width: 100%; max-width: 520px; border: 1px solid rgba(124,58,237,0.2); box-shadow: 0 0 60px rgba(0,0,0,0.7); text-align: center; max-height: 95vh; overflow-y: auto; }
 @media(min-width:768px) { .modal { padding: 36px; } }
 .modal-rtm { border-color: rgba(236,72,153,0.3); box-shadow: 0 0 60px rgba(236,72,153,0.08); }
 
@@ -185,7 +189,7 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 .import-filter-btn { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); color: var(--muted); cursor: pointer; transition: all 0.15s; }
 .import-filter-btn.active { background: rgba(124,58,237,0.15); border-color: rgba(124,58,237,0.35); color: var(--accent-2); }
 
-#auctionPlayerPopup { flex: 1; min-height: 380px; border-radius: var(--radius-lg); overflow: hidden; position: relative; border: 1px solid rgba(124,58,237,0.2); box-shadow: 0 0 40px rgba(124,58,237,0.08); }
+#auctionPlayerPopup { flex: 1; min-height: 380px; border-radius: var(--radius-lg); overflow: hidden; position: relative; border: 1px solid rgba(124,58,237,0.2); box-shadow: 0 0 40px rgba(124,58,237,0.08); display: flex; flex-direction: column; }
 @media (max-width: 767px) { #auctionPlayerPopup { min-height: 300px; } }
 
 @media (max-width: 600px) {
@@ -271,7 +275,7 @@ header .header-right { display: flex; align-items: center; gap: 8px; }
     </div>
     <nav id="topNav" style="display:flex;gap:2px;overflow-x:auto;flex:1;justify-content:center" class="hide-scrollbar hidden"></nav>
     <div class="header-right">
-      <span id="roleDisplay" class="chip chip-purple" style="white-space:nowrap">Role</span>
+      <span id="roleDisplay" class="chip chip-purple word-break" style="max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Role</span>
       <button id="btnExportAdmin" class="hidden ghost small">Export</button>
       <button id="btnResetSystem" class="hidden red small">Wipe</button>
       <button onclick="location.reload()" class="ghost small" style="color:var(--danger);border-color:rgba(239,68,68,0.2)">Exit</button>
@@ -287,7 +291,7 @@ header .header-right { display: flex; align-items: center; gap: 8px; }
     <div id="sectionDashboard">
       <div style="margin-bottom:24px">
         <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.15em;margin-bottom:6px">Operations Center</div>
-        <h2 style="font-family:var(--font-display);font-size:clamp(1.3rem,3vw,2rem);font-weight:800">Welcome, <span style="color:var(--accent-2)" id="dashWelcomeName"></span></h2>
+        <h2 style="font-family:var(--font-display);font-size:clamp(1.3rem,3vw,2rem);font-weight:800; word-break: break-word;">Welcome, <span style="color:var(--accent-2)" id="dashWelcomeName"></span></h2>
       </div>
 
       <div id="dashAdminView" class="hidden"></div>
@@ -301,7 +305,7 @@ header .header-right { display: flex; align-items: center; gap: 8px; }
           </div>
         </div>
         <div class="glass" style="padding:16px;display:flex;flex-direction:column">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,0.06)">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,0.06); flex-wrap: wrap; gap: 8px;">
             <div style="font-size:10px;color:var(--emerald);font-weight:600;text-transform:uppercase;letter-spacing:0.15em">Franchise Overview</div>
             <button id="btnExportTeam" class="ghost small" style="color:var(--emerald);border-color:rgba(16,185,129,0.2);font-size:11px">Export Roster</button>
           </div>
@@ -360,28 +364,28 @@ header .header-right { display: flex; align-items: center; gap: 8px; }
           <div class="timer-pill" id="auctionTimerContainer">
             <div id="auctionTimerDot" style="width:8px;height:8px;border-radius:50%;background:var(--cyan)"></div>
             <div id="auctionTimerText" class="mono" style="font-size:1.3rem;font-weight:700;color:var(--cyan)">30s</div>
-            <button id="btnPauseTimer" class="hidden" onclick="toggleTimer()" style="background:none;border:none;font-size:15px;padding:0;width:22px;height:22px">⏸️</button>
+            <button id="btnPauseTimer" class="hidden" onclick="toggleTimer()" style="background:none;border:none;font-size:15px;padding:0;width:22px;height:22px;pointer-events:auto;cursor:pointer;">⏸️</button>
           </div>
 
           <div style="position:relative;z-index:20;padding:20px;width:100%;display:flex;flex-direction:column;height:100%;justify-content:flex-end">
             <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap">
-              <div>
+              <div style="flex: 1; min-width: 200px;">
                 <div style="margin-bottom:8px"><span id="popupCat" class="chip chip-cyan">CATEGORY</span></div>
-                <h1 id="popupName" style="font-family:var(--font-display);font-size:clamp(1.6rem,4vw,2.8rem);font-weight:800;line-height:1.1;color:white">Player Name</h1>
+                <h1 id="popupName" class="word-break" style="font-family:var(--font-display);font-size:clamp(1.6rem,4vw,2.8rem);font-weight:800;line-height:1.1;color:white">Player Name</h1>
               </div>
               <div id="adminBidControls" class="hidden" style="display:flex;align-items:center;gap:8px;background:rgba(6,9,16,0.7);backdrop-filter:blur(12px);padding:10px 12px;border-radius:14px;border:1px solid rgba(255,255,255,0.08)">
                 <button onclick="adjustBid('dec')" style="width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);font-size:18px;padding:0" onmouseover="this.style.background='rgba(239,68,68,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.06)'">−</button>
                 <div style="text-align:center;min-width:72px">
                   <div style="font-size:9px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:2px">Value</div>
                   <div id="popupPrice" class="mono" style="font-size:1.7rem;font-weight:700;color:white">0</div>
-                  <div class="high-bidder-name" style="font-size:11px; font-weight:700; color:var(--emerald); margin-top:2px;">No Bids Yet</div>
+                  <div class="high-bidder-name word-break" style="font-size:11px; font-weight:700; color:var(--emerald); margin-top:2px;">No Bids Yet</div>
                 </div>
                 <button onclick="adjustBid('inc')" style="width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);font-size:18px;padding:0" onmouseover="this.style.background='rgba(16,185,129,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.06)'">+</button>
               </div>
               <div id="viewerPriceDisplay" class="hidden" style="text-align:right">
                 <div style="font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.12em;margin-bottom:4px">Highest Bid</div>
                 <div id="viewerPrice" class="mono" style="font-size:clamp(2rem,5vw,2.8rem);font-weight:700;color:var(--cyan)">0</div>
-                <div class="high-bidder-name" style="font-size:12px; font-weight:700; color:var(--emerald); margin-top:2px;">No Bids Yet</div>
+                <div class="high-bidder-name word-break" style="font-size:12px; font-weight:700; color:var(--emerald); margin-top:2px;">No Bids Yet</div>
               </div>
             </div>
             
@@ -416,7 +420,7 @@ header .header-right { display: flex; align-items: center; gap: 8px; }
             <div style="font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.15em">Bid Network Log</div>
             <button id="clearLog" class="ghost small" style="font-size:10px;padding:3px 8px">Clear</button>
           </div>
-          <div id="log" class="mono" style="flex:1;overflow-y:auto;font-size:10px;line-height:1.6;color:var(--muted)"></div>
+          <div id="log" class="mono word-break" style="flex:1;overflow-y:auto;font-size:10px;line-height:1.6;color:var(--muted)"></div>
         </div>
       </div>
     </div>
@@ -465,7 +469,7 @@ header .header-right { display: flex; align-items: center; gap: 8px; }
       <input type="hidden" id="playerEditOldName">
       <div style="display:flex;justify-content:center;margin-bottom:20px">
         <div id="playerEditImgDrop" style="width:90px;height:90px;border-radius:var(--radius);border:2px dashed rgba(255,255,255,0.12);background:rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;position:relative;transition:border-color 0.2s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.12)'">
-          <img id="playerEditImg" src="" class="hidden" style="width:100%;height:100%;object-fit:cover">
+          <img id="playerEditImg" src="" class="hidden" style="width:100%;height:100%;object-fit:cover; max-width: 100%;">
           <span id="playerEditImgText" style="font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.08em;text-align:center;padding:8px">Upload Photo</span>
         </div>
       </div>
@@ -481,11 +485,11 @@ header .header-right { display: flex; align-items: center; gap: 8px; }
   </div>
 
   <div id="soldAnimationOverlay" class="hidden">
-    <div style="text-align:center;padding:40px">
+    <div style="text-align:center;padding:40px; width: 100%;">
       <h1 id="animTitle" style="font-family:var(--font-display);font-size:clamp(2.8rem,8vw,6rem);font-weight:800;color:var(--amber);letter-spacing:0.1em;margin-bottom:8px">SOLD!</h1>
-      <h2 id="animPlayer" style="font-family:var(--font-display);font-size:clamp(1.1rem,3vw,2rem);font-weight:600;color:white;margin-bottom:20px">Player Name</h2>
+      <h2 id="animPlayer" class="word-break" style="font-family:var(--font-display);font-size:clamp(1.1rem,3vw,2rem);font-weight:600;color:white;margin-bottom:20px">Player Name</h2>
       <div style="font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:0.2em">Acquired By</div>
-      <div id="animTeam" style="font-family:var(--font-display);font-size:clamp(1rem,2.5vw,1.5rem);font-weight:800;color:var(--accent-2);margin-top:6px">Team Name</div>
+      <div id="animTeam" class="word-break" style="font-family:var(--font-display);font-size:clamp(1rem,2.5vw,1.5rem);font-weight:800;color:var(--accent-2);margin-top:6px">Team Name</div>
       <div style="margin-top:24px">
         <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.2em;margin-bottom:8px">Final Valuation</div>
         <div id="animPrice" class="mono" style="font-size:clamp(2rem,5vw,3.5rem);font-weight:700;color:var(--emerald)">0</div>
@@ -499,7 +503,7 @@ header .header-right { display: flex; align-items: center; gap: 8px; }
         <span style="font-size:16px">🔨</span>
         <span style="font-family:var(--font-display);font-size:13px;font-weight:700;color:var(--amber);letter-spacing:0.06em">CONFIRM SALE</span>
       </div>
-      <div id="soldActionDetails" style="font-family:var(--font-mono);font-size:13px;color:var(--muted);margin-bottom:18px;background:rgba(0,0,0,0.3);padding:14px;border-radius:10px;border:1px solid rgba(255,255,255,0.06)"></div>
+      <div id="soldActionDetails" class="word-break" style="font-family:var(--font-mono);font-size:13px;color:var(--muted);margin-bottom:18px;background:rgba(0,0,0,0.3);padding:14px;border-radius:10px;border:1px solid rgba(255,255,255,0.06)"></div>
       <div id="directPriceGroup" class="hidden" style="margin-bottom:14px;background:rgba(0,0,0,0.2);padding:14px;border-radius:10px;text-align:left">
         <label>Define Retain Price</label>
         <input type="number" id="directSignPrice" placeholder="Enter Amount" style="margin-bottom:0">
@@ -545,7 +549,7 @@ header .header-right { display: flex; align-items: center; gap: 8px; }
           <span style="font-family:var(--font-display);font-size:14px;font-weight:800;color:var(--rtm);letter-spacing:0.08em">RTM MATCH REQUEST</span>
         </div>
         <h2 id="rtmPromptTitle" style="font-family:var(--font-display); font-size:1.5rem; margin-bottom:12px;">Match Price?</h2>
-        <p id="rtmPromptMessage" style="color:var(--muted); margin-bottom:24px; font-size:13px; line-height:1.5;"></p>
+        <p id="rtmPromptMessage" class="word-break" style="color:var(--muted); margin-bottom:24px; font-size:13px; line-height:1.5;"></p>
         <div id="rtmPromptControls" class="hidden" style="display:grid; grid-template-columns:1fr 1fr; gap:12px">
             <button class="ghost" onclick="respondRTM(false)">Decline (Let RTM win)</button>
             <button class="pink" onclick="respondRTM(true)" style="box-shadow:0 4px 20px var(--rtm-glow);">Match Bid</button>
@@ -664,7 +668,7 @@ function updateLiveEligibility() {
     else {
       let reserve = 0;
       STATE.categories.forEach(cat => { if (cat.id !== activePlayer.category && !t.purchases?.[cat.id]) reserve += Number(cat.base) || 0; });
-      if (Number(t.purse) - currentPrice < reserve) ok = false;
+      if ((Number(t.purse) || 0) - currentPrice < reserve) ok = false;
     }
     elig[t.id] = ok;
   });
@@ -1013,7 +1017,7 @@ function renderAdminTeamsSummary() {
         container.innerHTML += `
         <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:12px; padding:12px;">
             <div style="display:flex; justify-content:space-between; align-items:center;">
-                <strong style="color:white; font-family:var(--font-display); font-size:13px;">${t.name}</strong>
+                <strong class="word-break" style="color:white; font-family:var(--font-display); font-size:13px;">${t.name}</strong>
                 <span class="mono" style="color:var(--emerald); font-weight:700; font-size:14px;">৳${t.purse}</span>
             </div>
             <div style="font-size:9px; color:var(--muted); text-transform:uppercase; margin-top:4px;">
@@ -1056,6 +1060,7 @@ function renderLiveAdminQueue() {
   container.innerHTML = '';
   if (!currentAuctionCategory) { container.innerHTML = '<div style="grid-column:1/-1;display:flex;align-items:center;justify-content:center;height:100px;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:0.15em">Select a category above.</div>'; return; }
   const catConfig = STATE.categories.find(c => c.id === currentAuctionCategory);
+  if (!catConfig) return;
   const players = STATE.playersSnapshot[currentAuctionCategory] || [];
   const unsold = players.filter(p => !STATE.teams.some(t => t.purchases?.[currentAuctionCategory] === p.name));
   if (!unsold.length) { container.innerHTML = '<div style="grid-column:1/-1;display:flex;align-items:center;justify-content:center;height:100px;color:var(--emerald);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.1em">All prospects drafted.</div>'; return; }
@@ -1091,7 +1096,7 @@ function renderScoreboards() {
       const logo = t.logo ? `<img src="${t.logo}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;border:1.5px solid rgba(255,255,255,0.1);margin-bottom:6px;background:#0d1117">` : `<div style="width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,0.04);border:1.5px solid rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--muted);margin-bottom:6px">-</div>`;
       c.innerHTML += `<div data-team-id="${t.id}" class="score-tile" style="display:flex;flex-direction:column;align-items:center">
         ${logo}
-        <div style="font-family:var(--font-display);font-weight:700;font-size:10px;color:white;text-align:center;margin-bottom:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%">${t.name}</div>
+        <div class="word-break" style="font-family:var(--font-display);font-weight:700;font-size:10px;color:white;text-align:center;margin-bottom:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%">${t.name}</div>
         <div style="font-size:9px;color:var(--muted);margin-bottom:6px">${t.purchases ? Object.keys(t.purchases).length : 0} players</div>
         <div class="mono" style="font-size:12px;font-weight:700;color:var(--cyan);background:rgba(34,211,238,0.06);border:1px solid rgba(34,211,238,0.12);border-radius:7px;padding:3px 8px;width:100%;text-align:center">৳${t.purse}</div>
       </div>`;
@@ -1121,7 +1126,7 @@ function makeTileHTML(player, catId, price, isDirect, isRTM, soldToName) {
     const bg = isRTM ? 'rgba(236,72,153,0.15)' : isDirect ? 'rgba(124,58,237,0.15)' : 'rgba(99,102,241,0.12)';
     const col = isRTM ? 'var(--rtm)' : isDirect ? 'var(--accent-2)' : '#a5b4fc';
     const lbl = isRTM ? 'RTM — Retained By' : isDirect ? 'Retained By' : 'Acquired By';
-    statusBar = `<div style="margin-top:10px;padding:8px;background:${bg};border-radius:8px;text-align:center;border:1px solid ${col}20"><div style="font-size:9px;color:${col};font-weight:600;text-transform:uppercase;letter-spacing:0.12em;margin-bottom:2px">${lbl}</div><div style="font-size:11px;font-weight:700;color:white">${soldToName}</div></div>`;
+    statusBar = `<div style="margin-top:10px;padding:8px;background:${bg};border-radius:8px;text-align:center;border:1px solid ${col}20"><div style="font-size:9px;color:${col};font-weight:600;text-transform:uppercase;letter-spacing:0.12em;margin-bottom:2px">${lbl}</div><div class="word-break" style="font-size:11px;font-weight:700;color:white">${soldToName}</div></div>`;
   }
   return `<div class="player-tile" data-name="${player.name}" data-price="${price}" style="${isSold ? 'opacity:0.75' : ''}">
     <div class="player-img-h" style="position:relative;height:140px;background:#0d1117;overflow:hidden">
@@ -1134,7 +1139,7 @@ function makeTileHTML(player, catId, price, isDirect, isRTM, soldToName) {
     </div>
     <div style="padding:12px">
       <div style="display:flex;justify-content:space-between;align-items:start;gap:6px">
-        <h4 style="font-family:var(--font-display);font-size:13px;font-weight:700;color:white;line-height:1.3;word-break:break-word">${player.name}</h4>
+        <h4 class="word-break" style="font-family:var(--font-display);font-size:13px;font-weight:700;color:white;line-height:1.3;word-break:break-word">${player.name}</h4>
         <div style="text-align:right;flex-shrink:0">
           <div style="font-size:8px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:1px">Val.</div>
           <div class="mono price" style="font-size:14px;font-weight:700;color:var(--cyan)">৳${price}</div>
@@ -1155,7 +1160,7 @@ function renderViewerRosters() {
     div.insertAdjacentHTML('beforeend', `<div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:var(--radius-lg);padding:16px;display:flex;gap:16px;flex-wrap:wrap;margin-bottom:14px">
       <div style="width:130px;flex-shrink:0;text-align:center;background:rgba(0,0,0,0.3);padding:16px;border-radius:var(--radius);border:1px solid rgba(255,255,255,0.05)">
         ${logo}
-        <h3 style="font-family:var(--font-display);font-size:13px;font-weight:800;color:white;margin-bottom:6px">${t.name}</h3>
+        <h3 class="word-break" style="font-family:var(--font-display);font-size:13px;font-weight:800;color:white;margin-bottom:6px">${t.name}</h3>
         <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:0.15em;margin-bottom:10px">${t.purchases ? Object.keys(t.purchases).length : 0} Players</div>
         <div class="mono" style="font-size:18px;font-weight:700;color:var(--cyan)">৳${t.purse}</div>
       </div>
@@ -1271,7 +1276,7 @@ function renderTeamConfigTable() {
       <div><label>Security Key</label><input class="t-pass" value="${t.password || ''}" placeholder="Password" style="margin:0;padding:8px 11px;font-size:13px"></div>
       <div><label>Starting Purse (৳)</label><input class="t-purse" type="number" value="${t.purse}" placeholder="500" style="margin:0;padding:8px 11px;font-size:14px;font-weight:700;color:var(--emerald)"></div>
     </div>
-    <button class="ghost small" style="width:100%;margin-top:12px;color:var(--rtm);border-color:rgba(236,72,153,0.3);font-size:11px;padding:8px" onclick="openImportPlayersModal('${t.id}')">📥 Tag Previous Players (RTM)</button>`;
+    <button class="ghost small word-break" style="width:100%;margin-top:12px;color:var(--rtm);border-color:rgba(236,72,153,0.3);font-size:11px;padding:8px" onclick="openImportPlayersModal('${t.id}')">📥 Tag Previous Players (RTM)</button>`;
     container.appendChild(tile);
     setupFileUpload(tile.querySelector('.logo-drop-zone'), (file) => uploadFile(file).then(url => socket.emit('admin:setTeamLogo', { teamId: t.id, logoUrl: url })));
   });
@@ -1350,7 +1355,7 @@ function renderImportPlayerList() {
     item.innerHTML = `<input type="checkbox" class="import-checkbox" data-name="${p.name}" data-cat="${p.catId}" onchange="updateImportSelCount()">
       <img class="pi-img" src="${img}" alt="">
       <div class="pi-info">
-        <div class="pi-name">${p.name}</div>
+        <div class="pi-name word-break">${p.name}</div>
         <div class="pi-meta"><span class="chip chip-cyan" style="font-size:8px;padding:1px 6px">${p.catId}</span> ${badgeHtml}</div>
       </div>`;
     list.appendChild(item);
@@ -1428,7 +1433,6 @@ window.updatePopupPrice = (p, highBidderId) => {
         const nextBid = currentBid === 0 ? base : currentBid + inc;
 
         const bidBtn = document.getElementById('btnTeamBid');
-        const nextPriceDisplay = document.getElementById('teamBidAmount');
 
         if (highBidderId === CURRENT_USER.teamId) {
             bidBtn.innerHTML = `WINNING ৳${currentBid}`;
@@ -1448,9 +1452,9 @@ window.adjustBid = (dir) => {
   if (!activePlayer) return;
   const cat = STATE.categories.find(c => c.id === activePlayer.category);
   let cur = Number(document.getElementById('popupPrice').textContent) || 0;
-  let step = Number(cat.increment) || 0;
+  let step = Number(cat?.increment) || 0;
   let next = dir === 'inc' ? cur + step : cur - step;
-  if (next >= Number(cat.base)) socket.emit('player:bid', { category: activePlayer.category, name: activePlayer.name, price: next, teamId: null });
+  if (next >= Number(cat?.base || 0)) socket.emit('player:bid', { category: activePlayer.category, name: activePlayer.name, price: next, teamId: null });
 };
 
 // NEW: Team Live Action "BID"
@@ -1499,7 +1503,7 @@ window.savePlayerEdit = () => {
   const imageUrl = !img.classList.contains('hidden') ? img.src : null;
   if (!newName) return showToast('Player name required');
   let players = [...(STATE.playersSnapshot[catId] || [])];
-  const config = STATE.categories.find(c => c.id === catId);
+  const config = STATE.categories.find(c => c.id === catId) || { base: 0 };
   if (oldName) {
     const idx = players.findIndex(p => p.name === oldName);
     if (idx !== -1) { players[idx] = { ...players[idx], name: newName }; if (imageUrl) players[idx].image = imageUrl; }
@@ -1558,7 +1562,7 @@ function openSoldConfirmation(cat, name, price, isDirect, isRTM = false) {
   const priceGroup = document.getElementById('directPriceGroup');
   priceGroup.classList.toggle('hidden', !isDirect);
   if (isDirect) document.getElementById('directSignPrice').value = pendingSold.price;
-  document.getElementById('soldActionDetails').innerHTML = `<span style="color:white;font-weight:700">${name}</span> (${cat})<br><span style="color:var(--emerald);margin-top:4px;display:block">${isDirect ? isRTM ? '[ RTM RETENTION ]' : '[ TEAM RETENTION ]' : '@ ৳' + pendingSold.price}</span>`;
+  document.getElementById('soldActionDetails').innerHTML = `<span class="word-break" style="color:white;font-weight:700">${name}</span> (${cat})<br><span style="color:var(--emerald);margin-top:4px;display:block">${isDirect ? isRTM ? '[ RTM RETENTION ]' : '[ TEAM RETENTION ]' : '@ ৳' + pendingSold.price}</span>`;
   const sel = document.getElementById('soldActionTeam');
   sel.innerHTML = '';
   STATE.teams.forEach(t => sel.innerHTML += `<option value="${t.id}">${t.name} (৳${t.purse})</option>`);
