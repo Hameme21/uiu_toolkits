@@ -100,7 +100,6 @@
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: var(--bg-body);
-            /* Soft animated gradient background */
             background: linear-gradient(135deg, var(--bg-body) 0%, #fff0e6 100%);
             color: var(--text-main);
             margin: 0;
@@ -115,7 +114,7 @@
         /* --- NAVIGATION --- */
         nav {
             background-color: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(12px); /* Glassmorphism */
+            backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             padding: 15px 20px;
             display: flex;
@@ -155,10 +154,10 @@
             border: 2px solid var(--primary-color);
             background: transparent;
             color: var(--primary-color);
-            border-radius: 25px; /* Pill shape */
+            border-radius: 25px;
             cursor: pointer;
             font-weight: 600;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Bouncy hover */
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
         .nav-btn.active, .nav-btn:hover {
@@ -676,10 +675,10 @@
                 <p>Explore the full core curriculum and map out your major elective tracks.</p>
             </div>
             <div class="dash-card" onclick="switchTab('tuition')">
-        <div class="dash-icon">💰</div>
-        <h3>Tuition Calc</h3>
-        <p>Estimate trimester costs, apply UIU waivers, and plan your budget easily.</p>
-    </div>
+                <div class="dash-icon">💰</div>
+                <h3>Tuition Calc</h3>
+                <p>Estimate trimester costs, apply UIU waivers, and plan your budget easily.</p>
+            </div>
         </div>
     </div>
 
@@ -745,12 +744,10 @@
                     </select>
                 </div>
                 <div style="flex:1; min-width: 160px;">
-                    <select id="sectionDaySelect">
-                        </select>
+                    <select id="sectionDaySelect"></select>
                 </div>
                 <div style="flex:1; min-width: 160px;">
-                    <select id="sectionTimeSelect">
-                        </select>
+                    <select id="sectionTimeSelect"></select>
                 </div>
                 <div>
                     <button class="btn-action btn-add" style="margin-top:0; height: 100%;" onclick="addSectionClass()">Add to Routine</button>
@@ -879,137 +876,137 @@
         </div>
     </div>
     <div id="tuition-section" class="tool-section">
-    <h1 class="gradient-text">Tuition Fee Calculator</h1>
-    <p class="subtitle">Smart Fee Estimator with Planner Integration</p>
+        <h1 class="gradient-text">Tuition Fee Calculator</h1>
+        <p class="subtitle">Smart Fee Estimator with Planner Integration</p>
 
-    <div class="planner-select-wrapper" style="margin-bottom: 25px;">
-        <label style="font-weight:bold; color:var(--primary-color); font-size: 1.1em;">🚀 1. Current Trimester Calc (Auto-fill from Planner):</label>
-        <select id="t-planner-select" onchange="loadTuitionFromPlanner()" style="margin-top: 12px; border: 2px solid var(--primary-color);">
-            <option value="">-- Select Your Current Trimester --</option>
-        </select>
-        <div style="margin-top: 15px; display: flex; gap: 20px; font-weight: bold; color: var(--text-main); font-size: 1.1em; background: var(--bg-container); padding: 10px 15px; border-radius: 8px;">
-            <div>Credits Left: <span id="t-credits-left" style="color: var(--secondary-color);">138</span></div>
-            <div>Trimesters Left: <span id="t-tris-left" style="color: var(--secondary-color);">12</span></div>
-        </div>
-    </div>
-
-    <div class="section-box">
-        <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 20px;">
-            <div style="flex:1; min-width: 140px;">
-                <label style="font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 5px;">Current Credits</label>
-                <input type="number" id="t-current-credits" placeholder="e.g., 13" step="0.5">
+        <div class="planner-select-wrapper" style="margin-bottom: 25px;">
+            <label style="font-weight:bold; color:var(--primary-color); font-size: 1.1em;">🚀 1. Current Trimester Calc (Auto-fill from Planner):</label>
+            <select id="t-planner-select" onchange="loadTuitionFromPlanner()" style="margin-top: 12px; border: 2px solid var(--primary-color);">
+                <option value="">-- Select Your Current Trimester --</option>
+            </select>
+            <div style="margin-top: 15px; display: flex; gap: 20px; font-weight: bold; color: var(--text-main); font-size: 1.1em; background: var(--bg-container); padding: 10px 15px; border-radius: 8px;">
+                <div>Credits Left: <span id="t-credits-left" style="color: var(--secondary-color);">138</span></div>
+                <div>Trimesters Left: <span id="t-tris-left" style="color: var(--secondary-color);">12</span></div>
             </div>
         </div>
-        
-        <div style="margin-bottom: 15px; padding: 15px; border-radius: 8px; background: var(--course-added-bg); border: 1px solid var(--border-color); transition: all 0.3s;">
-            <label style="font-weight: bold; color: var(--primary-color); display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 1.1em;">
-                <input type="checkbox" id="t-has-waiver" onchange="toggleWaiverInputs()" style="width: 20px; height: 20px; accent-color: var(--primary-color);">
-                Apply General Waiver?
-            </label>
-            <div id="t-waiver-inputs" style="display: none; margin-top: 15px; animation: slideUpFade 0.3s ease-out;">
-                <label style="font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 5px;">Waiver Percentage</label>
-                <select id="t-waiver-select" style="max-width: 200px;">
-                    <option value="25">25%</option>
-                    <option value="50">50%</option>
-                </select>
-            </div>
-        </div>
-        
-        <div style="margin-bottom: 20px; padding: 15px; border-radius: 8px; background: var(--course-added-bg); border: 1px solid var(--border-color); transition: all 0.3s;">
-            <label style="font-weight: bold; color: var(--primary-color); display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 1.1em;">
-                <input type="checkbox" id="t-has-scholarship" onchange="toggleScholarshipInputs()" style="width: 20px; height: 20px; accent-color: var(--primary-color);">
-                Apply Result-Based Scholarship?
-            </label>
-            
-            <div id="t-scholarship-inputs" style="display: none; margin-top: 15px; flex-wrap: wrap; gap: 15px; animation: slideUpFade 0.3s ease-out;">
+
+        <div class="section-box">
+            <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 20px;">
                 <div style="flex:1; min-width: 140px;">
-                    <label style="font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 5px;">Previous Trimester Credits</label>
-                    <input type="number" id="t-prev-credits" placeholder="e.g., 12" step="0.5">
+                    <label style="font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 5px;">Current Credits</label>
+                    <input type="number" id="t-current-credits" placeholder="e.g., 13" step="0.5">
+                </div>
+            </div>
+            
+            <div style="margin-bottom: 15px; padding: 15px; border-radius: 8px; background: var(--course-added-bg); border: 1px solid var(--border-color); transition: all 0.3s;">
+                <label style="font-weight: bold; color: var(--primary-color); display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 1.1em;">
+                    <input type="checkbox" id="t-has-waiver" onchange="toggleWaiverInputs()" style="width: 20px; height: 20px; accent-color: var(--primary-color);">
+                    Apply General Waiver?
+                </label>
+                <div id="t-waiver-inputs" style="display: none; margin-top: 15px; animation: slideUpFade 0.3s ease-out;">
+                    <label style="font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 5px;">Waiver Percentage</label>
+                    <select id="t-waiver-select" style="max-width: 200px;">
+                        <option value="25">25%</option>
+                        <option value="50">50%</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div style="margin-bottom: 20px; padding: 15px; border-radius: 8px; background: var(--course-added-bg); border: 1px solid var(--border-color); transition: all 0.3s;">
+                <label style="font-weight: bold; color: var(--primary-color); display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 1.1em;">
+                    <input type="checkbox" id="t-has-scholarship" onchange="toggleScholarshipInputs()" style="width: 20px; height: 20px; accent-color: var(--primary-color);">
+                    Apply Result-Based Scholarship?
+                </label>
+                
+                <div id="t-scholarship-inputs" style="display: none; margin-top: 15px; flex-wrap: wrap; gap: 15px; animation: slideUpFade 0.3s ease-out;">
+                    <div style="flex:1; min-width: 140px;">
+                        <label style="font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 5px;">Previous Trimester Credits</label>
+                        <input type="number" id="t-prev-credits" placeholder="e.g., 12" step="0.5">
+                    </div>
+                    <div style="flex:1; min-width: 140px;">
+                        <label style="font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 5px;">Scholarship Percentage</label>
+                        <select id="t-scholarship-select">
+                            <option value="25">25%</option>
+                            <option value="50">50%</option>
+                            <option value="100">100%</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 25px; background: var(--bg-body); padding: 15px; border-radius: 8px; border: 1px dashed var(--border-color);">
+                <div style="flex:1; min-width: 140px;">
+                    <label style="font-size: 0.85em; color: var(--text-muted); display: block; margin-bottom: 5px;">Cost Per Credit (BDT)</label>
+                    <input type="number" id="t-cost-per-credit" value="6500">
                 </div>
                 <div style="flex:1; min-width: 140px;">
-                    <label style="font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 5px;">Scholarship Percentage</label>
-                    <select id="t-scholarship-select">
-                        <option value="25">25%</option>
-                        <option value="50">50%</option>
-                        <option value="100">100%</option>
-                    </select>
+                    <label style="font-size: 0.85em; color: var(--text-muted); display: block; margin-bottom: 5px;">Trimester Fee (BDT)</label>
+                    <input type="number" id="t-trimester-fee" value="6500">
                 </div>
             </div>
-        </div>
-
-        <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 25px; background: var(--bg-body); padding: 15px; border-radius: 8px; border: 1px dashed var(--border-color);">
-            <div style="flex:1; min-width: 140px;">
-                <label style="font-size: 0.85em; color: var(--text-muted); display: block; margin-bottom: 5px;">Cost Per Credit (BDT)</label>
-                <input type="number" id="t-cost-per-credit" value="6500">
-            </div>
-            <div style="flex:1; min-width: 140px;">
-                <label style="font-size: 0.85em; color: var(--text-muted); display: block; margin-bottom: 5px;">Trimester Fee (BDT)</label>
-                <input type="number" id="t-trimester-fee" value="6500">
-            </div>
-        </div>
-        
-        <button class="btn-action btn-calc" style="width: 100%; box-shadow: 0 10px 20px rgba(0, 129, 209, 0.2); background: var(--gradient-secondary);" onclick="calculateTuition()">💸 Calculate Current Trimester</button>
-
-        <div id="tuitionResultBox" class="result-box" style="margin-top: 25px; border-color: #28a745; background: linear-gradient(135deg, var(--course-added-bg) 0%, var(--bg-body) 100%);">
-            <div style="font-size: 1.1em; color: var(--text-muted); margin-bottom: 5px;">Total Payable Amount:</div>
-            <div class="gpa-value" id="t-total-fee" style="color: #28a745; font-size: 2.2rem;">0 BDT</div>
             
-            <hr style="border: none; border-top: 1px dashed var(--border-color); margin: 20px 0;">
+            <button class="btn-action btn-calc" style="width: 100%; box-shadow: 0 10px 20px rgba(0, 129, 209, 0.2); background: var(--gradient-secondary);" onclick="calculateTuition()">💸 Calculate Current Trimester</button>
+
+            <div id="tuitionResultBox" class="result-box" style="margin-top: 25px; border-color: #28a745; background: linear-gradient(135deg, var(--course-added-bg) 0%, var(--bg-body) 100%);">
+                <div style="font-size: 1.1em; color: var(--text-muted); margin-bottom: 5px;">Total Payable Amount:</div>
+                <div class="gpa-value" id="t-total-fee" style="color: #28a745; font-size: 2.2rem;">0 BDT</div>
+                
+                <hr style="border: none; border-top: 1px dashed var(--border-color); margin: 20px 0;">
+                
+                <div style="display: flex; justify-content: space-between; font-size: 0.95em; color: var(--text-muted); flex-wrap: wrap; gap: 15px; text-align: left;">
+                    <div style="flex:1; min-width: 100px;">Base Tuition:<br><strong id="t-base-tuition" style="color: var(--text-main); font-size: 1.1em;">0</strong></div>
+                    <div style="flex:1; min-width: 100px; display: none;" id="t-scholarship-box">Scholarship:<br><strong id="t-scholarship-discount" style="color: #d32f2f; font-size: 1.1em;">-0</strong><br><small id="t-scholarship-note" style="font-size: 0.8em; color: var(--primary-color); font-weight:bold;"></small></div>
+                    <div style="flex:1; min-width: 100px; display: none;" id="t-waiver-box">General Waiver:<br><strong id="t-waiver-discount" style="color: #d32f2f; font-size: 1.1em;">-0</strong><br><small id="t-waiver-note" style="font-size: 0.8em; color: var(--primary-color); font-weight:bold;"></small></div>
+                    <div style="flex:1; min-width: 100px;">Trimester Fee:<br><strong id="t-trim-fee" style="color: var(--primary-color); font-size: 1.1em;">0</strong></div>
+                </div>
+            </div>
+        </div>
+
+       <div class="section-box" style="margin-top: 40px; background: var(--bg-container);">
+            <h2 style="color: var(--secondary-color); margin-top: 0; border-bottom: 3px solid var(--border-color); padding-bottom: 10px; font-size: 1.5em;">📅 2. Multiple Trimester Planner</h2>
+            <p style="color: var(--text-muted); margin-bottom: 20px;">Plan your upcoming trimesters. Each row automatically adds the <strong style="color:var(--primary-color);">6500 BDT</strong> trimester fee.</p>
             
-            <div style="display: flex; justify-content: space-between; font-size: 0.95em; color: var(--text-muted); flex-wrap: wrap; gap: 15px; text-align: left;">
-                <div style="flex:1; min-width: 100px;">Base Tuition:<br><strong id="t-base-tuition" style="color: var(--text-main); font-size: 1.1em;">0</strong></div>
-                <div style="flex:1; min-width: 100px; display: none;" id="t-scholarship-box">Scholarship:<br><strong id="t-scholarship-discount" style="color: #d32f2f; font-size: 1.1em;">-0</strong><br><small id="t-scholarship-note" style="font-size: 0.8em; color: var(--primary-color); font-weight:bold;"></small></div>
-                <div style="flex:1; min-width: 100px; display: none;" id="t-waiver-box">General Waiver:<br><strong id="t-waiver-discount" style="color: #d32f2f; font-size: 1.1em;">-0</strong><br><small id="t-waiver-note" style="font-size: 0.8em; color: var(--primary-color); font-weight:bold;"></small></div>
-                <div style="flex:1; min-width: 100px;">Trimester Fee:<br><strong id="t-trim-fee" style="color: var(--primary-color); font-size: 1.1em;">0</strong></div>
-            </div>
-        </div>
-    </div>
-
-   <div class="section-box" style="margin-top: 40px; background: var(--bg-container);">
-        <h2 style="color: var(--secondary-color); margin-top: 0; border-bottom: 3px solid var(--border-color); padding-bottom: 10px; font-size: 1.5em;">📅 2. Multiple Trimester Planner</h2>
-        <p style="color: var(--text-muted); margin-bottom: 20px;">Plan your upcoming trimesters. Each row automatically adds the <strong style="color:var(--primary-color);">6500 BDT</strong> trimester fee.</p>
-        
-        <div style="margin-bottom: 20px; padding: 15px; border-radius: 8px; background: var(--course-added-bg); border: 1px solid var(--border-color);">
-            <h3 style="margin-top: 0; margin-bottom: 10px; font-size: 1.05em; color: var(--primary-color);">Global Estimated Discounts</h3>
-            <p style="font-size: 0.85em; color: var(--text-muted); margin-top: 0; margin-bottom: 15px;">Check a box to simulate keeping a waiver or scholarship across all planned trimesters.</p>
-            <div style="display: flex; gap: 20px; flex-wrap: wrap;">
-                <div style="flex: 1; min-width: 200px;">
-                    <label style="font-weight: bold; color: var(--text-main); display: flex; align-items: center; gap: 8px; margin-bottom: 8px; cursor: pointer;">
-                        <input type="checkbox" id="m-has-waiver" style="width: 18px; height: 18px; accent-color: var(--primary-color);" onchange="document.getElementById('m-waiver-select').disabled = !this.checked">
-                        Apply Waiver
-                    </label>
-                    <select id="m-waiver-select" disabled>
-                        <option value="25">25%</option>
-                        <option value="50">50%</option>
-                        <option value="100">100%</option>
-                    </select>
-                </div>
-                <div style="flex: 1; min-width: 200px;">
-                    <label style="font-weight: bold; color: var(--text-main); display: flex; align-items: center; gap: 8px; margin-bottom: 8px; cursor: pointer;">
-                        <input type="checkbox" id="m-has-scholarship" style="width: 18px; height: 18px; accent-color: var(--primary-color);" onchange="document.getElementById('m-scholarship-select').disabled = !this.checked">
-                        Apply Scholarship
-                    </label>
-                    <select id="m-scholarship-select" disabled>
-                        <option value="25">25%</option>
-                        <option value="50">50%</option>
-                        <option value="100">100%</option>
-                    </select>
+            <div style="margin-bottom: 20px; padding: 15px; border-radius: 8px; background: var(--course-added-bg); border: 1px solid var(--border-color);">
+                <h3 style="margin-top: 0; margin-bottom: 10px; font-size: 1.05em; color: var(--primary-color);">Global Estimated Discounts</h3>
+                <p style="font-size: 0.85em; color: var(--text-muted); margin-top: 0; margin-bottom: 15px;">Check a box to simulate keeping a waiver or scholarship across all planned trimesters.</p>
+                <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 200px;">
+                        <label style="font-weight: bold; color: var(--text-main); display: flex; align-items: center; gap: 8px; margin-bottom: 8px; cursor: pointer;">
+                            <input type="checkbox" id="m-has-waiver" style="width: 18px; height: 18px; accent-color: var(--primary-color);" onchange="document.getElementById('m-waiver-select').disabled = !this.checked">
+                            Apply Waiver
+                        </label>
+                        <select id="m-waiver-select" disabled>
+                            <option value="25">25%</option>
+                            <option value="50">50%</option>
+                            <option value="100">100%</option>
+                        </select>
+                    </div>
+                    <div style="flex: 1; min-width: 200px;">
+                        <label style="font-weight: bold; color: var(--text-main); display: flex; align-items: center; gap: 8px; margin-bottom: 8px; cursor: pointer;">
+                            <input type="checkbox" id="m-has-scholarship" style="width: 18px; height: 18px; accent-color: var(--primary-color);" onchange="document.getElementById('m-scholarship-select').disabled = !this.checked">
+                            Apply Scholarship
+                        </label>
+                        <select id="m-scholarship-select" disabled>
+                            <option value="25">25%</option>
+                            <option value="50">50%</option>
+                            <option value="100">100%</option>
+                        </select>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div id="multi-sem-container">
+            <div id="multi-sem-container"></div>
+            
+            <button class="btn-action btn-add" style="margin-bottom: 20px;" onclick="addMultiSemRow()">+ Add Trimester</button>
+            
+            <button class="btn-action btn-calc" style="width: 100%; background: var(--gradient-primary);" onclick="calculateMultiSem()">📊 Calculate Multi-Trimester Total</button>
+            
+            <div id="multiSemResultBox" class="result-box" style="margin-top: 25px; border-color: var(--primary-color); display: none;">
+                <div style="font-size: 1.1em; color: var(--text-muted); margin-bottom: 5px;">Estimated Total Cost:</div>
+                <div class="gpa-value" id="t-multi-total" style="color: var(--primary-color); font-size: 2.2rem;">0 BDT</div>
+                <p style="margin-top: 10px; color: var(--text-muted);">Total Credits: <strong id="t-multi-credits-total">0</strong> | Total Semesters: <strong id="t-multi-sem-total">0</strong></p>
+                <p id="t-multi-saved" style="margin-top: 5px; color: #28a745; font-weight: bold; display: none;"></p>
             </div>
-        
-        <button class="btn-action btn-add" style="margin-bottom: 20px;" onclick="addMultiSemRow()">+ Add Trimester</button>
-        
-        <button class="btn-action btn-calc" style="width: 100%; background: var(--gradient-primary);" onclick="calculateMultiSem()">📊 Calculate Multi-Trimester Total</button>
-        
-        <div id="multiSemResultBox" class="result-box" style="margin-top: 25px; border-color: var(--primary-color); display: none;">
-            <div style="font-size: 1.1em; color: var(--text-muted); margin-bottom: 5px;">Estimated Total Cost:</div>
-            <div class="gpa-value" id="t-multi-total" style="color: var(--primary-color); font-size: 2.2rem;">0 BDT</div>
-            <p style="margin-top: 10px; color: var(--text-muted);">Total Credits: <strong id="t-multi-credits-total">0</strong> | Total Semesters: <strong id="t-multi-sem-total">0</strong></p>
-            <p id="t-multi-saved" style="margin-top: 5px; color: #28a745; font-weight: bold; display: none;"></p>
         </div>
     </div>
     
@@ -1465,18 +1462,17 @@
 
     // --- TAB SWITCHER ---
     function switchTab(tab) {
-    document.querySelectorAll('.tool-section').forEach(el => el.classList.remove('active'));
-    document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
-    document.getElementById(tab + '-section').classList.add('active');
-    document.getElementById('btn-' + tab).classList.add('active');
-    if (tab === 'calendar') renderFullCalendar();
-    if (tab === 'planner') {
-        const grid = document.getElementById('plannerGrid');
-        if (grid && grid.children.length === 0) initPlanner();
+        document.querySelectorAll('.tool-section').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+        document.getElementById(tab + '-section').classList.add('active');
+        document.getElementById('btn-' + tab).classList.add('active');
+        if (tab === 'calendar') renderFullCalendar();
+        if (tab === 'planner') {
+            const grid = document.getElementById('plannerGrid');
+            if (grid && grid.children.length === 0) initPlanner();
+        }
     }
-}
 
-    // --- THEME TOGGLE ---
     // --- THEME TOGGLE (System -> Light -> Dark) ---
     let currentTheme = localStorage.getItem('theme') || 'system';
 
@@ -1518,7 +1514,7 @@
         }
     }
 
-    // Listen for OS theme changes in real-time (if user changes device settings)
+    // Listen for OS theme changes in real-time
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
         if (currentTheme === 'system') applyTheme('system');
     });
@@ -1705,7 +1701,6 @@
             let widthPercent = ((endMin - startMin) / timelineTotal) * 100;
 
             daysToRender.forEach(d => {
-                // --- NEW CLASH DETECTION LOGIC ---
                 // Check if the current class overlaps with any existing class on this day
                 // Condition for overlap: StartA < EndB AND EndA > StartB
                 let overlappingClasses = daySchedules[d].filter(existing => 
@@ -1752,6 +1747,7 @@
         
         document.getElementById('section-clash-alert').style.display = hasClash ? 'block' : 'none';
     }
+    
     function filterSectionCourses() {
         const input = document.getElementById('sectionCourseSearch').value.toLowerCase();
         const suggestionBox = document.getElementById('sectionSuggestions');
@@ -1956,13 +1952,12 @@
         });
     }
 
-  function loadFromPlanner() {
+    function loadFromPlanner() {
         const select = document.getElementById('cgpaPlannerSelect');
         const triName = select.value;
         if (!triName) return;
 
         // 1. WARNING FOR MISSING PREVIOUS CGPA
-        // If it's not the 1st Trimester and the previous CGPA is missing, show a warning.
         const prevCGPAInput = document.getElementById('prevCGPA');
         if (triName !== "1st Trimester" && !prevCGPAInput.value) {
             const proceed = confirm("⚠️ You haven't entered your Previous CGPA.\n\nAre you sure you want to continue without it? (Your Total CGPA calculation might be inaccurate)");
@@ -1982,19 +1977,13 @@
 
         // 2. AUTO-CALCULATE PREVIOUS CREDITS
         let calculatedPrevCredits = 0;
-        
-        // Loop through the curriculum in order to sum previous credits
         for (const [key, courses] of Object.entries(uiuCurriculum)) {
-            if (key === triName) {
-                break; // Stop when we reach the selected trimester
-            }
-            // Add up the credits for this past trimester
+            if (key === triName) break;
             courses.forEach(c => {
                 calculatedPrevCredits += c.cr;
             });
         }
 
-        // Populate the "Credits Earned" input field automatically
         const prevCreditsInput = document.getElementById('prevCredits');
         if (triName === "1st Trimester") {
             prevCreditsInput.value = ""; // No previous credits for 1st trimester
@@ -2038,7 +2027,6 @@
             const d = String(day).padStart(2, '0');
             const currentCellDate = `${currentCalYear}-${m}-${d}`;
             
-            // Check if this specific cell is exactly TODAY
             const isToday = (currentCalYear === actualToday.getFullYear() && 
                              currentCalMonth === actualToday.getMonth() && 
                              day === actualToday.getDate());
@@ -2105,7 +2093,6 @@
         }
     }
 
-    // NEW: Function to check today's events for the banner
     function checkTodayEvents() {
         const y = actualToday.getFullYear();
         const m = String(actualToday.getMonth() + 1).padStart(2, '0');
@@ -2114,12 +2101,11 @@
         
         const banner = document.getElementById('today-event-banner');
         
-        // Find if today falls within any event's start and end dates
         let todayEvents = academicEvents.filter(evt => todayStr >= evt.start && todayStr <= evt.end);
         
         if (todayEvents.length > 0) {
             banner.style.display = 'block';
-            let evt = todayEvents[0]; // Display the primary event if there are multiple
+            let evt = todayEvents[0]; 
             
             if (evt.type === 'holiday') {
                 banner.className = 'today-holiday';
@@ -2133,7 +2119,7 @@
         }
     }
 
-// --- TARGET CGPA PLANNER LOGIC ---
+    // --- TARGET CGPA PLANNER LOGIC ---
     function calculateGoalCGPA() {
         const currentCGPA = parseFloat(document.getElementById('goalCurrentCGPA').value) || 0;
         const earnedCredits = parseFloat(document.getElementById('goalEarnedCredits').value) || 0;
@@ -2255,7 +2241,7 @@
         document.getElementById('t-tris-left').innerText = trisLeft > 0 ? trisLeft : 0;
     }
 
-   function calculateTuition() {
+    function calculateTuition() {
         const currentCredits = parseFloat(document.getElementById('t-current-credits').value) || 0;
         const costPerCredit = parseFloat(document.getElementById('t-cost-per-credit').value) || 6500;
         const trimesterFee = parseFloat(document.getElementById('t-trimester-fee').value) || 6500;
@@ -2271,15 +2257,13 @@
         let finalDiscount = 0, displayScholarshipDiscount = 0, displayWaiverDiscount = 0;
         let scholarshipNoteText = "", waiverNoteText = "";
 
-        // --- NEW LOGIC: Hybrid Stacking for Extra Credits ---
         if (scholarshipPct > waiverPct) {
             const eligibleCredits = Math.min(currentCredits, prevCredits);
-            const extraCredits = Math.max(0, currentCredits - prevCredits); // The "rest" of the credits
+            const extraCredits = Math.max(0, currentCredits - prevCredits); 
             
             displayScholarshipDiscount = eligibleCredits * costPerCredit * (scholarshipPct / 100);
             scholarshipNoteText = `(${scholarshipPct}% applied on ${eligibleCredits} cr)`;
             
-            // Apply waiver to the leftover credits if waiver is checked
             if (hasWaiver && extraCredits > 0) {
                 displayWaiverDiscount = extraCredits * costPerCredit * (waiverPct / 100);
                 waiverNoteText = `(${waiverPct}% applied on ${extraCredits} leftover cr)`;
@@ -2288,7 +2272,6 @@
             finalDiscount = displayScholarshipDiscount + displayWaiverDiscount;
         } 
         else if (waiverPct >= scholarshipPct && waiverPct > 0) {
-            // If waiver is higher, it just applies to everything
             displayWaiverDiscount = currentCredits * costPerCredit * (waiverPct / 100);
             waiverNoteText = `(${waiverPct}% applied on all ${currentCredits} cr)`;
             finalDiscount = displayWaiverDiscount;
@@ -2320,7 +2303,8 @@
         
         document.getElementById('tuitionResultBox').style.display = 'block';
     }
- // --- MULTI-SEMESTER PLANNER LOGIC ---
+
+    // --- MULTI-SEMESTER PLANNER LOGIC ---
     function addMultiSemRow() {
         const container = document.getElementById('multi-sem-container');
         if (!container) return;
@@ -2373,7 +2357,6 @@
                 let baseTuition = credits * costPerCredit;
                 let rowDiscount = 0;
 
-                // --- NEW LOGIC: Hybrid Stacking for Multi-Sem ---
                 if (scholarshipPct > waiverPct) {
                     let eligibleCredits = (prevCredits === 0) ? credits : Math.min(credits, prevCredits);
                     let extraCredits = Math.max(0, credits - eligibleCredits);
@@ -2414,38 +2397,37 @@
 
     // --- INIT ---
     window.onload = function() {
-    try { initGrid(); } catch(e) { console.error('initGrid failed:', e); }
-    try { initSectionGrid(); } catch(e) { console.error('initSectionGrid failed:', e); }
-    try { initPlanner(); } catch(e) { console.error('initPlanner failed:', e); }
-    try { addCourseRow(); addCourseRow(); addCourseRow(); } catch(e) { console.error('addCourseRow failed:', e); }
-    try { renderFullCalendar(); } catch(e) { console.error('renderFullCalendar failed:', e); }
+        try { initGrid(); } catch(e) { console.error('initGrid failed:', e); }
+        try { initSectionGrid(); } catch(e) { console.error('initSectionGrid failed:', e); }
+        try { initPlanner(); } catch(e) { console.error('initPlanner failed:', e); }
+        try { initTuitionPlanner(); } catch(e) { console.error('initTuitionPlanner failed:', e); }
+        try { checkTodayEvents(); } catch(e) { console.error('checkTodayEvents failed:', e); }
+        try { addCourseRow(); addCourseRow(); addCourseRow(); } catch(e) { console.error('addCourseRow failed:', e); }
+        try { renderFullCalendar(); } catch(e) { console.error('renderFullCalendar failed:', e); }
 
-    document.addEventListener('click', e => {
-        if (!e.target.closest('#courseSearch')) {
-            const sugg = document.getElementById('suggestions');
-            if (sugg) sugg.style.display = 'none';
-        }
-        if (!e.target.closest('#calendarSearch')) {
-            const calSugg = document.getElementById('calendarSuggestions');
-            if (calSugg) calSugg.style.display = 'none';
-        }
-        if (!e.target.closest('#sectionCourseSearch')) {
-            const secSugg = document.getElementById('sectionSuggestions');
-            if (secSugg) secSugg.style.display = 'none';
-        }
-        if (!e.target.closest('.c-name')) {
-            document.querySelectorAll('.suggestions').forEach(s => {
-                if (s.id !== 'suggestions' && s.id !== 'calendarSuggestions' && s.id !== 'sectionSuggestions') {
-                    s.style.display = 'none';
-                }
-            });
-        }
-    });
-};
+        document.addEventListener('click', e => {
+            if (!e.target.closest('#courseSearch')) {
+                const sugg = document.getElementById('suggestions');
+                if (sugg) sugg.style.display = 'none';
+            }
+            if (!e.target.closest('#calendarSearch')) {
+                const calSugg = document.getElementById('calendarSuggestions');
+                if (calSugg) calSugg.style.display = 'none';
+            }
+            if (!e.target.closest('#sectionCourseSearch')) {
+                const secSugg = document.getElementById('sectionSuggestions');
+                if (secSugg) secSugg.style.display = 'none';
+            }
+            if (!e.target.closest('.c-name')) {
+                document.querySelectorAll('.suggestions').forEach(s => {
+                    if (s.id !== 'suggestions' && s.id !== 'calendarSuggestions' && s.id !== 'sectionSuggestions') {
+                        s.style.display = 'none';
+                    }
+                });
+            }
+        });
+    };
 </script>
 
 </body>
 </html>
-
-
-
