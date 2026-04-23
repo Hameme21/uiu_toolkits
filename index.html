@@ -336,17 +336,15 @@ header .header-right { display: flex; align-items: center; gap: 8px; }
           <div id="adminAuctionQueue" class="hidden" style="flex:1;display:flex;flex-direction:column;padding:20px;height:100%">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,0.06);flex-wrap:wrap;gap:10px">
               <div>
-                <h3 style="font-family:var(--font-display);font-size:15px;font-weight:700">Draft Queue Control</h3>
-                <p style="color:var(--muted);font-size:11px;margin-top:3px">Select category & initialize auction</p>
+                <h3 style="font-family:var(--font-display);font-size:15px;font-weight:700">Lottery Queue</h3>
+                <p style="color:var(--muted);font-size:11px;margin-top:3px">Draw players randomly</p>
               </div>
-              <select id="queueCategorySelect" style="width:160px;margin-bottom:0" onchange="renderLiveAdminQueue()">
-                <option value="">Select Category…</option>
-              </select>
+              <button class="btn-primary small" onclick="socket.emit('admin:generate_lottery')">Generate Lottery</button>
             </div>
             <div id="queuePlayersList" class="player-grid-sm" style="overflow-y:auto;flex:1"></div>
             <div style="margin-top:14px;padding:12px;background:rgba(0,0,0,0.2);border-radius:12px;border:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;gap:10px">
               <input type="checkbox" id="autoNextToggle" checked style="width:16px;height:16px;accent-color:var(--accent);margin:0">
-              <label for="autoNextToggle" style="margin:0;color:var(--text);font-size:12px;font-weight:500;text-transform:none;letter-spacing:0;cursor:pointer">Auto-load next unsold prospect</label>
+              <label for="autoNextToggle" style="margin:0;color:var(--text);font-size:12px;font-weight:500;text-transform:none;letter-spacing:0;cursor:pointer">Auto-load next prospect</label>
             </div>
           </div>
         </div>
@@ -386,7 +384,8 @@ header .header-right { display: flex; align-items: center; gap: 8px; }
               </div>
             </div>
             
-            <div id="adminActionButtons" class="hidden" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px">
+            <div id="adminActionButtons" class="hidden" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:16px">
+              <button class="green" onclick="socket.emit('admin:start_bidding')" id="btnStartBidding" style="padding:12px;font-family:var(--font-display);letter-spacing:0.05em;font-size:13px">▶ START BIDDING</button>
               <button class="yellow" onclick="triggerSoldFromPopup()" style="padding:12px;font-family:var(--font-display);letter-spacing:0.05em;font-size:13px">🔨 GAVEL DROP</button>
               <button class="pink" onclick="triggerRTMPopup()" style="padding:12px;font-family:var(--font-display);letter-spacing:0.05em;font-size:13px">🔁 OVERRIDE RTM</button>
             </div>
@@ -585,7 +584,7 @@ const BACKEND_URL = "https://auction-socket-39c2.onrender.com";
 const socket = io(BACKEND_URL, { transports: ["websocket"] });
 
 let CURRENT_USER = { role: null, teamId: null, hostId: null };
-let STATE = { teams: [], categories: [], playersSnapshot: {}, activeBids: {}, activeBidders: {}, previousOwners: {}, soldPrices: {}, directSigns: {}, rtmEvents: {}, config: { impactAmount: 0 }, rtmState: null };
+let STATE = { teams: [], categories: [], playersSnapshot: {}, activeBids: {}, activeBidders: {}, previousOwners: {}, soldPrices: {}, directSigns: {}, rtmEvents: {}, config: { impactAmount: 0 }, rtmState: null, lotteryQueue: [], unsoldPlayers: {}, biddingActive: false };
 let pendingSold = null, pendingRTM = null, activePlayer = null;
 let currentActiveSectionId = 'sectionDashboard';
 let currentAuctionCategory = null;
@@ -702,7 +701,7 @@ function resetAndStartTimer() {
   if (btn) btn.textContent = '⏸️';
   updateTimerUI();
   
-  if (CURRENT_USER.role === 'admin') {
+  if (CURRENT_USER.role === 'admin' && STATE.biddingActive) {
     socket.emit('admin:timer_control', { paused: false, time: 30 });
   }
 }
@@ -728,10 +727,17 @@ function handleTimerExpiry() {
   if (window.timerHandled) return;
   window.timerHandled = true;
   if (CURRENT_USER.role === 'admin' && activePlayer) { 
-    triggerSoldFromPopup(); 
-    showToast('⏱️ Time is up! Finalize the highest bidder.'); 
+      const key = `${activePlayer.category}:${activePlayer.name}`;
+      const highBidderId = STATE.activeBidders ? STATE.activeBidders[key] : null;
+      if (highBidderId) {
+          triggerSoldFromPopup();
+          showToast('⏱️ Time is up! Finalize the highest bidder.'); 
+      } else {
+          socket.emit('admin:mark_unsold', { category: activePlayer.category, name: activePlayer.name });
+      }
+  } else {
+      showToast("⏱️ Time's up! Awaiting Admin confirmation…");
   }
-  else showToast("⏱️ Time's up! Awaiting Admin confirmation…");
 }
 
 socket.on('auth:portal_error', msg => { document.getElementById('portalMsg').textContent = msg; });
@@ -770,6 +776,7 @@ socket.on('timer:sync', data => {
 });
 
 socket.on('popup:open', player => {
+  STATE.biddingActive = false;
   activePlayer = player;
   document.getElementById('auctionIdleState').classList.add('hidden');
   document.getElementById('auctionPlayerPopup').classList.remove('hidden');
@@ -848,16 +855,10 @@ socket.on('player:sold', data => {
     renderAll();
     if (CURRENT_USER.role === 'admin' && !isRTM) {
       const auto = document.getElementById('autoNextToggle');
-      if (auto?.checked && currentAuctionCategory === category) {
-        const players = STATE.playersSnapshot[currentAuctionCategory] || [];
-        const cat = STATE.categories.find(c => c.id === currentAuctionCategory);
-        if (cat) {
-          const soldIdx = players.findIndex(p => p.name === name);
-          for (let i = soldIdx + 1; i < players.length; i++) {
-            let sold = false;
-            STATE.teams.forEach(tm => { if (tm.purchases?.[currentAuctionCategory] === players[i].name) sold = true; });
-            if (!sold) { startAuctionFromQueue(currentAuctionCategory, players[i].name, cat.base, players[i].image || 'https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=400&auto=format&fit=crop'); break; }
-          }
+      if (auto?.checked && STATE.lotteryQueue) {
+        const next = STATE.lotteryQueue.find(p => p.name !== name && !STATE.teams.some(tm => tm.purchases?.[p.category] === p.name));
+        if (next) {
+            startAuctionFromQueue(next.category, next.name, next.base, next.image);
         }
       }
     }
@@ -865,6 +866,27 @@ socket.on('player:sold', data => {
   
   const label = isRTM ? 'RTM' : (isDirect ? 'RETAINED' : 'SOLD');
   log(`<span style="font-weight:700;color:white">${label}</span>: ${name} → <span style="color:var(--accent-2);font-weight:700">${t ? t.name : teamId}</span> ৳${price}`);
+});
+
+socket.on('bidding:started', () => {
+    STATE.biddingActive = true;
+    updatePopupPrice(document.getElementById('popupPrice').textContent, STATE.activeBidders ? STATE.activeBidders[`${activePlayer.category}:${activePlayer.name}`] : null);
+    showToast('▶ Bidding has started!');
+});
+
+socket.on('player:unsold', (data) => {
+    showToast(`❌ ${data.name} went UNSOLD`);
+    log(`<span style="color:var(--danger);font-weight:700">UNSOLD</span>: ${data.name}`);
+    
+    if (CURRENT_USER.role === 'admin') {
+        const auto = document.getElementById('autoNextToggle');
+        if (auto?.checked && STATE.lotteryQueue) {
+            const next = STATE.lotteryQueue.find(p => p.name !== data.name && !STATE.teams.some(tm => tm.purchases?.[p.category] === p.name));
+            if (next) {
+                setTimeout(() => { startAuctionFromQueue(next.category, next.name, next.base, next.image); }, 1500);
+            }
+        }
+    }
 });
 
 // --- RTM PROMPT SOCKET EVENTS ---
@@ -1047,36 +1069,32 @@ function renderAll() {
 
 function renderLiveAdminQueue() {
   if (CURRENT_USER.role !== 'admin') return;
-  const sel = document.getElementById('queueCategorySelect');
-  const cur = sel.value;
-  sel.innerHTML = '<option value="">Select Category…</option>';
-  STATE.categories.forEach(c => sel.innerHTML += `<option value="${c.id}" ${c.id === cur ? 'selected' : ''}>${c.id}</option>`);
-  if (!sel.value && STATE.categories.length > 0) sel.value = STATE.categories[0].id;
-  currentAuctionCategory = sel.value;
   const container = document.getElementById('queuePlayersList');
   container.innerHTML = '';
-  if (!currentAuctionCategory) { container.innerHTML = '<div style="grid-column:1/-1;display:flex;align-items:center;justify-content:center;height:100px;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:0.15em">Select a category above.</div>'; return; }
-  const catConfig = STATE.categories.find(c => c.id === currentAuctionCategory);
-  if (!catConfig) return;
-  const players = STATE.playersSnapshot[currentAuctionCategory] || [];
-  const unsold = players.filter(p => !STATE.teams.some(t => t.purchases?.[currentAuctionCategory] === p.name));
+  if (!STATE.lotteryQueue || STATE.lotteryQueue.length === 0) {
+      container.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--muted);font-size:11px;padding-top:20px;">No lottery queue. Generate one above.</div>';
+      return;
+  }
+  const unsold = STATE.lotteryQueue.filter(p => !STATE.teams.some(t => t.purchases?.[p.category] === p.name));
   if (!unsold.length) { container.innerHTML = '<div style="grid-column:1/-1;display:flex;align-items:center;justify-content:center;height:100px;color:var(--emerald);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.1em">All prospects drafted.</div>'; return; }
   unsold.forEach(p => {
     const imgSrc = p.image || 'https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=400&auto=format&fit=crop';
     
     // Tag RTM eligible ones visually
-    const isPrevOwned = STATE.previousOwners && STATE.previousOwners[`${currentAuctionCategory}:${p.name}`];
+    const isPrevOwned = STATE.previousOwners && STATE.previousOwners[`${p.category}:${p.name}`];
     const badgeHtml = isPrevOwned ? `<span style="font-size:8px; color:var(--rtm); border:1px solid var(--rtm); border-radius:4px; padding:1px 4px; margin-left:4px;">RTM</span>` : '';
+    const unsoldTag = p.isUnsold ? `<div style="font-size:8px;color:var(--danger);border:1px solid var(--danger);padding:1px 4px;border-radius:4px;margin-top:2px;display:inline-block">UNSOLD</div>` : '';
 
     const el = document.createElement('div');
     el.style.cssText = 'background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:12px;overflow:hidden;cursor:pointer;transition:all 0.2s';
     el.onmouseover = () => { el.style.borderColor = 'rgba(124,58,237,0.4)'; el.style.transform = 'translateY(-2px)'; };
     el.onmouseout = () => { el.style.borderColor = 'rgba(255,255,255,0.07)'; el.style.transform = ''; };
-    el.onclick = () => startAuctionFromQueue(currentAuctionCategory, p.name, catConfig.base, imgSrc);
+    el.onclick = () => startAuctionFromQueue(p.category, p.name, p.base, imgSrc);
     el.innerHTML = `<div style="height:75px;overflow:hidden;background:#0d1117"><img src="${imgSrc}" style="width:100%;height:100%;object-fit:cover;opacity:0.7"></div>
       <div style="padding:8px;text-align:center">
         <div style="font-family:var(--font-display);font-size:10px;font-weight:700;color:white;margin-bottom:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.name}</div>
-        <div class="mono" style="font-size:10px;color:var(--cyan)">৳${catConfig.base} ${badgeHtml}</div>
+        <div class="mono" style="font-size:10px;color:var(--cyan)">৳${p.base} ${badgeHtml}</div>
+        ${unsoldTag}
       </div>`;
     container.appendChild(el);
   });
@@ -1385,7 +1403,6 @@ window.toggleSelectAllImport = () => {
   document.getElementById('btnSelectAllImport').textContent = anyUnchecked ? 'Deselect All' : 'Select All';
 };
 
-// MODIFIED: Merely tags the players as previousOwners so they are RTM eligible later
 window.confirmImportPlayers = () => {
   const selected = document.querySelectorAll('.import-checkbox:checked');
   if (!selected.length) return;
@@ -1440,21 +1457,28 @@ window.updatePopupPrice = (p, highBidderId) => {
         const nextBid = currentBid === 0 ? base : currentBid + inc;
 
         const bidBtn = document.getElementById('btnTeamBid');
-
-        if (highBidderId === CURRENT_USER.teamId) {
-            bidBtn.innerHTML = `WINNING ৳${currentBid}`;
-            bidBtn.disabled = true;
-            bidBtn.style.opacity = '0.7';
-        } else {
-            bidBtn.innerHTML = `BID ৳${nextBid}`;
-            bidBtn.disabled = false;
-            bidBtn.style.opacity = '1';
+        if (bidBtn) {
+            if (!STATE.biddingActive) {
+                bidBtn.innerHTML = `WAITING TO START`;
+                bidBtn.disabled = true;
+                bidBtn.style.opacity = '0.5';
+            } else {
+                if (highBidderId === CURRENT_USER.teamId) {
+                    bidBtn.innerHTML = `WINNING ৳${currentBid}`;
+                    bidBtn.disabled = true;
+                    bidBtn.style.opacity = '0.7';
+                } else {
+                    bidBtn.innerHTML = `BID ৳${nextBid}`;
+                    bidBtn.disabled = false;
+                    bidBtn.style.opacity = '1';
+                }
+            }
         }
     }
     updateLiveEligibility(); 
 };
 
-// NEW: Admin Manually adjusts bid
+// Admin Manually adjusts bid
 window.adjustBid = (dir) => {
   if (!activePlayer) return;
   const cat = STATE.categories.find(c => c.id === activePlayer.category);
@@ -1464,7 +1488,7 @@ window.adjustBid = (dir) => {
   if (next >= Number(cat?.base || 0)) socket.emit('player:bid', { category: activePlayer.category, name: activePlayer.name, price: next, teamId: null });
 };
 
-// NEW: Team Live Action "BID"
+// Team Live Action "BID"
 document.getElementById('btnTeamBid').onclick = () => {
     if (!activePlayer) return;
     const cat = STATE.categories.find(c => c.id === activePlayer.category);
@@ -1476,10 +1500,18 @@ document.getElementById('btnTeamBid').onclick = () => {
     socket.emit('player:bid', { category: activePlayer.category, name: activePlayer.name, price: nextPrice, teamId: CURRENT_USER.teamId });
 };
 
-// NEW: Team Live Action "RTM"
+// Team Live Action "RTM"
 document.getElementById('btnTeamRTM').onclick = () => {
     if (!activePlayer) return;
-    socket.emit('rtm:invoke', { category: activePlayer.category, name: activePlayer.name, rtmTeamId: CURRENT_USER.teamId });
+    const cat = STATE.categories.find(c => c.id === activePlayer.category);
+    const currentBid = Number(document.getElementById('popupPrice').textContent) || 0;
+    const inc = Number(cat?.increment) || 0;
+    const base = Number(cat?.base) || 0;
+    const nextPrice = currentBid === 0 ? base : currentBid + inc;
+
+    if (confirm(`Confirm RTM at ৳${nextPrice}? The highest bidder will have a chance to match.`)) {
+        socket.emit('rtm:invoke', { category: activePlayer.category, name: activePlayer.name, rtmTeamId: CURRENT_USER.teamId });
+    }
 };
 
 window.activateImpact = (c, n) => { if (confirm('Deploy Impact Power? One-time purse boost.')) socket.emit('team:activateImpact', { teamId: CURRENT_USER.teamId, category: c, playerName: n }); };
@@ -1552,27 +1584,43 @@ document.getElementById('btnSaveTeams').onclick = () => {
 };
 document.getElementById('btnResetSystem').onclick = () => { if (confirm('⚠️ FULL SYSTEM WIPE?')) socket.emit('admin:resetAll'); };
 
-window.triggerSoldFromPopup = () => openSoldConfirmation(activePlayer.category, activePlayer.name, document.getElementById('popupPrice').textContent, false, false);
+window.triggerSoldFromPopup = () => {
+    const key = `${activePlayer.category}:${activePlayer.name}`;
+    const highBidderId = STATE.activeBidders ? STATE.activeBidders[key] : null;
+    openSoldConfirmation(activePlayer.category, activePlayer.name, document.getElementById('popupPrice').textContent, false, false, highBidderId);
+};
 
 function pauseTimerForModal() {
   isTimerPaused = true; document.getElementById('btnPauseTimer').textContent = '▶️'; updateTimerUI();
-  if (CURRENT_USER.role === 'admin') socket.emit('admin:timer_control', { paused: true, time: auctionTimeRemaining });
+  if (CURRENT_USER.role === 'admin' && STATE.biddingActive) socket.emit('admin:timer_control', { paused: true, time: auctionTimeRemaining });
 }
 function resumeTimerAfterModal() {
   isTimerPaused = false; document.getElementById('btnPauseTimer').textContent = '⏸️'; updateTimerUI();
-  if (CURRENT_USER.role === 'admin') socket.emit('admin:timer_control', { paused: false, time: auctionTimeRemaining });
+  if (CURRENT_USER.role === 'admin' && STATE.biddingActive) socket.emit('admin:timer_control', { paused: false, time: auctionTimeRemaining });
 }
 
-function openSoldConfirmation(cat, name, price, isDirect, isRTM = false) {
+function openSoldConfirmation(cat, name, price, isDirect, isRTM = false, highBidderId = null) {
   pendingSold = { category: cat, name, price: Number(price) || 0, isDirect, isRTM };
   pauseTimerForModal();
   const priceGroup = document.getElementById('directPriceGroup');
   priceGroup.classList.toggle('hidden', !isDirect);
   if (isDirect) document.getElementById('directSignPrice').value = pendingSold.price;
   document.getElementById('soldActionDetails').innerHTML = `<span class="word-break" style="color:white;font-weight:700">${name}</span> (${cat})<br><span style="color:var(--emerald);margin-top:4px;display:block">${isDirect ? isRTM ? '[ RTM RETENTION ]' : '[ TEAM RETENTION ]' : '@ ৳' + pendingSold.price}</span>`;
+  
   const sel = document.getElementById('soldActionTeam');
   sel.innerHTML = '';
-  STATE.teams.forEach(t => sel.innerHTML += `<option value="${t.id}">${t.name} (৳${t.purse})</option>`);
+  
+  // Directly bind and disable selection if we naturally have a high bidder
+  if (highBidderId) {
+      const t = STATE.teams.find(x => x.id === highBidderId);
+      sel.innerHTML = `<option value="${highBidderId}">${t ? t.name : highBidderId} (High Bidder)</option>`;
+      sel.disabled = true;
+  } else {
+      sel.innerHTML = '<option value="">— Select Team —</option>';
+      STATE.teams.forEach(t => sel.innerHTML += `<option value="${t.id}">${t.name} (৳${t.purse})</option>`);
+      sel.disabled = false;
+  }
+
   document.getElementById('soldActionOverlay').classList.remove('hidden');
 }
 
