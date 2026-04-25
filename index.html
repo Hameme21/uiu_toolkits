@@ -178,6 +178,16 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 .team-config-card:hover { border-color: rgba(120,183,255,0.26); transform: translateY(-1px); }
 @media (max-width: 480px) { .team-config-card { padding: 12px; } }
 
+.code-stage { min-height: 260px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; text-align: center; border: 1px solid rgba(120,183,255,0.14); border-radius: var(--radius-lg); background: linear-gradient(180deg, rgba(47,125,246,0.1), rgba(3,12,26,0.28)); position: relative; overflow: hidden; padding: 26px; }
+.code-stage::before { content: ''; position: absolute; inset: 0; background: linear-gradient(120deg, transparent, rgba(37,212,255,0.11), transparent); transform: translateX(-120%); animation: shimmer 3.5s ease-in-out infinite; }
+.code-stage > * { position: relative; z-index: 1; }
+.code-card { width: min(100%, 340px); min-height: 132px; border-radius: 18px; border: 1px solid rgba(120,183,255,0.28); background: linear-gradient(145deg, rgba(5,18,39,0.96), rgba(8,42,78,0.9)); display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 18px 55px rgba(0,8,28,0.46), inset 0 1px 0 rgba(255,255,255,0.08); }
+.code-value { font-family: var(--font-mono); font-size: clamp(2.8rem, 8vw, 5.2rem); font-weight: 800; letter-spacing: 0.12em; color: var(--cyan); text-shadow: 0 0 28px rgba(37,212,255,0.32); line-height: 1; }
+.code-clue { margin-top: 10px; font-size: 10px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.16em; }
+.code-card.spinning { animation: codeSpin 0.9s cubic-bezier(0.22,1,0.36,1); }
+.admin-code-badge { position: absolute; left: 8px; bottom: 8px; z-index: 8; padding: 4px 8px; border-radius: 8px; background: rgba(2,9,23,0.78); border: 1px solid rgba(120,183,255,0.28); color: var(--cyan); font-family: var(--font-mono); font-size: 11px; font-weight: 800; letter-spacing: 0.08em; backdrop-filter: blur(10px); }
+@keyframes codeSpin { 0% { transform: rotateY(0) scale(1); filter: blur(0); } 45% { transform: rotateY(180deg) scale(1.04); filter: blur(2px); } 100% { transform: rotateY(360deg) scale(1); filter: blur(0); } }
+
 #importPlayersModal { max-width: 500px; }
 .import-player-list { max-height: 280px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; margin: 12px 0; }
 .import-player-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; cursor: pointer; transition: all 0.15s; text-align: left; position: relative; }
@@ -404,16 +414,12 @@ button:active:not(:disabled), .tab:active, #topNav a:active, #mobileBottomNav .m
           <div id="adminAuctionQueue" class="hidden" style="flex:1;display:flex;flex-direction:column;padding:20px;height:100%">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,0.06);flex-wrap:wrap;gap:10px">
               <div>
-                <h3 style="font-family:var(--font-display);font-size:15px;font-weight:700">Lottery Queue</h3>
-                <p style="color:var(--muted);font-size:11px;margin-top:3px">Draw players randomly</p>
+                <h3 style="font-family:var(--font-display);font-size:15px;font-weight:700">Code Shuffle</h3>
+                <p style="color:var(--muted);font-size:11px;margin-top:3px">Reveal one hidden player code at a time</p>
               </div>
-              <button class="btn-primary small" onclick="socket.emit('admin:generate_lottery')">Generate Lottery</button>
+              <button class="btn-primary small" onclick="shufflePlayerCodes()">Shuffle Codes</button>
             </div>
-            <div id="queuePlayersList" class="player-grid-sm" style="overflow-y:auto;flex:1"></div>
-            <div style="margin-top:14px;padding:12px;background:rgba(0,0,0,0.2);border-radius:12px;border:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;gap:10px">
-              <input type="checkbox" id="autoNextToggle" checked style="width:16px;height:16px;accent-color:var(--accent);margin:0">
-              <label for="autoNextToggle" style="margin:0;color:var(--text);font-size:12px;font-weight:500;text-transform:none;letter-spacing:0;cursor:pointer">Auto-load next prospect</label>
-            </div>
+            <div id="queuePlayersList" style="overflow-y:auto;flex:1"></div>
           </div>
         </div>
 
@@ -692,6 +698,40 @@ function showToast(msg, type = 'default') {
   setTimeout(() => { t.style.opacity = '0'; t.style.transition = 'opacity 0.3s'; setTimeout(() => t.remove(), 300); }, 4000);
 }
 
+function hashCode(input) {
+  let hash = 0;
+  for (let i = 0; i < input.length; i++) hash = ((hash << 5) - hash + input.charCodeAt(i)) >>> 0;
+  return hash.toString(36).toUpperCase();
+}
+
+function makePlayerCode(category, name, usedCodes = new Set()) {
+  const catPart = String(category || 'XX').replace(/[^A-Z0-9]/gi, '').toUpperCase().padEnd(2, 'X').slice(0, 2);
+  const seed = `${category || ''}:${name || ''}`.toUpperCase();
+  let attempt = 0;
+  let code = '';
+  do {
+    code = `${catPart}${hashCode(`${seed}:${attempt}`).padStart(3, '0')}`.slice(0, 4);
+    attempt++;
+  } while (usedCodes.has(code) && attempt < 100);
+  usedCodes.add(code);
+  return code;
+}
+
+function computePlayerCodes() {
+  const usedCodes = new Set();
+  const codes = {};
+  STATE.categories.forEach(cat => {
+    (STATE.playersSnapshot[cat.id] || []).forEach(player => {
+      codes[`${cat.id}:${player.name}`] = makePlayerCode(cat.id, player.name, usedCodes);
+    });
+  });
+  return codes;
+}
+
+function getPlayerCode(category, name) {
+  return computePlayerCodes()[`${category}:${name}`] || makePlayerCode(category, name);
+}
+
 function uploadFile(file) {
   return new Promise((res, rej) => {
     const fd = new FormData(); fd.append('file', file);
@@ -921,15 +961,6 @@ socket.on('player:sold', data => {
   setTimeout(() => {
     document.getElementById('soldAnimationOverlay').classList.add('hidden');
     renderAll();
-    if (CURRENT_USER.role === 'admin' && !isRTM) {
-      const auto = document.getElementById('autoNextToggle');
-      if (auto?.checked && STATE.lotteryQueue) {
-        const next = STATE.lotteryQueue.find(p => p.name !== name && !STATE.teams.some(tm => tm.purchases?.[p.category] === p.name));
-        if (next) {
-            startAuctionFromQueue(next.category, next.name, next.base, next.image);
-        }
-      }
-    }
   }, 3500);
   
   const label = isRTM ? 'RTM' : (isDirect ? 'RETAINED' : 'SOLD');
@@ -946,15 +977,7 @@ socket.on('player:unsold', (data) => {
     showToast(`❌ ${data.name} went UNSOLD`);
     log(`<span style="color:var(--danger);font-weight:700">UNSOLD</span>: ${data.name}`);
     
-    if (CURRENT_USER.role === 'admin') {
-        const auto = document.getElementById('autoNextToggle');
-        if (auto?.checked && STATE.lotteryQueue) {
-            const next = STATE.lotteryQueue.find(p => p.name !== data.name && !STATE.teams.some(tm => tm.purchases?.[p.category] === p.name));
-            if (next) {
-                setTimeout(() => { startAuctionFromQueue(next.category, next.name, next.base, next.image); }, 1500);
-            }
-        }
-    }
+    if (CURRENT_USER.role === 'admin') renderLiveAdminQueue();
 });
 
 // --- RTM PROMPT SOCKET EVENTS ---
@@ -1140,35 +1163,45 @@ function renderLiveAdminQueue() {
   const container = document.getElementById('queuePlayersList');
   container.innerHTML = '';
   if (!STATE.lotteryQueue || STATE.lotteryQueue.length === 0) {
-      container.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--muted);font-size:11px;padding-top:20px;">No lottery queue. Generate one above.</div>';
+      container.innerHTML = `<div class="code-stage">
+        <div style="font-size:38px;opacity:0.45">⌘</div>
+        <div style="font-family:var(--font-display);font-size:15px;font-weight:800;color:white">No shuffled codes yet</div>
+        <div style="color:var(--muted);font-size:12px;max-width:320px;line-height:1.6">Shuffle the player database to draw the first hidden four-character code.</div>
+        <button class="btn-primary" onclick="shufflePlayerCodes()">Shuffle Codes</button>
+      </div>`;
       return;
   }
   const unsold = STATE.lotteryQueue.filter(p => !STATE.teams.some(t => t.purchases?.[p.category] === p.name));
-  if (!unsold.length) { container.innerHTML = '<div style="grid-column:1/-1;display:flex;align-items:center;justify-content:center;height:100px;color:var(--emerald);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.1em">All prospects drafted.</div>'; return; }
-  unsold.forEach(p => {
-    const imgSrc = p.image || 'https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=400&auto=format&fit=crop';
-    
-    // Tag RTM eligible ones visually
-    const isPrevOwned = STATE.previousOwners && STATE.previousOwners[`${p.category}:${p.name}`];
-    const badgeHtml = isPrevOwned ? `<span style="font-size:8px; color:var(--rtm); border:1px solid var(--rtm); border-radius:4px; padding:1px 4px; margin-left:4px;">RTM</span>` : '';
-    const unsoldTag = p.isUnsold ? `<div style="font-size:8px;color:var(--danger);border:1px solid var(--danger);padding:1px 4px;border-radius:4px;margin-top:2px;display:inline-block">UNSOLD</div>` : '';
-
-    const el = document.createElement('div');
-    el.style.cssText = 'background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:12px;overflow:hidden;cursor:pointer;transition:all 0.2s';
-    el.onmouseover = () => { el.style.borderColor = 'rgba(120,183,255,0.44)'; el.style.transform = 'translateY(-2px)'; };
-    el.onmouseout = () => { el.style.borderColor = 'rgba(255,255,255,0.07)'; el.style.transform = ''; };
-    el.onclick = () => startAuctionFromQueue(p.category, p.name, p.base, imgSrc);
-    el.innerHTML = `<div style="height:75px;overflow:hidden;background:#0d1117"><img src="${imgSrc}" style="width:100%;height:100%;object-fit:cover;opacity:0.7"></div>
-      <div style="padding:8px;text-align:center">
-        <div style="font-family:var(--font-display);font-size:10px;font-weight:700;color:white;margin-bottom:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.name}</div>
-        <div class="mono" style="font-size:10px;color:var(--cyan)">৳${p.base} ${badgeHtml}</div>
-        ${unsoldTag}
-      </div>`;
-    container.appendChild(el);
-  });
+  if (!unsold.length) {
+      container.innerHTML = '<div class="code-stage"><div style="font-size:36px;color:var(--emerald)">✓</div><div style="color:var(--emerald);font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:0.14em">All prospects drafted.</div></div>';
+      return;
+  }
+  const next = unsold[0];
+  const code = next.code || getPlayerCode(next.category, next.name);
+  const isPrevOwned = STATE.previousOwners && STATE.previousOwners[`${next.category}:${next.name}`];
+  container.innerHTML = `<div class="code-stage">
+    <div style="font-size:10px;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:0.16em">Next hidden player</div>
+    <div class="code-card" id="activeCodeCard">
+      <div class="code-value">${code}</div>
+      <div class="code-clue">${next.category} category clue${next.isUnsold ? ' · unsold return' : ''}${isPrevOwned ? ' · RTM eligible' : ''}</div>
+    </div>
+    <button class="btn-primary" id="btnRevealCode" onclick="revealShuffledCode()">Show Player</button>
+    <div style="color:var(--muted);font-size:11px;max-width:340px;line-height:1.6">Only the code is visible until you reveal. The player card and bidding controls appear after the spin.</div>
+  </div>`;
 }
 
-window.startAuctionFromQueue = (cat, name, base, img) => socket.emit('admin:select_player', { category: cat, name, base, currentPrice: base, image: img });
+window.shufflePlayerCodes = () => socket.emit('admin:shuffle_codes');
+window.revealShuffledCode = () => {
+  const queue = (STATE.lotteryQueue || []).filter(p => !STATE.teams.some(t => t.purchases?.[p.category] === p.name));
+  const next = queue[0];
+  if (!next) return showToast('No hidden player codes left');
+  const card = document.getElementById('activeCodeCard');
+  const btn = document.getElementById('btnRevealCode');
+  if (btn) btn.disabled = true;
+  if (card) card.classList.add('spinning');
+  setTimeout(() => startAuctionFromQueue(next.category, next.name, next.base, next.image, next.code), 900);
+};
+window.startAuctionFromQueue = (cat, name, base, img, code = null) => socket.emit('admin:select_player', { category: cat, name, base, currentPrice: base, image: img, code: code || getPlayerCode(cat, name) });
 
 function renderScoreboards() {
   ['auctionScoreboard','dashboardScoreboard','viewerScoreboard'].forEach(id => {
@@ -1330,6 +1363,8 @@ function renderDatabase() {
       const el = document.createElement('div'); el.innerHTML = tileHTML;
       const tile = el.firstElementChild;
       if (isAdmin) {
+        const imgFrame = tile.querySelector('.player-img-h');
+        if (imgFrame) imgFrame.insertAdjacentHTML('beforeend', `<span class="admin-code-badge">${getPlayerCode(cat.id, p.name)}</span>`);
         const anchor = tile.querySelector('.hover-overlay-anchor');
         if (anchor) {
           anchor.innerHTML = `<div style="position:absolute;top:8px;right:8px;display:flex;gap:5px;z-index:30">
@@ -1339,7 +1374,7 @@ function renderDatabase() {
         }
         if (!soldToName) {
           tile.style.cursor = 'pointer';
-          tile.onclick = (e) => { if (e.target.closest('button')) return; socket.emit('admin:select_player', { category: cat.id, name: p.name, base: cat.base, currentPrice: price, image: p.image }); showSection('sectionLiveAuction'); };
+          tile.onclick = (e) => { if (e.target.closest('button')) return; startAuctionFromQueue(cat.id, p.name, cat.base, p.image); showSection('sectionLiveAuction'); };
           const hA = tile.querySelector('.hover-overlay-anchor');
           if (hA) hA.innerHTML += `<div style="position:absolute;inset:0;background:rgba(47,125,246,0.26);opacity:0;display:flex;align-items:center;justify-content:center;transition:opacity 0.25s;z-index:5" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0'"><span style="background:var(--accent);color:white;font-size:11px;font-weight:700;padding:7px 14px;border-radius:100px;font-family:var(--font-display);letter-spacing:0.06em">→ Live Arena</span></div>`;
         }
