@@ -230,9 +230,9 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 @keyframes liveCardFlip { 0% { transform: rotateY(0) scale(1); } 48% { transform: rotateY(90deg) scale(1.015); } 100% { transform: rotateY(0) scale(1); } }
 @media (max-width: 767px) {
   .live-card-content { display: flex; flex-direction: column; padding: 12px; gap: 10px; min-height: 100%; }
-  .live-photo-panel { min-height: 360px; max-height: none; }
-  .live-photo-name { left: 15px; right: 15px; bottom: 80px; padding: 0; max-width: none; }
-  .live-photo-controls { left: 10px; right: 10px; bottom: 12px; justify-content: space-between; background: rgba(2,9,23,0.85); }
+  .live-photo-panel { aspect-ratio: 3 / 4; max-height: 65vh; min-height: unset; }
+  .live-photo-name { left: 15px; right: 15px; bottom: 65px; padding: 0; max-width: none; z-index: 10; }
+  .live-photo-controls { left: 10px; right: 10px; bottom: 12px; justify-content: space-between; background: rgba(2,9,23,0.85); z-index: 10; }
   .live-price-readout { flex: 1; }
   .live-code-stage { min-height: 420px; }
   .live-code-stage .code-card, .live-code-reveal .code-card { min-height: 360px; }
@@ -464,7 +464,7 @@ button:active:not(:disabled), .tab:active, #topNav a:active, #mobileBottomNav .m
         </div>
 
        <div id="auctionPlayerPopup" class="hidden">
-          <button onclick="closePopup()" style="position:absolute;top:12px;left:12px;z-index:30;width:30px;height:30px;border-radius:50%;background:rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.1);font-size:16px;padding:0;color:white;">×</button>
+          <button onclick="closePopup()" style="position:absolute;top:12px;right:12px;z-index:30;width:30px;height:30px;border-radius:50%;background:rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.1);font-size:16px;padding:0;color:white;">×</button>
 
           <div class="timer-pill" id="auctionTimerContainer">
             <div id="auctionTimerDot" style="width:8px;height:8px;border-radius:50%;background:var(--cyan)"></div>
@@ -476,7 +476,7 @@ button:active:not(:disabled), .tab:active, #topNav a:active, #mobileBottomNav .m
             <div class="live-photo-panel" id="popupImgContainer">
 
               <div id="liveCodeReveal" class="live-code-reveal hidden">
-                <div id="liveRevealCodeCard" style="display:flex; flex-direction:column; align-items:center;">
+                <div id="liveRevealCodeCard" style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; width:100%;">
                   <div class="code-value" id="liveRevealCode">----</div>
                   <div class="code-clue" id="liveRevealClue">Player code</div>
                 </div>
@@ -484,12 +484,12 @@ button:active:not(:disabled), .tab:active, #topNav a:active, #mobileBottomNav .m
 
               <img id="popupImg" src="" style="width: 100%; height: 100%; object-fit: cover;">
 
-              <div style="position:absolute; top: 16px; right: 16px; z-index: 5;">
-                <span id="popupCat" class="chip chip-cyan" style="box-shadow: 0 4px 12px rgba(0,0,0,0.5); font-size: 11px; padding: 6px 12px; font-weight: 800; border-radius: 8px;">CATEGORY</span>
+              <div style="position:absolute; top: 16px; left: 16px; z-index: 5;">
+                <span id="popupCat" class="chip chip-cyan" style="box-shadow: 0 4px 12px rgba(0,0,0,0.5); font-size: 11px; padding: 6px 12px; font-weight: 800; border-radius: 8px; display: inline-block; line-height: normal; height: auto;">CATEGORY</span>
               </div>
 
-              <div class="live-photo-name">
-                <h1 id="popupName" class="word-break" style="font-family:var(--font-display);font-size:clamp(1.8rem,5vw,3.5rem);font-weight:800;line-height:1.05;color:white;text-shadow: 0 4px 16px rgba(0,0,0,0.9), 0 2px 6px rgba(0,0,0,0.8);">Player Name</h1>
+              <div class="live-photo-name" style="z-index: 10;">
+                <h1 id="popupName" class="word-break" style="font-family:var(--font-display);font-size:clamp(1.8rem,5vw,3.5rem);font-weight:800;line-height:1.05;color:white;text-shadow: 0 4px 16px rgba(0,0,0,0.9), 0 2px 6px rgba(0,0,0,0.8); margin: 0;">Player Name</h1>
               </div>
 
               <div id="adminBidControls" class="hidden live-photo-controls">
