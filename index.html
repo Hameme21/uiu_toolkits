@@ -1055,19 +1055,23 @@ socket.on('popup:open', player => {
   const code = player.code || getPlayerCode(player.category, player.name);
   document.getElementById('liveRevealCode').textContent = code;
   document.getElementById('liveRevealClue').textContent = `${player.category} category`;
-  reveal.classList.remove('hidden');
-  revealCard.classList.remove('flipping');
-  body.classList.remove('card-flipping');
   body.classList.add('is-concealed');
+  body.style.animation = '';
+  reveal.style.animation = '';
+  reveal.classList.remove('hidden');
   document.getElementById('popupName').textContent = player.name;
   document.getElementById('popupCat').textContent = player.category;
   document.getElementById('popupImg').src = player.image || 'https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=800&auto=format&fit=crop';
-  setTimeout(() => body.classList.add('card-flipping'), 50);
-  setTimeout(() => reveal.classList.add('hidden'), 410);
   setTimeout(() => {
+    reveal.style.animation = 'codeFlipOut 0.38s cubic-bezier(0.4,0,1,1) forwards';
+  }, 1000);
+  setTimeout(() => {
+    reveal.classList.add('hidden');
+    reveal.style.animation = '';
     body.classList.remove('is-concealed');
-  }, 430);
-  setTimeout(() => body.classList.remove('card-flipping'), 920);
+    body.style.animation = 'playerFlipIn 0.46s cubic-bezier(0,0,0.2,1) forwards';
+  }, 1370);
+  setTimeout(() => { body.style.animation = ''; }, 1840);
   
   const key = `${player.category}:${player.name}`;
   const currentBid = STATE.activeBids ? STATE.activeBids[key] : null;
