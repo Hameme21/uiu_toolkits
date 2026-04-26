@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
 <title>Auction Command — Premium Live Auction Dashboard</title>
+<script>try{if(localStorage.getItem('auctioncmd.session.v1'))document.documentElement.classList.add('restore-session')}catch(e){}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -56,6 +57,7 @@ h1,h2,h3,h4 { font-family: var(--font-display); }
 .word-break { word-break: break-word; overflow-wrap: break-word; }
 
 #portal, #teamAuthOverlay { position: fixed; inset: 0; z-index: 5000; background: rgba(7,11,18,0.94); backdrop-filter: blur(18px); display: flex; align-items: center; justify-content: center; flex-direction: column; padding: 1rem; overflow-y: auto; }
+html.restore-session #portal { display: none; }
 .portal-card { background: linear-gradient(180deg, rgba(10,33,64,0.98), rgba(4,13,29,0.98)); padding: 24px; border-radius: var(--radius-xl); width: 100%; max-width: 520px; border: 1px solid rgba(120,183,255,0.24); box-shadow: 0 26px 90px rgba(0,8,28,0.6), inset 0 1px 0 rgba(255,255,255,0.08); max-height: 95vh; overflow-y: auto; animation: modalRise 0.45s cubic-bezier(0.16,1,0.3,1); }
 @media(min-width:768px) { .portal-card { padding: 40px; } }
 
@@ -77,6 +79,7 @@ button.pink { background: linear-gradient(135deg, #db2777, #be185d); box-shadow:
 button.pink:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(219,39,119,0.45); }
 button.small { padding: 6px 12px; font-size: 12px; border-radius: 8px; }
 button:disabled { opacity: 0.4; cursor: not-allowed; }
+#teamLoginLogoList button.active { border-color: rgba(120,183,255,0.55) !important; background: rgba(47,125,246,0.16) !important; color: white !important; }
 
 .tab-nav { display: flex; background: rgba(0,0,0,0.28); border-radius: 12px; padding: 4px; border: 1px solid rgba(255,255,255,0.08); }
 .tab { flex: 1; padding: 10px; cursor: pointer; color: var(--muted); border-radius: 9px; text-align: center; font-size: 13px; font-weight: 600; font-family: var(--font-display); transition: all 0.18s; }
@@ -333,6 +336,7 @@ button:active:not(:disabled), .tab:active, #topNav a:active, #mobileBottomNav .m
     <div id="teamSelectGroup" class="hidden">
       <label>Select Team</label>
       <select id="loginTeamId" onchange="previewTeamLogo()"></select>
+      <div id="teamLoginLogoList" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(86px,1fr));gap:8px;margin-top:-6px;margin-bottom:14px"></div>
     </div>
     <div id="passGroup" class="hidden">
       <label>Security Key</label>
@@ -345,7 +349,7 @@ button:active:not(:disabled), .tab:active, #topNav a:active, #mobileBottomNav .m
 
 <div id="appContainer" class="hidden" style="min-height:100vh;display:flex;flex-direction:column;position:relative;z-index:1">
   <div id="toastContainer"></div>
-  <input type="file" id="globalFileInput" style="display:none">
+  <input type="file" id="globalFileInput" accept="image/*" style="display:none">
 
   <header style="display:flex;align-items:center;justify-content:space-between;padding:0 20px;height:var(--header-h);border-bottom:1px solid rgba(255,255,255,0.08);background:rgba(7,11,18,0.86);backdrop-filter:blur(22px);position:sticky;top:0;z-index:4000;gap:12px">
     <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
@@ -701,6 +705,7 @@ function updateSavedSection(id) {
 }
 
 function finishEnterApp(sectionId) {
+  document.documentElement.classList.remove('restore-session');
   portal.classList.add('hidden');
   teamAuthOverlay.classList.add('hidden');
   appContainer.classList.remove('hidden');
@@ -760,6 +765,19 @@ function hashCode(input) {
   return hash.toString(36).toUpperCase();
 }
 
+function teamAvatarHTML(team, size = 34) {
+  const name = team?.name || team?.id || '?';
+  const initial = name.trim().charAt(0).toUpperCase() || '?';
+  const base = `width:${size}px;height:${size}px;border-radius:50%;flex-shrink:0;border:1px solid rgba(255,255,255,0.14);background:rgba(255,255,255,0.05);`;
+  if (team?.logo) return `<img src="${team.logo}" alt="" style="${base}object-fit:cover;">`;
+  return `<div style="${base}display:flex;align-items:center;justify-content:center;color:var(--accent-2);font-family:var(--font-display);font-size:${Math.max(10, Math.round(size * 0.34))}px;font-weight:800;">${initial}</div>`;
+}
+
+function teamNameWithLogoHTML(team, size = 28, extra = '') {
+  const name = team?.name || team?.id || 'Team';
+  return `<span style="display:inline-flex;align-items:center;gap:8px;min-width:0;${extra}">${teamAvatarHTML(team, size)}<span class="word-break" style="min-width:0;overflow:hidden;text-overflow:ellipsis;">${name}</span></span>`;
+}
+
 function makePlayerCode(category, name, usedCodes = new Set()) {
   const catPart = String(category || 'XX').replace(/[^A-Z0-9]/gi, '').toUpperCase().padEnd(2, 'X').slice(0, 2);
   const seed = `${category || ''}:${name || ''}`.toUpperCase();
@@ -793,7 +811,6 @@ async function uploadFile(file) {
   const fd = new FormData();
   fd.append('file', file);
   fd.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
-  fd.append('folder', 'auction');
   const response = await fetch(CLOUDINARY_UPLOAD_URL, { method: 'POST', body: fd });
   const data = await response.json().catch(() => ({}));
   if (!response.ok || !data.secure_url) throw new Error(data.error?.message || 'Cloudinary upload failed.');
@@ -819,6 +836,11 @@ window.connectToHost = () => { const h = document.getElementById('pHostId').valu
 window.toggleTeamPass = () => { const isTeam = document.getElementById('loginRole').value === 'team'; document.getElementById('teamSelectGroup').classList.toggle('hidden', !isTeam); document.getElementById('passGroup').classList.toggle('hidden', !isTeam); };
 window.enterAuction = () => { const role = document.getElementById('loginRole').value, teamId = document.getElementById('loginTeamId').value, pass = document.getElementById('loginPass').value; pendingAuthSession = { kind: 'participant', hostId: CURRENT_USER.hostId, role, teamId, password: pass }; socket.emit('team:login', { hostId: CURRENT_USER.hostId, teamId, password: pass, role }); };
 window.previewTeamLogo = () => { const t = STATE.teams.find(x => x.id === document.getElementById('loginTeamId').value), img = document.getElementById('loginTeamLogo'); if (t?.logo) { img.src = t.logo; img.classList.remove('hidden'); } else img.classList.add('hidden'); };
+window.selectLoginTeam = (teamId) => {
+  document.getElementById('loginTeamId').value = teamId;
+  previewTeamLogo();
+  document.querySelectorAll('#teamLoginLogoList button').forEach(btn => btn.classList.toggle('active', btn.dataset.teamId === teamId));
+};
 
 function updateLiveIndicator() {
   ['viewerLiveStatus', 'teamLiveStatus'].forEach(id => document.getElementById(id)?.classList.toggle('hidden', !activePlayer));
@@ -912,7 +934,7 @@ function handleTimerExpiry() {
 
 socket.on('connect', tryRestoreSession);
 if (socket.connected) tryRestoreSession();
-socket.on('auth:portal_error', msg => { restoringSession = false; pendingAuthSession = null; localStorage.removeItem(SESSION_KEY); portal.classList.remove('hidden'); appContainer.classList.add('hidden'); document.getElementById('portalMsg').textContent = msg; });
+socket.on('auth:portal_error', msg => { document.documentElement.classList.remove('restore-session'); restoringSession = false; pendingAuthSession = null; localStorage.removeItem(SESSION_KEY); portal.classList.remove('hidden'); appContainer.classList.add('hidden'); document.getElementById('portalMsg').textContent = msg; });
 socket.on('auth:portal_success', d => { const el = document.getElementById('portalMsg'); el.style.color = 'var(--emerald)'; el.textContent = d.msg; });
 socket.on('manager:logged_in', data => {
   CURRENT_USER.hostId = data.username;
@@ -926,9 +948,15 @@ socket.on('manager:logged_in', data => {
 });
 socket.on('init:teams_available', data => {
   CURRENT_USER.hostId = data.hostId;
+  STATE.teams = data.teams || [];
   const sel = document.getElementById('loginTeamId');
   sel.innerHTML = '<option value="">Select Team</option>';
-  data.teams.forEach(t => sel.innerHTML += `<option value="${t.id}">${t.name}</option>`);
+  const logoList = document.getElementById('teamLoginLogoList');
+  logoList.innerHTML = '';
+  STATE.teams.forEach(t => {
+    sel.innerHTML += `<option value="${t.id}">${t.name}</option>`;
+    logoList.innerHTML += `<button type="button" class="ghost" data-team-id="${t.id}" onclick="selectLoginTeam('${t.id}')" style="display:flex;flex-direction:column;align-items:center;gap:6px;padding:9px 6px;border-color:rgba(255,255,255,0.08);min-width:0">${teamAvatarHTML(t, 34)}<span style="max-width:100%;overflow:hidden;text-overflow:ellipsis;font-size:10px">${t.name}</span></button>`;
+  });
   portal.classList.add('hidden'); teamAuthOverlay.classList.remove('hidden');
 });
 socket.on('auction:enter', data => {
@@ -942,7 +970,7 @@ socket.on('auction:enter', data => {
   pendingAuthSession = null;
   finishEnterApp(getSavedSession()?.sectionId);
 });
-socket.on('auth:team_error', msg => { restoringSession = false; pendingAuthSession = null; localStorage.removeItem(SESSION_KEY); teamAuthOverlay.classList.remove('hidden'); appContainer.classList.add('hidden'); document.getElementById('teamAuthMsg').textContent = msg; });
+socket.on('auth:team_error', msg => { document.documentElement.classList.remove('restore-session'); restoringSession = false; pendingAuthSession = null; localStorage.removeItem(SESSION_KEY); teamAuthOverlay.classList.remove('hidden'); appContainer.classList.add('hidden'); document.getElementById('teamAuthMsg').textContent = msg; });
 socket.on('state:updated', s => { STATE = s; renderAll(); });
 
 socket.on('player:bid', pl => {
@@ -1127,8 +1155,8 @@ function setupUI(preferredSectionId = 'sectionDashboard') {
   if (isAdmin) sections.push({ id: 'sectionTeamConfig', label: 'Teams', icon: '🛡️' });
 
   buildNavItems(sections);
-  document.getElementById('roleDisplay').textContent = `${CURRENT_USER.role.toUpperCase()} · ${label}`;
-  document.getElementById('dashWelcomeName').textContent = label;
+  document.getElementById('roleDisplay').innerHTML = isTeam ? `${CURRENT_USER.role.toUpperCase()} · ${teamNameWithLogoHTML(myTeam, 20)}` : `${CURRENT_USER.role.toUpperCase()} · ${label}`;
+  document.getElementById('dashWelcomeName').innerHTML = isTeam ? teamNameWithLogoHTML(myTeam, 30) : label;
 
   if (isAdmin) {
     document.getElementById('dashAdminView').classList.remove('hidden');
@@ -1206,8 +1234,8 @@ function renderAdminTeamsSummary() {
 
         container.innerHTML += `
         <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:12px; padding:12px;">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-                <strong class="word-break" style="color:white; font-family:var(--font-display); font-size:13px;">${t.name}</strong>
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
+                <strong class="word-break" style="color:white; font-family:var(--font-display); font-size:13px; min-width:0;">${teamNameWithLogoHTML(t, 32)}</strong>
                 <span class="mono" style="color:var(--emerald); font-weight:700; font-size:14px;">৳${t.purse}</span>
             </div>
             <div style="font-size:9px; color:var(--muted); text-transform:uppercase; margin-top:4px;">
@@ -1296,10 +1324,8 @@ function renderScoreboards() {
     c.style.alignContent = 'start'; // Prevents vertical stretching
 
     STATE.teams.forEach(t => {
-      const logo = t.logo ? `<img src="${t.logo}" style="width:34px;height:34px;border-radius:50%;object-fit:cover;border:1px solid rgba(255,255,255,0.1);background:#0d1117;flex-shrink:0;">` : `<div style="width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--muted);flex-shrink:0;">?</div>`;
-      
       c.innerHTML += `<div data-team-id="${t.id}" class="score-tile" style="display:flex;align-items:center;text-align:left;gap:12px;padding:10px 12px;">
-        ${logo}
+        ${teamAvatarHTML(t, 34)}
         <div style="flex:1;min-width:0;">
           <div style="font-family:var(--font-display);font-weight:700;font-size:12px;color:white;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${t.name}</div>
           <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;">${t.purchases ? Object.keys(t.purchases).length : 0} players</div>
@@ -1362,10 +1388,9 @@ function renderViewerRosters() {
   div.innerHTML = '';
   if (!STATE.teams.length) { div.innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted);font-size:12px">No franchises available.</div>'; return; }
   STATE.teams.forEach(t => {
-    const logo = t.logo ? `<img src="${t.logo}" style="width:56px;height:56px;border-radius:50%;border:2px solid rgba(255,255,255,0.1);object-fit:cover;margin-bottom:10px;background:#0d1117">` : `<div style="width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,0.04);border:2px solid rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:10px;margin-bottom:10px">?</div>`;
     div.insertAdjacentHTML('beforeend', `<div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:var(--radius-lg);padding:16px;display:flex;gap:16px;flex-wrap:wrap;margin-bottom:14px">
       <div style="width:160px;flex-shrink:0;text-align:center;background:rgba(0,0,0,0.3);padding:16px;border-radius:var(--radius);border:1px solid rgba(255,255,255,0.05)">
-        ${logo}
+        <div style="display:flex;justify-content:center;margin-bottom:10px">${teamAvatarHTML(t, 56)}</div>
         <h3 style="font-family:var(--font-display);font-size:13px;font-weight:800;color:white;margin-bottom:6px;word-wrap:break-word;">${t.name}</h3>
         <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:0.15em;margin-bottom:10px">${t.purchases ? Object.keys(t.purchases).length : 0} Players</div>
         <div class="mono" style="font-size:18px;font-weight:700;color:var(--cyan)">৳${t.purse}</div>
@@ -1388,8 +1413,8 @@ function renderViewerRosters() {
 function renderMyTeam() {
   const t = STATE.teams.find(x => x.id === CURRENT_USER.teamId);
   const div = document.getElementById('dashboardMyTeamContent'); if (!t || !div) return;
-  div.innerHTML = `<div style="background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.06);border-radius:var(--radius);padding:12px 16px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center">
-    <div style="font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.15em">Remaining Purse</div>
+  div.innerHTML = `<div style="background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.06);border-radius:var(--radius);padding:12px 16px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;gap:12px">
+    <div style="min-width:0">${teamNameWithLogoHTML(t, 36, 'color:white;font-family:var(--font-display);font-weight:800;')}<div style="font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.15em;margin-top:6px">Remaining Purse</div></div>
     <div class="mono" style="font-size:1.4rem;font-weight:700;color:var(--emerald)">৳${t.purse}</div>
   </div>
   ${t.impactUsed ? `<div style="background:rgba(47,125,246,0.1);border:1px solid rgba(120,183,255,0.24);border-radius:10px;padding:10px 14px;margin-bottom:12px;font-size:11px;color:var(--accent-2);font-weight:600;display:flex;align-items:center;gap:8px"><span>⚡</span> Impact Power Deployed</div>` : ''}`;
@@ -1486,7 +1511,12 @@ function renderTeamConfigTable() {
     </div>
     <button class="ghost small word-break" style="width:100%;margin-top:12px;color:var(--rtm);border-color:rgba(236,72,153,0.3);font-size:11px;padding:8px" onclick="openImportPlayersModal('${t.id}')">📥 Tag Previous Players (RTM)</button>`;
     container.appendChild(tile);
-    setupFileUpload(tile.querySelector('.logo-drop-zone'), (file) => uploadFile(file).then(url => socket.emit('admin:setTeamLogo', { teamId: t.id, logoUrl: url })));
+    const logoDrop = tile.querySelector('.logo-drop-zone');
+    setupFileUpload(logoDrop, (file) => uploadFile(file).then(url => {
+      logoDrop.innerHTML = `<img src="${url}" style="width:100%;height:100%;object-fit:cover">`;
+      socket.emit('admin:setTeamLogo', { teamId: t.id, logoUrl: url });
+      showToast('Team logo uploaded');
+    }));
   });
 
   const add = document.createElement('div');
