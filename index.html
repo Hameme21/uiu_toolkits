@@ -124,9 +124,11 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 @media (max-width: 480px) { .admin-cards-grid { grid-template-columns: 1fr; gap: 12px; } }
 
 #sectionLiveAuction { display: grid !important; grid-template-columns: minmax(0, 1fr) 320px !important; gap: 16px; min-height: 680px; align-items: start; }
+#sectionLiveAuction.hidden { display: none !important; }
 @media (max-width: 1024px) { #sectionLiveAuction { grid-template-columns: minmax(0, 1fr) 280px !important; } }
 @media (max-width: 767px) {
   #sectionLiveAuction { display: flex !important; flex-direction: column !important; min-height: auto; gap: 12px; align-items: stretch !important; }
+  #sectionLiveAuction.hidden { display: none !important; }
   #auctionSidebar { display: flex !important; flex-direction: column; width: 100% !important; min-width: 0 !important; box-sizing: border-box; }
 }
 
@@ -472,7 +474,7 @@ button:active:not(:disabled), .tab:active, #topNav a:active, #mobileBottomNav .m
               </div>
               <div style="display:flex;gap:8px;flex-wrap:wrap">
                 <button class="btn-primary small" onclick="shufflePlayerCodes()">Shuffle Codes</button>
-                <button class="ghost small" onclick="resetPlayerCodes()">Reset Codes</button>
+                <button class="ghost small" onclick="clearPlayerCodes()">Clear Codes</button>
               </div>
             </div>
             <div id="queuePlayersList" style="overflow-y:auto;flex:1"></div>
@@ -1406,7 +1408,16 @@ function renderLiveAdminQueue() {
 }
 
 window.shufflePlayerCodes = () => socket.emit('admin:shuffle_codes');
-window.resetPlayerCodes = () => socket.emit('admin:reset_codes');
+window.clearPlayerCodes = () => {
+  STATE.lotteryQueue = [];
+  STATE.codeShuffleActive = false;
+  const revealCode = document.getElementById('liveRevealCode');
+  if (revealCode) revealCode.textContent = '';
+  if (CURRENT_USER.role === 'admin') renderLiveAdminQueue();
+  else renderLiveIdleCode();
+  updateLiveIndicator();
+  socket.emit('admin:reset_codes');
+};
 window.revealShuffledCode = () => {
   const next = getNextQueuedPlayer();
   if (!next) return showToast('No hidden player codes left');
