@@ -189,12 +189,13 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 .code-stage::before { content: ''; position: absolute; inset: 0; background: linear-gradient(120deg, transparent, rgba(37,212,255,0.11), transparent); transform: translateX(-120%); animation: shimmer 3.5s ease-in-out infinite; }
 .code-stage > * { position: relative; z-index: 1; }
 .code-card { width: min(100%, 340px); min-height: 132px; border-radius: 18px; border: 1px solid rgba(120,183,255,0.28); background: linear-gradient(145deg, rgba(5,18,39,0.96), rgba(8,42,78,0.9)); display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 18px 55px rgba(0,8,28,0.46), inset 0 1px 0 rgba(255,255,255,0.08); }
+.live-code-stage { min-height: clamp(390px, 62vh, 620px); }
+.live-code-stage .code-card { width: min(100%, 760px); min-height: clamp(290px, 48vh, 520px); }
+.live-code-stage .code-value { font-size: clamp(4rem, 13vw, 9rem); }
 .code-value { font-family: var(--font-mono); font-size: clamp(2.8rem, 8vw, 5.2rem); font-weight: 800; letter-spacing: 0.12em; color: var(--cyan); text-shadow: 0 0 28px rgba(37,212,255,0.32); line-height: 1; }
 .code-clue { margin-top: 10px; font-size: 10px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.16em; }
-.code-card.spinning { animation: codeSpin 0.9s cubic-bezier(0.22,1,0.36,1); }
-.code-card.flipping { animation: codeFlip 0.9s cubic-bezier(0.22,1,0.36,1); }
+.code-card.flipping { animation: codeFlip 0.72s cubic-bezier(0.22,1,0.36,1); }
 .admin-code-badge { position: absolute; left: 8px; bottom: 8px; z-index: 8; padding: 4px 8px; border-radius: 8px; background: rgba(2,9,23,0.78); border: 1px solid rgba(120,183,255,0.28); color: var(--cyan); font-family: var(--font-mono); font-size: 11px; font-weight: 800; letter-spacing: 0.08em; backdrop-filter: blur(10px); }
-@keyframes codeSpin { 0% { transform: rotateY(0) scale(1); filter: blur(0); } 45% { transform: rotateY(180deg) scale(1.04); filter: blur(2px); } 100% { transform: rotateY(360deg) scale(1); filter: blur(0); } }
 @keyframes codeFlip { 0% { transform: rotateY(0) scale(1); } 45% { transform: rotateY(90deg) scale(1.04); filter: brightness(1.4); } 100% { transform: rotateY(0) scale(1); } }
 
 #importPlayersModal { max-width: 500px; }
@@ -212,17 +213,29 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 
 #auctionPlayerPopup { flex: 1; min-height: 380px; border-radius: var(--radius-lg); overflow: hidden; position: relative; border: 1px solid rgba(120,183,255,0.28); box-shadow: 0 24px 80px rgba(0,8,28,0.48); display: flex; flex-direction: column; animation: livePop 0.35s cubic-bezier(0.16,1,0.3,1); }
 @media (max-width: 767px) { #auctionPlayerPopup { min-height: 300px; } }
-.live-card-content { position: relative; z-index: 20; padding: 20px; width: 100%; display: grid; grid-template-columns: minmax(280px, 42%) 1fr; gap: 18px; min-height: 100%; align-items: stretch; }
-.live-photo-panel { position: relative; min-height: 360px; border-radius: var(--radius-lg); overflow: hidden; border: 1px solid rgba(255,255,255,0.08); background: #081426; }
+.live-card-content { position: relative; z-index: 20; padding: 20px; width: 100%; display: flex; flex-direction: column; gap: 14px; min-height: 100%; perspective: 1200px; }
+.live-card-content.card-flipping { animation: liveCardFlip 0.82s cubic-bezier(0.22,1,0.36,1); transform-style: preserve-3d; }
+.live-photo-panel { position: relative; flex: 1; min-height: clamp(380px, 58vh, 620px); border-radius: var(--radius-lg); overflow: hidden; border: 1px solid rgba(255,255,255,0.08); background: #081426; box-shadow: 0 22px 70px rgba(0,8,28,0.48); }
 .live-photo-panel img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.live-info-panel { display: flex; flex-direction: column; justify-content: flex-end; gap: 14px; min-width: 0; }
+.live-photo-panel::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, rgba(2,9,23,0.88) 0%, rgba(2,9,23,0.18) 46%, rgba(2,9,23,0.08) 100%); pointer-events: none; }
+.live-photo-name { position: absolute; left: 18px; bottom: 18px; z-index: 4; max-width: min(62%, 680px); padding: 13px 15px; border-radius: 14px; background: rgba(4,13,29,0.62); border: 1px solid rgba(255,255,255,0.14); backdrop-filter: blur(16px); box-shadow: 0 14px 34px rgba(0,0,0,0.28); }
+.live-photo-controls { position: absolute; right: 18px; bottom: 18px; z-index: 4; display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-radius: 16px; background: linear-gradient(135deg, rgba(2,9,23,0.76), rgba(8,42,78,0.62)); border: 1px solid rgba(120,183,255,0.2); backdrop-filter: blur(16px); box-shadow: 0 16px 38px rgba(0,8,28,0.34); }
+.live-price-readout { text-align: center; min-width: 88px; }
+.live-info-panel { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
 .live-code-reveal { position: absolute; inset: 0; z-index: 25; display: flex; align-items: center; justify-content: center; padding: 24px; background: linear-gradient(180deg, rgba(2,9,23,0.98), rgba(5,18,39,0.96)); }
 .live-code-reveal.hidden { display: none !important; }
-.live-code-reveal .code-card { width: min(100%, 380px); }
+.live-code-reveal .code-card { width: min(100%, 760px); min-height: clamp(300px, 54vh, 620px); }
+.live-code-reveal .code-value { font-size: clamp(4rem, 13vw, 9rem); }
 .live-player-body.is-concealed { opacity: 0; pointer-events: none; }
+@keyframes liveCardFlip { 0% { transform: rotateY(0) scale(1); } 48% { transform: rotateY(90deg) scale(1.015); } 100% { transform: rotateY(0) scale(1); } }
 @media (max-width: 767px) {
   .live-card-content { display: flex; flex-direction: column; padding: 12px; gap: 10px; min-height: 100%; }
-  .live-photo-panel { min-height: 250px; max-height: 42vh; }
+  .live-photo-panel { min-height: 360px; max-height: none; }
+  .live-photo-name { left: 10px; right: 10px; bottom: 86px; max-width: none; padding: 11px 12px; }
+  .live-photo-controls { left: 10px; right: 10px; bottom: 10px; justify-content: space-between; }
+  .live-price-readout { flex: 1; }
+  .live-code-stage { min-height: 420px; }
+  .live-code-stage .code-card, .live-code-reveal .code-card { min-height: 360px; }
   .live-info-panel { justify-content: flex-start; gap: 10px; }
   #adminActionButtons { grid-template-columns: 1fr !important; }
   #teamActionButtons { position: sticky; bottom: 0; background: rgba(6,9,16,0.78); backdrop-filter: blur(14px); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 10px; }
@@ -468,28 +481,26 @@ button:active:not(:disabled), .tab:active, #topNav a:active, #mobileBottomNav .m
           <div id="livePlayerBody" class="live-card-content">
             <div class="live-photo-panel" id="popupImgContainer">
               <img id="popupImg" src="">
-            </div>
-            <div class="live-info-panel">
-            <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap">
-              <div style="flex: 1; min-width: 200px;">
+              <div class="live-photo-name">
                 <div style="margin-bottom:8px"><span id="popupCat" class="chip chip-cyan">CATEGORY</span></div>
-                <h1 id="popupName" class="word-break" style="font-family:var(--font-display);font-size:clamp(1.6rem,4vw,2.8rem);font-weight:800;line-height:1.1;color:white">Player Name</h1>
+                <h1 id="popupName" class="word-break" style="font-family:var(--font-display);font-size:clamp(1.6rem,4vw,3.1rem);font-weight:800;line-height:1.05;color:white">Player Name</h1>
               </div>
-              <div id="adminBidControls" class="hidden" style="display:flex;align-items:center;gap:8px;background:rgba(6,9,16,0.7);backdrop-filter:blur(12px);padding:10px 12px;border-radius:14px;border:1px solid rgba(255,255,255,0.08)">
-                <button onclick="adjustBid('dec')" style="width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);font-size:18px;padding:0" onmouseover="this.style.background='rgba(239,68,68,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.06)'">−</button>
-                <div style="text-align:center;min-width:72px">
+              <div id="adminBidControls" class="hidden live-photo-controls">
+                <button onclick="adjustBid('dec')" style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,rgba(239,68,68,0.26),rgba(255,255,255,0.06));border:1px solid rgba(239,68,68,0.28);font-size:20px;padding:0;color:white">−</button>
+                <div class="live-price-readout">
                   <div style="font-size:9px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:2px">Value</div>
-                  <div id="popupPrice" class="mono" style="font-size:1.7rem;font-weight:700;color:white">0</div>
+                  <div id="popupPrice" class="mono" style="font-size:1.8rem;font-weight:700;color:white">0</div>
                   <div class="high-bidder-name word-break" style="font-size:11px; font-weight:700; color:var(--emerald); margin-top:2px;">No Bids Yet</div>
                 </div>
-                <button onclick="adjustBid('inc')" style="width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);font-size:18px;padding:0" onmouseover="this.style.background='rgba(16,185,129,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.06)'">+</button>
+                <button onclick="adjustBid('inc')" style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,rgba(16,185,129,0.3),rgba(37,212,255,0.12));border:1px solid rgba(37,212,255,0.28);font-size:20px;padding:0;color:white">+</button>
               </div>
-              <div id="viewerPriceDisplay" class="hidden" style="text-align:right">
+            </div>
+            <div class="live-info-panel">
+              <div id="viewerPriceDisplay" class="hidden" style="text-align:right;background:rgba(6,9,16,0.54);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:12px 14px;align-self:flex-end">
                 <div style="font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.12em;margin-bottom:4px">Highest Bid</div>
                 <div id="viewerPrice" class="mono" style="font-size:clamp(2rem,5vw,2.8rem);font-weight:700;color:var(--cyan)">0</div>
                 <div class="high-bidder-name word-break" style="font-size:12px; font-weight:700; color:var(--emerald); margin-top:2px;">No Bids Yet</div>
               </div>
-            </div>
             
             <div id="adminActionButtons" class="hidden" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:16px">
               <button class="green" onclick="socket.emit('admin:start_bidding')" id="btnStartBidding" style="padding:12px;font-family:var(--font-display);letter-spacing:0.05em;font-size:13px">▶ START BIDDING</button>
@@ -1031,15 +1042,17 @@ socket.on('popup:open', player => {
   document.getElementById('liveRevealClue').textContent = `${player.category} category`;
   reveal.classList.remove('hidden');
   revealCard.classList.remove('flipping');
+  body.classList.remove('card-flipping');
   body.classList.add('is-concealed');
   document.getElementById('popupName').textContent = player.name;
   document.getElementById('popupCat').textContent = player.category;
   document.getElementById('popupImg').src = player.image || 'https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=800&auto=format&fit=crop';
-  setTimeout(() => revealCard.classList.add('flipping'), 80);
+  setTimeout(() => body.classList.add('card-flipping'), 50);
+  setTimeout(() => reveal.classList.add('hidden'), 410);
   setTimeout(() => {
-    reveal.classList.add('hidden');
     body.classList.remove('is-concealed');
-  }, 900);
+  }, 430);
+  setTimeout(() => body.classList.remove('card-flipping'), 920);
   
   const key = `${player.category}:${player.name}`;
   const currentBid = STATE.activeBids ? STATE.activeBids[key] : null;
@@ -1312,14 +1325,14 @@ function getNextQueuedPlayer() {
 
 function makePublicCodeStage(next, includeAdminButton = false) {
   if (!next) {
-    return `<div class="code-stage">
+    return `<div class="code-stage live-code-stage">
       <div style="font-size:42px;margin-bottom:4px;opacity:0.3">📡</div>
       <p style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.15em;color:var(--muted)">Awaiting active player drop</p>
     </div>`;
   }
   const code = next.code || getPlayerCode(next.category, next.name);
   const isPrevOwned = STATE.previousOwners && STATE.previousOwners[`${next.category}:${next.name}`];
-  return `<div class="code-stage">
+  return `<div class="code-stage live-code-stage">
     <div style="font-size:10px;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:0.16em">Next player code</div>
     <div class="code-card" id="activeCodeCard">
       <div class="code-value">${code}</div>
@@ -1364,7 +1377,7 @@ window.revealShuffledCode = () => {
   const card = document.getElementById('activeCodeCard');
   const btn = document.getElementById('btnRevealCode');
   if (btn) btn.disabled = true;
-  if (card) card.classList.add('flipping');
+  if (card) card.style.filter = 'brightness(1.18)';
   setTimeout(() => startAuctionFromQueue(next.category, next.name, next.base, next.image, next.code), 500);
 };
 window.startAuctionFromQueue = (cat, name, base, img, code = null) => socket.emit('admin:select_player', { category: cat, name, base, currentPrice: base, image: img, code: code || getPlayerCode(cat, name) });
