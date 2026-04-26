@@ -127,7 +127,7 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 @media (max-width: 1024px) { #sectionLiveAuction { grid-template-columns: minmax(0, 1fr) 280px !important; } }
 @media (max-width: 767px) {
   #sectionLiveAuction { display: flex !important; flex-direction: column !important; min-height: auto; gap: 12px; }
-  #auctionSidebar { display: flex !important; flex-direction: column; width: 100%; }
+  #auctionSidebar { display: flex !important; flex-direction: column; width: 100% !important; min-width: 0 !important; box-sizing: border-box; }
 }
 
 #dashTeamView, #dashViewerView { display: grid; grid-template-columns: 260px 1fr; gap: 16px; min-height: 500px; }
