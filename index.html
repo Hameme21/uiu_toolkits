@@ -273,8 +273,10 @@ button:active:not(:disabled), .tab:active, #topNav a:active, #mobileBottomNav .m
 #mobileBottomNav .mnav-item.active { background: rgba(47,125,246,0.13); }
 #mobileBottomNav .mnav-item.active .mnav-icon { filter: drop-shadow(0 0 10px rgba(37,212,255,0.45)); }
 @media (min-width: 768px) and (max-width: 1180px) {
-  #sectionLiveAuction { grid-template-columns: minmax(0, 1fr); min-height: auto; }
-  #auctionSidebar { display: grid !important; grid-template-columns: minmax(0, 1fr) minmax(260px, 0.8fr); }
+  /* Keeps the photo taking 1fr (remaining space) and the sidebar at 280px beside it */
+  #sectionLiveAuction { grid-template-columns: 1fr 280px; min-height: auto; }
+  /* Keeps the Arena Standings and Log stacked vertically in their column */
+  #auctionSidebar { display: flex !important; flex-direction: column; }
   #auctionSidebar .glass { min-height: 220px; }
   #dashTeamView, #dashViewerView { grid-template-columns: 240px minmax(0, 1fr); }
   .player-grid-lg { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
