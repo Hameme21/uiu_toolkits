@@ -234,10 +234,10 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
   .live-card-content { display: flex; flex-direction: column; padding: 12px; gap: 10px; min-height: 100%; }
   .live-photo-panel { aspect-ratio: 3 / 4; max-height: 65vh; min-height: unset; }
   .live-photo-name { left: 15px; right: 15px; bottom: 65px; padding: 0; max-width: none; z-index: 10; }
-  .live-photo-controls { left: 8px; right: 8px; bottom: 12px; justify-content: space-between; background: rgba(2,9,23,0.85); z-index: 10; padding: 7px 8px; gap: 5px; }
-  .live-price-readout { flex: 1; min-width: 0; }
-  .live-photo-controls button[onclick] { width: 30px !important; height: 30px !important; min-height: 30px !important; font-size: 15px !important; flex-shrink: 0; }
-  .live-code-stage { min-height: 420px; }
+  .live-photo-controls { left: 8px; right: 8px; bottom: 12px; justify-content: space-between; background: rgba(2,9,23,0.85); z-index: 10; padding: 7px 8px; gap: 5px; overflow: hidden; }
+  .live-price-readout { flex: 1; min-width: 0; overflow: hidden; }
+  .live-price-readout #popupPrice { font-size: 1.3rem !important; }
+  .live-photo-controls button { width: 32px !important; height: 32px !important; min-height: 32px !important; min-width: 32px !important; font-size: 16px !important; flex-shrink: 0 !important; padding: 0 !important; }  .live-code-stage { min-height: 420px; }
   .live-code-stage .code-card, .live-code-reveal .code-card { min-height: 360px; }
   .live-info-panel { justify-content: flex-start; gap: 10px; }
   #adminActionButtons { grid-template-columns: 1fr !important; }
@@ -1063,15 +1063,15 @@ socket.on('popup:open', player => {
   document.getElementById('popupCat').textContent = player.category;
   document.getElementById('popupImg').src = player.image || 'https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=800&auto=format&fit=crop';
   setTimeout(() => {
-    reveal.style.animation = 'codeFlipOut 0.38s cubic-bezier(0.4,0,1,1) forwards';
-  }, 1000);
+    reveal.style.animation = 'codeFlipOut 0.3s cubic-bezier(0.4,0,1,1) forwards';
+  }, 60);
   setTimeout(() => {
     reveal.classList.add('hidden');
     reveal.style.animation = '';
     body.classList.remove('is-concealed');
-    body.style.animation = 'playerFlipIn 0.46s cubic-bezier(0,0,0.2,1) forwards';
-  }, 1370);
-  setTimeout(() => { body.style.animation = ''; }, 1840);
+    body.style.animation = 'playerFlipIn 0.4s cubic-bezier(0,0,0.2,1) forwards';
+  }, 350);
+  setTimeout(() => { body.style.animation = ''; }, 760);
   
   const key = `${player.category}:${player.name}`;
   const currentBid = STATE.activeBids ? STATE.activeBids[key] : null;
