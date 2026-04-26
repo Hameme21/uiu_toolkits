@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
-<title>Auction Command</title>
+<title>Auction Command — Premium Live Auction Dashboard</title>
 <script>try{if(localStorage.getItem('auctioncmd.session.v1'))document.documentElement.classList.add('restore-session')}catch(e){}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -123,11 +123,11 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 .admin-cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; width: 100%; }
 @media (max-width: 480px) { .admin-cards-grid { grid-template-columns: 1fr; gap: 12px; } }
 
-#sectionLiveAuction { display: grid !important; grid-template-columns: minmax(0, 1fr) 320px !important; gap: 16px; min-height: 680px; align-items: start; }
-@media (max-width: 1024px) { #sectionLiveAuction { grid-template-columns: minmax(0, 1fr) 280px !important; } }
+#sectionLiveAuction { display: grid; grid-template-columns: 1fr 320px; gap: 16px; min-height: 680px; }
+@media (max-width: 1024px) { #sectionLiveAuction { grid-template-columns: 1fr 280px; } }
 @media (max-width: 767px) {
-  #sectionLiveAuction { display: flex !important; flex-direction: column !important; min-height: auto; gap: 12px; align-items: stretch !important; }
-  #auctionSidebar { display: flex !important; flex-direction: column; width: 100% !important; min-width: 0 !important; box-sizing: border-box; }
+  #sectionLiveAuction { grid-template-columns: 1fr; gap: 12px; min-height: auto; display: flex; flex-direction: column; }
+  #auctionSidebar { display: flex; }
 }
 
 #dashTeamView, #dashViewerView { display: grid; grid-template-columns: 260px 1fr; gap: 16px; min-height: 500px; }
@@ -159,7 +159,7 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 .score-tile { background: linear-gradient(135deg, rgba(255,255,255,0.065), rgba(255,255,255,0.025)); border: 1px solid var(--card-border); border-radius: var(--radius); padding: 12px 10px; text-align: center; transition: all 0.2s; }
 .score-tile:hover { border-color: rgba(120,183,255,0.28); background: rgba(255,255,255,0.07); transform: translateX(2px); }
 
-.timer-pill { position: absolute; top: 28px; left: 50%; transform: translateX(-50%); z-index: 40; backdrop-filter: blur(12px); background: rgba(7,11,18,0.78); border: 1.5px solid rgba(54,216,208,0.44); padding: 6px 16px; border-radius: 100px; display: flex; align-items: center; gap: 8px; box-shadow: 0 12px 34px rgba(54,216,208,0.12); transition: all 0.3s; white-space: nowrap; }
+.timer-pill { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); z-index: 40; backdrop-filter: blur(12px); background: rgba(7,11,18,0.78); border: 1.5px solid rgba(54,216,208,0.44); padding: 6px 16px; border-radius: 100px; display: flex; align-items: center; gap: 8px; box-shadow: 0 12px 34px rgba(54,216,208,0.12); transition: all 0.3s; white-space: nowrap; }
 .timer-pill.warning { border-color: rgba(239,68,68,0.6); box-shadow: 0 0 24px rgba(239,68,68,0.2); }
 .timer-pill.paused { border-color: rgba(245,158,11,0.5); box-shadow: 0 0 24px rgba(245,158,11,0.15); }
 
@@ -214,30 +214,27 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 #auctionPlayerPopup { flex: 1; min-height: 380px; border-radius: var(--radius-lg); overflow: hidden; position: relative; border: 1px solid rgba(120,183,255,0.28); box-shadow: 0 24px 80px rgba(0,8,28,0.48); display: flex; flex-direction: column; animation: livePop 0.35s cubic-bezier(0.16,1,0.3,1); }
 @media (max-width: 767px) { #auctionPlayerPopup { min-height: 300px; } }
 .live-card-content { position: relative; z-index: 20; padding: 20px; width: 100%; display: flex; flex-direction: column; gap: 14px; min-height: 100%; perspective: 1200px; }
-.live-card-content.card-flipping { animation: liveCardFlip 0.2s cubic-bezier(0.22,1,0.36,1); transform-style: preserve-3d; }
-.live-photo-panel { position: relative; flex: 1; aspect-ratio: 16/9; height: auto; min-height: unset !important; max-height: 65vh; border-radius: var(--radius-lg); overflow: hidden; border: 1px solid rgba(255,255,255,0.08); background: #081426; box-shadow: 0 22px 70px rgba(0,8,28,0.48); }
+.live-card-content.card-flipping { animation: liveCardFlip 0.82s cubic-bezier(0.22,1,0.36,1); transform-style: preserve-3d; }
+.live-photo-panel { position: relative; flex: 1; min-height: clamp(380px, 58vh, 620px); border-radius: var(--radius-lg); overflow: hidden; border: 1px solid rgba(255,255,255,0.08); background: #081426; box-shadow: 0 22px 70px rgba(0,8,28,0.48); }
 .live-photo-panel img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .live-photo-panel::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, rgba(2,9,23,0.88) 0%, rgba(2,9,23,0.18) 46%, rgba(2,9,23,0.08) 100%); pointer-events: none; }
-.live-photo-name { position: absolute; left: 18px; bottom: 24px; z-index: 4; max-width: min(80%, 680px); padding: 0; background: transparent; border: none; backdrop-filter: none; box-shadow: none; }
+.live-photo-name { position: absolute; left: 18px; bottom: 18px; z-index: 4; max-width: min(62%, 680px); padding: 13px 15px; border-radius: 14px; background: rgba(4,13,29,0.62); border: 1px solid rgba(255,255,255,0.14); backdrop-filter: blur(16px); box-shadow: 0 14px 34px rgba(0,0,0,0.28); }
 .live-photo-controls { position: absolute; right: 18px; bottom: 18px; z-index: 4; display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-radius: 16px; background: linear-gradient(135deg, rgba(2,9,23,0.76), rgba(8,42,78,0.62)); border: 1px solid rgba(120,183,255,0.2); backdrop-filter: blur(16px); box-shadow: 0 16px 38px rgba(0,8,28,0.34); }
 .live-price-readout { text-align: center; min-width: 88px; }
 .live-info-panel { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
-.live-code-reveal { position: absolute; inset: 0; z-index: 25; display: flex; align-items: center; justify-content: center; background: linear-gradient(145deg, rgba(5,18,39,1), rgba(8,42,78,1)); }
+.live-code-reveal { position: absolute; inset: 0; z-index: 25; display: flex; align-items: center; justify-content: center; padding: 24px; background: linear-gradient(180deg, rgba(2,9,23,0.98), rgba(5,18,39,0.96)); }
 .live-code-reveal.hidden { display: none !important; }
-.live-code-reveal #liveRevealCodeCard { width: 100%; min-height: unset !important; border: none; box-shadow: none; background: transparent; }
+.live-code-reveal .code-card { width: min(100%, 760px); min-height: clamp(300px, 54vh, 620px); }
 .live-code-reveal .code-value { font-size: clamp(4rem, 13vw, 9rem); }
 .live-player-body.is-concealed { opacity: 0; pointer-events: none; }
 @keyframes liveCardFlip { 0% { transform: rotateY(0) scale(1); } 48% { transform: rotateY(90deg) scale(1.015); } 100% { transform: rotateY(0) scale(1); } }
-@keyframes codeFlipOut { 0% { transform: perspective(900px) rotateY(0deg); opacity:1; } 100% { transform: perspective(900px) rotateY(-90deg); opacity:0; } }
-@keyframes playerFlipIn { 0% { transform: perspective(900px) rotateY(90deg); opacity:0; } 100% { transform: perspective(900px) rotateY(0deg); opacity:1; } }
 @media (max-width: 767px) {
   .live-card-content { display: flex; flex-direction: column; padding: 12px; gap: 10px; min-height: 100%; }
-  .live-photo-panel { aspect-ratio: 3 / 4; max-height: 65vh; min-height: unset; }
-  .live-photo-name { left: 15px; right: 15px; bottom: 65px; padding: 0; max-width: none; z-index: 10; }
-  .live-photo-controls { left: 8px; right: 8px; bottom: 12px; justify-content: space-between; background: rgba(2,9,23,0.85); z-index: 10; padding: 7px 8px; gap: 5px; overflow: hidden; }
-  .live-price-readout { flex: 1; min-width: 0; overflow: hidden; }
-  .live-price-readout #popupPrice { font-size: 1.3rem !important; }
-  .live-photo-controls button { width: 32px !important; height: 32px !important; min-height: 32px !important; min-width: 32px !important; font-size: 16px !important; flex-shrink: 0 !important; padding: 0 !important; }  .live-code-stage { min-height: 420px; }
+  .live-photo-panel { min-height: 360px; max-height: none; }
+  .live-photo-name { left: 10px; right: 10px; bottom: 86px; max-width: none; padding: 11px 12px; }
+  .live-photo-controls { left: 10px; right: 10px; bottom: 10px; justify-content: space-between; }
+  .live-price-readout { flex: 1; }
+  .live-code-stage { min-height: 420px; }
   .live-code-stage .code-card, .live-code-reveal .code-card { min-height: 360px; }
   .live-info-panel { justify-content: flex-start; gap: 10px; }
   #adminActionButtons { grid-template-columns: 1fr !important; }
@@ -276,10 +273,8 @@ button:active:not(:disabled), .tab:active, #topNav a:active, #mobileBottomNav .m
 #mobileBottomNav .mnav-item.active { background: rgba(47,125,246,0.13); }
 #mobileBottomNav .mnav-item.active .mnav-icon { filter: drop-shadow(0 0 10px rgba(37,212,255,0.45)); }
 @media (min-width: 768px) and (max-width: 1180px) {
-  /* Keeps the photo taking 1fr (remaining space) and the sidebar at 280px beside it */
-  #sectionLiveAuction { grid-template-columns: minmax(0, 1fr) 280px !important; min-height: auto; align-items: start; }
-  /* Keeps the Arena Standings and Log stacked vertically in their column */
-  #auctionSidebar { display: flex !important; flex-direction: column; width: 100% !important; }
+  #sectionLiveAuction { grid-template-columns: minmax(0, 1fr); min-height: auto; }
+  #auctionSidebar { display: grid !important; grid-template-columns: minmax(0, 1fr) minmax(260px, 0.8fr); }
   #auctionSidebar .glass { min-height: 220px; }
   #dashTeamView, #dashViewerView { grid-template-columns: 240px minmax(0, 1fr); }
   .player-grid-lg { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
@@ -450,7 +445,7 @@ button:active:not(:disabled), .tab:active, #topNav a:active, #mobileBottomNav .m
 
     <div id="sectionLiveAuction" class="hidden">
 
-      <div style="display:flex;flex-direction:column;gap:14px;min-width:0;">
+      <div style="display:flex;flex-direction:column;gap:14px">
         <div id="auctionIdleState" class="glass" style="flex:1;min-height:360px;display:flex;flex-direction:column;overflow:hidden">
           <div id="idleWaitingMessage" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--muted);text-align:center;padding:40px">
             <div style="font-size:42px;margin-bottom:14px;opacity:0.3">📡</div>
@@ -468,8 +463,14 @@ button:active:not(:disabled), .tab:active, #topNav a:active, #mobileBottomNav .m
           </div>
         </div>
 
-       <div id="auctionPlayerPopup" class="hidden">
-          <button onclick="closePopup()" style="position:absolute;top:28px;right:28px;z-index:30;width:36px;height:36px;min-height:36px;border-radius:50%;background:rgba(0,0,0,0.5);border:3px solid rgba(255,255,255,0.1);font-size:16px;padding:0;color:white;display:flex;align-items:center;justify-content:center;">×</button>
+        <div id="auctionPlayerPopup" class="hidden">
+          <div id="liveCodeReveal" class="live-code-reveal hidden">
+            <div class="code-card" id="liveRevealCodeCard">
+              <div class="code-value" id="liveRevealCode">----</div>
+              <div class="code-clue" id="liveRevealClue">Player code</div>
+            </div>
+          </div>
+          <button onclick="closePopup()" style="position:absolute;top:12px;right:12px;z-index:30;width:30px;height:30px;border-radius:50%;background:rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.1);font-size:16px;padding:0">×</button>
 
           <div class="timer-pill" id="auctionTimerContainer">
             <div id="auctionTimerDot" style="width:8px;height:8px;border-radius:50%;background:var(--cyan)"></div>
@@ -479,35 +480,21 @@ button:active:not(:disabled), .tab:active, #topNav a:active, #mobileBottomNav .m
 
           <div id="livePlayerBody" class="live-card-content">
             <div class="live-photo-panel" id="popupImgContainer">
-
-              <div id="liveCodeReveal" class="live-code-reveal hidden">
-                <div id="liveRevealCodeCard" style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; width:100%;">
-                  <div class="code-value" id="liveRevealCode">----</div>
-                  <div class="code-clue" id="liveRevealClue">Player code</div>
-                </div>
+              <img id="popupImg" src="">
+              <div class="live-photo-name">
+                <div style="margin-bottom:8px"><span id="popupCat" class="chip chip-cyan">CATEGORY</span></div>
+                <h1 id="popupName" class="word-break" style="font-family:var(--font-display);font-size:clamp(1.6rem,4vw,3.1rem);font-weight:800;line-height:1.05;color:white">Player Name</h1>
               </div>
-
-              <img id="popupImg" src="" style="width: 100%; height: 100%; object-fit: cover;">
-
-              <div style="position:absolute; top: 8px; left: 8px; z-index: 5;">
-                <span id="popupCat" class="chip chip-cyan" style="box-shadow: 0 4px 12px rgba(0,0,0,0.5); font-size: 21px; padding: 8px 14px; font-weight: 800; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; letter-spacing: 0.8px;">CATEGORY</span>
-              </div>
-
-              <div class="live-photo-name" style="z-index: 10;">
-                <h1 id="popupName" class="word-break" style="font-family:var(--font-display);font-size:clamp(1.8rem,5vw,3.5rem);font-weight:800;line-height:1.05;color:white;text-shadow: 0 4px 16px rgba(0,0,0,0.9), 0 2px 6px rgba(0,0,0,0.8); margin: 0;">Player Name</h1>
-              </div>
-
               <div id="adminBidControls" class="hidden live-photo-controls">
                 <button onclick="adjustBid('dec')" style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,rgba(239,68,68,0.26),rgba(255,255,255,0.06));border:1px solid rgba(239,68,68,0.28);font-size:20px;padding:0;color:white">−</button>
                 <div class="live-price-readout">
-                  <div style="font-size:9px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:2px;text-shadow: 0 2px 4px rgba(0,0,0,0.8);">Value</div>
-                  <div id="popupPrice" class="mono" style="font-size:1.8rem;font-weight:700;color:white;text-shadow: 0 2px 6px rgba(0,0,0,0.8);">0</div>
-                  <div class="high-bidder-name word-break" style="font-size:11px; font-weight:700; color:var(--emerald); margin-top:2px;text-shadow: 0 2px 4px rgba(0,0,0,0.8);">No Bids Yet</div>
+                  <div style="font-size:9px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:2px">Value</div>
+                  <div id="popupPrice" class="mono" style="font-size:1.8rem;font-weight:700;color:white">0</div>
+                  <div class="high-bidder-name word-break" style="font-size:11px; font-weight:700; color:var(--emerald); margin-top:2px;">No Bids Yet</div>
                 </div>
                 <button onclick="adjustBid('inc')" style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,rgba(16,185,129,0.3),rgba(37,212,255,0.12));border:1px solid rgba(37,212,255,0.28);font-size:20px;padding:0;color:white">+</button>
               </div>
             </div>
-
             <div class="live-info-panel">
               <div id="viewerPriceDisplay" class="hidden" style="text-align:right;background:rgba(6,9,16,0.54);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:12px 14px;align-self:flex-end">
                 <div style="font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.12em;margin-bottom:4px">Highest Bid</div>
@@ -515,27 +502,25 @@ button:active:not(:disabled), .tab:active, #topNav a:active, #mobileBottomNav .m
                 <div class="high-bidder-name word-break" style="font-size:12px; font-weight:700; color:var(--emerald); margin-top:2px;">No Bids Yet</div>
               </div>
             
-              <div id="adminActionButtons" class="hidden" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:16px">
-                <button class="green" onclick="socket.emit('admin:start_bidding')" id="btnStartBidding" style="padding:12px;font-family:var(--font-display);letter-spacing:0.05em;font-size:13px">▶ START BIDDING</button>
-                <button class="yellow" onclick="triggerSoldFromPopup()" style="padding:12px;font-family:var(--font-display);letter-spacing:0.05em;font-size:13px">🔨 GAVEL DROP</button>
-                <button class="pink" onclick="triggerRTMPopup()" style="padding:12px;font-family:var(--font-display);letter-spacing:0.05em;font-size:13px">🔁 OVERRIDE RTM</button>
-              </div>
+            <div id="adminActionButtons" class="hidden" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:16px">
+              <button class="green" onclick="socket.emit('admin:start_bidding')" id="btnStartBidding" style="padding:12px;font-family:var(--font-display);letter-spacing:0.05em;font-size:13px">▶ START BIDDING</button>
+              <button class="yellow" onclick="triggerSoldFromPopup()" style="padding:12px;font-family:var(--font-display);letter-spacing:0.05em;font-size:13px">🔨 GAVEL DROP</button>
+              <button class="pink" onclick="triggerRTMPopup()" style="padding:12px;font-family:var(--font-display);letter-spacing:0.05em;font-size:13px">🔁 OVERRIDE RTM</button>
+            </div>
             
-              <div id="teamActionButtons" class="hidden" style="margin-top:14px; display:flex; flex-direction:column; gap:10px;">
-                <button id="btnTeamBid" class="green" style="width:100%; padding:14px; font-family:var(--font-display); font-size:15px; letter-spacing:0.05em; box-shadow:0 4px 20px rgba(16,185,129,0.3)">BID ৳<span id="teamBidAmount">0</span></button>
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-                  <button id="btnTeamRTM" class="pink hidden" style="padding:12px; font-family:var(--font-display); letter-spacing:0.05em; font-size:12px;">🔁 USE RTM</button>
-                  <button id="btnPopupImpact" class="hidden" style="padding:12px; background:linear-gradient(135deg,var(--accent),var(--cyan)); font-family:var(--font-display); letter-spacing:0.05em; font-size:12px; box-shadow:0 4px 20px var(--accent-glow)">⚡ DEPLOY IMPACT</button>
-                </div>
+            <div id="teamActionButtons" class="hidden" style="margin-top:14px; display:flex; flex-direction:column; gap:10px;">
+              <button id="btnTeamBid" class="green" style="width:100%; padding:14px; font-family:var(--font-display); font-size:15px; letter-spacing:0.05em; box-shadow:0 4px 20px rgba(16,185,129,0.3)">BID ৳<span id="teamBidAmount">0</span></button>
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                <button id="btnTeamRTM" class="pink hidden" style="padding:12px; font-family:var(--font-display); letter-spacing:0.05em; font-size:12px;">🔁 USE RTM</button>
+                <button id="btnPopupImpact" class="hidden" style="padding:12px; background:linear-gradient(135deg,var(--accent),var(--cyan)); font-family:var(--font-display); letter-spacing:0.05em; font-size:12px; box-shadow:0 4px 20px var(--accent-glow)">⚡ DEPLOY IMPACT</button>
               </div>
+            </div>
             </div>
           </div>
         </div>
       </div>
 
-    
-
-    <div id="auctionSidebar" style="display:flex;flex-direction:column;gap:14px">
+      <div id="auctionSidebar" style="display:flex;flex-direction:column;gap:14px">
         <div class="glass" style="padding:16px;flex:1;display:flex;flex-direction:column;overflow:hidden">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.15em">
             <span>Arena Standings</span>
@@ -1055,23 +1040,19 @@ socket.on('popup:open', player => {
   const code = player.code || getPlayerCode(player.category, player.name);
   document.getElementById('liveRevealCode').textContent = code;
   document.getElementById('liveRevealClue').textContent = `${player.category} category`;
-  body.classList.add('is-concealed');
-  body.style.animation = '';
-  reveal.style.animation = '';
   reveal.classList.remove('hidden');
+  revealCard.classList.remove('flipping');
+  body.classList.remove('card-flipping');
+  body.classList.add('is-concealed');
   document.getElementById('popupName').textContent = player.name;
   document.getElementById('popupCat').textContent = player.category;
   document.getElementById('popupImg').src = player.image || 'https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=800&auto=format&fit=crop';
+  setTimeout(() => body.classList.add('card-flipping'), 50);
+  setTimeout(() => reveal.classList.add('hidden'), 410);
   setTimeout(() => {
-    reveal.style.animation = 'codeFlipOut 0.3s cubic-bezier(0.4,0,1,1) forwards';
-  }, 60);
-  setTimeout(() => {
-    reveal.classList.add('hidden');
-    reveal.style.animation = '';
     body.classList.remove('is-concealed');
-    body.style.animation = 'playerFlipIn 0.4s cubic-bezier(0,0,0.2,1) forwards';
-  }, 350);
-  setTimeout(() => { body.style.animation = ''; }, 760);
+  }, 430);
+  setTimeout(() => body.classList.remove('card-flipping'), 920);
   
   const key = `${player.category}:${player.name}`;
   const currentBid = STATE.activeBids ? STATE.activeBids[key] : null;
