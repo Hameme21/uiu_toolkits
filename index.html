@@ -195,7 +195,6 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 .code-value { font-family: var(--font-mono); font-size: clamp(2.8rem, 8vw, 5.2rem); font-weight: 800; letter-spacing: 0.12em; color: var(--cyan); text-shadow: 0 0 28px rgba(37,212,255,0.32); line-height: 1; }
 .code-clue { margin-top: 10px; font-size: 10px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.16em; }
 .code-card.flipping { animation: codeFlip 0.72s cubic-bezier(0.22,1,0.36,1); }
-.admin-code-badge { position: absolute; left: 8px; bottom: 8px; z-index: 8; padding: 4px 8px; border-radius: 8px; background: rgba(2,9,23,0.78); border: 1px solid rgba(120,183,255,0.28); color: var(--cyan); font-family: var(--font-mono); font-size: 11px; font-weight: 800; letter-spacing: 0.08em; backdrop-filter: blur(10px); }
 @keyframes codeFlip { 0% { transform: rotateY(0) scale(1); } 45% { transform: rotateY(90deg) scale(1.04); filter: brightness(1.4); } 100% { transform: rotateY(0) scale(1); } }
 
 #importPlayersModal { max-width: 500px; }
@@ -1240,7 +1239,7 @@ function setupUI(preferredSectionId = 'sectionDashboard') {
   const label = isTeam ? (myTeam ? myTeam.name : CURRENT_USER.teamId) : CURRENT_USER.hostId;
 
   let sections = [{ id: 'sectionDashboard', label: 'Dashboard', icon: '🏠' }];
-  if (isAdmin) sections.push({ id: 'sectionLiveAuction', label: 'Live', icon: '⚡' });
+  if (isAdmin || isTeam || CURRENT_USER.role === 'listener') sections.push({ id: 'sectionLiveAuction', label: 'Live', icon: '⚡' });
   sections.push({ id: 'sectionPlayerDatabase', label: 'Database', icon: '🏆' });
   if (isAdmin) sections.push({ id: 'sectionTeamConfig', label: 'Teams', icon: '🛡️' });
 
@@ -1342,6 +1341,7 @@ function renderAll() {
   renderScoreboards();
   if (CURRENT_USER.role === 'team') renderMyTeam();
   if (CURRENT_USER.role === 'listener') renderViewerRosters();
+  if (CURRENT_USER.role !== 'admin') renderLiveIdleCode();
   renderDatabase();
   
   if (CURRENT_USER.role === 'admin') { 
@@ -1364,8 +1364,10 @@ function getNextQueuedPlayer() {
 function makePublicCodeStage(next, includeAdminButton = false) {
   if (!next) {
     return `<div class="code-stage live-code-stage">
-      <div style="font-size:42px;margin-bottom:4px;opacity:0.3">📡</div>
-      <p style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.15em;color:var(--muted)">Awaiting active player drop</p>
+      <div class="code-card" id="activeCodeCard" aria-label="No active code">
+        <div class="code-value" style="opacity:0.18">&nbsp;</div>
+        <div class="code-clue">No active code</div>
+      </div>
     </div>`;
   }
   const code = next.code || getPlayerCode(next.category, next.name);
@@ -1392,15 +1394,7 @@ function renderLiveAdminQueue() {
   const container = document.getElementById('queuePlayersList');
   container.innerHTML = '';
   if (!STATE.lotteryQueue || STATE.lotteryQueue.length === 0) {
-      container.innerHTML = `<div class="code-stage">
-        <div style="font-size:38px;opacity:0.45">⌘</div>
-        <div style="font-family:var(--font-display);font-size:15px;font-weight:800;color:white">No shuffled codes yet</div>
-        <div style="color:var(--muted);font-size:12px;max-width:320px;line-height:1.6">Shuffle the player database to draw the first hidden four-character code.</div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center">
-          <button class="btn-primary" onclick="shufflePlayerCodes()">Shuffle Codes</button>
-          <button class="ghost" onclick="resetPlayerCodes()">Reset Codes</button>
-        </div>
-      </div>`;
+      container.innerHTML = makePublicCodeStage(null, false);
       return;
   }
   const next = getNextQueuedPlayer();
@@ -1581,8 +1575,6 @@ function renderDatabase() {
       const el = document.createElement('div'); el.innerHTML = tileHTML;
       const tile = el.firstElementChild;
       if (isAdmin) {
-        const imgFrame = tile.querySelector('.player-img-h');
-        if (imgFrame) imgFrame.insertAdjacentHTML('beforeend', `<span class="admin-code-badge">${getPlayerCode(cat.id, p.name)}</span>`);
         const anchor = tile.querySelector('.hover-overlay-anchor');
         if (anchor) {
           anchor.innerHTML = `<div style="position:absolute;top:8px;right:8px;display:flex;gap:5px;z-index:30">
