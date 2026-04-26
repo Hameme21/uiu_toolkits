@@ -92,10 +92,14 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 #mobileBottomNav .mnav-item.active { color: var(--accent-2); }
 #mobileBottomNav .mnav-item .mnav-icon { font-size: 20px; line-height: 1; }
 #mobileBottomNav .mnav-item .mnav-label { font-size: 9px; font-weight: 600; font-family: var(--font-display); text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 56px; text-align: center; }
+.mobile-exit-btn { display: none; position: fixed; right: 14px; bottom: calc(78px + env(safe-area-inset-bottom)); z-index: 3600; width: 46px; height: 46px; padding: 0; border-radius: 50%; background: linear-gradient(135deg, #ef4444, #b91c1c); border: 1px solid rgba(255,255,255,0.18); color: white; box-shadow: 0 14px 34px rgba(239,68,68,0.34); font-size: 18px; }
+.mobile-exit-btn:active { transform: translateY(1px) scale(0.98); }
 
 @media (max-width: 767px) {
   #mobileBottomNav { display: block; }
   #topNav { display: none !important; }
+  .header-right .desktop-exit-btn { display: none; }
+  .mobile-exit-btn:not(.hidden) { display: inline-flex; }
   body { padding-bottom: 70px; }
   #appContainer main { padding: 16px 14px; padding-bottom: 80px; }
 }
@@ -353,13 +357,14 @@ button:active:not(:disabled), .tab:active, #topNav a:active, #mobileBottomNav .m
       <span id="roleDisplay" class="chip chip-purple word-break" style="max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Role</span>
       <button id="btnExportAdmin" class="hidden ghost small">Export</button>
       <button id="btnResetSystem" class="hidden red small">Wipe</button>
-      <button onclick="location.reload()" class="ghost small" style="color:var(--danger);border-color:rgba(239,68,68,0.2)">Exit</button>
+      <button onclick="exitAuction()" class="ghost small desktop-exit-btn" style="color:var(--danger);border-color:rgba(239,68,68,0.2)">Exit</button>
     </div>
   </header>
 
   <nav id="mobileBottomNav" class="hidden">
     <div class="mnav-items" id="mobileNavItems"></div>
   </nav>
+  <button id="mobileExitBtn" class="mobile-exit-btn hidden" onclick="exitAuction()" aria-label="Exit auction">×</button>
 
   <main style="flex:1;padding:20px;max-width:1700px;margin:0 auto;width:100%" id="mainContentContainer">
 
@@ -655,6 +660,10 @@ button:active:not(:disabled), .tab:active, #topNav a:active, #mobileBottomNav .m
 <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
 <script>
 const BACKEND_URL = "https://auction-socket-39c2.onrender.com";
+const CLOUDINARY_CLOUD_NAME = "drdfnqwgp";
+const CLOUDINARY_UPLOAD_PRESET = "Auction_uploads";
+const CLOUDINARY_UPLOAD_URL = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`;
+const SESSION_KEY = "auctioncmd.session.v1";
 const socket = io(BACKEND_URL, { transports: ["websocket"] });
 
 let CURRENT_USER = { role: null, teamId: null, hostId: null };
@@ -674,6 +683,52 @@ const teamAuthOverlay = document.getElementById('teamAuthOverlay');
 const appContainer = document.getElementById('appContainer');
 const fileInput = document.getElementById('globalFileInput');
 
+let pendingAuthSession = null;
+let restoringSession = false;
+
+function getSavedSession() {
+  try { return JSON.parse(localStorage.getItem(SESSION_KEY) || 'null'); } catch { return null; }
+}
+
+function saveSession(data = {}) {
+  const sectionId = data.sectionId || currentActiveSectionId || 'sectionDashboard';
+  localStorage.setItem(SESSION_KEY, JSON.stringify({ ...data, sectionId, savedAt: Date.now() }));
+}
+
+function updateSavedSection(id) {
+  const saved = getSavedSession();
+  if (saved) saveSession({ ...saved, sectionId: id });
+}
+
+function finishEnterApp(sectionId) {
+  portal.classList.add('hidden');
+  teamAuthOverlay.classList.add('hidden');
+  appContainer.classList.remove('hidden');
+  document.getElementById('mobileExitBtn')?.classList.remove('hidden');
+  setupUI(sectionId || getSavedSession()?.sectionId || 'sectionDashboard');
+  renderAll();
+}
+
+function tryRestoreSession() {
+  const saved = getSavedSession();
+  if (!saved || restoringSession) return;
+  restoringSession = true;
+  if (saved.kind === 'manager' && saved.username && saved.password) {
+    socket.emit('manager:login', { username: saved.username, password: saved.password });
+  } else if (saved.kind === 'participant' && saved.hostId && saved.role) {
+    CURRENT_USER.hostId = saved.hostId;
+    socket.emit('team:login', { hostId: saved.hostId, teamId: saved.teamId || '', password: saved.password || '', role: saved.role });
+  } else {
+    restoringSession = false;
+    localStorage.removeItem(SESSION_KEY);
+  }
+}
+
+window.exitAuction = () => {
+  localStorage.removeItem(SESSION_KEY);
+  location.reload();
+};
+
 const showSection = (id) => {
   document.getElementById(currentActiveSectionId)?.classList.add('hidden');
   document.getElementById(id)?.classList.remove('hidden');
@@ -681,6 +736,7 @@ const showSection = (id) => {
   document.querySelector(`#topNav a[data-section="${id}"]`)?.classList.add('active');
   document.querySelectorAll('#mobileNavItems .mnav-item').forEach(el => { el.classList.toggle('active', el.getAttribute('data-section') === id); });
   currentActiveSectionId = id;
+  updateSavedSection(id);
 };
 
 function log(msg) {
@@ -732,17 +788,23 @@ function getPlayerCode(category, name) {
   return computePlayerCodes()[`${category}:${name}`] || makePlayerCode(category, name);
 }
 
-function uploadFile(file) {
-  return new Promise((res, rej) => {
-    const fd = new FormData(); fd.append('file', file);
-    fetch(`${BACKEND_URL}/upload`, { method: 'POST', body: fd }).then(r => r.json()).then(d => res(BACKEND_URL + d.url)).catch(rej);
-  });
+async function uploadFile(file) {
+  if (!file || !file.type.startsWith('image/')) throw new Error('Please choose an image file.');
+  const fd = new FormData();
+  fd.append('file', file);
+  fd.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+  fd.append('folder', 'auction');
+  const response = await fetch(CLOUDINARY_UPLOAD_URL, { method: 'POST', body: fd });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok || !data.secure_url) throw new Error(data.error?.message || 'Cloudinary upload failed.');
+  return data.secure_url;
 }
 function setupFileUpload(el, cb) {
-  el.onclick = () => { fileInput.onchange = (e) => { if (e.target.files[0]) { cb(e.target.files[0]); fileInput.value = ''; } }; fileInput.click(); };
+  const handleFile = (file) => Promise.resolve(cb(file)).catch(err => showToast(`Photo upload failed: ${err.message || err}`));
+  el.onclick = () => { fileInput.onchange = (e) => { if (e.target.files[0]) { handleFile(e.target.files[0]); fileInput.value = ''; } }; fileInput.click(); };
   el.ondragover = (e) => { e.preventDefault(); el.style.borderColor = 'var(--emerald)'; };
   el.ondragleave = () => el.style.borderColor = '';
-  el.ondrop = (e) => { e.preventDefault(); el.style.borderColor = ''; if (e.dataTransfer.files[0]) cb(e.dataTransfer.files[0]); };
+  el.ondrop = (e) => { e.preventDefault(); el.style.borderColor = ''; if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]); };
 }
 
 window.switchTab = (tab) => {
@@ -751,11 +813,11 @@ window.switchTab = (tab) => {
   document.getElementById('managerForm').classList.toggle('hidden', tab !== 'manager');
   document.getElementById('participantForm').classList.toggle('hidden', tab !== 'participant');
 };
-window.managerLogin = () => { const u = document.getElementById('mUser').value.trim(), p = document.getElementById('mPass').value; if (u && p) socket.emit('manager:login', { username: u, password: p }); };
-window.managerRegister = () => { const u = document.getElementById('mUser').value.trim(), p = document.getElementById('mPass').value; if (u && p) socket.emit('manager:register', { username: u, password: p }); };
-window.connectToHost = () => { const h = document.getElementById('pHostId').value.trim(); if (h) socket.emit('participant:connect', h); };
+window.managerLogin = () => { const u = document.getElementById('mUser').value.trim(), p = document.getElementById('mPass').value; if (u && p) { pendingAuthSession = { kind: 'manager', username: u, password: p }; socket.emit('manager:login', { username: u, password: p }); } };
+window.managerRegister = () => { const u = document.getElementById('mUser').value.trim(), p = document.getElementById('mPass').value; if (u && p) { pendingAuthSession = { kind: 'manager', username: u, password: p }; socket.emit('manager:register', { username: u, password: p }); } };
+window.connectToHost = () => { const h = document.getElementById('pHostId').value.trim(); if (h) { pendingAuthSession = { kind: 'participant', hostId: h }; socket.emit('participant:connect', h); } };
 window.toggleTeamPass = () => { const isTeam = document.getElementById('loginRole').value === 'team'; document.getElementById('teamSelectGroup').classList.toggle('hidden', !isTeam); document.getElementById('passGroup').classList.toggle('hidden', !isTeam); };
-window.enterAuction = () => { const role = document.getElementById('loginRole').value, teamId = document.getElementById('loginTeamId').value, pass = document.getElementById('loginPass').value; socket.emit('team:login', { hostId: CURRENT_USER.hostId, teamId, password: pass, role }); };
+window.enterAuction = () => { const role = document.getElementById('loginRole').value, teamId = document.getElementById('loginTeamId').value, pass = document.getElementById('loginPass').value; pendingAuthSession = { kind: 'participant', hostId: CURRENT_USER.hostId, role, teamId, password: pass }; socket.emit('team:login', { hostId: CURRENT_USER.hostId, teamId, password: pass, role }); };
 window.previewTeamLogo = () => { const t = STATE.teams.find(x => x.id === document.getElementById('loginTeamId').value), img = document.getElementById('loginTeamLogo'); if (t?.logo) { img.src = t.logo; img.classList.remove('hidden'); } else img.classList.add('hidden'); };
 
 function updateLiveIndicator() {
@@ -848,9 +910,20 @@ function handleTimerExpiry() {
   }
 }
 
-socket.on('auth:portal_error', msg => { document.getElementById('portalMsg').textContent = msg; });
+socket.on('connect', tryRestoreSession);
+if (socket.connected) tryRestoreSession();
+socket.on('auth:portal_error', msg => { restoringSession = false; pendingAuthSession = null; localStorage.removeItem(SESSION_KEY); portal.classList.remove('hidden'); appContainer.classList.add('hidden'); document.getElementById('portalMsg').textContent = msg; });
 socket.on('auth:portal_success', d => { const el = document.getElementById('portalMsg'); el.style.color = 'var(--emerald)'; el.textContent = d.msg; });
-socket.on('manager:logged_in', data => { CURRENT_USER.hostId = data.username; CURRENT_USER.role = 'admin'; STATE = data.state; portal.classList.add('hidden'); appContainer.classList.remove('hidden'); setupUI(); renderAll(); });
+socket.on('manager:logged_in', data => {
+  CURRENT_USER.hostId = data.username;
+  CURRENT_USER.role = 'admin';
+  STATE = data.state;
+  const saved = getSavedSession();
+  saveSession({ ...(pendingAuthSession || saved || {}), kind: 'manager', username: data.username, password: (pendingAuthSession || saved || {}).password || '' });
+  restoringSession = false;
+  pendingAuthSession = null;
+  finishEnterApp(getSavedSession()?.sectionId);
+});
 socket.on('init:teams_available', data => {
   CURRENT_USER.hostId = data.hostId;
   const sel = document.getElementById('loginTeamId');
@@ -858,8 +931,18 @@ socket.on('init:teams_available', data => {
   data.teams.forEach(t => sel.innerHTML += `<option value="${t.id}">${t.name}</option>`);
   portal.classList.add('hidden'); teamAuthOverlay.classList.remove('hidden');
 });
-socket.on('auction:enter', data => { CURRENT_USER.role = data.role; CURRENT_USER.teamId = data.teamId; STATE = data.state; teamAuthOverlay.classList.add('hidden'); appContainer.classList.remove('hidden'); setupUI(); renderAll(); });
-socket.on('auth:team_error', msg => document.getElementById('teamAuthMsg').textContent = msg);
+socket.on('auction:enter', data => {
+  CURRENT_USER.role = data.role;
+  CURRENT_USER.teamId = data.teamId;
+  STATE = data.state;
+  const saved = getSavedSession();
+  const auth = pendingAuthSession || saved || {};
+  saveSession({ kind: 'participant', hostId: CURRENT_USER.hostId || auth.hostId, role: data.role, teamId: data.teamId || auth.teamId || '', password: auth.password || '' });
+  restoringSession = false;
+  pendingAuthSession = null;
+  finishEnterApp(getSavedSession()?.sectionId);
+});
+socket.on('auth:team_error', msg => { restoringSession = false; pendingAuthSession = null; localStorage.removeItem(SESSION_KEY); teamAuthOverlay.classList.remove('hidden'); appContainer.classList.add('hidden'); document.getElementById('teamAuthMsg').textContent = msg; });
 socket.on('state:updated', s => { STATE = s; renderAll(); });
 
 socket.on('player:bid', pl => {
@@ -1030,13 +1113,9 @@ function buildNavItems(sections) {
   mn.innerHTML = '';
   sections.forEach(s => { mn.innerHTML += `<div class="mnav-item" data-section="${s.id}" onclick="showSection('${s.id}')"><div class="mnav-icon">${s.icon}</div><div class="mnav-label">${s.label}</div></div>`; });
   document.getElementById('mobileBottomNav').classList.remove('hidden');
-  setTimeout(() => {
-    document.querySelector(`#topNav a[data-section="sectionDashboard"]`)?.classList.add('active');
-    document.querySelector(`#mobileNavItems [data-section="sectionDashboard"]`)?.classList.add('active');
-  }, 0);
 }
 
-function setupUI() {
+function setupUI(preferredSectionId = 'sectionDashboard') {
   const isAdmin = CURRENT_USER.role === 'admin';
   const isTeam = CURRENT_USER.role === 'team';
   const myTeam = STATE.teams.find(t => t.id === CURRENT_USER.teamId);
@@ -1098,7 +1177,8 @@ function setupUI() {
     document.getElementById('idleWaitingMessage').classList.add('hidden');
     document.getElementById('adminAuctionQueue').classList.remove('hidden');
   }
-  showSection('sectionDashboard');
+  const availableSection = sections.some(s => s.id === preferredSectionId) ? preferredSectionId : 'sectionDashboard';
+  showSection(availableSection);
 }
 
 function renderAdminTeamsSummary() {
