@@ -214,7 +214,7 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 #auctionPlayerPopup { flex: 1; min-height: 380px; border-radius: var(--radius-lg); overflow: hidden; position: relative; border: 1px solid rgba(120,183,255,0.28); box-shadow: 0 24px 80px rgba(0,8,28,0.48); display: flex; flex-direction: column; animation: livePop 0.35s cubic-bezier(0.16,1,0.3,1); }
 @media (max-width: 767px) { #auctionPlayerPopup { min-height: 300px; } }
 .live-card-content { position: relative; z-index: 20; padding: 20px; width: 100%; display: flex; flex-direction: column; gap: 14px; min-height: 100%; perspective: 1200px; }
-.live-card-content.card-flipping { animation: liveCardFlip 0.82s cubic-bezier(0.22,1,0.36,1); transform-style: preserve-3d; }
+.live-card-content.card-flipping { animation: liveCardFlip 0.2s cubic-bezier(0.22,1,0.36,1); transform-style: preserve-3d; }
 .live-photo-panel { position: relative; flex: 1; aspect-ratio: 16/9; height: auto; min-height: unset !important; max-height: 65vh; border-radius: var(--radius-lg); overflow: hidden; border: 1px solid rgba(255,255,255,0.08); background: #081426; box-shadow: 0 22px 70px rgba(0,8,28,0.48); }
 .live-photo-panel img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .live-photo-panel::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, rgba(2,9,23,0.88) 0%, rgba(2,9,23,0.18) 46%, rgba(2,9,23,0.08) 100%); pointer-events: none; }
@@ -464,7 +464,7 @@ button:active:not(:disabled), .tab:active, #topNav a:active, #mobileBottomNav .m
         </div>
 
        <div id="auctionPlayerPopup" class="hidden">
-          <button onclick="closePopup()" style="position:absolute;top:12px;right:12px;z-index:30;width:30px;height:30px;border-radius:50%;background:rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.1);font-size:16px;padding:0;color:white;">×</button>
+          <button onclick="closePopup()" style="position:absolute;top:12px;right:12px;z-index:30;width:30px;height:30px;min-height:30px;border-radius:50%;background:rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.1);font-size:16px;padding:0;color:white;display:flex;align-items:center;justify-content:center;">×</button>
 
           <div class="timer-pill" id="auctionTimerContainer">
             <div id="auctionTimerDot" style="width:8px;height:8px;border-radius:50%;background:var(--cyan)"></div>
@@ -485,7 +485,7 @@ button:active:not(:disabled), .tab:active, #topNav a:active, #mobileBottomNav .m
               <img id="popupImg" src="" style="width: 100%; height: 100%; object-fit: cover;">
 
               <div style="position:absolute; top: 16px; left: 16px; z-index: 5;">
-                <span id="popupCat" class="chip chip-cyan" style="box-shadow: 0 4px 12px rgba(0,0,0,0.5); font-size: 11px; padding: 6px 12px; font-weight: 800; border-radius: 8px; display: inline-block; line-height: normal; height: auto;">CATEGORY</span>
+                <span id="popupCat" class="chip chip-cyan" style="box-shadow: 0 4px 12px rgba(0,0,0,0.5); font-size: 13px; padding: 8px 14px; font-weight: 800; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; letter-spacing: 0.8px;">CATEGORY</span>
               </div>
 
               <div class="live-photo-name" style="z-index: 10;">
