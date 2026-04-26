@@ -1734,17 +1734,49 @@ window.openPlayerEdit = (catId, playerName = null) => {
   document.getElementById('playerEditCat').value = catId;
   document.getElementById('playerEditOldName').value = playerName || '';
   document.getElementById('playerEditTitle').textContent = playerName ? 'Edit Player' : 'Add Player';
+  
   const nameInput = document.getElementById('playerEditName');
   const img = document.getElementById('playerEditImg');
   const imgTxt = document.getElementById('playerEditImgText');
+  
+  // Grab the Save button so we can lock it during upload
+  const saveBtn = modal.querySelector('button.green'); 
+
   if (playerName) {
     const player = (STATE.playersSnapshot[catId] || []).find(p => p.name === playerName);
     nameInput.value = player ? player.name : '';
     if (player?.image) { img.src = player.image; img.classList.remove('hidden'); imgTxt.classList.add('hidden'); }
     else { img.src = ''; img.classList.add('hidden'); imgTxt.classList.remove('hidden'); }
-  } else { nameInput.value = ''; img.src = ''; img.classList.add('hidden'); imgTxt.classList.remove('hidden'); }
+  } else { 
+    nameInput.value = ''; img.src = ''; img.classList.add('hidden'); imgTxt.classList.remove('hidden'); 
+  }
+  
   modal.classList.remove('hidden');
-  setupFileUpload(document.getElementById('playerEditImgDrop'), (file) => uploadFile(file).then(url => { img.src = url; img.classList.remove('hidden'); imgTxt.classList.add('hidden'); }));
+  
+  // The Updated File Upload Logic with the Lock
+  setupFileUpload(document.getElementById('playerEditImgDrop'), (file) => {
+      // 1. Instantly lock the Save button and show 'Uploading...'
+      imgTxt.textContent = "Uploading...";
+      imgTxt.classList.remove('hidden');
+      img.classList.add('hidden');
+      saveBtn.disabled = true;
+      saveBtn.innerText = "Please Wait...";
+
+      // 2. Send to Cloudinary
+      uploadFile(file).then(url => { 
+          // 3. When finished, show the image and unlock the Save button
+          img.src = url; 
+          img.classList.remove('hidden'); 
+          imgTxt.classList.add('hidden'); 
+          
+          saveBtn.disabled = false;
+          saveBtn.innerText = "Save Player";
+      }).catch(err => {
+          imgTxt.textContent = "Upload Failed!";
+          saveBtn.disabled = false;
+          saveBtn.innerText = "Save Player";
+      });
+  });
 };
 window.closePlayerEdit = () => document.getElementById('playerEditOverlay').classList.add('hidden');
 window.savePlayerEdit = () => {
