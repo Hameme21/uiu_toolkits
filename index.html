@@ -192,8 +192,10 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 .code-value { font-family: var(--font-mono); font-size: clamp(2.8rem, 8vw, 5.2rem); font-weight: 800; letter-spacing: 0.12em; color: var(--cyan); text-shadow: 0 0 28px rgba(37,212,255,0.32); line-height: 1; }
 .code-clue { margin-top: 10px; font-size: 10px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.16em; }
 .code-card.spinning { animation: codeSpin 0.9s cubic-bezier(0.22,1,0.36,1); }
+.code-card.flipping { animation: codeFlip 0.9s cubic-bezier(0.22,1,0.36,1); }
 .admin-code-badge { position: absolute; left: 8px; bottom: 8px; z-index: 8; padding: 4px 8px; border-radius: 8px; background: rgba(2,9,23,0.78); border: 1px solid rgba(120,183,255,0.28); color: var(--cyan); font-family: var(--font-mono); font-size: 11px; font-weight: 800; letter-spacing: 0.08em; backdrop-filter: blur(10px); }
 @keyframes codeSpin { 0% { transform: rotateY(0) scale(1); filter: blur(0); } 45% { transform: rotateY(180deg) scale(1.04); filter: blur(2px); } 100% { transform: rotateY(360deg) scale(1); filter: blur(0); } }
+@keyframes codeFlip { 0% { transform: rotateY(0) scale(1); } 45% { transform: rotateY(90deg) scale(1.04); filter: brightness(1.4); } 100% { transform: rotateY(0) scale(1); } }
 
 #importPlayersModal { max-width: 500px; }
 .import-player-list { max-height: 280px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; margin: 12px 0; }
@@ -210,6 +212,22 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 
 #auctionPlayerPopup { flex: 1; min-height: 380px; border-radius: var(--radius-lg); overflow: hidden; position: relative; border: 1px solid rgba(120,183,255,0.28); box-shadow: 0 24px 80px rgba(0,8,28,0.48); display: flex; flex-direction: column; animation: livePop 0.35s cubic-bezier(0.16,1,0.3,1); }
 @media (max-width: 767px) { #auctionPlayerPopup { min-height: 300px; } }
+.live-card-content { position: relative; z-index: 20; padding: 20px; width: 100%; display: grid; grid-template-columns: minmax(280px, 42%) 1fr; gap: 18px; min-height: 100%; align-items: stretch; }
+.live-photo-panel { position: relative; min-height: 360px; border-radius: var(--radius-lg); overflow: hidden; border: 1px solid rgba(255,255,255,0.08); background: #081426; }
+.live-photo-panel img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.live-info-panel { display: flex; flex-direction: column; justify-content: flex-end; gap: 14px; min-width: 0; }
+.live-code-reveal { position: absolute; inset: 0; z-index: 25; display: flex; align-items: center; justify-content: center; padding: 24px; background: linear-gradient(180deg, rgba(2,9,23,0.98), rgba(5,18,39,0.96)); }
+.live-code-reveal.hidden { display: none !important; }
+.live-code-reveal .code-card { width: min(100%, 380px); }
+.live-player-body.is-concealed { opacity: 0; pointer-events: none; }
+@media (max-width: 767px) {
+  .live-card-content { display: flex; flex-direction: column; padding: 12px; gap: 10px; min-height: 100%; }
+  .live-photo-panel { min-height: 250px; max-height: 42vh; }
+  .live-info-panel { justify-content: flex-start; gap: 10px; }
+  #adminActionButtons { grid-template-columns: 1fr !important; }
+  #teamActionButtons { position: sticky; bottom: 0; background: rgba(6,9,16,0.78); backdrop-filter: blur(14px); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 10px; }
+  #teamActionButtons > div { grid-template-columns: 1fr !important; }
+}
 
 @media (max-width: 600px) {
   #adminPlayerDatabaseConfig .cat-config-row { flex-direction: column; gap: 8px; }
@@ -433,9 +451,11 @@ button:active:not(:disabled), .tab:active, #topNav a:active, #mobileBottomNav .m
         </div>
 
         <div id="auctionPlayerPopup" class="hidden">
-          <div style="position:absolute;inset:0;background:linear-gradient(to top,#060910 0%,rgba(6,9,16,0.7) 50%,rgba(6,9,16,0.2) 100%);z-index:10;pointer-events:none"></div>
-          <div id="popupImgContainer" style="position:absolute;inset:0;z-index:0">
-            <img id="popupImg" src="" style="width:100%;height:100%;object-fit:cover;opacity:0.55;transition:opacity 0.5s">
+          <div id="liveCodeReveal" class="live-code-reveal hidden">
+            <div class="code-card" id="liveRevealCodeCard">
+              <div class="code-value" id="liveRevealCode">----</div>
+              <div class="code-clue" id="liveRevealClue">Player code</div>
+            </div>
           </div>
           <button onclick="closePopup()" style="position:absolute;top:12px;right:12px;z-index:30;width:30px;height:30px;border-radius:50%;background:rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.1);font-size:16px;padding:0">×</button>
 
@@ -445,7 +465,11 @@ button:active:not(:disabled), .tab:active, #topNav a:active, #mobileBottomNav .m
             <button id="btnPauseTimer" class="hidden" onclick="toggleTimer()" style="background:none;border:none;font-size:15px;padding:0;width:22px;height:22px;pointer-events:auto;cursor:pointer;">⏸️</button>
           </div>
 
-          <div style="position:relative;z-index:20;padding:20px;width:100%;display:flex;flex-direction:column;height:100%;justify-content:flex-end">
+          <div id="livePlayerBody" class="live-card-content">
+            <div class="live-photo-panel" id="popupImgContainer">
+              <img id="popupImg" src="">
+            </div>
+            <div class="live-info-panel">
             <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap">
               <div style="flex: 1; min-width: 200px;">
                 <div style="margin-bottom:8px"><span id="popupCat" class="chip chip-cyan">CATEGORY</span></div>
@@ -480,7 +504,7 @@ button:active:not(:disabled), .tab:active, #topNav a:active, #mobileBottomNav .m
                 <button id="btnPopupImpact" class="hidden" style="padding:12px; background:linear-gradient(135deg,var(--accent),var(--cyan)); font-family:var(--font-display); letter-spacing:0.05em; font-size:12px; box-shadow:0 4px 20px var(--accent-glow)">⚡ DEPLOY IMPACT</button>
               </div>
             </div>
-            
+            </div>
           </div>
         </div>
       </div>
@@ -999,9 +1023,23 @@ socket.on('popup:open', player => {
   activePlayer = player;
   document.getElementById('auctionIdleState').classList.add('hidden');
   document.getElementById('auctionPlayerPopup').classList.remove('hidden');
+  const reveal = document.getElementById('liveCodeReveal');
+  const revealCard = document.getElementById('liveRevealCodeCard');
+  const body = document.getElementById('livePlayerBody');
+  const code = player.code || getPlayerCode(player.category, player.name);
+  document.getElementById('liveRevealCode').textContent = code;
+  document.getElementById('liveRevealClue').textContent = `${player.category} category`;
+  reveal.classList.remove('hidden');
+  revealCard.classList.remove('flipping');
+  body.classList.add('is-concealed');
   document.getElementById('popupName').textContent = player.name;
   document.getElementById('popupCat').textContent = player.category;
   document.getElementById('popupImg').src = player.image || 'https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=800&auto=format&fit=crop';
+  setTimeout(() => revealCard.classList.add('flipping'), 80);
+  setTimeout(() => {
+    reveal.classList.add('hidden');
+    body.classList.remove('is-concealed');
+  }, 900);
   
   const key = `${player.category}:${player.name}`;
   const currentBid = STATE.activeBids ? STATE.activeBids[key] : null;
@@ -1037,6 +1075,7 @@ socket.on('popup:close', () => {
   document.getElementById('auctionIdleState').classList.remove('hidden');
   updateLiveIndicator(); renderScoreboards();
   if (CURRENT_USER.role === 'admin') renderLiveAdminQueue();
+  else renderLiveIdleCode();
 });
 socket.on('popup:update_image', data => document.getElementById('popupImg').src = data.imageUrl);
 
@@ -1251,6 +1290,7 @@ function renderAll() {
   renderScoreboards();
   if (CURRENT_USER.role === 'team') renderMyTeam();
   if (CURRENT_USER.role === 'listener') renderViewerRosters();
+  if (CURRENT_USER.role !== 'admin') renderLiveIdleCode();
   renderDatabase();
   
   if (CURRENT_USER.role === 'admin') { 
@@ -1266,6 +1306,36 @@ function renderAll() {
   updateLiveIndicator();
 }
 
+function getNextQueuedPlayer() {
+  return (STATE.lotteryQueue || []).find(p => !STATE.teams.some(t => t.purchases?.[p.category] === p.name));
+}
+
+function makePublicCodeStage(next, includeAdminButton = false) {
+  if (!next) {
+    return `<div class="code-stage">
+      <div style="font-size:42px;margin-bottom:4px;opacity:0.3">📡</div>
+      <p style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.15em;color:var(--muted)">Awaiting active player drop</p>
+    </div>`;
+  }
+  const code = next.code || getPlayerCode(next.category, next.name);
+  const isPrevOwned = STATE.previousOwners && STATE.previousOwners[`${next.category}:${next.name}`];
+  return `<div class="code-stage">
+    <div style="font-size:10px;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:0.16em">Next player code</div>
+    <div class="code-card" id="activeCodeCard">
+      <div class="code-value">${code}</div>
+      <div class="code-clue">${next.category} category${next.isUnsold ? ' · unsold return' : ''}${isPrevOwned ? ' · RTM eligible' : ''}</div>
+    </div>
+    ${includeAdminButton ? `<button class="btn-primary" id="btnRevealCode" onclick="revealShuffledCode()">Show Player</button>` : ''}
+  </div>`;
+}
+
+function renderLiveIdleCode() {
+  if (activePlayer) return;
+  const idle = document.getElementById('idleWaitingMessage');
+  if (!idle) return;
+  idle.innerHTML = makePublicCodeStage(getNextQueuedPlayer(), false);
+}
+
 function renderLiveAdminQueue() {
   if (CURRENT_USER.role !== 'admin') return;
   const container = document.getElementById('queuePlayersList');
@@ -1279,35 +1349,23 @@ function renderLiveAdminQueue() {
       </div>`;
       return;
   }
-  const unsold = STATE.lotteryQueue.filter(p => !STATE.teams.some(t => t.purchases?.[p.category] === p.name));
-  if (!unsold.length) {
+  const next = getNextQueuedPlayer();
+  if (!next) {
       container.innerHTML = '<div class="code-stage"><div style="font-size:36px;color:var(--emerald)">✓</div><div style="color:var(--emerald);font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:0.14em">All prospects drafted.</div></div>';
       return;
   }
-  const next = unsold[0];
-  const code = next.code || getPlayerCode(next.category, next.name);
-  const isPrevOwned = STATE.previousOwners && STATE.previousOwners[`${next.category}:${next.name}`];
-  container.innerHTML = `<div class="code-stage">
-    <div style="font-size:10px;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:0.16em">Next hidden player</div>
-    <div class="code-card" id="activeCodeCard">
-      <div class="code-value">${code}</div>
-      <div class="code-clue">${next.category} category clue${next.isUnsold ? ' · unsold return' : ''}${isPrevOwned ? ' · RTM eligible' : ''}</div>
-    </div>
-    <button class="btn-primary" id="btnRevealCode" onclick="revealShuffledCode()">Show Player</button>
-    <div style="color:var(--muted);font-size:11px;max-width:340px;line-height:1.6">Only the code is visible until you reveal. The player card and bidding controls appear after the spin.</div>
-  </div>`;
+  container.innerHTML = makePublicCodeStage(next, true);
 }
 
 window.shufflePlayerCodes = () => socket.emit('admin:shuffle_codes');
 window.revealShuffledCode = () => {
-  const queue = (STATE.lotteryQueue || []).filter(p => !STATE.teams.some(t => t.purchases?.[p.category] === p.name));
-  const next = queue[0];
+  const next = getNextQueuedPlayer();
   if (!next) return showToast('No hidden player codes left');
   const card = document.getElementById('activeCodeCard');
   const btn = document.getElementById('btnRevealCode');
   if (btn) btn.disabled = true;
-  if (card) card.classList.add('spinning');
-  setTimeout(() => startAuctionFromQueue(next.category, next.name, next.base, next.image, next.code), 900);
+  if (card) card.classList.add('flipping');
+  setTimeout(() => startAuctionFromQueue(next.category, next.name, next.base, next.image, next.code), 500);
 };
 window.startAuctionFromQueue = (cat, name, base, img, code = null) => socket.emit('admin:select_player', { category: cat, name, base, currentPrice: base, image: img, code: code || getPlayerCode(cat, name) });
 
@@ -1734,49 +1792,17 @@ window.openPlayerEdit = (catId, playerName = null) => {
   document.getElementById('playerEditCat').value = catId;
   document.getElementById('playerEditOldName').value = playerName || '';
   document.getElementById('playerEditTitle').textContent = playerName ? 'Edit Player' : 'Add Player';
-  
   const nameInput = document.getElementById('playerEditName');
   const img = document.getElementById('playerEditImg');
   const imgTxt = document.getElementById('playerEditImgText');
-  
-  // Grab the Save button so we can lock it during upload
-  const saveBtn = modal.querySelector('button.green'); 
-
   if (playerName) {
     const player = (STATE.playersSnapshot[catId] || []).find(p => p.name === playerName);
     nameInput.value = player ? player.name : '';
     if (player?.image) { img.src = player.image; img.classList.remove('hidden'); imgTxt.classList.add('hidden'); }
     else { img.src = ''; img.classList.add('hidden'); imgTxt.classList.remove('hidden'); }
-  } else { 
-    nameInput.value = ''; img.src = ''; img.classList.add('hidden'); imgTxt.classList.remove('hidden'); 
-  }
-  
+  } else { nameInput.value = ''; img.src = ''; img.classList.add('hidden'); imgTxt.classList.remove('hidden'); }
   modal.classList.remove('hidden');
-  
-  // The Updated File Upload Logic with the Lock
-  setupFileUpload(document.getElementById('playerEditImgDrop'), (file) => {
-      // 1. Instantly lock the Save button and show 'Uploading...'
-      imgTxt.textContent = "Uploading...";
-      imgTxt.classList.remove('hidden');
-      img.classList.add('hidden');
-      saveBtn.disabled = true;
-      saveBtn.innerText = "Please Wait...";
-
-      // 2. Send to Cloudinary
-      uploadFile(file).then(url => { 
-          // 3. When finished, show the image and unlock the Save button
-          img.src = url; 
-          img.classList.remove('hidden'); 
-          imgTxt.classList.add('hidden'); 
-          
-          saveBtn.disabled = false;
-          saveBtn.innerText = "Save Player";
-      }).catch(err => {
-          imgTxt.textContent = "Upload Failed!";
-          saveBtn.disabled = false;
-          saveBtn.innerText = "Save Player";
-      });
-  });
+  setupFileUpload(document.getElementById('playerEditImgDrop'), (file) => uploadFile(file).then(url => { img.src = url; img.classList.remove('hidden'); imgTxt.classList.add('hidden'); }));
 };
 window.closePlayerEdit = () => document.getElementById('playerEditOverlay').classList.add('hidden');
 window.savePlayerEdit = () => {
