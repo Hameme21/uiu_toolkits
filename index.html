@@ -123,7 +123,7 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 .admin-cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; width: 100%; }
 @media (max-width: 480px) { .admin-cards-grid { grid-template-columns: 1fr; gap: 12px; } }
 
-#sectionLiveAuction { display: grid; grid-template-columns: 1fr 320px; gap: 16px; min-height: 680px; }
+#sectionLiveAuction { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 16px; min-height: 680px; align-items: start; }
 @media (max-width: 1024px) { #sectionLiveAuction { grid-template-columns: 1fr 280px; } }
 @media (max-width: 767px) {
   #sectionLiveAuction { grid-template-columns: 1fr; gap: 12px; min-height: auto; display: flex; flex-direction: column; }
@@ -274,7 +274,7 @@ button:active:not(:disabled), .tab:active, #topNav a:active, #mobileBottomNav .m
 #mobileBottomNav .mnav-item.active .mnav-icon { filter: drop-shadow(0 0 10px rgba(37,212,255,0.45)); }
 @media (min-width: 768px) and (max-width: 1180px) {
   /* Keeps the photo taking 1fr (remaining space) and the sidebar at 280px beside it */
-  #sectionLiveAuction { grid-template-columns: 1fr 280px; min-height: auto; }
+ #sectionLiveAuction { grid-template-columns: minmax(0, 1fr) 280px; min-height: auto; align-items: start; }
   /* Keeps the Arena Standings and Log stacked vertically in their column */
   #auctionSidebar { display: flex !important; flex-direction: column; }
   #auctionSidebar .glass { min-height: 220px; }
@@ -447,7 +447,7 @@ button:active:not(:disabled), .tab:active, #topNav a:active, #mobileBottomNav .m
 
     <div id="sectionLiveAuction" class="hidden">
 
-      <div style="display:flex;flex-direction:column;gap:14px">
+      <div style="display:flex;flex-direction:column;gap:14px;min-width:0;">
         <div id="auctionIdleState" class="glass" style="flex:1;min-height:360px;display:flex;flex-direction:column;overflow:hidden">
           <div id="idleWaitingMessage" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--muted);text-align:center;padding:40px">
             <div style="font-size:42px;margin-bottom:14px;opacity:0.3">📡</div>
