@@ -471,14 +471,17 @@ button:active:not(:disabled), .tab:active, #topNav a:active, #mobileBottomNav .m
                 <h3 style="font-family:var(--font-display);font-size:15px;font-weight:700">Code Shuffle</h3>
                 <p style="color:var(--muted);font-size:11px;margin-top:3px">Reveal one hidden player code at a time</p>
               </div>
-              <button class="btn-primary small" onclick="shufflePlayerCodes()">Shuffle Codes</button>
+              <div style="display:flex;gap:8px;flex-wrap:wrap">
+                <button class="btn-primary small" onclick="shufflePlayerCodes()">Shuffle Codes</button>
+                <button class="ghost small" onclick="resetPlayerCodes()">Reset Codes</button>
+              </div>
             </div>
             <div id="queuePlayersList" style="overflow-y:auto;flex:1"></div>
           </div>
         </div>
 
        <div id="auctionPlayerPopup" class="hidden">
-          <button onclick="closePopup()" style="position:absolute;top:28px;right:28px;z-index:30;width:36px;height:36px;min-height:36px;border-radius:50%;background:rgba(0,0,0,0.5);border:3px solid rgba(255,255,255,0.1);font-size:16px;padding:0;color:white;display:flex;align-items:center;justify-content:center;">×</button>
+          <button id="btnCloseLivePopup" onclick="closePopup()" style="position:absolute;top:28px;right:28px;z-index:30;width:36px;height:36px;min-height:36px;border-radius:50%;background:rgba(0,0,0,0.5);border:3px solid rgba(255,255,255,0.1);font-size:16px;padding:0;color:white;display:flex;align-items:center;justify-content:center;">×</button>
 
           <div class="timer-pill" id="auctionTimerContainer">
             <div id="auctionTimerDot" style="width:8px;height:8px;border-radius:50%;background:var(--cyan)"></div>
@@ -732,7 +735,7 @@ const SESSION_KEY = "auctioncmd.session.v1";
 const socket = io(BACKEND_URL, { transports: ["websocket"] });
 
 let CURRENT_USER = { role: null, teamId: null, hostId: null };
-let STATE = { teams: [], categories: [], playersSnapshot: {}, activeBids: {}, activeBidders: {}, previousOwners: {}, soldPrices: {}, directSigns: {}, rtmEvents: {}, config: { impactAmount: 0 }, rtmState: null, lotteryQueue: [], unsoldPlayers: {}, biddingActive: false };
+let STATE = { teams: [], categories: [], playersSnapshot: {}, activeBids: {}, activeBidders: {}, previousOwners: {}, soldPrices: {}, directSigns: {}, rtmEvents: {}, config: { impactAmount: 0 }, rtmState: null, lotteryQueue: [], unsoldPlayers: {}, biddingActive: false, codeShuffleActive: false };
 let pendingSold = null, pendingRTM = null, activePlayer = null;
 let currentActiveSectionId = 'sectionDashboard';
 let currentAuctionCategory = null;
@@ -904,7 +907,8 @@ window.selectLoginTeam = (teamId) => {
 };
 
 function updateLiveIndicator() {
-  ['viewerLiveStatus', 'teamLiveStatus'].forEach(id => document.getElementById(id)?.classList.toggle('hidden', !activePlayer));
+  const auctionLive = !!activePlayer || !!STATE.codeShuffleActive || (STATE.lotteryQueue || []).length > 0;
+  ['viewerLiveStatus', 'teamLiveStatus'].forEach(id => document.getElementById(id)?.classList.toggle('hidden', !auctionLive));
 }
 
 function updateLiveEligibility() {
@@ -1066,23 +1070,28 @@ socket.on('popup:open', player => {
   const code = player.code || getPlayerCode(player.category, player.name);
   document.getElementById('liveRevealCode').textContent = code;
   document.getElementById('liveRevealClue').textContent = `${player.category} category`;
-  body.classList.add('is-concealed');
   body.style.animation = '';
   reveal.style.animation = '';
-  reveal.classList.remove('hidden');
   document.getElementById('popupName').textContent = player.name;
   document.getElementById('popupCat').textContent = player.category;
   document.getElementById('popupImg').src = player.image || 'https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=800&auto=format&fit=crop';
-  setTimeout(() => {
-    reveal.style.animation = 'codeFlipOut 0.46s cubic-bezier(0.4,0,0.2,1) forwards';
-  }, 80);
-  setTimeout(() => {
+  if (player.revealCode) {
+    body.classList.add('is-concealed');
+    reveal.classList.remove('hidden');
+    setTimeout(() => {
+      reveal.style.animation = 'codeFlipOut 0.46s cubic-bezier(0.4,0,0.2,1) forwards';
+    }, 80);
+    setTimeout(() => {
+      reveal.classList.add('hidden');
+      reveal.style.animation = '';
+      body.classList.remove('is-concealed');
+      body.style.animation = 'playerFlipIn 0.52s cubic-bezier(0.16,1,0.3,1) forwards';
+    }, 500);
+    setTimeout(() => { body.style.animation = ''; }, 1080);
+  } else {
     reveal.classList.add('hidden');
-    reveal.style.animation = '';
     body.classList.remove('is-concealed');
-    body.style.animation = 'playerFlipIn 0.52s cubic-bezier(0.16,1,0.3,1) forwards';
-  }, 500);
-  setTimeout(() => { body.style.animation = ''; }, 1080);
+  }
   
   const key = `${player.category}:${player.name}`;
   const currentBid = STATE.activeBids ? STATE.activeBids[key] : null;
@@ -1118,7 +1127,6 @@ socket.on('popup:close', () => {
   document.getElementById('auctionIdleState').classList.remove('hidden');
   updateLiveIndicator(); renderScoreboards();
   if (CURRENT_USER.role === 'admin') renderLiveAdminQueue();
-  else renderLiveIdleCode();
 });
 socket.on('popup:update_image', data => document.getElementById('popupImg').src = data.imageUrl);
 
@@ -1232,7 +1240,7 @@ function setupUI(preferredSectionId = 'sectionDashboard') {
   const label = isTeam ? (myTeam ? myTeam.name : CURRENT_USER.teamId) : CURRENT_USER.hostId;
 
   let sections = [{ id: 'sectionDashboard', label: 'Dashboard', icon: '🏠' }];
-  if (isAdmin || isTeam || CURRENT_USER.role === 'listener') sections.push({ id: 'sectionLiveAuction', label: 'Live', icon: '⚡' });
+  if (isAdmin) sections.push({ id: 'sectionLiveAuction', label: 'Live', icon: '⚡' });
   sections.push({ id: 'sectionPlayerDatabase', label: 'Database', icon: '🏆' });
   if (isAdmin) sections.push({ id: 'sectionTeamConfig', label: 'Teams', icon: '🛡️' });
 
@@ -1282,6 +1290,7 @@ function setupUI(preferredSectionId = 'sectionDashboard') {
   document.getElementById('btnResetSystem').classList.toggle('hidden', !isAdmin);
   document.getElementById('btnExportAdmin').classList.toggle('hidden', !isAdmin);
   document.getElementById('btnPauseTimer')?.classList.toggle('hidden', !isAdmin);
+  document.getElementById('btnCloseLivePopup')?.classList.toggle('hidden', !isAdmin);
 
   if (isAdmin) {
     document.getElementById('idleWaitingMessage').classList.add('hidden');
@@ -1333,7 +1342,6 @@ function renderAll() {
   renderScoreboards();
   if (CURRENT_USER.role === 'team') renderMyTeam();
   if (CURRENT_USER.role === 'listener') renderViewerRosters();
-  if (CURRENT_USER.role !== 'admin') renderLiveIdleCode();
   renderDatabase();
   
   if (CURRENT_USER.role === 'admin') { 
@@ -1388,7 +1396,10 @@ function renderLiveAdminQueue() {
         <div style="font-size:38px;opacity:0.45">⌘</div>
         <div style="font-family:var(--font-display);font-size:15px;font-weight:800;color:white">No shuffled codes yet</div>
         <div style="color:var(--muted);font-size:12px;max-width:320px;line-height:1.6">Shuffle the player database to draw the first hidden four-character code.</div>
-        <button class="btn-primary" onclick="shufflePlayerCodes()">Shuffle Codes</button>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center">
+          <button class="btn-primary" onclick="shufflePlayerCodes()">Shuffle Codes</button>
+          <button class="ghost" onclick="resetPlayerCodes()">Reset Codes</button>
+        </div>
       </div>`;
       return;
   }
@@ -1401,6 +1412,7 @@ function renderLiveAdminQueue() {
 }
 
 window.shufflePlayerCodes = () => socket.emit('admin:shuffle_codes');
+window.resetPlayerCodes = () => socket.emit('admin:reset_codes');
 window.revealShuffledCode = () => {
   const next = getNextQueuedPlayer();
   if (!next) return showToast('No hidden player codes left');
@@ -1408,9 +1420,9 @@ window.revealShuffledCode = () => {
   const btn = document.getElementById('btnRevealCode');
   if (btn) btn.disabled = true;
   if (card) card.style.filter = 'brightness(1.18)';
-  setTimeout(() => startAuctionFromQueue(next.category, next.name, next.base, next.image, next.code), 500);
+  setTimeout(() => startAuctionFromQueue(next.category, next.name, next.base, next.image, next.code, true), 500);
 };
-window.startAuctionFromQueue = (cat, name, base, img, code = null) => socket.emit('admin:select_player', { category: cat, name, base, currentPrice: base, image: img, code: code || getPlayerCode(cat, name) });
+window.startAuctionFromQueue = (cat, name, base, img, code = null, revealCode = false) => socket.emit('admin:select_player', { category: cat, name, base, currentPrice: base, image: img, code: code || getPlayerCode(cat, name), revealCode });
 
 function renderScoreboards() {
   ['auctionScoreboard','dashboardScoreboard','viewerScoreboard'].forEach(id => {
