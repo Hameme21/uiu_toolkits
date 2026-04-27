@@ -730,7 +730,7 @@ button:active:not(:disabled), .tab:active, #topNav a:active, #mobileBottomNav .m
       </div>
       <div style="text-align:left;margin-bottom:14px">
         <label>Eligible RTM Franchise</label>
-        <div style="font-size:10px;color:var(--muted);margin-bottom:8px;margin-top:-4px;font-style:italic">Teams that have not used RTM and do not already own this category</div>
+        <div style="font-size:10px;color:var(--muted);margin-bottom:8px;margin-top:-4px;font-style:italic">Only the team tagged to this player can use RTM</div>
         <select id="rtmTeamSelect" style="margin-bottom:0"></select>
       </div>
       <div style="text-align:left;margin-bottom:18px">
@@ -1028,7 +1028,8 @@ function canTeamBidActivePlayer(team, bidPrice) {
 
 function isTeamRTMEligibleForPlayer(team, player = activePlayer) {
   if (!team || !player) return false;
-  return !team.rtmUsed && !team.purchases?.[player.category];
+  const key = `${player.category}:${player.name}`;
+  return STATE.previousOwners?.[key] === team.id && !team.rtmUsed && !team.purchases?.[player.category];
 }
 
 function hasTeamRTMLockedImpact(teamId, player = activePlayer) {
@@ -1290,7 +1291,8 @@ socket.on('popup:open', player => {
         rtmBtn.disabled = !rtmEligible;
         rtmBtn.style.opacity = rtmEligible ? '1' : '0.35';
         rtmBtn.style.filter = rtmEligible ? 'none' : 'grayscale(1)';
-        rtmBtn.innerHTML = myTeam?.rtmUsed ? '🔁 RTM USED' : myTeam?.purchases?.[player.category] ? '🔁 RTM LOCKED' : '🔁 USE RTM';
+        const taggedToMe = STATE.previousOwners?.[key] === CURRENT_USER.teamId;
+        rtmBtn.innerHTML = myTeam?.rtmUsed ? '🔁 RTM USED' : myTeam?.purchases?.[player.category] ? '🔁 RTM LOCKED' : taggedToMe ? '🔁 USE RTM' : '🔁 NOT TAGGED';
     }
   }
 });
@@ -2045,7 +2047,8 @@ document.getElementById('btnTeamRTM').onclick = () => {
     if (!activePlayer) return;
     const myTeam = STATE.teams.find(t => t.id === CURRENT_USER.teamId);
     if (!isTeamRTMEligibleForPlayer(myTeam)) {
-        showToast(myTeam?.rtmUsed ? 'RTM already used' : 'RTM is not available for this player', 'rtm');
+        const taggedTeamId = STATE.previousOwners?.[`${activePlayer.category}:${activePlayer.name}`];
+        showToast(myTeam?.rtmUsed ? 'RTM already used' : taggedTeamId ? 'RTM belongs to the tagged team for this player' : 'This player is not tagged for RTM', 'rtm');
         return;
     }
 
@@ -2245,7 +2248,7 @@ window.triggerRTMPopup = () => {
   hbSel.innerHTML = '<option value="">— Select high bidder —</option>';
   
   STATE.teams.forEach(t => { 
-      if (!t.rtmUsed && !t.purchases?.[activePlayer.category]) rtmSel.innerHTML += `<option value="${t.id}">${t.name} (Purse: ৳${t.purse})</option>`; 
+      if (STATE.previousOwners?.[key] === t.id && !t.rtmUsed && !t.purchases?.[activePlayer.category]) rtmSel.innerHTML += `<option value="${t.id}" selected>${t.name} (Purse: ৳${t.purse})</option>`; 
       hbSel.innerHTML += `<option value="${t.id}" ${t.id === highBidderId ? 'selected' : ''}>${t.name}</option>`; 
   });
   
