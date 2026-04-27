@@ -757,6 +757,23 @@ button:active:not(:disabled), .tab:active, #topNav a:active, #mobileBottomNav .m
     </div>
   </div>
 
+  <div class="overlay hidden" id="rtmAmountOverlay">
+    <div class="modal modal-rtm" style="max-width:540px">
+        <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(236,72,153,0.1);border:1px solid rgba(236,72,153,0.3);border-radius:10px;padding:7px 16px;margin-bottom:14px">
+          <span style="font-size:18px">🔁</span>
+          <span style="font-family:var(--font-display);font-size:14px;font-weight:800;color:var(--rtm);letter-spacing:0.08em">SET RTM BID</span>
+        </div>
+        <h2 id="rtmAmountTitle" class="word-break" style="font-family:var(--font-display); font-size:1.35rem; margin-bottom:12px;">Choose Amount</h2>
+        <p id="rtmAmountMessage" class="word-break" style="color:var(--muted); margin-bottom:16px; font-size:13px; line-height:1.5;"></p>
+        <label>RTM Offer Amount</label>
+        <select id="rtmAmountSelect" style="margin-bottom:18px"></select>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px">
+            <button class="ghost" onclick="closeRTMAmountModal()">Cancel</button>
+            <button class="pink" onclick="confirmRTMAmount()" style="box-shadow:0 4px 20px var(--rtm-glow);">Invoke RTM</button>
+        </div>
+    </div>
+  </div>
+
   <div class="overlay hidden" id="importPlayersOverlay">
     <div class="modal" id="importPlayersModal">
       <h3 style="font-family:var(--font-display);font-size:1.1rem;font-weight:800;margin-bottom:6px">Tag Previous Players</h3>
@@ -1006,6 +1023,28 @@ function canTeamBidActivePlayer(team, bidPrice) {
   return { ok, reserve, purse };
 }
 
+function isTeamRTMEligibleForPlayer(team, player = activePlayer) {
+  if (!team || !player) return false;
+  const key = `${player.category}:${player.name}`;
+  return (STATE.previousOwners?.[key] === team.id) && !team.rtmUsed;
+}
+
+function getRTMOfferOptions(team) {
+  if (!team || !activePlayer) return { options: [], currentPrice: 0, inc: 0, maxOffer: 0, reserve: 0 };
+  const { currentPrice, inc } = getLiveBidContext();
+  const reserve = STATE.categories.reduce((total, cat) => {
+    if (cat.id !== activePlayer.category && !team.purchases?.[cat.id]) return total + (Number(cat.base) || 0);
+    return total;
+  }, 0);
+  const maxOffer = Math.max(0, (Number(team.purse) || 0) - reserve);
+  const alreadyFilledCategory = !!team.purchases?.[activePlayer.category];
+  const options = [];
+  if (!alreadyFilledCategory && inc > 0) {
+    for (let price = currentPrice + inc; price <= maxOffer; price += inc) options.push(price);
+  }
+  return { options, currentPrice, inc, maxOffer, reserve };
+}
+
 function updateLiveEligibility() {
   if (!activePlayer) return;
   const { currentPrice, nextBid } = getLiveBidContext();
@@ -1217,15 +1256,29 @@ socket.on('popup:open', player => {
 
   if (CURRENT_USER.role === 'team') {
     const myTeam = STATE.teams.find(t => t.id === CURRENT_USER.teamId);
+    const rtmEligible = isTeamRTMEligibleForPlayer(myTeam, player);
     
     const impactBtn = document.getElementById('btnPopupImpact');
-    if (myTeam && !myTeam.impactUsed && impactBtn) { impactBtn.classList.remove('hidden'); impactBtn.onclick = () => activateImpact(player.category, player.name); }
-    else if (impactBtn) impactBtn.classList.add('hidden');
+    if (myTeam && !myTeam.impactUsed && impactBtn) {
+        impactBtn.classList.remove('hidden');
+        impactBtn.disabled = rtmEligible;
+        impactBtn.style.opacity = rtmEligible ? '0.35' : '1';
+        impactBtn.style.filter = rtmEligible ? 'grayscale(1)' : 'none';
+        impactBtn.innerHTML = rtmEligible ? '⚡ IMPACT LOCKED' : '⚡ DEPLOY IMPACT';
+        impactBtn.onclick = () => rtmEligible ? showToast('Impact purse is locked while RTM is available for this player', 'rtm') : activateImpact(player.category, player.name);
+    }
+    else if (impactBtn) {
+        impactBtn.classList.add('hidden');
+        impactBtn.disabled = false;
+        impactBtn.style.opacity = '';
+        impactBtn.style.filter = '';
+        impactBtn.innerHTML = '⚡ DEPLOY IMPACT';
+    }
 
     const prevOwnerId = STATE.previousOwners ? STATE.previousOwners[key] : null;
     const rtmBtn = document.getElementById('btnTeamRTM');
     if (rtmBtn) {
-        if (prevOwnerId === CURRENT_USER.teamId) {
+        if (prevOwnerId === CURRENT_USER.teamId && !myTeam?.rtmUsed) {
             rtmBtn.classList.remove('hidden');
         } else {
             rtmBtn.classList.add('hidden');
@@ -1957,17 +2010,38 @@ document.getElementById('btnTeamBid').onclick = () => {
 // Team Live Action "RTM"
 document.getElementById('btnTeamRTM').onclick = () => {
     if (!activePlayer) return;
-    const cat = STATE.categories.find(c => c.id === activePlayer.category);
-    const currentBid = Number(document.getElementById('popupPrice').textContent) || 0;
-    const inc = Number(cat?.increment) || 0;
-    const base = Number(cat?.base) || 0;
-    const key = `${activePlayer.category}:${activePlayer.name}`;
-    const highBidderId = STATE.activeBidders ? STATE.activeBidders[key] : null;
-    const nextPrice = highBidderId ? currentBid + inc : base;
-
-    if (confirm(`Confirm RTM at ৳${nextPrice}? The highest bidder will have a chance to match.`)) {
-        socket.emit('rtm:invoke', { category: activePlayer.category, name: activePlayer.name, rtmTeamId: CURRENT_USER.teamId });
+    const myTeam = STATE.teams.find(t => t.id === CURRENT_USER.teamId);
+    if (!isTeamRTMEligibleForPlayer(myTeam)) {
+        showToast(myTeam?.rtmUsed ? 'RTM already used' : 'RTM is not available for this player', 'rtm');
+        return;
     }
+
+    const { options, currentPrice, inc, maxOffer, reserve } = getRTMOfferOptions(myTeam);
+    if (!options.length) {
+        showToast(inc <= 0 ? 'Set a bid increment for this category first' : `No RTM amount available above ৳${currentPrice}. Max enforceable: ৳${maxOffer}`, 'rtm');
+        return;
+    }
+
+    pendingRTM = { category: activePlayer.category, name: activePlayer.name, rtmTeamId: CURRENT_USER.teamId };
+    document.getElementById('rtmAmountTitle').textContent = `RTM for ${activePlayer.name}`;
+    document.getElementById('rtmAmountMessage').innerHTML = `Enter an amount greater than the current bid <strong>৳${currentPrice}</strong> in steps of <strong>৳${inc}</strong>.<br>Highest enforceable amount for your purse/reserve is <strong>৳${maxOffer}</strong>${reserve ? `, keeping ৳${reserve} reserved for other categories` : ''}.`;
+    document.getElementById('rtmAmountSelect').innerHTML = options.map(price => `<option value="${price}">৳${price}</option>`).join('');
+    pauseTimerForModal();
+    document.getElementById('rtmAmountOverlay').classList.remove('hidden');
+};
+
+window.closeRTMAmountModal = () => {
+    pendingRTM = null;
+    document.getElementById('rtmAmountOverlay').classList.add('hidden');
+    resumeTimerAfterModal();
+};
+
+window.confirmRTMAmount = () => {
+    if (!pendingRTM) return;
+    const rtmPrice = Number(document.getElementById('rtmAmountSelect').value) || 0;
+    socket.emit('rtm:invoke', { ...pendingRTM, rtmPrice });
+    pendingRTM = null;
+    document.getElementById('rtmAmountOverlay').classList.add('hidden');
 };
 
 window.activateImpact = (c, n) => { if (confirm('Deploy Impact Power? One-time purse boost.')) socket.emit('team:activateImpact', { teamId: CURRENT_USER.teamId, category: c, playerName: n }); };
@@ -2116,7 +2190,6 @@ document.getElementById('btnConfirmSold').onclick = (e) => {
 // ADMIN MANUAL RTM TRIGGER
 window.triggerRTMPopup = () => {
   if (!activePlayer) return;
-  const currentBid = Number(document.getElementById('popupPrice').textContent) || 0;
   const key = `${activePlayer.category}:${activePlayer.name}`;
   const highBidderId = STATE.activeBidders ? STATE.activeBidders[key] : null;
   const eligibleTeamId = STATE.previousOwners ? STATE.previousOwners[key] : null;
@@ -2128,7 +2201,7 @@ window.triggerRTMPopup = () => {
   hbSel.innerHTML = '<option value="">— Select high bidder —</option>';
   
   STATE.teams.forEach(t => { 
-      rtmSel.innerHTML += `<option value="${t.id}" ${t.id === eligibleTeamId ? 'selected' : ''}>${t.name} (Purse: ৳${t.purse})</option>`; 
+      if (t.id === eligibleTeamId && !t.rtmUsed) rtmSel.innerHTML += `<option value="${t.id}" selected>${t.name} (Purse: ৳${t.purse})</option>`; 
       hbSel.innerHTML += `<option value="${t.id}" ${t.id === highBidderId ? 'selected' : ''}>${t.name}</option>`; 
   });
   
