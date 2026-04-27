@@ -56,6 +56,16 @@ h1,h2,h3,h4 { font-family: var(--font-display); }
 .hidden { display: none !important; }
 .word-break { word-break: break-word; overflow-wrap: break-word; }
 
+#appLoadingOverlay { position: fixed; inset: 0; z-index: 10000; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle at 50% 34%, rgba(37,212,255,0.2), transparent 24%), linear-gradient(180deg, #020917 0%, #06182e 54%, #020917 100%); transition: opacity 0.45s ease, visibility 0.45s ease; }
+#appLoadingOverlay.is-done { opacity: 0; visibility: hidden; pointer-events: none; }
+.loading-stage { width: min(86vw, 360px); text-align: center; display: flex; flex-direction: column; align-items: center; gap: 18px; animation: modalRise 0.45s cubic-bezier(0.16,1,0.3,1); }
+.loading-mark { width: 82px; height: 82px; border-radius: 24px; display: grid; place-items: center; color: #021126; font-family: var(--font-display); font-size: 38px; font-weight: 900; background: linear-gradient(135deg, var(--accent), var(--cyan)); box-shadow: 0 0 42px var(--accent-glow), inset 0 1px 0 rgba(255,255,255,0.35); animation: loadingFloat 1.9s ease-in-out infinite; }
+.loading-ring { position: absolute; width: 116px; height: 116px; border-radius: 50%; border: 1px solid rgba(120,183,255,0.18); border-top-color: var(--cyan); animation: loadingSpin 1.1s linear infinite; }
+.loading-title { font-family: var(--font-display); font-size: clamp(1.5rem, 8vw, 2.3rem); font-weight: 800; letter-spacing: 0; }
+.loading-copy { color: var(--muted); font-size: 11px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; }
+.loading-bar { width: 100%; height: 4px; border-radius: 999px; overflow: hidden; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.06); }
+.loading-bar span { display: block; width: 42%; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--accent), var(--cyan)); animation: loadingBar 1.3s ease-in-out infinite; }
+
 #portal, #teamAuthOverlay { position: fixed; inset: 0; z-index: 5000; background: rgba(7,11,18,0.94); backdrop-filter: blur(18px); display: flex; align-items: center; justify-content: center; flex-direction: column; padding: 1rem; overflow-y: auto; }
 html.restore-session #portal { display: none; }
 .portal-card { background: linear-gradient(180deg, rgba(10,33,64,0.98), rgba(4,13,29,0.98)); padding: 24px; border-radius: var(--radius-xl); width: 100%; max-width: 520px; border: 1px solid rgba(120,183,255,0.24); box-shadow: 0 26px 90px rgba(0,8,28,0.6), inset 0 1px 0 rgba(255,255,255,0.08); max-height: 95vh; overflow-y: auto; animation: modalRise 0.45s cubic-bezier(0.16,1,0.3,1); }
@@ -194,6 +204,13 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 .live-admin-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px 16px; }
 .live-admin-toolbar .toolbar-copy { min-width: 0; }
 .live-admin-toolbar .toolbar-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+#liveAuctionMain { transition: gap 0.42s cubic-bezier(0.16,1,0.3,1); }
+#liveAuctionMain.is-revealing-player, #liveAuctionMain.is-player-active { gap: 0 !important; }
+#liveAuctionMain.is-revealing-player #liveShuffleToolbar,
+#liveAuctionMain.is-player-active #liveShuffleToolbar { max-height: 0; opacity: 0; transform: translateY(-18px); margin-bottom: 0; padding-top: 0; padding-bottom: 0; border-width: 0; pointer-events: none; overflow: hidden; }
+#liveAuctionMain #liveShuffleToolbar { max-height: 120px; transition: max-height 0.44s cubic-bezier(0.16,1,0.3,1), opacity 0.28s ease, transform 0.38s cubic-bezier(0.16,1,0.3,1), padding 0.38s ease, border-width 0.38s ease; }
+#auctionIdleState { transition: max-height 0.48s cubic-bezier(0.16,1,0.3,1), opacity 0.26s ease, transform 0.44s cubic-bezier(0.16,1,0.3,1), min-height 0.44s ease; }
+#liveAuctionMain.is-revealing-player #auctionIdleState { max-height: 0; min-height: 0 !important; opacity: 0; transform: translateY(-34px) scale(0.985); pointer-events: none; overflow: hidden; }
 .live-code-stage { min-height: clamp(390px, 62vh, 620px); }
 .live-code-stage.full-bleed { flex: 1; min-height: 100%; border: 0; border-radius: var(--radius-lg); }
 .live-code-stage .code-card { width: min(100%, 760px); min-height: clamp(290px, 48vh, 520px); }
@@ -217,6 +234,7 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 .import-filter-btn.active { background: rgba(47,125,246,0.16); border-color: rgba(120,183,255,0.36); color: var(--accent-2); }
 
 #auctionPlayerPopup { flex: 1; min-height: 380px; border-radius: var(--radius-lg); overflow: hidden; position: relative; border: 1px solid rgba(120,183,255,0.28); box-shadow: 0 24px 80px rgba(0,8,28,0.48); display: flex; flex-direction: column; animation: livePop 0.35s cubic-bezier(0.16,1,0.3,1); }
+#auctionPlayerPopup.player-reveal-entry { animation: playerRevealUp 0.58s cubic-bezier(0.16,1,0.3,1) both; }
 @media (max-width: 767px) { #auctionPlayerPopup { min-height: 300px; } }
 .live-card-content { position: relative; z-index: 20; padding: 20px; width: 100%; display: flex; flex-direction: column; gap: 14px; min-height: 100%; perspective: 1400px; }
 .live-card-content.card-flipping { animation: liveCardFlip 0.56s cubic-bezier(0.2,0.82,0.22,1); transform-style: preserve-3d; will-change: transform, opacity; }
@@ -276,6 +294,10 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 @keyframes cardIn { from { opacity: 0; transform: translateY(12px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
 @keyframes modalRise { from { opacity: 0; transform: translateY(18px) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
 @keyframes livePop { from { opacity: 0; transform: translateY(12px) scale(0.99); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes playerRevealUp { 0% { opacity: 0; transform: translateY(56px) scale(0.985); filter: brightness(1.14) blur(2px); } 100% { opacity: 1; transform: translateY(0) scale(1); filter: brightness(1) blur(0); } }
+@keyframes loadingFloat { 0%,100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-8px) rotate(-3deg); } }
+@keyframes loadingSpin { to { transform: rotate(360deg); } }
+@keyframes loadingBar { 0% { transform: translateX(-105%); } 55%,100% { transform: translateX(245%); } }
 @keyframes softGlow { 0%,100% { box-shadow: 0 0 0 rgba(37,212,255,0); } 50% { box-shadow: 0 0 28px rgba(37,212,255,0.22); } }
 @keyframes shimmer { from { transform: translateX(-120%); } to { transform: translateX(120%); } }
 
@@ -347,6 +369,20 @@ button:active:not(:disabled), .tab:active, #topNav a:active, #mobileBottomNav .m
 </style>
 </head>
 <body>
+
+<div id="appLoadingOverlay" role="status" aria-live="polite">
+  <div class="loading-stage">
+    <div style="position:relative;width:116px;height:116px;display:grid;place-items:center">
+      <div class="loading-ring"></div>
+      <div class="loading-mark">৳</div>
+    </div>
+    <div>
+      <div class="loading-title">AUCTION<span style="color:var(--accent-2)">CMD</span></div>
+      <div class="loading-copy">Preparing live room</div>
+    </div>
+    <div class="loading-bar"><span></span></div>
+  </div>
+</div>
 
 <div id="portal">
   <div style="text-align:center;margin-bottom:32px">
@@ -469,7 +505,7 @@ button:active:not(:disabled), .tab:active, #topNav a:active, #mobileBottomNav .m
 
     <div id="sectionLiveAuction" class="hidden">
 
-      <div style="display:flex;flex-direction:column;gap:14px;min-width:0;">
+      <div id="liveAuctionMain" style="display:flex;flex-direction:column;gap:14px;min-width:0;">
         <div id="liveShuffleToolbar" class="hidden glass live-admin-toolbar">
           <div class="toolbar-copy">
             <h3 style="font-family:var(--font-display);font-size:15px;font-weight:700">Code Shuffle</h3>
@@ -759,6 +795,7 @@ let importActiveCatFilter = '';
 const portal = document.getElementById('portal');
 const teamAuthOverlay = document.getElementById('teamAuthOverlay');
 const appContainer = document.getElementById('appContainer');
+const appLoadingOverlay = document.getElementById('appLoadingOverlay');
 const fileInput = document.getElementById('globalFileInput');
 
 let pendingAuthSession = null;
@@ -780,6 +817,7 @@ function updateSavedSection(id) {
 
 function finishEnterApp(sectionId) {
   document.documentElement.classList.remove('restore-session');
+  hideAppLoading();
   portal.classList.add('hidden');
   teamAuthOverlay.classList.add('hidden');
   appContainer.classList.remove('hidden');
@@ -787,6 +825,13 @@ function finishEnterApp(sectionId) {
   setupUI(sectionId || getSavedSession()?.sectionId || 'sectionDashboard');
   renderAll();
 }
+
+function hideAppLoading(delay = 250) {
+  if (!appLoadingOverlay) return;
+  window.setTimeout(() => appLoadingOverlay.classList.add('is-done'), delay);
+}
+
+window.addEventListener('load', () => hideAppLoading(650));
 
 function tryRestoreSession() {
   const saved = getSavedSession();
@@ -1072,8 +1117,14 @@ socket.on('timer:sync', data => {
 socket.on('popup:open', player => {
   STATE.biddingActive = false;
   activePlayer = player;
+  const liveMain = document.getElementById('liveAuctionMain');
+  const popup = document.getElementById('auctionPlayerPopup');
+  liveMain?.classList.remove('is-revealing-player');
+  liveMain?.classList.add('is-player-active');
   document.getElementById('auctionIdleState').classList.add('hidden');
-  document.getElementById('auctionPlayerPopup').classList.remove('hidden');
+  popup.classList.remove('hidden');
+  popup.classList.add('player-reveal-entry');
+  setTimeout(() => popup.classList.remove('player-reveal-entry'), 650);
   const reveal = document.getElementById('liveCodeReveal');
   const revealCard = document.getElementById('liveRevealCodeCard');
   const body = document.getElementById('livePlayerBody');
@@ -1134,6 +1185,7 @@ socket.on('popup:close', () => {
   activePlayer = null; 
   const popup = document.getElementById('auctionPlayerPopup');
   popup.classList.add('hidden'); popup.style.opacity = ''; popup.style.filter = ''; popup.style.pointerEvents = '';
+  document.getElementById('liveAuctionMain')?.classList.remove('is-player-active', 'is-revealing-player');
   document.getElementById('auctionIdleState').classList.remove('hidden');
   updateLiveIndicator(); renderScoreboards();
   if (CURRENT_USER.role === 'admin') renderLiveAdminQueue();
@@ -1151,6 +1203,7 @@ socket.on('player:sold', data => {
   activePlayer = null; updateLiveIndicator();
   const popup = document.getElementById('auctionPlayerPopup');
   popup.classList.add('hidden'); popup.style.opacity = ''; popup.style.filter = ''; popup.style.pointerEvents = '';
+  document.getElementById('liveAuctionMain')?.classList.remove('is-player-active', 'is-revealing-player');
   document.getElementById('auctionIdleState').classList.remove('hidden');
   
   const t = STATE.teams.find(x => x.id === teamId);
@@ -1433,9 +1486,14 @@ window.revealShuffledCode = () => {
   if (!next) return showToast('No hidden player codes left');
   const card = document.getElementById('activeCodeCard');
   const btn = document.getElementById('btnRevealCode');
+  const liveMain = document.getElementById('liveAuctionMain');
+  liveMain?.classList.add('is-revealing-player');
   if (btn) btn.disabled = true;
-  if (card) card.style.filter = 'brightness(1.18)';
-  setTimeout(() => startAuctionFromQueue(next.category, next.name, next.base, next.image, next.code, true), 500);
+  if (card) {
+    card.classList.add('flipping');
+    card.style.filter = 'brightness(1.18)';
+  }
+  setTimeout(() => startAuctionFromQueue(next.category, next.name, next.base, next.image, next.code, true), 430);
 };
 window.startAuctionFromQueue = (cat, name, base, img, code = null, revealCode = false) => socket.emit('admin:select_player', { category: cat, name, base, currentPrice: base, image: img, code: code || getPlayerCode(cat, name), revealCode });
 
