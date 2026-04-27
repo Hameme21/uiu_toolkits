@@ -1889,12 +1889,14 @@ function renderImportPlayerList() {
     // Check if previously owned visually
     const prevTeamId = STATE.previousOwners ? STATE.previousOwners[`${p.catId}:${p.name}`] : null;
     const prevTeam = prevTeamId ? STATE.teams.find(t => t.id === prevTeamId) : null;
+    const lockedToOtherTeam = !!prevTeamId && prevTeamId !== importTargetTeamId;
     const badgeHtml = prevTeam ? `<span style="font-size:9px;color:var(--rtm)">Tagged to ${prevTeam.name}</span>` : `<span style="font-size:9px;color:var(--muted)">৳${p.catBase}</span>`;
     
     const item = document.createElement('label');
     item.className = 'import-player-item';
-    item.style.cursor = 'pointer';
-    item.innerHTML = `<input type="checkbox" class="import-checkbox" data-name="${p.name}" data-cat="${p.catId}" ${importSelectedPlayers.has(playerKey) ? 'checked' : ''} onchange="toggleImportPlayerSelection(this)">
+    item.style.cursor = lockedToOtherTeam ? 'not-allowed' : 'pointer';
+    item.style.opacity = lockedToOtherTeam ? '0.45' : '1';
+    item.innerHTML = `<input type="checkbox" class="import-checkbox" data-name="${p.name}" data-cat="${p.catId}" ${importSelectedPlayers.has(playerKey) ? 'checked' : ''} ${lockedToOtherTeam ? 'disabled' : ''} onchange="toggleImportPlayerSelection(this)">
       <img class="pi-img" src="${img}" alt="">
       <div class="pi-info">
         <div class="pi-name word-break">${p.name}</div>
@@ -1917,13 +1919,13 @@ window.updateImportSelCount = () => {
   document.getElementById('importSelCount').textContent = `${checked} selected`;
   document.getElementById('btnConfirmImport').textContent = checked ? `Tag ${checked} Player${checked > 1 ? 's' : ''} (RTM)` : 'Tag Selected (RTM)';
   document.getElementById('btnConfirmImport').disabled = checked === 0;
-  const visibleBoxes = Array.from(document.querySelectorAll('.import-checkbox'));
+  const visibleBoxes = Array.from(document.querySelectorAll('.import-checkbox:not(:disabled)'));
   const allVisibleChecked = visibleBoxes.length > 0 && visibleBoxes.every(b => b.checked);
   document.getElementById('btnSelectAllImport').textContent = allVisibleChecked ? 'Deselect All' : 'Select All';
 };
 
 window.toggleSelectAllImport = () => {
-  const boxes = document.querySelectorAll('.import-checkbox');
+  const boxes = document.querySelectorAll('.import-checkbox:not(:disabled)');
   const anyUnchecked = Array.from(boxes).some(b => !b.checked);
   boxes.forEach(b => {
     b.checked = anyUnchecked;
