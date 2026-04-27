@@ -983,7 +983,9 @@ function getLiveBidContext() {
   const base = Number(cat?.base) || Number(activePlayer?.base) || 0;
   const inc = Number(cat?.increment) || 0;
   const currentPrice = Number(document.getElementById('popupPrice')?.textContent) || 0;
-  return { cat, base, inc, currentPrice, nextBid: currentPrice === 0 ? base : currentPrice + inc };
+  const key = activePlayer ? `${activePlayer.category}:${activePlayer.name}` : '';
+  const highBidderId = key && STATE.activeBidders ? STATE.activeBidders[key] : null;
+  return { cat, base, inc, currentPrice, highBidderId, nextBid: highBidderId ? currentPrice + inc : base };
 }
 
 function getNextCategoryReserve(team, activeCategoryId) {
@@ -1904,7 +1906,7 @@ window.updatePopupPrice = (p, highBidderId) => {
         const inc = Number(cat?.increment) || 0;
         const base = Number(cat?.base) || 0;
         const currentBid = Number(p) || 0;
-        const nextBid = currentBid === 0 ? base : currentBid + inc;
+        const nextBid = highBidderId ? currentBid + inc : base;
 
         const bidBtn = document.getElementById('btnTeamBid');
         if (bidBtn) {
@@ -1959,7 +1961,9 @@ document.getElementById('btnTeamRTM').onclick = () => {
     const currentBid = Number(document.getElementById('popupPrice').textContent) || 0;
     const inc = Number(cat?.increment) || 0;
     const base = Number(cat?.base) || 0;
-    const nextPrice = currentBid === 0 ? base : currentBid + inc;
+    const key = `${activePlayer.category}:${activePlayer.name}`;
+    const highBidderId = STATE.activeBidders ? STATE.activeBidders[key] : null;
+    const nextPrice = highBidderId ? currentBid + inc : base;
 
     if (confirm(`Confirm RTM at ৳${nextPrice}? The highest bidder will have a chance to match.`)) {
         socket.emit('rtm:invoke', { category: activePlayer.category, name: activePlayer.name, rtmTeamId: CURRENT_USER.teamId });
