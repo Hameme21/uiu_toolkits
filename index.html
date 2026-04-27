@@ -1138,11 +1138,17 @@ socket.on('auth:team_error', msg => { document.documentElement.classList.remove(
 socket.on('state:updated', s => { STATE = s; renderAll(); });
 
 socket.on('player:bid', pl => {
+  const key = `${pl.category}:${pl.name}`;
+  const bidderId = pl.teamId || pl.highBidderId || null;
+  if (!STATE.activeBids) STATE.activeBids = {};
+  if (!STATE.activeBidders) STATE.activeBidders = {};
+  STATE.activeBids[key] = pl.price;
+  STATE.activeBidders[key] = bidderId;
   if (activePlayer?.name === pl.name) { 
-    updatePopupPrice(pl.price, pl.teamId); 
+    updatePopupPrice(pl.price, bidderId); 
     resetAndStartTimer(); 
   }
-  const t = STATE.teams.find(x => x.id === pl.teamId);
+  const t = STATE.teams.find(x => x.id === bidderId);
   const bidderName = t ? t.name : 'Admin Forced Bid';
   log(`<span style="color:white;font-weight:700">${pl.name}</span> <span style="color:var(--muted)">bid by</span> <span style="color:var(--cyan);font-weight:700">${bidderName}</span> → <span style="color:var(--emerald);font-weight:700">৳${pl.price}</span>`);
 });
