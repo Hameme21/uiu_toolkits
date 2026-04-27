@@ -745,7 +745,8 @@ button:active:not(:disabled), .tab:active, #topNav a:active, #mobileBottomNav .m
   </div>
 
   <div class="overlay hidden" id="rtmPromptOverlay">
-    <div class="modal modal-rtm" style="max-width:540px">
+    <div class="modal modal-rtm" style="max-width:540px;position:relative">
+        <button id="btnCloseRTMPrompt" class="ghost hidden" onclick="closeRTMPromptOverlay()" aria-label="Close RTM prompt" style="position:absolute;top:14px;right:14px;width:34px;height:34px;min-height:34px;border-radius:50%;padding:0;font-size:18px;line-height:1">×</button>
         <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(236,72,153,0.1);border:1px solid rgba(236,72,153,0.3);border-radius:10px;padding:7px 16px;margin-bottom:14px">
           <span style="font-size:18px">🔁</span>
           <span style="font-family:var(--font-display);font-size:14px;font-weight:800;color:var(--rtm);letter-spacing:0.08em">RTM MATCH REQUEST</span>
@@ -1376,10 +1377,14 @@ socket.on('rtm:prompt', (rtmState) => {
     const title = document.getElementById('rtmPromptTitle');
     const msg = document.getElementById('rtmPromptMessage');
     const controls = document.getElementById('rtmPromptControls');
+    const closeBtn = document.getElementById('btnCloseRTMPrompt');
+    const isHighBidder = CURRENT_USER.teamId === rtmState.originalTeamId;
+    const isRTMUser = CURRENT_USER.teamId === rtmState.rtmTeamId;
+    closeBtn.classList.toggle('hidden', isHighBidder || isRTMUser);
     
     title.textContent = `Match at ৳${rtmState.newPrice}?`;
     
-    if (CURRENT_USER.teamId === rtmState.originalTeamId) {
+    if (isHighBidder) {
         msg.innerHTML = `<strong>${rtmTeam?.name || 'RTM Team'}</strong> has invoked their Right to Match. The bid has increased to <strong>৳${rtmState.newPrice}</strong>.<br><br>Do you want to match this new price and acquire the player?`;
         controls.classList.remove('hidden');
     } else if (CURRENT_USER.role === 'admin') {
@@ -1395,6 +1400,10 @@ socket.on('rtm:prompt', (rtmState) => {
         controls.classList.add('hidden');
     }
 });
+
+window.closeRTMPromptOverlay = () => {
+    document.getElementById('rtmPromptOverlay').classList.add('hidden');
+};
 
 socket.on('rtm:cleared', () => {
     document.getElementById('rtmPromptOverlay').classList.add('hidden');
