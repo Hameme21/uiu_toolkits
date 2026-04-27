@@ -1211,6 +1211,10 @@ socket.on('timer:sync', data => {
   const btn = document.getElementById('btnPauseTimer');
   if (btn) btn.textContent = isTimerPaused ? '▶️' : '⏸️';
   updateTimerUI();
+  if (activePlayer) {
+    const key = `${activePlayer.category}:${activePlayer.name}`;
+    updatePopupPrice(document.getElementById('popupPrice')?.textContent || activePlayer.base || 0, STATE.activeBidders ? STATE.activeBidders[key] : null);
+  }
   if (auctionTimeRemaining <= 0) handleTimerExpiry();
 });
 
@@ -2002,6 +2006,10 @@ window.updatePopupPrice = (p, highBidderId) => {
                 bidBtn.innerHTML = `WAITING TO START`;
                 bidBtn.disabled = true;
                 bidBtn.style.opacity = '0.5';
+            } else if (isTimerPaused) {
+                bidBtn.innerHTML = `PAUSED`;
+                bidBtn.disabled = true;
+                bidBtn.style.opacity = '0.5';
             } else {
                 if (highBidderId === CURRENT_USER.teamId) {
                     bidBtn.innerHTML = `WINNING ৳${currentBid}`;
@@ -2031,6 +2039,10 @@ window.adjustBid = (dir) => {
 // Team Live Action "BID"
 document.getElementById('btnTeamBid').onclick = () => {
     if (!activePlayer) return;
+    if (isTimerPaused) {
+        showToast('Bidding is paused');
+        return;
+    }
     const { nextBid: nextPrice } = getLiveBidContext();
     const myTeam = STATE.teams.find(t => t.id === CURRENT_USER.teamId);
     if (!canTeamBidActivePlayer(myTeam, nextPrice).ok) {
@@ -2081,7 +2093,7 @@ document.getElementById('btnTeamRTM').onclick = () => {
 window.closeRTMAmountModal = () => {
     pendingRTM = null;
     document.getElementById('rtmAmountOverlay').classList.add('hidden');
-    resumeTimerAfterModal();
+    if (CURRENT_USER.role === 'admin') resumeTimerAfterModal();
 };
 
 window.confirmRTMAmount = () => {
