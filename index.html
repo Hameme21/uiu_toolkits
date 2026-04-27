@@ -728,7 +728,7 @@ button:active:not(:disabled), .tab:active, #topNav a:active, #mobileBottomNav .m
       </div>
       <div style="text-align:left;margin-bottom:14px">
         <label>Eligible RTM Franchise</label>
-        <div style="font-size:10px;color:var(--muted);margin-bottom:8px;margin-top:-4px;font-style:italic">Only teams that previously owned this player</div>
+        <div style="font-size:10px;color:var(--muted);margin-bottom:8px;margin-top:-4px;font-style:italic">Teams that have not used RTM and do not already own this category</div>
         <select id="rtmTeamSelect" style="margin-bottom:0"></select>
       </div>
       <div style="text-align:left;margin-bottom:18px">
@@ -777,7 +777,7 @@ button:active:not(:disabled), .tab:active, #topNav a:active, #mobileBottomNav .m
   <div class="overlay hidden" id="importPlayersOverlay">
     <div class="modal" id="importPlayersModal">
       <h3 style="font-family:var(--font-display);font-size:1.1rem;font-weight:800;margin-bottom:6px">Tag Previous Players</h3>
-      <p style="font-size:12px;color:var(--muted);margin-bottom:16px">Tag players as previously owned by this team to enable their Right-To-Match (RTM) card during the auction.</p>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:16px">Tag players as previously owned by this team for RTM reference badges during the auction.</p>
 
       <div class="import-filter" id="importCatFilters"></div>
       <input type="text" id="importSearchInput" placeholder="Search player name…" style="margin-bottom:8px" oninput="filterImportList()">
@@ -809,7 +809,7 @@ const SESSION_KEY = "auctioncmd.session.v1";
 const socket = io(BACKEND_URL, { transports: ["websocket"] });
 
 let CURRENT_USER = { role: null, teamId: null, hostId: null };
-let STATE = { teams: [], categories: [], playersSnapshot: {}, activeBids: {}, activeBidders: {}, previousOwners: {}, soldPrices: {}, directSigns: {}, rtmEvents: {}, config: { impactAmount: 0 }, rtmState: null, lotteryQueue: [], unsoldPlayers: {}, biddingActive: false, codeShuffleActive: false };
+let STATE = { teams: [], categories: [], playersSnapshot: {}, activeBids: {}, activeBidders: {}, previousOwners: {}, soldPrices: {}, directSigns: {}, rtmEvents: {}, rtmImpactLocks: {}, config: { impactAmount: 0 }, rtmState: null, lotteryQueue: [], unsoldPlayers: {}, biddingActive: false, codeShuffleActive: false };
 let pendingSold = null, pendingRTM = null, activePlayer = null;
 let currentActiveSectionId = 'sectionDashboard';
 let currentAuctionCategory = null;
@@ -1025,8 +1025,13 @@ function canTeamBidActivePlayer(team, bidPrice) {
 
 function isTeamRTMEligibleForPlayer(team, player = activePlayer) {
   if (!team || !player) return false;
+  return !team.rtmUsed && !team.purchases?.[player.category];
+}
+
+function hasTeamRTMLockedImpact(teamId, player = activePlayer) {
+  if (!teamId || !player) return false;
   const key = `${player.category}:${player.name}`;
-  return (STATE.previousOwners?.[key] === team.id) && !team.rtmUsed;
+  return !!STATE.rtmImpactLocks?.[key]?.[teamId];
 }
 
 function getRTMOfferOptions(team) {
@@ -1257,15 +1262,16 @@ socket.on('popup:open', player => {
   if (CURRENT_USER.role === 'team') {
     const myTeam = STATE.teams.find(t => t.id === CURRENT_USER.teamId);
     const rtmEligible = isTeamRTMEligibleForPlayer(myTeam, player);
+    const impactLockedByRTM = hasTeamRTMLockedImpact(CURRENT_USER.teamId, player);
     
     const impactBtn = document.getElementById('btnPopupImpact');
-    if (myTeam && !myTeam.impactUsed && impactBtn) {
+    if (myTeam && impactBtn) {
         impactBtn.classList.remove('hidden');
-        impactBtn.disabled = rtmEligible;
-        impactBtn.style.opacity = rtmEligible ? '0.35' : '1';
-        impactBtn.style.filter = rtmEligible ? 'grayscale(1)' : 'none';
-        impactBtn.innerHTML = rtmEligible ? '⚡ IMPACT LOCKED' : '⚡ DEPLOY IMPACT';
-        impactBtn.onclick = () => rtmEligible ? showToast('Impact purse is locked while RTM is available for this player', 'rtm') : activateImpact(player.category, player.name);
+        impactBtn.disabled = myTeam.impactUsed || impactLockedByRTM;
+        impactBtn.style.opacity = (myTeam.impactUsed || impactLockedByRTM) ? '0.35' : '1';
+        impactBtn.style.filter = (myTeam.impactUsed || impactLockedByRTM) ? 'grayscale(1)' : 'none';
+        impactBtn.innerHTML = impactLockedByRTM ? '⚡ IMPACT LOCKED' : myTeam.impactUsed ? '⚡ IMPACT USED' : '⚡ DEPLOY IMPACT';
+        impactBtn.onclick = () => impactLockedByRTM ? showToast('Impact purse is locked because you clicked RTM for this player', 'rtm') : myTeam.impactUsed ? showToast('Impact purse already used') : activateImpact(player.category, player.name);
     }
     else if (impactBtn) {
         impactBtn.classList.add('hidden');
@@ -1275,14 +1281,13 @@ socket.on('popup:open', player => {
         impactBtn.innerHTML = '⚡ DEPLOY IMPACT';
     }
 
-    const prevOwnerId = STATE.previousOwners ? STATE.previousOwners[key] : null;
     const rtmBtn = document.getElementById('btnTeamRTM');
     if (rtmBtn) {
-        if (prevOwnerId === CURRENT_USER.teamId && !myTeam?.rtmUsed) {
-            rtmBtn.classList.remove('hidden');
-        } else {
-            rtmBtn.classList.add('hidden');
-        }
+        rtmBtn.classList.remove('hidden');
+        rtmBtn.disabled = !rtmEligible;
+        rtmBtn.style.opacity = rtmEligible ? '1' : '0.35';
+        rtmBtn.style.filter = rtmEligible ? 'none' : 'grayscale(1)';
+        rtmBtn.innerHTML = myTeam?.rtmUsed ? '🔁 RTM USED' : myTeam?.purchases?.[player.category] ? '🔁 RTM LOCKED' : '🔁 USE RTM';
     }
   }
 });
@@ -2023,6 +2028,18 @@ document.getElementById('btnTeamRTM').onclick = () => {
     }
 
     pendingRTM = { category: activePlayer.category, name: activePlayer.name, rtmTeamId: CURRENT_USER.teamId };
+    if (!STATE.rtmImpactLocks) STATE.rtmImpactLocks = {};
+    const lockKey = `${activePlayer.category}:${activePlayer.name}`;
+    STATE.rtmImpactLocks[lockKey] = { ...(STATE.rtmImpactLocks[lockKey] || {}), [CURRENT_USER.teamId]: true };
+    socket.emit('rtm:lockImpact', pendingRTM);
+    const impactBtn = document.getElementById('btnPopupImpact');
+    if (impactBtn) {
+        impactBtn.disabled = true;
+        impactBtn.style.opacity = '0.35';
+        impactBtn.style.filter = 'grayscale(1)';
+        impactBtn.innerHTML = '⚡ IMPACT LOCKED';
+        impactBtn.onclick = () => showToast('Impact purse is locked because you clicked RTM for this player', 'rtm');
+    }
     document.getElementById('rtmAmountTitle').textContent = `RTM for ${activePlayer.name}`;
     document.getElementById('rtmAmountMessage').innerHTML = `Enter an amount greater than the current bid <strong>৳${currentPrice}</strong> in steps of <strong>৳${inc}</strong>.<br>Highest enforceable amount for your purse/reserve is <strong>৳${maxOffer}</strong>${reserve ? `, keeping ৳${reserve} reserved for other categories` : ''}.`;
     document.getElementById('rtmAmountSelect').innerHTML = options.map(price => `<option value="${price}">৳${price}</option>`).join('');
@@ -2192,7 +2209,6 @@ window.triggerRTMPopup = () => {
   if (!activePlayer) return;
   const key = `${activePlayer.category}:${activePlayer.name}`;
   const highBidderId = STATE.activeBidders ? STATE.activeBidders[key] : null;
-  const eligibleTeamId = STATE.previousOwners ? STATE.previousOwners[key] : null;
   
   pauseTimerForModal();
   
@@ -2201,7 +2217,7 @@ window.triggerRTMPopup = () => {
   hbSel.innerHTML = '<option value="">— Select high bidder —</option>';
   
   STATE.teams.forEach(t => { 
-      if (t.id === eligibleTeamId && !t.rtmUsed) rtmSel.innerHTML += `<option value="${t.id}" selected>${t.name} (Purse: ৳${t.purse})</option>`; 
+      if (!t.rtmUsed && !t.purchases?.[activePlayer.category]) rtmSel.innerHTML += `<option value="${t.id}">${t.name} (Purse: ৳${t.purse})</option>`; 
       hbSel.innerHTML += `<option value="${t.id}" ${t.id === highBidderId ? 'selected' : ''}>${t.name}</option>`; 
   });
   
