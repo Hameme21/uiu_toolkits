@@ -819,6 +819,7 @@ window.timerHandled = false;
 
 let importTargetTeamId = null;
 let importActiveCatFilter = '';
+let importSelectedPlayers = new Set();
 let blockedBidToastKey = '';
 
 const portal = document.getElementById('portal');
@@ -1828,6 +1829,7 @@ function renderTeamConfigTable() {
 window.openImportPlayersModal = (teamId) => {
   importTargetTeamId = teamId;
   importActiveCatFilter = '';
+  importSelectedPlayers = new Set();
   const overlay = document.getElementById('importPlayersOverlay');
   overlay.classList.remove('hidden');
   buildImportCatFilters();
@@ -1858,6 +1860,10 @@ function getAllPlayersFromDB() {
   return all;
 }
 
+function getImportPlayerKey(catId, name) {
+  return `${catId}::${name}`;
+}
+
 function renderImportPlayerList() {
   const list = document.getElementById('importPlayerList');
   const search = (document.getElementById('importSearchInput').value || '').toLowerCase();
@@ -1878,6 +1884,7 @@ function renderImportPlayerList() {
 
   players.forEach(p => {
     const img = p.image || 'https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=200&auto=format&fit=crop';
+    const playerKey = getImportPlayerKey(p.catId, p.name);
     
     // Check if previously owned visually
     const prevTeamId = STATE.previousOwners ? STATE.previousOwners[`${p.catId}:${p.name}`] : null;
@@ -1887,7 +1894,7 @@ function renderImportPlayerList() {
     const item = document.createElement('label');
     item.className = 'import-player-item';
     item.style.cursor = 'pointer';
-    item.innerHTML = `<input type="checkbox" class="import-checkbox" data-name="${p.name}" data-cat="${p.catId}" onchange="updateImportSelCount()">
+    item.innerHTML = `<input type="checkbox" class="import-checkbox" data-name="${p.name}" data-cat="${p.catId}" ${importSelectedPlayers.has(playerKey) ? 'checked' : ''} onchange="toggleImportPlayerSelection(this)">
       <img class="pi-img" src="${img}" alt="">
       <div class="pi-info">
         <div class="pi-name word-break">${p.name}</div>
@@ -1898,29 +1905,44 @@ function renderImportPlayerList() {
   updateImportSelCount();
 }
 
+window.toggleImportPlayerSelection = (checkbox) => {
+  const key = getImportPlayerKey(checkbox.dataset.cat, checkbox.dataset.name);
+  if (checkbox.checked) importSelectedPlayers.add(key);
+  else importSelectedPlayers.delete(key);
+  updateImportSelCount();
+};
+
 window.updateImportSelCount = () => {
-  const checked = document.querySelectorAll('.import-checkbox:checked').length;
+  const checked = importSelectedPlayers.size;
   document.getElementById('importSelCount').textContent = `${checked} selected`;
   document.getElementById('btnConfirmImport').textContent = checked ? `Tag ${checked} Player${checked > 1 ? 's' : ''} (RTM)` : 'Tag Selected (RTM)';
   document.getElementById('btnConfirmImport').disabled = checked === 0;
+  const visibleBoxes = Array.from(document.querySelectorAll('.import-checkbox'));
+  const allVisibleChecked = visibleBoxes.length > 0 && visibleBoxes.every(b => b.checked);
+  document.getElementById('btnSelectAllImport').textContent = allVisibleChecked ? 'Deselect All' : 'Select All';
 };
 
 window.toggleSelectAllImport = () => {
   const boxes = document.querySelectorAll('.import-checkbox');
   const anyUnchecked = Array.from(boxes).some(b => !b.checked);
-  boxes.forEach(b => b.checked = anyUnchecked);
+  boxes.forEach(b => {
+    b.checked = anyUnchecked;
+    const key = getImportPlayerKey(b.dataset.cat, b.dataset.name);
+    if (anyUnchecked) importSelectedPlayers.add(key);
+    else importSelectedPlayers.delete(key);
+  });
   updateImportSelCount();
-  document.getElementById('btnSelectAllImport').textContent = anyUnchecked ? 'Deselect All' : 'Select All';
 };
 
 window.confirmImportPlayers = () => {
-  const selected = document.querySelectorAll('.import-checkbox:checked');
-  if (!selected.length) return;
+  if (!importSelectedPlayers.size) return;
   const targetTeam = STATE.teams.find(t => t.id === importTargetTeamId);
   if (!targetTeam) return;
 
-  const toImport = [];
-  selected.forEach(cb => { toImport.push({ name: cb.dataset.name, catId: cb.dataset.cat }); });
+  const toImport = Array.from(importSelectedPlayers).map(key => {
+    const [catId, ...nameParts] = key.split('::');
+    return { catId, name: nameParts.join('::') };
+  });
 
   socket.emit('admin:import_previous', { teamId: importTargetTeamId, players: toImport });
 
@@ -1931,6 +1953,7 @@ window.confirmImportPlayers = () => {
 window.closeImportModal = () => {
   document.getElementById('importPlayersOverlay').classList.add('hidden');
   importTargetTeamId = null;
+  importSelectedPlayers = new Set();
   document.getElementById('importSearchInput').value = '';
   document.getElementById('importSelCount').textContent = '0 selected';
   document.getElementById('btnSelectAllImport').textContent = 'Select All';
