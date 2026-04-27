@@ -218,9 +218,9 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 #liveAuctionMain #liveShuffleToolbar { max-height: 120px; transition: max-height 0.44s cubic-bezier(0.16,1,0.3,1), opacity 0.28s ease, transform 0.38s cubic-bezier(0.16,1,0.3,1), padding 0.38s ease, border-width 0.38s ease; }
 #auctionIdleState { transition: max-height 0.48s cubic-bezier(0.16,1,0.3,1), opacity 0.26s ease, transform 0.44s cubic-bezier(0.16,1,0.3,1), min-height 0.44s ease; }
 #liveAuctionMain.is-revealing-player #auctionIdleState { max-height: 0; min-height: 0 !important; opacity: 0; transform: translateY(-34px) scale(0.985); pointer-events: none; overflow: hidden; }
-.live-code-stage { min-height: clamp(390px, 62vh, 620px); }
-.live-code-stage.full-bleed { flex: 1; min-height: 100%; border: 0; border-radius: var(--radius-lg); }
-.live-code-stage .code-card { width: min(100%, 760px); min-height: clamp(290px, 48vh, 520px); }
+.live-code-stage { width: 100%; min-height: clamp(390px, 62vh, 620px); }
+.live-code-stage.full-bleed { flex: 1; width: 100%; min-height: clamp(390px, 62vh, 620px); border: 0; border-radius: var(--radius-lg); }
+.live-code-stage .code-card { width: min(100%, 760px); aspect-ratio: 16 / 9; min-height: 0; max-height: 520px; }
 .live-code-stage .code-value { font-size: clamp(4rem, 13vw, 9rem); }
 .code-value { font-family: var(--font-mono); font-size: clamp(2.8rem, 8vw, 5.2rem); font-weight: 800; letter-spacing: 0.12em; color: var(--cyan); text-shadow: 0 0 28px rgba(37,212,255,0.32); line-height: 1; }
 .code-clue { margin-top: 10px; font-size: 10px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.16em; }
@@ -280,8 +280,10 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
   .live-price-readout #popupPrice { font-size: 1.3rem !important; }
   .live-price-readout .high-bidder-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .live-photo-controls button { width: 34px !important; height: 34px !important; min-height: 34px !important; min-width: 34px !important; font-size: 17px !important; flex-shrink: 0 !important; padding: 0 !important; }
-  .live-code-stage { min-height: 420px; }
-  .live-code-stage .code-card, .live-code-reveal .code-card { min-height: 360px; }
+  #auctionIdleState { min-height: clamp(320px, 64vh, 520px) !important; }
+  #idleWaitingMessage { padding: 0 !important; }
+  .live-code-stage, .live-code-stage.full-bleed { min-height: clamp(300px, 58vh, 460px); padding: 14px; }
+  .live-code-stage .code-card { width: min(100%, 430px); aspect-ratio: 4 / 3; min-height: 0; }
   .live-info-panel { justify-content: flex-start; gap: 10px; }
   #adminActionButtons { grid-template-columns: 1fr !important; }
   #adminActionButtons button { min-width: 0; white-space: normal; }
@@ -1565,6 +1567,7 @@ function renderLiveIdleCode() {
   if (activePlayer) return;
   const idle = document.getElementById('idleWaitingMessage');
   if (!idle) return;
+  idle.style.padding = '0';
   idle.innerHTML = makePublicCodeStage(getNextQueuedPlayer(), false);
 }
 
