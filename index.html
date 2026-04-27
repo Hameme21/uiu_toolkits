@@ -1085,13 +1085,11 @@ function handleTimerExpiry() {
   if (window.timerHandled) return;
   window.timerHandled = true;
   if (CURRENT_USER.role === 'admin' && activePlayer) { 
-      const key = `${activePlayer.category}:${activePlayer.name}`;
-      const highBidderId = STATE.activeBidders ? STATE.activeBidders[key] : null;
-      if (highBidderId) {
+      const sale = getActiveSaleContext();
+      if (sale?.highBidderId) {
           triggerSoldFromPopup();
-          showToast('⏱️ Time is up! Finalize the highest bidder.'); 
-      } else {
-          socket.emit('admin:mark_unsold', { category: activePlayer.category, name: activePlayer.name });
+      } else if (sale) {
+          markActivePlayerUnsold(sale);
       }
   } else {
       showToast("⏱️ Time's up! Awaiting Admin confirmation…");
@@ -2032,10 +2030,35 @@ document.getElementById('btnSaveTeams').onclick = () => {
 };
 document.getElementById('btnResetSystem').onclick = () => { if (confirm('⚠️ FULL SYSTEM WIPE?')) socket.emit('admin:resetAll'); };
 
+function getActiveSaleContext() {
+  if (!activePlayer) return null;
+  const key = `${activePlayer.category}:${activePlayer.name}`;
+  const cat = STATE.categories.find(c => c.id === activePlayer.category);
+  const base = Number(cat?.base ?? activePlayer.base ?? 0) || 0;
+  const currentPrice = Number(document.getElementById('popupPrice')?.textContent) || Number(STATE.activeBids?.[key]) || base;
+  const highBidderId = STATE.activeBidders ? STATE.activeBidders[key] : null;
+  return { key, category: activePlayer.category, name: activePlayer.name, base, currentPrice, highBidderId };
+}
+
+function markActivePlayerUnsold(sale) {
+  socket.emit('admin:mark_unsold', { category: sale.category, name: sale.name });
+  showToast('No winning team recorded. Marking player unsold.');
+}
+
 window.triggerSoldFromPopup = () => {
-    const key = `${activePlayer.category}:${activePlayer.name}`;
-    const highBidderId = STATE.activeBidders ? STATE.activeBidders[key] : null;
-    openSoldConfirmation(activePlayer.category, activePlayer.name, document.getElementById('popupPrice').textContent, false, false, highBidderId);
+    const sale = getActiveSaleContext();
+    if (!sale) return;
+    if (sale.highBidderId) {
+      socket.emit('player:sold', { category: sale.category, name: sale.name, price: sale.currentPrice, isDirect: false, isRTM: false, teamId: sale.highBidderId });
+      const t = STATE.teams.find(x => x.id === sale.highBidderId);
+      showToast(`Sold to ${t ? t.name : sale.highBidderId}`);
+      return;
+    }
+    if (sale.currentPrice > sale.base) {
+      openSoldConfirmation(sale.category, sale.name, sale.currentPrice, false, false);
+      return;
+    }
+    markActivePlayerUnsold(sale);
 };
 
 function pauseTimerForModal() {
