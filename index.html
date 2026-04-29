@@ -97,6 +97,14 @@
             --warning-border: #664d03;
         }
 
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            -webkit-text-size-adjust: 100%;
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: var(--bg-body);
@@ -105,6 +113,7 @@
             margin: 0;
             transition: background 0.3s, color 0.3s;
             min-height: 100vh;
+            overflow-x: hidden;
         }
 
         body.dark-mode {
@@ -147,6 +156,7 @@
             display: flex;
             gap: 10px;
             flex-wrap: wrap;
+            align-items: center;
         }
 
         .nav-btn {
@@ -158,6 +168,8 @@
             cursor: pointer;
             font-weight: 600;
             transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            min-height: 40px;
+            white-space: nowrap;
         }
 
         .nav-btn.active, .nav-btn:hover {
@@ -259,6 +271,7 @@
             max-width: 1100px;
             margin: 20px auto;
             padding: 0 20px;
+            width: 100%;
         }
 
         .tool-section {
@@ -323,8 +336,8 @@
             color: var(--text-main);
             border-radius: 10px;
             font-size: 1rem;
-            box-sizing: border-box;
             transition: all 0.3s;
+            min-height: 48px;
         }
         input:focus, select:focus { 
             outline: none; 
@@ -352,6 +365,19 @@
         .shortcut-badge { background: var(--border-color); font-size: 0.75em; padding: 4px 8px; border-radius: 6px; color: var(--text-muted); }
 
         /* --- EXAM TABLE --- */
+        .table-scroll {
+            max-width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior-inline: contain;
+            border-radius: 12px;
+        }
+
+        .table-scroll .routine-table,
+        .table-scroll .cgpa-table {
+            min-width: 620px;
+        }
+
         .routine-table { width: 100%; border-collapse: collapse; margin-top: 20px; border-radius: 10px; overflow: hidden; }
         .routine-table th, .routine-table td {
             border: 1px solid var(--border-color);
@@ -456,6 +482,8 @@
         .btn-action { 
             width: 100%; padding: 14px; border-radius: 8px; border: none; font-weight: bold; 
             cursor: pointer; margin-top: 10px; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            min-height: 44px;
+            line-height: 1.2;
         }
         .btn-action:hover { transform: translateY(-3px); box-shadow: 0 6px 15px rgba(0,0,0,0.15); }
         .btn-add { background: var(--gradient-secondary); color: white; width: auto; padding: 10px 24px; }
@@ -560,7 +588,7 @@
         .calendar-controls button:hover { transform: scale(1.05); box-shadow: 0 4px 12px rgba(0, 86, 150, 0.3); }
         .calendar-controls h2 { margin: 0; color: var(--secondary-color); font-size: 1.5em; }
 
-        .calendar-wrapper { border-radius: 12px; overflow-x: auto; border: 1px solid var(--border-color); box-shadow: var(--shadow); }
+        .calendar-wrapper { border-radius: 12px; overflow-x: auto; -webkit-overflow-scrolling: touch; border: 1px solid var(--border-color); box-shadow: var(--shadow); }
         
         .calendar-grid-header {
             display: grid; grid-template-columns: repeat(7, 1fr); 
@@ -609,15 +637,228 @@
         body.dark-mode .today-holiday { color: #ff8a80; }
         body.dark-mode .today-regular { color: #81d4fa; }
 
-        @media (max-width: 600px) {
-            nav { flex-direction: column; gap: 10px; padding: 10px; }
-            .nav-buttons { justify-content: center; }
-            .tool-section { padding: 20px 15px; }
-            .routine-table th, .routine-table td { font-size: 0.8em; padding: 8px; }
-            .calendar-grid-header { font-size: 0.9em; }
-            .calendar-day { min-height: 80px; padding: 6px; }
-            .event-badge { font-size: 0.7em; padding: 4px; }
-            .dash-grid { grid-template-columns: 1fr; }
+        @media (hover: none) {
+            .nav-btn.active,
+            .nav-btn:hover,
+            .dash-card:hover,
+            .tri-card:hover,
+            .btn-action:hover,
+            .calendar-controls button:hover,
+            .timeline-event:hover {
+                transform: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                background: var(--bg-body);
+            }
+
+            body.dark-mode {
+                background: #121212;
+            }
+
+            nav {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+                padding: calc(10px + env(safe-area-inset-top, 0px)) 12px 10px;
+            }
+
+            .logo {
+                width: 100%;
+                justify-content: center;
+                font-size: 1rem;
+            }
+
+            .nav-buttons {
+                width: 100%;
+                flex-wrap: nowrap;
+                justify-content: flex-start;
+                overflow-x: auto;
+                padding: 2px 2px 8px;
+                scrollbar-width: thin;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .nav-btn {
+                flex: 0 0 auto;
+                padding: 8px 14px;
+                font-size: 0.9rem;
+            }
+
+            .container {
+                margin: 12px auto;
+                padding: 0 10px;
+            }
+
+            .tool-section {
+                padding: 20px 14px;
+                border-radius: 12px;
+                box-shadow: 0 4px 18px rgba(0,0,0,0.08);
+            }
+
+            h1,
+            .gradient-text {
+                font-size: 1.75rem !important;
+                line-height: 1.18;
+            }
+
+            p.subtitle {
+                font-size: 0.98rem !important;
+                margin-bottom: 22px !important;
+            }
+
+            .dash-grid,
+            .planner-grid {
+                grid-template-columns: 1fr;
+                gap: 14px;
+                margin-top: 24px;
+            }
+
+            .dash-card,
+            .section-box,
+            .tri-card,
+            .planner-select-wrapper,
+            .result-box {
+                padding: 18px 14px;
+                border-radius: 10px;
+            }
+
+            .dash-icon {
+                font-size: 2rem;
+                margin-bottom: 12px;
+            }
+
+            .section-title {
+                font-size: 1rem;
+                margin-bottom: 14px;
+            }
+
+            .search-box {
+                max-width: 100%;
+                margin-bottom: 18px;
+            }
+
+            .suggestions {
+                max-height: 50vh;
+            }
+
+            .suggestion-item {
+                align-items: flex-start;
+                gap: 10px;
+                flex-direction: column;
+            }
+
+            .btn-add,
+            .btn-export,
+            .btn-import {
+                width: 100%;
+            }
+
+            .routine-table th,
+            .routine-table td,
+            .cgpa-table th,
+            .cgpa-table td {
+                font-size: 0.82rem;
+                padding: 8px;
+            }
+
+            .added-course {
+                padding: 9px 26px 9px 9px;
+                font-size: 0.82rem;
+            }
+
+            .timeline-row-cell {
+                height: 78px;
+            }
+
+            .timeline-event {
+                font-size: 0.72rem;
+                padding: 5px 8px;
+            }
+
+            .calendar-controls {
+                gap: 10px;
+                padding: 12px;
+            }
+
+            .calendar-controls h2 {
+                font-size: 1.05rem;
+                text-align: center;
+            }
+
+            .calendar-controls button {
+                padding: 10px 12px;
+                min-height: 42px;
+            }
+
+            .calendar-grid-header {
+                font-size: 0.85rem;
+                min-width: 560px;
+                padding: 10px 0;
+            }
+
+            .calendar-grid {
+                min-width: 560px;
+            }
+
+            .calendar-day {
+                min-height: 84px;
+                padding: 6px;
+            }
+
+            .event-badge {
+                font-size: 0.68rem;
+                padding: 4px;
+            }
+
+            .gpa-value {
+                font-size: 2rem;
+            }
+        }
+
+        @media (max-width: 420px) {
+            .container {
+                padding: 0 8px;
+            }
+
+            .tool-section {
+                padding: 18px 10px;
+            }
+
+            h1,
+            .gradient-text {
+                font-size: 1.55rem !important;
+            }
+
+            input,
+            select {
+                padding: 12px;
+                font-size: 0.95rem;
+            }
+
+            .table-scroll .routine-table,
+            .table-scroll .cgpa-table {
+                min-width: 560px;
+            }
+
+            .routine-table th,
+            .routine-table td,
+            .cgpa-table th,
+            .cgpa-table td {
+                font-size: 0.76rem;
+                padding: 7px 6px;
+            }
+
+            .calendar-grid-header,
+            .calendar-grid {
+                min-width: 500px;
+            }
+
+            .calendar-day {
+                min-height: 76px;
+            }
         }
     </style>
 </head>
@@ -704,17 +945,19 @@
             <button class="btn-action btn-export" onclick="exportExamCSV()">📥 Export Routine to CSV</button>
         </div>
 
-        <table class="routine-table">
-            <thead>
-                <tr>
-                    <th style="width:10%">Day</th>
-                    <th style="width:30%">Slot T1<br><small>9:00 - 11:00 AM</small></th>
-                    <th style="width:30%">Slot T2<br><small>11:30 - 1:30 PM</small></th>
-                    <th style="width:30%">Slot T3<br><small>2:00 - 4:00 PM</small></th>
-                </tr>
-            </thead>
-            <tbody id="routineBody"></tbody>
-        </table>
+        <div class="table-scroll">
+            <table class="routine-table">
+                <thead>
+                    <tr>
+                        <th style="width:10%">Day</th>
+                        <th style="width:30%">Slot T1<br><small>9:00 - 11:00 AM</small></th>
+                        <th style="width:30%">Slot T2<br><small>11:30 - 1:30 PM</small></th>
+                        <th style="width:30%">Slot T3<br><small>2:00 - 4:00 PM</small></th>
+                    </tr>
+                </thead>
+                <tbody id="routineBody"></tbody>
+            </table>
+        </div>
     </div>
 
     <div id="sectionplanner-section" class="tool-section">
@@ -765,7 +1008,7 @@
             </div>
         </div>
 
-        <div style="overflow-x: auto; margin-bottom: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+        <div class="table-scroll" style="margin-bottom: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
             <table class="routine-table" id="unifiedRoutineTable" style="min-width: 900px; margin-top: 15px; border-collapse: collapse; border: none;">
                 <thead>
                     <tr>
@@ -810,7 +1053,7 @@
                 <small style="color:var(--text-muted); display:block; margin-top:8px;">Warning: Selecting a trimester will replace current table rows.</small>
             </div>
 
-            <div style="overflow-x: auto;">
+            <div class="table-scroll">
                 <table class="cgpa-table" id="courseTable" style="min-width: 600px;">
                     <thead>
                         <tr>
