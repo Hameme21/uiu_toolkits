@@ -1226,8 +1226,8 @@
             <p style="color: var(--text-muted); margin-bottom: 20px;">Plan your upcoming trimesters. Each row automatically adds the <strong style="color:var(--primary-color);">6500 BDT</strong> trimester fee.</p>
             
             <div style="margin-bottom: 20px; padding: 15px; border-radius: 8px; background: var(--course-added-bg); border: 1px solid var(--border-color);">
-                <h3 style="margin-top: 0; margin-bottom: 10px; font-size: 1.05em; color: var(--primary-color);">Global Estimated Discounts</h3>
-                <p style="font-size: 0.85em; color: var(--text-muted); margin-top: 0; margin-bottom: 15px;">Check a box to simulate keeping a waiver or scholarship across all planned trimesters.</p>
+                <h3 style="margin-top: 0; margin-bottom: 10px; font-size: 1.05em; color: var(--primary-color);">Universal Waiver</h3>
+                <p style="font-size: 0.85em; color: var(--text-muted); margin-top: 0; margin-bottom: 15px;">Apply the same waiver to every planned trimester. Scholarship can be selected separately in each trimester row.</p>
                 <div style="display: flex; gap: 20px; flex-wrap: wrap;">
                     <div style="flex: 1; min-width: 200px;">
                         <label style="font-weight: bold; color: var(--text-main); display: flex; align-items: center; gap: 8px; margin-bottom: 8px; cursor: pointer;">
@@ -1237,18 +1237,6 @@
                         <select id="m-waiver-select" disabled>
                             <option value="25">25%</option>
                             <option value="50">50%</option>
-                            <option value="100">100%</option>
-                        </select>
-                    </div>
-                    <div style="flex: 1; min-width: 200px;">
-                        <label style="font-weight: bold; color: var(--text-main); display: flex; align-items: center; gap: 8px; margin-bottom: 8px; cursor: pointer;">
-                            <input type="checkbox" id="m-has-scholarship" style="width: 18px; height: 18px; accent-color: var(--primary-color);" onchange="document.getElementById('m-scholarship-select').disabled = !this.checked">
-                            Apply Scholarship
-                        </label>
-                        <select id="m-scholarship-select" disabled>
-                            <option value="25">25%</option>
-                            <option value="50">50%</option>
-                            <option value="100">100%</option>
                         </select>
                     </div>
                 </div>
@@ -2574,12 +2562,24 @@
         div.style.display = 'flex';
         div.style.gap = '15px';
         div.style.alignItems = 'flex-end';
+        div.style.flexWrap = 'wrap';
         div.style.marginBottom = '15px';
         
         div.innerHTML = `
-            <div style="flex:1;">
+            <div style="flex:1; min-width: 150px;">
                 <label class="sem-label" style="font-size: 0.9em; font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 5px;">Trimester ${rowCount} Credits</label>
                 <input type="number" class="multi-credits-input" placeholder="e.g. 12" value="12" step="0.5">
+            </div>
+            <div style="flex:1; min-width: 190px;">
+                <label style="font-weight: bold; color: var(--text-main); display: flex; align-items: center; gap: 8px; margin-bottom: 8px; cursor: pointer;">
+                    <input type="checkbox" class="multi-scholarship-check" style="width: 18px; height: 18px; accent-color: var(--primary-color);" onchange="this.closest('.multi-sem-row').querySelector('.multi-scholarship-select').disabled = !this.checked">
+                    Scholarship
+                </label>
+                <select class="multi-scholarship-select" disabled>
+                    <option value="25">25%</option>
+                    <option value="50">50%</option>
+                    <option value="100">100%</option>
+                </select>
             </div>
             <div>
                 <button class="btn-delete" style="padding: 14px 18px;" onclick="this.closest('.multi-sem-row').remove(); updateMultiSemLabels();">✕</button>
@@ -2603,9 +2603,6 @@
         const hasWaiver = document.getElementById('m-has-waiver') ? document.getElementById('m-has-waiver').checked : false;
         const waiverPct = hasWaiver ? parseFloat(document.getElementById('m-waiver-select').value) : 0;
         
-        const hasScholarship = document.getElementById('m-has-scholarship') ? document.getElementById('m-has-scholarship').checked : false;
-        const scholarshipPct = hasScholarship ? parseFloat(document.getElementById('m-scholarship-select').value) : 0;
-
         const rows = document.querySelectorAll('.multi-sem-row');
         let prevCredits = parseFloat(document.getElementById('t-current-credits').value) || 0;
 
@@ -2615,6 +2612,10 @@
             if (credits > 0) {
                 let baseTuition = credits * costPerCredit;
                 let rowDiscount = 0;
+                const scholarshipCheck = row.querySelector('.multi-scholarship-check');
+                const scholarshipSelect = row.querySelector('.multi-scholarship-select');
+                const hasScholarship = scholarshipCheck ? scholarshipCheck.checked : false;
+                const scholarshipPct = hasScholarship && scholarshipSelect ? parseFloat(scholarshipSelect.value) : 0;
 
                 if (scholarshipPct > waiverPct) {
                     let eligibleCredits = (prevCredits === 0) ? credits : Math.min(credits, prevCredits);
