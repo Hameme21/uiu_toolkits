@@ -150,6 +150,22 @@
             display: flex;
             align-items: center;
             gap: 10px;
+            text-decoration: none;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .logo:visited,
+        .logo:hover,
+        .logo:focus {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .logo:focus-visible {
+            outline: 2px solid var(--primary-color);
+            outline-offset: 4px;
+            border-radius: 6px;
         }
 
         .nav-buttons {
@@ -865,10 +881,10 @@
 <body>
 
 <nav>
-    <div class="logo">
+    <a href="#dashboard" class="logo" onclick="switchTab('dashboard'); return false;" aria-label="Go to dashboard">
         <img src="logo.png" alt="UIU Toolkits Logo" style="height: 30px; width: auto; border-radius: 4px;">
-        <a href= "https://uiu-toolkits.vercel.app/">UIU Toolkits</a>
-    </div>
+        UIU Toolkits
+    </a>
     <div class="nav-buttons">
         <button class="nav-btn active" onclick="switchTab('dashboard')" id="btn-dashboard">Dashboard</button>
         <button class="nav-btn" onclick="switchTab('exam')" id="btn-exam">Exam Routine</button>
