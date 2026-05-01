@@ -1347,7 +1347,11 @@ socket.on('popup:open', player => {
   liveMain?.classList.remove('is-revealing-player');
   liveMain?.classList.add('is-player-active');
   const idleState = document.getElementById('auctionIdleState');
-  if (CURRENT_USER.role === 'admin') {
+  const isQueuedReveal = !!player.revealCode;
+  if (isQueuedReveal) {
+    idleState?.classList.add('hidden');
+    idleState?.classList.remove('admin-code-active');
+  } else if (CURRENT_USER.role === 'admin') {
     idleState?.classList.remove('hidden');
     idleState?.classList.add('admin-code-active');
     renderLiveAdminQueue();
@@ -1770,7 +1774,7 @@ window.revealShuffledCode = () => {
   if (card) {
     card.style.filter = 'brightness(1.18)';
   }
-  setTimeout(() => startAuctionFromQueue(next.category, next.name, next.base, next.image, next.code, false), 180);
+  setTimeout(() => startAuctionFromQueue(next.category, next.name, next.base, next.image, next.code, true), 180);
 };
 window.startAuctionFromQueue = (cat, name, base, img, code = null, revealCode = false) => socket.emit('admin:select_player', { category: cat, name, base, currentPrice: base, image: img, code: code || getPlayerCode(cat, name), revealCode });
 
