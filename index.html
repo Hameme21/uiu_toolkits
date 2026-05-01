@@ -6,6 +6,19 @@
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23020917'/%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%232f7df6'/%3E%3Cstop offset='1' stop-color='%2325d4ff'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ctext x='32' y='48' font-family='Arial Black,Arial,sans-serif' font-weight='900' font-size='46' text-anchor='middle' fill='url(%23g)'%3EA%3C/text%3E%3C/svg%3E">
 <link rel="icon" type="image/png" href="Auction_logo.png" sizes="any">
 <script>try{if(localStorage.getItem('auctioncmd.session.v1'))document.documentElement.classList.add('restore-session')}catch(e){}</script>
+<script>
+window.__hideAuctionLoader = function(delay) {
+  window.setTimeout(function() {
+    var overlay = document.getElementById('appLoadingOverlay');
+    if (overlay) overlay.classList.add('is-done');
+  }, delay == null ? 250 : delay);
+};
+window.addEventListener('load', function() { window.__hideAuctionLoader(650); });
+window.setTimeout(function() {
+  document.documentElement.classList.remove('restore-session');
+  window.__hideAuctionLoader(0);
+}, 4500);
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -820,14 +833,36 @@ button:active:not(:disabled), .tab:active, #topNav a:active, #mobileBottomNav .m
   <audio id="hammerAudio" src="hammer.wav"></audio>
 </div>
 
-<script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+<script src="https://cdn.socket.io/4.7.4/socket.io.min.js" onerror="window.__socketIoLoadFailed=true"></script>
 <script>
 const BACKEND_URL = "https://auction-socket-39c2.onrender.com";
 const CLOUDINARY_CLOUD_NAME = "drdfnqwgp";
 const CLOUDINARY_UPLOAD_PRESET = "Auction_uploads";
 const CLOUDINARY_UPLOAD_URL = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`;
 const SESSION_KEY = "auctioncmd.session.v1";
-const socket = io(BACKEND_URL, { transports: ["websocket"] });
+function createOfflineSocket() {
+  return {
+    connected: false,
+    on() { return this; },
+    once() { return this; },
+    off() { return this; },
+    emit() {
+      const msg = 'Live server connection is unavailable. Please refresh or check the auction socket service.';
+      const portalMsg = document.getElementById('portalMsg');
+      if (portalMsg) portalMsg.textContent = msg;
+      return false;
+    }
+  };
+}
+const socket = window.io ? io(BACKEND_URL, { transports: ["websocket"] }) : createOfflineSocket();
+if (!window.io) {
+  document.documentElement.classList.remove('restore-session');
+  window.__hideAuctionLoader?.(650);
+  window.addEventListener('load', () => {
+    const portalMsg = document.getElementById('portalMsg');
+    if (portalMsg) portalMsg.textContent = window.__socketIoLoadFailed ? 'Could not load Socket.IO. Check your network and refresh.' : 'Live server client is unavailable. Refresh the page to reconnect.';
+  });
+}
 
 let CURRENT_USER = { role: null, teamId: null, hostId: null };
 let STATE = { teams: [], categories: [], playersSnapshot: {}, activeBids: {}, activeBidders: {}, previousOwners: {}, soldPrices: {}, directSigns: {}, rtmEvents: {}, rtmImpactLocks: {}, config: { impactAmount: 0 }, rtmState: null, lotteryQueue: [], unsoldPlayers: {}, biddingActive: false, codeShuffleActive: false };
@@ -2359,4 +2394,11 @@ const dlCSV = () => {
     });
   });
   const a = document.createElement('a');
-  a.href = 'data:text/csv;charset=utf-8,' + encodeURI(r.map(e => e.join(',')).join('
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURI(r.map(e => e.join(',')).join('\n'));
+  a.download = 'arenacmd_db.csv'; a.click();
+};
+document.getElementById('btnExportAdmin').onclick = dlCSV;
+document.getElementById('btnExportTeam').onclick = dlCSV;
+</script>
+</body>
+</html>
