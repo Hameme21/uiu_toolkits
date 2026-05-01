@@ -901,6 +901,7 @@ let importActiveCatFilter = '';
 let importSelectedPlayers = new Set();
 let blockedBidToastKey = '';
 let liveRevealToken = 0;
+let allowActivePlayerCodeQueue = false;
 
 const portal = document.getElementById('portal');
 const teamAuthOverlay = document.getElementById('teamAuthOverlay');
@@ -1341,6 +1342,7 @@ socket.on('timer:sync', data => {
 socket.on('popup:open', player => {
   STATE.biddingActive = false;
   activePlayer = player;
+  allowActivePlayerCodeQueue = false;
   blockedBidToastKey = '';
   const liveMain = document.getElementById('liveAuctionMain');
   const popup = document.getElementById('auctionPlayerPopup');
@@ -1386,6 +1388,11 @@ socket.on('popup:open', player => {
     if (revealToken !== liveRevealToken) return;
     playerLoader?.classList.add('hidden');
     body.classList.remove('is-preparing-player');
+    if (CURRENT_USER.role === 'admin') {
+      idleState?.classList.remove('hidden');
+      idleState?.classList.add('admin-code-active');
+      renderLiveAdminQueue();
+    }
     if (photoFrame) {
       void photoFrame.offsetWidth;
       photoFrame.classList.add('photo-glow');
@@ -1436,6 +1443,7 @@ socket.on('popup:open', player => {
 
 socket.on('popup:close', () => {
   activePlayer = null; 
+  allowActivePlayerCodeQueue = false;
   liveRevealToken++;
   blockedBidToastKey = '';
   const popup = document.getElementById('auctionPlayerPopup');
@@ -1461,6 +1469,7 @@ socket.on('player:sold', data => {
   if (isRTM) { if (!STATE.rtmEvents) STATE.rtmEvents = {}; STATE.rtmEvents[`${category}:${name}`] = true; }
   
   activePlayer = null; updateLiveIndicator();
+  allowActivePlayerCodeQueue = false;
   liveRevealToken++;
   blockedBidToastKey = '';
   const popup = document.getElementById('auctionPlayerPopup');
@@ -1737,6 +1746,10 @@ function renderLiveAdminQueue() {
   if (CURRENT_USER.role !== 'admin') return;
   const container = document.getElementById('queuePlayersList');
   container.innerHTML = '';
+  if (activePlayer && !allowActivePlayerCodeQueue) {
+      container.innerHTML = makePublicCodeStage(null, false);
+      return;
+  }
   if (!STATE.lotteryQueue || STATE.lotteryQueue.length === 0) {
       container.innerHTML = makePublicCodeStage(null, false);
       return;
@@ -1749,13 +1762,14 @@ function renderLiveAdminQueue() {
   container.innerHTML = makePublicCodeStage(next, true);
 }
 
-window.shufflePlayerCodes = () => socket.emit('admin:shuffle_codes');
+window.shufflePlayerCodes = () => {
+  if (CURRENT_USER.role === 'admin' && activePlayer) allowActivePlayerCodeQueue = true;
+  socket.emit('admin:shuffle_codes');
+};
 window.clearPlayerCodes = () => {
-  const keepActiveQueueVisible = CURRENT_USER.role === 'admin' && !!activePlayer;
-  if (!keepActiveQueueVisible) {
-    STATE.lotteryQueue = [];
-    STATE.codeShuffleActive = false;
-  }
+  allowActivePlayerCodeQueue = false;
+  STATE.lotteryQueue = [];
+  STATE.codeShuffleActive = false;
   const revealCode = document.getElementById('liveRevealCode');
   if (revealCode) revealCode.textContent = '';
   if (CURRENT_USER.role === 'admin') renderLiveAdminQueue();
