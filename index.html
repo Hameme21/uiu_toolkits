@@ -1829,11 +1829,15 @@ function renderLiveIdleCode() {
 function renderLiveAdminQueue() {
   if (CURRENT_USER.role !== 'admin') return;
   const container = document.getElementById('queuePlayersList');
+  const idleState = document.getElementById('auctionIdleState');
   container.innerHTML = '';
   if (activePlayer && !allowActivePlayerCodeQueue) {
-      container.innerHTML = makePublicCodeStage(null, false);
+      idleState?.classList.add('hidden');
+      idleState?.classList.remove('admin-code-active');
       return;
   }
+  idleState?.classList.remove('hidden');
+  if (activePlayer) idleState?.classList.add('admin-code-active');
   if (!STATE.lotteryQueue || STATE.lotteryQueue.length === 0) {
       container.innerHTML = makePublicCodeStage(null, false);
       return;
