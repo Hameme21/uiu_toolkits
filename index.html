@@ -207,7 +207,9 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 .code-stage { min-height: 260px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; text-align: center; border: 1px solid rgba(120,183,255,0.14); border-radius: var(--radius-lg); background: linear-gradient(180deg, rgba(47,125,246,0.1), rgba(3,12,26,0.28)); position: relative; overflow: hidden; padding: 26px; }
 .code-stage::before { content: ''; position: absolute; inset: 0; background: linear-gradient(120deg, transparent, rgba(37,212,255,0.11), transparent); transform: translateX(-120%); animation: shimmer 3.5s ease-in-out infinite; }
 .code-stage > * { position: relative; z-index: 1; }
-.code-card { width: min(100%, 340px); min-height: 132px; border-radius: 18px; border: 1px solid rgba(120,183,255,0.28); background: linear-gradient(145deg, rgba(5,18,39,0.96), rgba(8,42,78,0.9)); display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 18px 55px rgba(0,8,28,0.46), inset 0 1px 0 rgba(255,255,255,0.08); }
+.code-card { width: min(100%, 340px); min-height: 132px; border-radius: 18px; border: 1px solid rgba(120,183,255,0.28); background: linear-gradient(145deg, rgba(5,18,39,0.96), rgba(8,42,78,0.9)); display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 18px 55px rgba(0,8,28,0.46), inset 0 1px 0 rgba(255,255,255,0.08); position: relative; overflow: hidden; }
+.code-card.slot-machine { gap: 12px; padding: clamp(18px, 4vw, 30px); border-color: rgba(244,185,79,0.44); background: radial-gradient(circle at 50% 0%, rgba(244,185,79,0.24), transparent 34%), linear-gradient(145deg, rgba(5,18,39,0.98), rgba(7,28,54,0.96)); box-shadow: 0 20px 70px rgba(0,8,28,0.54), 0 0 42px rgba(244,185,79,0.12), inset 0 1px 0 rgba(255,255,255,0.1); }
+.code-card.slot-machine::before { content: ''; position: absolute; inset: 10px; border-radius: 14px; border: 1px solid rgba(244,185,79,0.16); pointer-events: none; }
 .live-admin-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px 16px; }
 .live-admin-toolbar .toolbar-copy { min-width: 0; }
 .live-admin-toolbar .toolbar-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
@@ -223,9 +225,18 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 .live-code-stage .code-card { width: min(100%, 760px); aspect-ratio: 16 / 9; min-height: 0; max-height: 520px; }
 .live-code-stage .code-value { font-size: clamp(4rem, 13vw, 9rem); }
 .code-value { font-family: var(--font-mono); font-size: clamp(2.8rem, 8vw, 5.2rem); font-weight: 800; letter-spacing: 0.12em; color: var(--cyan); text-shadow: 0 0 28px rgba(37,212,255,0.32); line-height: 1; }
+.code-value.slot-reels { display: flex; align-items: center; justify-content: center; gap: clamp(7px, 1.4vw, 14px); letter-spacing: 0; width: 100%; color: white; text-shadow: none; font-size: 4.8rem; }
+.live-code-stage .code-value.slot-reels { font-size: 6rem; }
+.code-reel { width: clamp(54px, 12vw, 110px); height: 1.28em; overflow: hidden; border-radius: 14px; border: 1px solid rgba(255,255,255,0.18); background: linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0.03)); box-shadow: inset 0 12px 28px rgba(255,255,255,0.06), inset 0 -14px 30px rgba(0,0,0,0.35), 0 12px 28px rgba(0,0,0,0.28); position: relative; }
+.code-reel::before, .code-reel::after { content: ''; position: absolute; left: 0; right: 0; height: 34%; z-index: 3; pointer-events: none; }
+.code-reel::before { top: 0; background: linear-gradient(180deg, rgba(2,9,23,0.92), transparent); }
+.code-reel::after { bottom: 0; background: linear-gradient(0deg, rgba(2,9,23,0.92), transparent); }
+.code-reel-track { display: flex; flex-direction: column; align-items: center; animation: codeReelSpin 1.16s cubic-bezier(0.18,0.88,0.22,1) both; animation-delay: var(--reel-delay, 0ms); will-change: transform, filter; }
+.code-symbol { height: 1.28em; line-height: 1.28em; color: var(--cyan); font-weight: 900; text-shadow: 0 0 22px rgba(37,212,255,0.44); }
 .code-clue { margin-top: 10px; font-size: 10px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.16em; }
 .code-card.flipping { animation: codeFlip 0.72s cubic-bezier(0.22,1,0.36,1); }
 @keyframes codeFlip { 0% { transform: rotateY(0) scale(1); } 45% { transform: rotateY(90deg) scale(1.04); filter: brightness(1.4); } 100% { transform: rotateY(0) scale(1); } }
+@keyframes codeReelSpin { 0% { transform: translate3d(0,0,0); filter: blur(1.8px) brightness(1.35); } 72% { filter: blur(0.8px) brightness(1.18); } 100% { transform: translate3d(0, calc(-1 * var(--spin-distance, 10em)), 0); filter: blur(0) brightness(1); } }
 
 #importPlayersModal { max-width: 500px; }
 .import-player-list { max-height: 280px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; margin: 12px 0; }
@@ -247,8 +258,10 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 .live-card-content.card-flipping { animation: liveCardFlip 0.56s cubic-bezier(0.2,0.82,0.22,1); transform-style: preserve-3d; will-change: transform, opacity; }
 .live-photo-panel { position: relative; flex: 1; aspect-ratio: 16/9; height: auto; min-height: unset !important; max-height: 65vh; border-radius: var(--radius-lg); background: #081426; box-shadow: 0 22px 70px rgba(0,8,28,0.48); }
 .live-photo-frame { position: relative; width: 100%; height: 100%; min-height: inherit; border-radius: inherit; overflow: hidden; border: 1px solid rgba(255,255,255,0.08); background: #081426; }
-.live-photo-panel img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.live-photo-frame::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, rgba(2,9,23,0.88) 0%, rgba(2,9,23,0.18) 46%, rgba(2,9,23,0.08) 100%); pointer-events: none; }
+.live-photo-frame.photo-glow { border-color: rgba(244,185,79,0.72); animation: playerPhotoGlow 2.2s ease-in-out infinite; }
+.live-photo-frame.photo-glow::before { content: ''; position: absolute; inset: 0; z-index: 3; border-radius: inherit; border: 2px solid rgba(244,185,79,0.82); box-shadow: inset 0 0 34px rgba(244,185,79,0.22); pointer-events: none; animation: playerPhotoRing 1.5s ease-in-out infinite; }
+.live-photo-panel img { width: 100%; height: 100%; object-fit: cover; display: block; position: relative; z-index: 1; }
+.live-photo-frame::after { content: ''; position: absolute; inset: 0; z-index: 2; background: linear-gradient(to top, rgba(2,9,23,0.88) 0%, rgba(2,9,23,0.18) 46%, rgba(2,9,23,0.08) 100%); pointer-events: none; }
 .live-category-badge { position: absolute; top: 8px; left: 8px; z-index: 5; max-width: calc(100% - 96px); }
 .live-photo-name { position: absolute; left: 18px; bottom: 24px; z-index: 4; max-width: min(80%, 680px); padding: 0; background: transparent; border: none; backdrop-filter: none; box-shadow: none; }
 .live-photo-controls { position: absolute; right: 18px; bottom: 18px; z-index: 4; display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-radius: 16px; background: linear-gradient(135deg, rgba(2,9,23,0.76), rgba(8,42,78,0.62)); border: 1px solid rgba(120,183,255,0.2); backdrop-filter: blur(16px); box-shadow: 0 16px 38px rgba(0,8,28,0.34); }
@@ -258,10 +271,13 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 .live-code-reveal.hidden { display: none !important; }
 .live-code-reveal #liveRevealCodeCard { width: 100%; min-height: unset !important; border: none; box-shadow: none; background: transparent; }
 .live-code-reveal .code-value { font-size: clamp(4rem, 13vw, 9rem); }
+.live-code-reveal .code-value.slot-reels { font-size: 6rem; }
 #livePlayerBody.is-concealed { opacity: 0; pointer-events: none; }
 @keyframes liveCardFlip { 0% { transform: rotateY(0deg) scale(1); opacity: 1; } 44% { transform: rotateY(82deg) scale(1.012); opacity: 0.82; } 56% { transform: rotateY(-82deg) scale(1.012); opacity: 0.82; } 100% { transform: rotateY(0deg) scale(1); opacity: 1; } }
 @keyframes codeFlipOut { 0% { transform: perspective(1200px) rotateY(0deg) scale(1); opacity:1; filter: brightness(1); } 100% { transform: perspective(1200px) rotateY(-88deg) scale(0.985); opacity:0; filter: brightness(1.15); } }
 @keyframes playerFlipIn { 0% { transform: perspective(1200px) rotateY(88deg) scale(0.985); opacity:0; filter: brightness(1.12); } 100% { transform: perspective(1200px) rotateY(0deg) scale(1); opacity:1; filter: brightness(1); } }
+@keyframes playerPhotoGlow { 0%, 100% { box-shadow: 0 22px 70px rgba(0,8,28,0.48), 0 0 0 rgba(244,185,79,0); } 48% { box-shadow: 0 24px 80px rgba(0,8,28,0.52), 0 0 42px rgba(244,185,79,0.42), 0 0 78px rgba(37,212,255,0.18); } }
+@keyframes playerPhotoRing { 0%, 100% { opacity: 0.72; transform: scale(1); } 50% { opacity: 1; transform: scale(0.992); } }
 @media (max-width: 767px) {
   .live-card-content { display: flex; flex-direction: column; padding: 12px; gap: 10px; min-height: 100%; }
   .live-admin-toolbar { align-items: flex-start; padding: 12px; }
@@ -284,6 +300,8 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
   #idleWaitingMessage { padding: 0 !important; }
   .live-code-stage, .live-code-stage.full-bleed { min-height: clamp(300px, 58vh, 460px); padding: 14px; }
   .live-code-stage .code-card { width: min(100%, 430px); aspect-ratio: 4 / 3; min-height: 0; }
+  .code-value.slot-reels, .live-code-stage .code-value.slot-reels, .live-code-reveal .code-value.slot-reels { font-size: 3rem; }
+  .code-reel { width: 52px; border-radius: 12px; }
   .live-info-panel { justify-content: flex-start; gap: 10px; }
   #adminActionButtons { grid-template-columns: 1fr !important; }
   #adminActionButtons button { min-width: 0; white-space: normal; }
@@ -917,6 +935,30 @@ function hashCode(input) {
   return hash.toString(36).toUpperCase();
 }
 
+function escapeHTML(value) {
+  return String(value ?? '').replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+}
+
+function makeCasinoCodeReels(code) {
+  const symbols = 'ABCDEFGHJKLMNPQRSTUVWXYZ0123456789';
+  return String(code || '----').split('').map((finalChar, index) => {
+    const reel = [];
+    const spinLength = 11 + index * 2;
+    for (let i = 0; i < spinLength; i++) {
+      const symbolIndex = parseInt(hashCode(`${finalChar}:${index}:${i}`), 36) % symbols.length;
+      reel.push(symbols[symbolIndex]);
+    }
+    reel.push(finalChar);
+    const distance = (reel.length - 1) * 1.28;
+    return `<span class="code-reel" aria-hidden="true" style="--reel-delay:${index * 90}ms;--spin-distance:${distance}em"><span class="code-reel-track">${reel.map(symbol => `<span class="code-symbol">${escapeHTML(symbol)}</span>`).join('')}</span></span>`;
+  }).join('');
+}
+
+function makeCasinoCodeValue(code, extraAttrs = '') {
+  const safeCode = escapeHTML(code || '----');
+  return `<div class="code-value slot-reels" aria-label="${safeCode}" ${extraAttrs}>${makeCasinoCodeReels(code)}</div>`;
+}
+
 function teamAvatarHTML(team, size = 34) {
   const name = team?.name || team?.id || '?';
   const initial = name.trim().charAt(0).toUpperCase() || '?';
@@ -1235,8 +1277,17 @@ socket.on('popup:open', player => {
   const revealCard = document.getElementById('liveRevealCodeCard');
   const body = document.getElementById('livePlayerBody');
   const code = player.code || getPlayerCode(player.category, player.name);
-  document.getElementById('liveRevealCode').textContent = code;
+  const revealCodeEl = document.getElementById('liveRevealCode');
+  revealCodeEl.classList.add('slot-reels');
+  revealCodeEl.setAttribute('aria-label', code);
+  revealCodeEl.innerHTML = makeCasinoCodeReels(code);
   document.getElementById('liveRevealClue').textContent = `${player.category} category`;
+  const photoFrame = document.querySelector('#popupImgContainer .live-photo-frame');
+  if (photoFrame) {
+    photoFrame.classList.remove('photo-glow');
+    void photoFrame.offsetWidth;
+    photoFrame.classList.add('photo-glow');
+  }
   body.style.animation = '';
   reveal.style.animation = '';
   document.getElementById('popupName').textContent = player.name;
@@ -1307,6 +1358,7 @@ socket.on('popup:close', () => {
   blockedBidToastKey = '';
   const popup = document.getElementById('auctionPlayerPopup');
   popup.classList.add('hidden'); popup.style.opacity = ''; popup.style.filter = ''; popup.style.pointerEvents = '';
+  document.querySelector('#popupImgContainer .live-photo-frame')?.classList.remove('photo-glow');
   document.getElementById('liveAuctionMain')?.classList.remove('is-player-active', 'is-revealing-player');
   document.getElementById('auctionIdleState').classList.remove('hidden');
   updateLiveIndicator(); renderScoreboards();
@@ -1326,6 +1378,7 @@ socket.on('player:sold', data => {
   blockedBidToastKey = '';
   const popup = document.getElementById('auctionPlayerPopup');
   popup.classList.add('hidden'); popup.style.opacity = ''; popup.style.filter = ''; popup.style.pointerEvents = '';
+  document.querySelector('#popupImgContainer .live-photo-frame')?.classList.remove('photo-glow');
   document.getElementById('liveAuctionMain')?.classList.remove('is-player-active', 'is-revealing-player');
   document.getElementById('auctionIdleState').classList.remove('hidden');
   
@@ -1570,8 +1623,8 @@ function makePublicCodeStage(next, includeAdminButton = false) {
   const isPrevOwned = STATE.previousOwners && STATE.previousOwners[`${next.category}:${next.name}`];
   return `<div class="code-stage live-code-stage full-bleed">
     <div style="font-size:10px;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:0.16em">Next player code</div>
-    <div class="code-card" id="activeCodeCard">
-      <div class="code-value">${code}</div>
+    <div class="code-card slot-machine" id="activeCodeCard">
+      ${makeCasinoCodeValue(code)}
       <div class="code-clue">${next.category} category${next.isUnsold ? ' · unsold return' : ''}${isPrevOwned ? ' · RTM eligible' : ''}</div>
     </div>
     ${includeAdminButton ? `<button class="btn-primary" id="btnRevealCode" onclick="revealShuffledCode()">Show Player</button>` : ''}
