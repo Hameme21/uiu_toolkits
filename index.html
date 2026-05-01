@@ -220,6 +220,9 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 .code-stage { min-height: 260px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; text-align: center; border: 1px solid rgba(120,183,255,0.14); border-radius: var(--radius-lg); background: linear-gradient(180deg, rgba(47,125,246,0.1), rgba(3,12,26,0.28)); position: relative; overflow: hidden; padding: 26px; }
 .code-stage::before { content: ''; position: absolute; inset: 0; background: linear-gradient(120deg, transparent, rgba(37,212,255,0.11), transparent); transform: translateX(-120%); animation: shimmer 3.5s ease-in-out infinite; }
 .code-stage > * { position: relative; z-index: 1; }
+.code-stage.has-code { background: linear-gradient(145deg, rgba(5,18,39,0.98), rgba(8,42,78,0.94)); }
+.code-stage.is-empty { gap: 8px; }
+.code-stage-empty-label { color: var(--muted); font-size: 11px; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; }
 .code-card { width: min(100%, 340px); min-height: 132px; border-radius: 18px; border: 1px solid rgba(120,183,255,0.28); background: linear-gradient(145deg, rgba(5,18,39,0.96), rgba(8,42,78,0.9)); display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 18px 55px rgba(0,8,28,0.46), inset 0 1px 0 rgba(255,255,255,0.08); position: relative; overflow: hidden; }
 .code-card.slot-machine { gap: 12px; padding: clamp(18px, 4vw, 30px); border-color: rgba(37,212,255,0.42); background: radial-gradient(circle at 50% 0%, rgba(37,212,255,0.22), transparent 34%), linear-gradient(145deg, rgba(5,18,39,0.98), rgba(7,28,54,0.96)); box-shadow: 0 20px 70px rgba(0,8,28,0.54), 0 0 46px rgba(47,125,246,0.18), inset 0 1px 0 rgba(255,255,255,0.1); }
 .code-card.slot-machine::before { content: ''; position: absolute; inset: 10px; border-radius: 14px; border: 1px solid rgba(37,212,255,0.18); pointer-events: none; }
@@ -291,6 +294,16 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 .live-code-reveal #liveRevealCodeCard { width: 100%; min-height: unset !important; border: none; box-shadow: none; background: transparent; }
 .live-code-reveal .code-value { font-size: clamp(4rem, 13vw, 9rem); }
 .live-code-reveal .code-value.slot-reels { font-size: 6rem; }
+#auctionPlayerPopup.is-code-mode .live-card-content { min-height: clamp(520px, 72vh, 760px); }
+#auctionPlayerPopup.is-code-mode .live-photo-panel { aspect-ratio: auto; max-height: none; min-height: clamp(450px, 68vh, 640px); height: 100%; background: linear-gradient(145deg, rgba(5,18,39,0.98), rgba(8,42,78,0.94)); }
+#auctionPlayerPopup.is-code-mode .live-photo-frame,
+#auctionPlayerPopup.is-code-mode .live-photo-controls,
+#auctionPlayerPopup.is-code-mode .live-info-panel,
+#auctionPlayerPopup.is-code-mode .live-player-loader { display: none !important; }
+#auctionPlayerPopup.is-code-mode .live-code-reveal { border-radius: inherit; background: linear-gradient(145deg, rgba(5,18,39,0.98), rgba(8,42,78,0.94)); }
+#auctionPlayerPopup.is-code-mode .live-code-reveal #liveRevealCodeCard { min-height: 100% !important; border: 0; border-radius: inherit; background: transparent; }
+#auctionPlayerPopup.is-code-mode .live-code-stage { min-height: 100%; padding-top: 74px; border: 0; background: transparent; }
+#auctionPlayerPopup.is-code-mode .live-code-stage::before { opacity: 0.7; }
 .live-player-loader { position: absolute; inset: 0; z-index: 24; display: flex; align-items: center; justify-content: center; overflow: hidden; border-radius: inherit; background: radial-gradient(circle at 50% 28%, rgba(37,212,255,0.18), transparent 32%), linear-gradient(145deg, rgba(3,12,26,0.98), rgba(8,34,66,0.96)); }
 .live-player-loader.hidden { display: none !important; }
 .live-player-loader::before { content: ''; position: absolute; inset: 0; background: linear-gradient(115deg, transparent 0%, rgba(37,212,255,0.12) 45%, transparent 68%); transform: translateX(-120%); animation: playerLoadSweep 1.2s ease-in-out infinite; }
@@ -1042,7 +1055,15 @@ function preloadImage(url, timeoutMs = 1800) {
 }
 
 function resetLiveRevealUI(reveal, revealCodeEl) {
-  if (!reveal || !revealCodeEl) return;
+  if (!reveal) return;
+  document.getElementById('auctionPlayerPopup')?.classList.remove('is-code-mode');
+  const card = document.getElementById('liveRevealCodeCard');
+  if (card) {
+    card.removeAttribute('class');
+    card.innerHTML = `<div class="code-value" id="liveRevealCode">----</div><div class="code-clue" id="liveRevealClue">Player code</div>`;
+  }
+  revealCodeEl = document.getElementById('liveRevealCode');
+  if (!revealCodeEl) return;
   reveal.style.animation = '';
   reveal.classList.add('hidden');
   revealCodeEl.className = 'code-value';
@@ -1450,8 +1471,9 @@ socket.on('popup:open', player => {
   const body = document.getElementById('livePlayerBody');
   const revealToken = ++liveRevealToken;
   const imageUrl = player.image || 'https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=800&auto=format&fit=crop';
-  const revealCodeEl = document.getElementById('liveRevealCode');
+  let revealCodeEl = document.getElementById('liveRevealCode');
   resetLiveRevealUI(reveal, revealCodeEl);
+  revealCodeEl = document.getElementById('liveRevealCode');
   document.getElementById('liveRevealClue').textContent = 'Player code';
   const photoFrame = document.querySelector('#popupImgContainer .live-photo-frame');
   if (photoFrame) {
@@ -1531,6 +1553,7 @@ socket.on('popup:close', () => {
   liveRevealToken++;
   blockedBidToastKey = '';
   const popup = document.getElementById('auctionPlayerPopup');
+  popup.classList.remove('is-code-mode');
   popup.classList.add('hidden'); popup.style.opacity = ''; popup.style.filter = ''; popup.style.pointerEvents = '';
   document.getElementById('livePlayerBody')?.classList.remove('is-preparing-player');
   document.getElementById('livePlayerLoader')?.classList.add('hidden');
@@ -1557,6 +1580,7 @@ socket.on('player:sold', data => {
   liveRevealToken++;
   blockedBidToastKey = '';
   const popup = document.getElementById('auctionPlayerPopup');
+  popup.classList.remove('is-code-mode');
   popup.classList.add('hidden'); popup.style.opacity = ''; popup.style.filter = ''; popup.style.pointerEvents = '';
   document.getElementById('livePlayerBody')?.classList.remove('is-preparing-player');
   document.getElementById('livePlayerLoader')?.classList.add('hidden');
@@ -1797,25 +1821,41 @@ function getNextQueuedPlayer() {
   });
 }
 
-function makePublicCodeStage(next, includeAdminButton = false) {
+function makeCodeStageInnerHTML(next, includeAdminButton = false, codeAttrs = '', clueAttrs = '') {
   if (!next) {
-    return `<div class="code-stage live-code-stage full-bleed">
-      <div class="code-card" id="activeCodeCard" aria-label="No active code">
-        <div class="code-value" style="opacity:0.18">&nbsp;</div>
-        <div class="code-clue">No active code</div>
-      </div>
-    </div>`;
+    return `<div class="code-stage-empty-label" ${codeAttrs}>No active code</div>
+      <div class="code-clue" ${clueAttrs}>Awaiting shuffle</div>`;
   }
   const code = next.code || getPlayerCode(next.category, next.name);
   const isPrevOwned = STATE.previousOwners && STATE.previousOwners[`${next.category}:${next.name}`];
-  return `<div class="code-stage live-code-stage full-bleed">
-    <div style="font-size:10px;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:0.16em">Next player code</div>
-    <div class="code-card slot-machine" id="activeCodeCard">
-      ${makeCasinoCodeValue(code)}
-      <div class="code-clue">${next.category} category${next.isUnsold ? ' · unsold return' : ''}${isPrevOwned ? ' · RTM eligible' : ''}</div>
-    </div>
-    ${includeAdminButton ? `<button class="btn-primary" id="btnRevealCode" onclick="revealShuffledCode()">Show Player</button>` : ''}
+  return `<div style="font-size:10px;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:0.16em">Next player code</div>
+    ${makeCasinoCodeValue(code, codeAttrs)}
+    <div class="code-clue" ${clueAttrs}>${next.category} category${next.isUnsold ? ' · unsold return' : ''}${isPrevOwned ? ' · RTM eligible' : ''}</div>
+    ${includeAdminButton ? `<button class="btn-primary" id="btnRevealCode" onclick="revealShuffledCode()">Show Player</button>` : ''}`;
+}
+
+function makePublicCodeStage(next, includeAdminButton = false) {
+  return `<div class="code-stage live-code-stage full-bleed ${next ? 'has-code' : 'is-empty'}" id="activeCodeCard" aria-label="${next ? 'Next player code' : 'No active code'}">
+    ${makeCodeStageInnerHTML(next, includeAdminButton)}
   </div>`;
+}
+
+function renderPopupCodeStage(next) {
+  if (CURRENT_USER.role !== 'admin') return;
+  const popup = document.getElementById('auctionPlayerPopup');
+  const reveal = document.getElementById('liveCodeReveal');
+  const card = document.getElementById('liveRevealCodeCard');
+  const body = document.getElementById('livePlayerBody');
+  if (!popup || !reveal || !card || !body) return;
+  popup.classList.remove('hidden');
+  popup.classList.add('is-code-mode');
+  body.classList.remove('is-preparing-player');
+  document.getElementById('livePlayerLoader')?.classList.add('hidden');
+  document.querySelector('#popupImgContainer .live-photo-frame')?.classList.remove('photo-glow');
+  reveal.style.animation = '';
+  reveal.classList.remove('hidden');
+  card.className = `code-stage live-code-stage full-bleed ${next ? 'has-code' : 'is-empty'}`;
+  card.innerHTML = makeCodeStageInnerHTML(next, !!next, 'id="liveRevealCode"', 'id="liveRevealClue"');
 }
 
 function renderLiveIdleCode() {
@@ -1831,13 +1871,20 @@ function renderLiveAdminQueue() {
   const container = document.getElementById('queuePlayersList');
   const idleState = document.getElementById('auctionIdleState');
   container.innerHTML = '';
-  if (activePlayer && !allowActivePlayerCodeQueue) {
+  if (activePlayer && allowActivePlayerCodeQueue) {
+      idleState?.classList.add('hidden');
+      idleState?.classList.remove('admin-code-active');
+      renderPopupCodeStage(getNextQueuedPlayer());
+      return;
+  }
+  if (activePlayer) {
+      document.getElementById('auctionPlayerPopup')?.classList.remove('is-code-mode');
+      document.getElementById('liveCodeReveal')?.classList.add('hidden');
       idleState?.classList.add('hidden');
       idleState?.classList.remove('admin-code-active');
       return;
   }
   idleState?.classList.remove('hidden');
-  if (activePlayer) idleState?.classList.add('admin-code-active');
   if (!STATE.lotteryQueue || STATE.lotteryQueue.length === 0) {
       container.innerHTML = makePublicCodeStage(null, false);
       return;
@@ -1852,10 +1899,11 @@ function renderLiveAdminQueue() {
 
 window.shufflePlayerCodes = () => {
   if (CURRENT_USER.role === 'admin' && activePlayer) allowActivePlayerCodeQueue = true;
+  if (CURRENT_USER.role === 'admin') renderLiveAdminQueue();
   socket.emit('admin:shuffle_codes');
 };
 window.clearPlayerCodes = () => {
-  allowActivePlayerCodeQueue = false;
+  allowActivePlayerCodeQueue = CURRENT_USER.role === 'admin' && !!activePlayer;
   STATE.lotteryQueue = [];
   STATE.codeShuffleActive = false;
   const revealCode = document.getElementById('liveRevealCode');
@@ -1868,7 +1916,7 @@ window.clearPlayerCodes = () => {
 window.revealShuffledCode = () => {
   const next = getNextQueuedPlayer();
   if (!next) return showToast('No hidden player codes left');
-  const card = document.getElementById('activeCodeCard');
+  const card = document.querySelector('#auctionPlayerPopup.is-code-mode #liveRevealCodeCard') || document.getElementById('activeCodeCard');
   const btn = document.getElementById('btnRevealCode');
   const liveMain = document.getElementById('liveAuctionMain');
   liveMain?.classList.remove('is-revealing-player');
