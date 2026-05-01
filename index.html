@@ -902,6 +902,10 @@ let importSelectedPlayers = new Set();
 let blockedBidToastKey = '';
 let liveRevealToken = 0;
 let allowActivePlayerCodeQueue = false;
+const PLAYER_REVEAL_DELAY_MS = 350;
+const PLAYER_REVEAL_SPIN_MS = 2150;
+const PLAYER_REVEAL_FLIP_MS = 520;
+const PLAYER_REVEAL_LOADER_MS = 700;
 
 const portal = document.getElementById('portal');
 const teamAuthOverlay = document.getElementById('teamAuthOverlay');
@@ -1035,6 +1039,85 @@ function preloadImage(url, timeoutMs = 1800) {
     };
     img.src = url;
   });
+}
+
+function resetLiveRevealUI(reveal, revealCodeEl) {
+  if (!reveal || !revealCodeEl) return;
+  reveal.style.animation = '';
+  reveal.classList.add('hidden');
+  revealCodeEl.className = 'code-value';
+  revealCodeEl.removeAttribute('aria-label');
+  revealCodeEl.textContent = '';
+}
+
+async function playQueuedPlayerReveal(player, context) {
+  const { reveal, revealCodeEl, playerLoader, body, idleState, photoFrame, revealToken, imageReady } = context;
+  const code = player.code || getPlayerCode(player.category, player.name);
+  const startsAt = Number(player.revealStartedAt) || (Date.now() + PLAYER_REVEAL_DELAY_MS);
+  const waitForStart = Math.max(0, startsAt - Date.now());
+  const revealElapsed = Date.now() - startsAt;
+  const revealTotal = PLAYER_REVEAL_SPIN_MS + PLAYER_REVEAL_FLIP_MS + PLAYER_REVEAL_LOADER_MS;
+
+  document.getElementById('liveAuctionMain')?.classList.add('is-revealing-player');
+  body.classList.add('is-preparing-player');
+  playerLoader?.classList.add('hidden');
+  reveal.style.animation = '';
+  reveal.classList.remove('hidden');
+  revealCodeEl.className = 'code-value';
+  revealCodeEl.textContent = '';
+  document.getElementById('liveRevealClue').textContent = 'Player code';
+
+  if (revealElapsed >= revealTotal) {
+    reveal.classList.add('hidden');
+    playerLoader?.classList.remove('hidden');
+    await imageReady;
+    if (revealToken !== liveRevealToken) return;
+    playerLoader?.classList.add('hidden');
+    body.classList.remove('is-preparing-player');
+    document.getElementById('liveAuctionMain')?.classList.remove('is-revealing-player');
+    if (CURRENT_USER.role === 'admin') {
+      idleState?.classList.remove('hidden');
+      idleState?.classList.add('admin-code-active');
+      renderLiveAdminQueue();
+    }
+    if (photoFrame) {
+      void photoFrame.offsetWidth;
+      photoFrame.classList.add('photo-glow');
+    }
+    return;
+  }
+
+  await wait(waitForStart);
+  if (revealToken !== liveRevealToken) return;
+
+  revealCodeEl.className = 'code-value slot-reels';
+  revealCodeEl.setAttribute('aria-label', code);
+  revealCodeEl.innerHTML = makeCasinoCodeReels(code);
+
+  await wait(PLAYER_REVEAL_SPIN_MS);
+  if (revealToken !== liveRevealToken) return;
+
+  reveal.style.animation = `codeFlipOut ${PLAYER_REVEAL_FLIP_MS}ms cubic-bezier(0.16,1,0.3,1) forwards`;
+  await wait(PLAYER_REVEAL_FLIP_MS);
+  if (revealToken !== liveRevealToken) return;
+
+  reveal.classList.add('hidden');
+  playerLoader?.classList.remove('hidden');
+  await Promise.all([imageReady, wait(PLAYER_REVEAL_LOADER_MS)]);
+  if (revealToken !== liveRevealToken) return;
+
+  playerLoader?.classList.add('hidden');
+  body.classList.remove('is-preparing-player');
+  document.getElementById('liveAuctionMain')?.classList.remove('is-revealing-player');
+  if (CURRENT_USER.role === 'admin') {
+    idleState?.classList.remove('hidden');
+    idleState?.classList.add('admin-code-active');
+    renderLiveAdminQueue();
+  }
+  if (photoFrame) {
+    void photoFrame.offsetWidth;
+    photoFrame.classList.add('photo-glow');
+  }
 }
 
 function teamAvatarHTML(team, size = 34) {
@@ -1368,36 +1451,37 @@ socket.on('popup:open', player => {
   const revealToken = ++liveRevealToken;
   const imageUrl = player.image || 'https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=800&auto=format&fit=crop';
   const revealCodeEl = document.getElementById('liveRevealCode');
-  revealCodeEl.classList.remove('slot-reels');
-  revealCodeEl.removeAttribute('aria-label');
-  revealCodeEl.textContent = '';
+  resetLiveRevealUI(reveal, revealCodeEl);
   document.getElementById('liveRevealClue').textContent = 'Player code';
   const photoFrame = document.querySelector('#popupImgContainer .live-photo-frame');
   if (photoFrame) {
     photoFrame.classList.remove('photo-glow');
   }
   body.style.animation = '';
-  reveal.style.animation = '';
-  reveal.classList.add('hidden');
-  body.classList.add('is-preparing-player');
-  playerLoader?.classList.remove('hidden');
   document.getElementById('popupName').textContent = player.name;
   document.getElementById('popupCat').textContent = player.category;
   document.getElementById('popupImg').src = imageUrl;
-  Promise.all([wait(1300), preloadImage(imageUrl)]).then(() => {
-    if (revealToken !== liveRevealToken) return;
-    playerLoader?.classList.add('hidden');
-    body.classList.remove('is-preparing-player');
-    if (CURRENT_USER.role === 'admin') {
-      idleState?.classList.remove('hidden');
-      idleState?.classList.add('admin-code-active');
-      renderLiveAdminQueue();
-    }
-    if (photoFrame) {
-      void photoFrame.offsetWidth;
-      photoFrame.classList.add('photo-glow');
-    }
-  });
+  const imageReady = preloadImage(imageUrl);
+  if (isQueuedReveal) {
+    playQueuedPlayerReveal(player, { reveal, revealCodeEl, playerLoader, body, idleState, photoFrame, revealToken, imageReady });
+  } else {
+    body.classList.add('is-preparing-player');
+    playerLoader?.classList.remove('hidden');
+    Promise.all([wait(1300), imageReady]).then(() => {
+      if (revealToken !== liveRevealToken) return;
+      playerLoader?.classList.add('hidden');
+      body.classList.remove('is-preparing-player');
+      if (CURRENT_USER.role === 'admin') {
+        idleState?.classList.remove('hidden');
+        idleState?.classList.add('admin-code-active');
+        renderLiveAdminQueue();
+      }
+      if (photoFrame) {
+        void photoFrame.offsetWidth;
+        photoFrame.classList.add('photo-glow');
+      }
+    });
+  }
   
   const key = `${player.category}:${player.name}`;
   const currentBid = STATE.activeBids ? STATE.activeBids[key] : null;
@@ -1790,7 +1874,7 @@ window.revealShuffledCode = () => {
   }
   setTimeout(() => startAuctionFromQueue(next.category, next.name, next.base, next.image, next.code, true), 180);
 };
-window.startAuctionFromQueue = (cat, name, base, img, code = null, revealCode = false) => socket.emit('admin:select_player', { category: cat, name, base, currentPrice: base, image: img, code: code || getPlayerCode(cat, name), revealCode });
+window.startAuctionFromQueue = (cat, name, base, img, code = null, revealCode = false) => socket.emit('admin:select_player', { category: cat, name, base, currentPrice: base, image: img, code: code || getPlayerCode(cat, name), revealCode, revealStartedAt: revealCode ? Date.now() + PLAYER_REVEAL_DELAY_MS : null });
 
 function renderScoreboards() {
   ['auctionScoreboard','dashboardScoreboard','viewerScoreboard'].forEach(id => {
