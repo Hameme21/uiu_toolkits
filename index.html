@@ -1218,6 +1218,24 @@
                     <div style="flex:1; min-width: 100px; display: none;" id="t-waiver-box">General Waiver:<br><strong id="t-waiver-discount" style="color: #d32f2f; font-size: 1.1em;">-0</strong><br><small id="t-waiver-note" style="font-size: 0.8em; color: var(--primary-color); font-weight:bold;"></small></div>
                     <div style="flex:1; min-width: 100px;">Trimester Fee:<br><strong id="t-trim-fee" style="color: var(--primary-color); font-size: 1.1em;">0</strong></div>
                 </div>
+
+                <div id="t-installment-box" style="margin-top: 22px; padding-top: 18px; border-top: 1px dashed var(--border-color);">
+                    <div style="font-size: 1em; color: var(--text-main); font-weight: bold; margin-bottom: 12px;">Installment Plan</div>
+                    <div style="display: flex; gap: 12px; flex-wrap: wrap; text-align: left;">
+                        <div style="flex:1; min-width: 130px; background: var(--bg-container); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px;">
+                            <div style="color: var(--text-muted); font-size: 0.85em;">1st Installment (40%)</div>
+                            <strong id="t-installment-1" style="display: block; margin-top: 6px; color: var(--secondary-color); font-size: 1.1em;">0</strong>
+                        </div>
+                        <div style="flex:1; min-width: 130px; background: var(--bg-container); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px;">
+                            <div style="color: var(--text-muted); font-size: 0.85em;">2nd Installment (30%)</div>
+                            <strong id="t-installment-2" style="display: block; margin-top: 6px; color: var(--secondary-color); font-size: 1.1em;">0</strong>
+                        </div>
+                        <div style="flex:1; min-width: 130px; background: var(--bg-container); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px;">
+                            <div style="color: var(--text-muted); font-size: 0.85em;">3rd Installment (30%)</div>
+                            <strong id="t-installment-3" style="display: block; margin-top: 6px; color: var(--secondary-color); font-size: 1.1em;">0</strong>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -2488,6 +2506,17 @@
         document.getElementById('t-tris-left').innerText = trisLeft > 0 ? trisLeft : 0;
     }
 
+    function updateInstallmentPlan(totalFee) {
+        const roundAmount = amount => Math.round((amount + Number.EPSILON) * 100) / 100;
+        const firstInstallment = roundAmount(totalFee * 0.40);
+        const secondInstallment = roundAmount(totalFee * 0.30);
+        const thirdInstallment = roundAmount(totalFee - firstInstallment - secondInstallment);
+
+        document.getElementById('t-installment-1').innerText = firstInstallment.toLocaleString('en-IN') + ' ৳';
+        document.getElementById('t-installment-2').innerText = secondInstallment.toLocaleString('en-IN') + ' ৳';
+        document.getElementById('t-installment-3').innerText = thirdInstallment.toLocaleString('en-IN') + ' ৳';
+    }
+
     function calculateTuition() {
         const currentCredits = parseFloat(document.getElementById('t-current-credits').value) || 0;
         const costPerCredit = parseFloat(document.getElementById('t-cost-per-credit').value) || 6500;
@@ -2529,6 +2558,7 @@
         document.getElementById('t-base-tuition').innerText = baseTuition.toLocaleString('en-IN') + ' ৳';
         document.getElementById('t-trim-fee').innerText = trimesterFee.toLocaleString('en-IN') + ' ৳';
         document.getElementById('t-total-fee').innerText = totalFee.toLocaleString('en-IN') + ' ৳';
+        updateInstallmentPlan(totalFee);
         
         const sBox = document.getElementById('t-scholarship-box');
         if (displayScholarshipDiscount > 0) {
