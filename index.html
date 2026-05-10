@@ -607,14 +607,14 @@
         .calendar-wrapper { border-radius: 12px; overflow-x: auto; -webkit-overflow-scrolling: touch; border: 1px solid var(--border-color); box-shadow: var(--shadow); }
         
         .calendar-grid-header {
-            display: grid; grid-template-columns: repeat(7, 1fr); 
+            display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); 
             background: var(--gradient-primary); color: white; 
             text-align: center; font-weight: bold; padding: 15px 0;
             min-width: 650px; font-size: 1.1em;
         }
         
         .calendar-grid {
-            display: grid; grid-template-columns: repeat(7, 1fr); 
+            display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); 
             background: var(--border-color); gap: 1px;
             min-width: 650px; 
         }
@@ -622,7 +622,7 @@
         .calendar-day {
             background: var(--bg-container); min-height: 110px; 
             padding: 10px; display: flex; flex-direction: column; gap: 6px;
-            transition: background 0.3s;
+            transition: background 0.3s; min-width: 0;
         }
         .calendar-day:hover { background: var(--bg-body); }
         .calendar-day.empty { background: var(--bg-body); opacity: 0.6; }
@@ -795,38 +795,62 @@
             }
 
             .calendar-controls {
-                gap: 10px;
-                padding: 12px;
+                gap: 8px;
+                padding: 10px;
+                margin-bottom: 12px;
+                border-radius: 10px;
             }
 
             .calendar-controls h2 {
-                font-size: 1.05rem;
+                font-size: 0.98rem;
                 text-align: center;
+                line-height: 1.2;
+                min-width: 0;
             }
 
             .calendar-controls button {
-                padding: 10px 12px;
-                min-height: 42px;
+                padding: 8px 10px;
+                min-height: 36px;
+                font-size: 0.82rem;
+            }
+
+            .calendar-wrapper {
+                overflow-x: hidden;
+                border-radius: 10px;
             }
 
             .calendar-grid-header {
-                font-size: 0.85rem;
-                min-width: 560px;
-                padding: 10px 0;
+                font-size: 0.68rem;
+                min-width: 0;
+                width: 100%;
+                padding: 7px 0;
             }
 
             .calendar-grid {
-                min-width: 560px;
+                min-width: 0;
+                width: 100%;
             }
 
             .calendar-day {
-                min-height: 84px;
-                padding: 6px;
+                min-height: 64px;
+                padding: 4px;
+                gap: 3px;
+                overflow: hidden;
+            }
+
+            .day-num {
+                font-size: 0.82rem;
+                margin-bottom: 1px;
             }
 
             .event-badge {
-                font-size: 0.68rem;
-                padding: 4px;
+                font-size: 0.54rem;
+                line-height: 1.15;
+                padding: 2px 3px;
+                border-left-width: 2px;
+                border-radius: 4px;
+                max-height: 2.5em;
+                overflow: hidden;
             }
 
             .gpa-value {
@@ -867,13 +891,25 @@
                 padding: 7px 6px;
             }
 
-            .calendar-grid-header,
-            .calendar-grid {
-                min-width: 500px;
+            .calendar-day {
+                min-height: 54px;
+                padding: 3px;
+                gap: 2px;
             }
 
-            .calendar-day {
-                min-height: 76px;
+            .calendar-grid-header {
+                font-size: 0.6rem;
+                padding: 6px 0;
+            }
+
+            .day-num {
+                font-size: 0.72rem;
+            }
+
+            .event-badge {
+                font-size: 0.48rem;
+                padding: 1px 2px;
+                max-height: 2.35em;
             }
         }
     </style>
