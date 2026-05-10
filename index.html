@@ -780,18 +780,80 @@
                 padding: 8px;
             }
 
+            #exam-section .table-scroll {
+                overflow-x: hidden;
+            }
+
+            #exam-section .table-scroll .routine-table,
+            #unifiedRoutineTable {
+                min-width: 0 !important;
+                width: 100%;
+                table-layout: fixed;
+            }
+
+            #exam-section .routine-table th,
+            #exam-section .routine-table td {
+                font-size: 0.68rem;
+                padding: 5px 3px;
+            }
+
+            #exam-section .routine-table th small {
+                font-size: 0.62rem;
+                line-height: 1.15;
+            }
+
             .added-course {
                 padding: 9px 26px 9px 9px;
                 font-size: 0.82rem;
             }
 
+            #exam-section .added-course {
+                margin-top: 4px;
+                padding: 5px 14px 5px 5px;
+                border-left-width: 3px;
+                border-radius: 4px;
+                font-size: 0.58rem;
+                line-height: 1.2;
+            }
+
+            #exam-section .remove-btn {
+                top: 1px;
+                right: 4px;
+                font-size: 1rem;
+            }
+
             .timeline-row-cell {
-                height: 78px;
+                height: 60px;
             }
 
             .timeline-event {
-                font-size: 0.72rem;
-                padding: 5px 8px;
+                top: 3px;
+                bottom: 3px;
+                font-size: 0.54rem;
+                line-height: 1.15;
+                padding: 4px 14px 4px 4px;
+                border-left-width: 2px;
+                border-radius: 4px;
+            }
+
+            #unifiedRoutineTable th {
+                font-size: 0.5rem !important;
+                line-height: 1.1;
+                padding: 5px 1px !important;
+                overflow-wrap: anywhere;
+            }
+
+            #unifiedRoutineTable .day-col {
+                font-size: 0.58rem;
+                line-height: 1.1;
+                padding: 4px 1px !important;
+                overflow-wrap: anywhere;
+            }
+
+            .remove-btn-timeline {
+                top: 0;
+                right: 3px;
+                font-size: 0.9em;
             }
 
             .calendar-controls {
@@ -883,12 +945,50 @@
                 min-width: 560px;
             }
 
+            #exam-section .table-scroll .routine-table,
+            #unifiedRoutineTable {
+                min-width: 0 !important;
+            }
+
             .routine-table th,
             .routine-table td,
             .cgpa-table th,
             .cgpa-table td {
                 font-size: 0.76rem;
                 padding: 7px 6px;
+            }
+
+            #exam-section .routine-table th,
+            #exam-section .routine-table td {
+                font-size: 0.58rem;
+                padding: 4px 2px;
+            }
+
+            #exam-section .routine-table th small {
+                font-size: 0.52rem;
+            }
+
+            #exam-section .added-course {
+                font-size: 0.5rem;
+                padding: 4px 12px 4px 4px;
+            }
+
+            #unifiedRoutineTable th {
+                font-size: 0.44rem !important;
+                padding: 4px 1px !important;
+            }
+
+            #unifiedRoutineTable .day-col {
+                font-size: 0.5rem;
+            }
+
+            .timeline-row-cell {
+                height: 50px;
+            }
+
+            .timeline-event {
+                font-size: 0.47rem;
+                padding: 3px 11px 3px 3px;
             }
 
             .calendar-day {
