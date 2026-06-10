@@ -9,6 +9,7 @@
 Download the latest version of the Auction app for your platform:
 
 📱 [Download for Android (.apk)](https://github.com/Hameme21/uiu_toolkits/releases/download/ApkV2.1.0/app-release.apk)
+💻 [Open in Browser(.exe)](https://github.com/Hameme21/uiu_toolkits/releases/download/exeV2.1.0/UIU.Toolkits.Setup.1.0.0.exe)
 
 ## About UIU Toolkits
 UIU Toolkits is an all-in-one academic utility platform engineered explicitly for Computer Science and Engineering (CSE) students at United International University (UIU). Navigating university life requires juggling complex class schedules, tracking prerequisites, avoiding final exam clashes, and keeping an eye on tuition installments—tasks that can quickly become overwhelming.
