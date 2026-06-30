@@ -648,6 +648,215 @@
         .event-exam { background-color: var(--same-day-bg); border-left-color: var(--same-day-border); color: #b08100; }
         body.dark-mode .event-exam { color: #ffca28; }
 
+        /* --- QUESTION BANK --- */
+        .question-bank-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1.05fr) minmax(280px, 0.95fr);
+            gap: 22px;
+            align-items: start;
+        }
+
+        .qb-mode-toggle {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 0 0 22px;
+        }
+
+        .qb-mode-btn {
+            width: auto;
+            min-width: 190px;
+            margin-top: 0;
+            background: transparent;
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+        }
+
+        .qb-mode-btn.active {
+            background: var(--gradient-primary);
+            color: #ffffff;
+            border-color: transparent;
+        }
+
+        .qb-card {
+            border: 1px solid var(--border-color);
+            background: var(--bg-container);
+            border-radius: 14px;
+            padding: 22px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.04);
+        }
+
+        .qb-card h2,
+        .qb-card h3 {
+            color: var(--secondary-color);
+            margin-top: 0;
+        }
+
+        .qb-form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .qb-form-grid .full {
+            grid-column: 1 / -1;
+        }
+
+        .qb-field label {
+            display: block;
+            color: var(--text-muted);
+            font-weight: 700;
+            margin-bottom: 6px;
+            font-size: 0.9rem;
+        }
+
+        .qb-file-drop {
+            border: 2px dashed var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            background: var(--bg-body);
+        }
+
+        .qb-muted {
+            color: var(--text-muted);
+            font-size: 0.92rem;
+            line-height: 1.55;
+        }
+
+        .qb-status {
+            display: none;
+            margin-top: 14px;
+            padding: 12px 14px;
+            border-radius: 10px;
+            font-weight: 700;
+        }
+
+        .qb-status.show {
+            display: block;
+        }
+
+        .qb-status.success {
+            background: #e8f5e9;
+            color: #1b5e20;
+            border: 1px solid #a5d6a7;
+        }
+
+        .qb-status.error {
+            background: var(--clash-bg);
+            color: #d32f2f;
+            border: 1px solid var(--clash-border);
+        }
+
+        .qb-status.info {
+            background: var(--course-added-bg);
+            color: var(--secondary-color);
+            border: 1px solid var(--primary-color);
+        }
+
+        body.dark-mode .qb-status.success {
+            background: #102d17;
+            color: #9be7a6;
+            border-color: #245d2e;
+        }
+
+        .qb-toolbar {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .qb-toolbar input,
+        .qb-toolbar select {
+            min-width: 180px;
+        }
+
+        .qb-list {
+            display: grid;
+            gap: 14px;
+        }
+
+        .qb-item {
+            border: 1px solid var(--border-color);
+            border-left: 5px solid var(--primary-color);
+            background: var(--bg-container);
+            border-radius: 12px;
+            padding: 16px;
+        }
+
+        .qb-item h3 {
+            margin: 0 0 8px 0;
+            color: var(--primary-color);
+        }
+
+        .qb-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 10px 0;
+        }
+
+        .qb-pill {
+            background: var(--course-added-bg);
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            border-radius: 999px;
+            padding: 5px 10px;
+            font-size: 0.82rem;
+            font-weight: 700;
+        }
+
+        .qb-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .qb-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 40px;
+            padding: 9px 14px;
+            border-radius: 8px;
+            background: var(--gradient-secondary);
+            color: #ffffff;
+            text-decoration: none;
+            font-weight: 800;
+        }
+
+        .qb-link.secondary {
+            background: var(--gradient-primary);
+        }
+
+        .qb-empty {
+            text-align: center;
+            color: var(--text-muted);
+            padding: 28px 16px;
+            border: 1px dashed var(--border-color);
+            border-radius: 12px;
+            background: var(--bg-body);
+        }
+
+        .qb-admin-panel {
+            margin-top: 26px;
+            border-top: 3px solid var(--border-color);
+            padding-top: 22px;
+        }
+
+        .qb-admin-auth {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
         .calendar-day.today {
             background-color: var(--course-added-bg);
             border: 2px solid var(--primary-color);
@@ -733,7 +942,9 @@
             }
 
             .dash-grid,
-            .planner-grid {
+            .planner-grid,
+            .question-bank-grid,
+            .qb-form-grid {
                 grid-template-columns: 1fr;
                 gap: 14px;
                 margin-top: 24px;
@@ -743,7 +954,8 @@
             .section-box,
             .tri-card,
             .planner-select-wrapper,
-            .result-box {
+            .result-box,
+            .qb-card {
                 padding: 18px 14px;
                 border-radius: 10px;
             }
@@ -1036,6 +1248,7 @@
         <button class="nav-btn" onclick="switchTab('calendar')" id="btn-calendar">Calendar</button>
         <button class="nav-btn" onclick="switchTab('planner')" id="btn-planner">Course Planner</button>
         <button class="nav-btn" onclick="switchTab('tuition')" id="btn-tuition">Tuition Calc</button>
+        <button class="nav-btn" onclick="switchTab('questionbank')" id="btn-questionbank">Question Bank</button>
         <button class="nav-btn" onclick="toggleTheme()" id="btn-theme" title="Toggle Theme">💻</button>
     </div>
 </nav>
@@ -1078,6 +1291,11 @@
                 <div class="dash-icon">💰</div>
                 <h3>Tuition Calc</h3>
                 <p>Estimate trimester costs, apply UIU waivers, and plan your budget easily.</p>
+            </div>
+            <div class="dash-card" onclick="switchTab('questionbank')">
+                <div class="dash-icon">📚</div>
+                <h3>Question Bank</h3>
+                <p>Upload previous question PDFs for review and browse approved papers by course.</p>
             </div>
         </div>
     </div>
@@ -1459,6 +1677,99 @@
         <h2 style="color: var(--secondary-color); margin-top: 50px; border-bottom: 3px solid var(--border-color); padding-bottom: 10px; font-size: 1.8em;">🔬 Elective Tracks (Majors)</h2>
         <div id="electiveGrid" class="planner-grid">
             </div>
+    </div>
+
+    <div id="questionbank-section" class="tool-section">
+        <h1 class="gradient-text">Question Bank</h1>
+        <p class="subtitle">Submit previous question PDFs for approval and browse verified papers.</p>
+
+        <div id="qbSetupNotice" class="disclaimer-box">
+            Question Bank is connecting to Firebase and Cloudinary.
+        </div>
+
+        <div class="qb-mode-toggle" role="tablist" aria-label="Question Bank tools">
+            <button type="button" class="btn-action qb-mode-btn active" id="qbUploadModeBtn">Upload Questions</button>
+            <button type="button" class="btn-action qb-mode-btn" id="qbSearchModeBtn">Search Questions</button>
+        </div>
+
+        <div id="qbUploadPanel" class="qb-card">
+            <h2>Upload Question Paper</h2>
+            <p class="qb-muted">Submit a question PDF, and optionally a solution PDF, for admin approval. Use your UIU university email only.</p>
+
+            <form id="questionSubmitForm">
+                <div class="qb-form-grid">
+                    <div class="qb-field">
+                        <label for="qbSubmitterEmail">University Email</label>
+                        <input type="email" id="qbSubmitterEmail" placeholder="ahamim2510370@bscse.uiu.ac.bd" required>
+                    </div>
+                    <div class="qb-field">
+                        <label for="qbTrimester">Trimester</label>
+                        <select id="qbTrimester" required>
+                            <option value="">Select trimester</option>
+                            <option value="261">261 - Spring 2026</option>
+                            <option value="262">262 - Summer 2026</option>
+                            <option value="263">263 - Fall 2026</option>
+                        </select>
+                    </div>
+                    <div class="qb-field full">
+                        <label for="qbCourseSearch">Course Name or Code</label>
+                        <input type="text" id="qbCourseSearch" list="qbCourseOptions" placeholder="Search from routine, e.g. CSE 3521 or Database" required autocomplete="off">
+                        <datalist id="qbCourseOptions"></datalist>
+                    </div>
+                    <div class="qb-field">
+                        <label for="qbExamType">Exam Type</label>
+                        <select id="qbExamType" required>
+                            <option value="">Select exam type</option>
+                            <option value="Midterm">Midterm</option>
+                            <option value="Final">Final</option>
+                            <option value="Quiz">Quiz</option>
+                            <option value="Assignment">Assignment</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="qb-field">
+                        <label for="qbPdfFile">Question PDF</label>
+                        <div class="qb-file-drop">
+                            <input type="file" id="qbPdfFile" accept="application/pdf,.pdf" required>
+                            <p class="qb-muted" style="margin: 8px 0 0;">Required PDF. Recommended max size: 25 MB.</p>
+                        </div>
+                    </div>
+                    <div class="qb-field full">
+                        <label for="qbSolutionFile">Solution PDF (Optional)</label>
+                        <div class="qb-file-drop">
+                            <input type="file" id="qbSolutionFile" accept="application/pdf,.pdf">
+                            <p class="qb-muted" style="margin: 8px 0 0;">Attach a solution PDF if you have one.</p>
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="btn-action btn-calc" id="qbSubmitBtn">Submit for Approval</button>
+                <div id="qbSubmitStatus" class="qb-status"></div>
+            </form>
+        </div>
+
+        <div id="qbSearchPanel" class="qb-card" style="display: none;">
+            <h2>Search Approved Questions</h2>
+            <div class="qb-toolbar">
+                <input type="text" id="qbSearchInput" list="qbCourseOptions" placeholder="Search course name or code..." aria-label="Search approved question bank">
+                <select id="qbTrimesterFilter" aria-label="Filter by trimester">
+                    <option value="">All Trimesters</option>
+                    <option value="261">261 - Spring 2026</option>
+                    <option value="262">262 - Summer 2026</option>
+                    <option value="263">263 - Fall 2026</option>
+                </select>
+                <select id="qbTypeFilter" aria-label="Filter by exam type">
+                    <option value="">All Types</option>
+                    <option value="Midterm">Midterm</option>
+                    <option value="Final">Final</option>
+                    <option value="Quiz">Quiz</option>
+                    <option value="Assignment">Assignment</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            <div id="approvedQuestionList" class="qb-list">
+                <div class="qb-empty">Loading approved question papers...</div>
+            </div>
+        </div>
     </div>
 
     <footer class="site-footer">&copy;copyright&copy; 2026 Hameme21
@@ -2862,6 +3173,281 @@
             }
         });
     };
+</script>
+
+<script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js';
+    import {
+        addDoc,
+        collection,
+        getFirestore,
+        onSnapshot,
+        query,
+        serverTimestamp,
+        where
+    } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js';
+
+    const questionBankFirebaseConfig = {
+        apiKey: 'AIzaSyBVWZIs2xgY0TDUPnhkYKnWGR3x9u5zrLM',
+        authDomain: 'uiu-toolkits.firebaseapp.com',
+        projectId: 'uiu-toolkits',
+        storageBucket: 'uiu-toolkits.firebasestorage.app',
+        messagingSenderId: '1036001106248'
+    };
+
+    const questionBankCloudinaryConfig = {
+        cloudName: 'drdfnqwgp',
+        uploadPreset: 'uiu_toolkits',
+        folder: 'uiu-toolkits/question-bank'
+    };
+
+    const QUESTION_COLLECTION = 'questionPapers';
+    const MAX_PDF_SIZE_BYTES = 25 * 1024 * 1024;
+
+    let qbDb = null;
+    let qbApprovedPapers = [];
+    let unsubscribeApproved = null;
+
+    const qbConfigReady = isQuestionBankConfigReady();
+
+    function isQuestionBankConfigReady() {
+        return Boolean(
+            questionBankFirebaseConfig.apiKey &&
+            !questionBankFirebaseConfig.apiKey.startsWith('PASTE_') &&
+            questionBankFirebaseConfig.projectId &&
+            !questionBankFirebaseConfig.projectId.startsWith('PASTE_') &&
+            questionBankCloudinaryConfig.cloudName &&
+            !questionBankCloudinaryConfig.cloudName.startsWith('PASTE_') &&
+            questionBankCloudinaryConfig.uploadPreset &&
+            !questionBankCloudinaryConfig.uploadPreset.startsWith('PASTE_')
+        );
+    }
+
+    function getQbElement(id) {
+        return document.getElementById(id);
+    }
+
+    function setQbStatus(elementId, message, type = 'info') {
+        const el = getQbElement(elementId);
+        if (!el) return;
+        el.textContent = message;
+        el.className = `qb-status ${type} show`;
+    }
+
+    function normalizeText(value) {
+        return String(value || '').trim();
+    }
+
+    function normalizeCourseCode(value) {
+        return normalizeText(value).replace(/\s+/g, ' ').toUpperCase();
+    }
+
+    function formatFirestoreDate(value) {
+        if (!value) return 'Just now';
+        const date = typeof value.toDate === 'function' ? value.toDate() : new Date(value);
+        return date.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
+        });
+    }
+
+    function escapeHtml(value) {
+        return String(value || '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+
+    function renderQuestionCard(paper) {
+        return `
+            <article class="qb-item">
+                <h3>${escapeHtml(paper.title)}</h3>
+                <div class="qb-meta">
+                    <span class="qb-pill">${escapeHtml(paper.courseCode)}</span>
+                    <span class="qb-pill">${escapeHtml(paper.examType)}</span>
+                    <span class="qb-pill">${escapeHtml(paper.trimester)}</span>
+                    <span class="qb-pill">${formatFirestoreDate(paper.submittedAt)}</span>
+                </div>
+                <div class="qb-actions">
+                    <a class="qb-link" href="${escapeHtml(paper.pdfUrl)}" target="_blank" rel="noopener">Open PDF</a>
+                </div>
+            </article>
+        `;
+    }
+
+    function renderApprovedQuestions() {
+        const list = getQbElement('approvedQuestionList');
+        if (!list) return;
+
+        const search = normalizeText(getQbElement('qbSearchInput')?.value).toLowerCase();
+        const type = normalizeText(getQbElement('qbTypeFilter')?.value);
+
+        const filtered = qbApprovedPapers.filter(paper => {
+            const haystack = `${paper.title} ${paper.courseCode} ${paper.trimester} ${paper.examType}`.toLowerCase();
+            const matchesSearch = !search || haystack.includes(search);
+            const matchesType = !type || paper.examType === type;
+            return matchesSearch && matchesType;
+        });
+
+        if (filtered.length === 0) {
+            list.innerHTML = '<div class="qb-empty">No approved question papers match your search yet.</div>';
+            return;
+        }
+
+        list.innerHTML = filtered.map(paper => renderQuestionCard(paper)).join('');
+    }
+
+    function paperFromDoc(snapshot) {
+        return {
+            id: snapshot.id,
+            ...snapshot.data()
+        };
+    }
+
+    function sortNewestFirst(a, b) {
+        const aMs = a.submittedAt?.toMillis ? a.submittedAt.toMillis() : 0;
+        const bMs = b.submittedAt?.toMillis ? b.submittedAt.toMillis() : 0;
+        return bMs - aMs;
+    }
+
+    function listenForApprovedQuestions() {
+        if (unsubscribeApproved) unsubscribeApproved();
+        const approvedQuery = query(
+            collection(qbDb, QUESTION_COLLECTION),
+            where('status', '==', 'approved')
+        );
+
+        unsubscribeApproved = onSnapshot(approvedQuery, snapshot => {
+            qbApprovedPapers = snapshot.docs.map(paperFromDoc).sort(sortNewestFirst);
+            renderApprovedQuestions();
+        }, error => {
+            console.error('Failed to load approved question papers:', error);
+            const list = getQbElement('approvedQuestionList');
+            if (list) list.innerHTML = '<div class="qb-empty">Could not load approved papers. Check Firestore rules and config.</div>';
+        });
+    }
+
+    async function uploadPdfToCloudinary(file, paperTitle, courseCode) {
+        const endpoint = `https://api.cloudinary.com/v1_1/${questionBankCloudinaryConfig.cloudName}/raw/upload`;
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('upload_preset', questionBankCloudinaryConfig.uploadPreset);
+        formData.append('folder', questionBankCloudinaryConfig.folder);
+        formData.append('tags', 'uiu-toolkits,question-bank,pending-review');
+        formData.append('context', `caption=${paperTitle}|course=${courseCode}`);
+
+        const response = await fetch(endpoint, {
+            method: 'POST',
+            body: formData
+        });
+
+        const data = await response.json();
+        if (!response.ok) {
+            throw new Error(data.error?.message || 'Cloudinary upload failed.');
+        }
+
+        return data;
+    }
+
+    async function submitQuestionPaper(event) {
+        event.preventDefault();
+
+        if (!qbConfigReady) {
+            setQbStatus('qbSubmitStatus', 'Question Bank is not configured yet. Add Firebase and Cloudinary settings first.', 'error');
+            return;
+        }
+
+        const submitButton = getQbElement('qbSubmitBtn');
+        const file = getQbElement('qbPdfFile')?.files?.[0];
+        const submitterName = normalizeText(getQbElement('qbSubmitterName')?.value);
+        const submitterId = normalizeText(getQbElement('qbSubmitterId')?.value);
+        const courseCode = normalizeCourseCode(getQbElement('qbCourseCode')?.value);
+        const trimester = normalizeText(getQbElement('qbTrimester')?.value);
+        const examType = normalizeText(getQbElement('qbExamType')?.value);
+        const title = normalizeText(getQbElement('qbTitle')?.value);
+
+        if (!file) {
+            setQbStatus('qbSubmitStatus', 'Please choose a PDF file to submit.', 'error');
+            return;
+        }
+
+        if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
+            setQbStatus('qbSubmitStatus', 'Only PDF files are accepted.', 'error');
+            return;
+        }
+
+        if (file.size > MAX_PDF_SIZE_BYTES) {
+            setQbStatus('qbSubmitStatus', 'PDF is too large. Please keep it under 25 MB.', 'error');
+            return;
+        }
+
+        try {
+            submitButton.disabled = true;
+            submitButton.textContent = 'Uploading PDF...';
+            setQbStatus('qbSubmitStatus', 'Uploading PDF to Cloudinary. Please wait...', 'info');
+
+            const cloudinaryAsset = await uploadPdfToCloudinary(file, title, courseCode);
+
+            submitButton.textContent = 'Saving for review...';
+            await addDoc(collection(qbDb, QUESTION_COLLECTION), {
+                title,
+                courseCode,
+                trimester,
+                examType,
+                submitterName,
+                submitterId,
+                status: 'pending',
+                pdfUrl: cloudinaryAsset.secure_url,
+                cloudinaryPublicId: cloudinaryAsset.public_id,
+                cloudinaryAssetId: cloudinaryAsset.asset_id || '',
+                bytes: cloudinaryAsset.bytes || file.size,
+                originalFilename: file.name,
+                submittedAt: serverTimestamp(),
+                approvedAt: null,
+                approvedByUid: null,
+                rejectedAt: null,
+                rejectedByUid: null
+            });
+
+            event.target.reset();
+            setQbStatus('qbSubmitStatus', 'Submitted successfully. It will appear after admin approval.', 'success');
+        } catch (error) {
+            console.error('Question submission failed:', error);
+            setQbStatus('qbSubmitStatus', error.message || 'Submission failed. Please try again.', 'error');
+        } finally {
+            submitButton.disabled = false;
+            submitButton.textContent = 'Submit for Approval';
+        }
+    }
+
+    function bindQuestionBankEvents() {
+        getQbElement('questionSubmitForm')?.addEventListener('submit', submitQuestionPaper);
+        getQbElement('qbSearchInput')?.addEventListener('input', renderApprovedQuestions);
+        getQbElement('qbTypeFilter')?.addEventListener('change', renderApprovedQuestions);
+    }
+
+    function initializeQuestionBank() {
+        bindQuestionBankEvents();
+
+        const submitButton = getQbElement('qbSubmitBtn');
+        if (!qbConfigReady) {
+            if (submitButton) submitButton.disabled = true;
+            setQbStatus('qbSubmitStatus', 'Setup needed: add Firebase config and Cloudinary unsigned upload preset in index.html.', 'info');
+            return;
+        }
+
+        getQbElement('qbSetupNotice')?.remove();
+
+        const app = initializeApp(questionBankFirebaseConfig);
+        qbDb = getFirestore(app);
+
+        listenForApprovedQuestions();
+    }
+
+    initializeQuestionBank();
 </script>
 
 </body>
