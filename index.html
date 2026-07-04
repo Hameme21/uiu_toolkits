@@ -1701,13 +1701,13 @@
 
         <div id="qbUploadPanel" class="qb-card">
             <h2>Upload Question Paper</h2>
-            <p class="qb-muted">Submit a question PDF, and optionally a solution PDF, for admin approval. Use your UIU university email only.</p>
+            <p class="qb-muted">Submit a question PDF, and optionally a solution PDF, for admin approval. Use an email you can be contacted at.</p>
 
             <form id="questionSubmitForm">
                 <div class="qb-form-grid">
                     <div class="qb-field">
-                        <label for="qbSubmitterEmail">University Email</label>
-                        <input type="email" id="qbSubmitterEmail" placeholder="ahamim2510370@bscse.uiu.ac.bd" required>
+                        <label for="qbSubmitterEmail">Contact Email</label>
+                        <input type="email" id="qbSubmitterEmail" placeholder="yourname@gmail.com" required>
                     </div>
                     <div class="qb-field">
                         <label for="qbTrimester">Trimester</label>
@@ -3256,8 +3256,8 @@
         return normalizeText(value).replace(/\s+/g, ' ').toUpperCase();
     }
 
-    function isUniversityEmail(value) {
-        return /^[a-z0-9._%+-]+@[a-z0-9-]+\.uiu\.ac\.bd$/i.test(normalizeText(value));
+    function isValidContactEmail(value) {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/i.test(normalizeText(value));
     }
 
     function getEmailHandle(email) {
@@ -3584,8 +3584,8 @@
             return;
         }
 
-        if (!isUniversityEmail(submitterEmail)) {
-            setQbStatus('qbSubmitStatus', 'Use your UIU university email ending like @bscse.uiu.ac.bd.', 'error');
+        if (!isValidContactEmail(submitterEmail)) {
+            setQbStatus('qbSubmitStatus', 'Enter a valid contact email, such as your Gmail or UIU email.', 'error');
             return;
         }
 
@@ -3620,6 +3620,8 @@
                 trimester,
                 examType,
                 submitterEmail,
+                contactEmail: submitterEmail,
+                providedEmail: submitterEmail,
                 submitterHandle: getEmailHandle(submitterEmail),
                 status: 'pending',
                 pdfUrl: cloudinaryAsset.secure_url,
@@ -3657,7 +3659,7 @@
             const adminMailLink = `mailto:${ADMIN_NOTIFICATION_EMAIL}?subject=${encodeURIComponent(mailSubject)}&body=${encodeURIComponent(mailBody)}`;
             setQbStatusHtml(
                 'qbSubmitStatus',
-                `Submitted successfully. It will appear after admin approval. <a class="qb-link" href="${adminMailLink}">Open email draft to notify admin</a>.`,
+                `Submitted successfully. Your upload is pending admin approval and will show in the admin panel with ${escapeHtml(submitterEmail)}. <a class="qb-link" href="${adminMailLink}">Open email draft to notify admin</a>.`,
                 'success'
             );
         } catch (error) {
