@@ -3708,11 +3708,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 status: 'pending',
                 pdfUrl: cloudinaryAsset.secure_url,
                 cloudinaryPublicId: cloudinaryAsset.public_id,
+                cloudinaryResourceType: 'raw',
                 cloudinaryAssetId: cloudinaryAsset.asset_id || '',
                 bytes: cloudinaryAsset.bytes || file.size,
                 originalFilename: file.name,
                 solutionPdfUrl: solutionAsset?.secure_url || '',
                 solutionCloudinaryPublicId: solutionAsset?.public_id || '',
+                solutionCloudinaryResourceType: solutionAsset ? 'raw' : '',
                 solutionCloudinaryAssetId: solutionAsset?.asset_id || '',
                 solutionBytes: solutionAsset?.bytes || (solutionFile ? solutionFile.size : 0),
                 solutionOriginalFilename: solutionFile?.name || '',
@@ -3804,4 +3806,3 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
-
