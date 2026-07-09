@@ -1780,87 +1780,6 @@
 
 <script>
 
-    async function uploadQuestionBankItem(event) {
-    // Stops the browser from refreshing and killing the network request
-    event.preventDefault();
-
-    // Elements identified directly from your image_aef49e.png
-    const formElement = document.getElementById('questionsSubmitForm');
-    const emailElement = document.getElementById('qbSubmitterEmail');
-    const termElement = document.getElementById('qbTrimester');
-    
-    // These elements are cut off at the bottom of your image_aef49e.png.
-    // Check your HTML file below the trimester dropdown and verify their exact IDs.
-    const courseElement = document.getElementById('qbCourseName') || document.querySelector('[id*="Course"]'); 
-    const yearElement = document.getElementById('qbYear') || document.querySelector('[id*="Year"]');
-
-    // Add a status element inside your "qbUploadPanel" card if you want to see live status messages
-    let statusLabel = document.getElementById('upload-status-indicator');
-    if (!statusLabel && formElement) {
-        statusLabel = document.createElement('div');
-        statusLabel.id = 'upload-status-indicator';
-        statusLabel.style.marginTop = '15px';
-        statusLabel.style.fontWeight = 'bold';
-        formElement.appendChild(statusLabel);
-    }
-
-    const submitButton = formElement ? formElement.querySelector('button[type="submit"]') : null;
-
-    if (statusLabel) {
-        statusLabel.innerText = "Upload Pending...";
-        statusLabel.style.color = "#b06000";
-    }
-    if (submitButton) submitButton.disabled = true;
-
-    // Package the form data using the exact property keys expected by your backend server
-    const payload = { 
-        courseName: courseElement ? courseElement.value : "Unknown Course", 
-        trm: termElement ? termElement.value : "Unknown Term", 
-        year: yearElement ? yearElement.value : "2026", 
-        adminEmail: emailElement ? emailElement.value : "", 
-        fileUrl: "https://drive.google.com/samplefile" 
-    };
-
-    try {
-        const response = await fetch('https://uiu-toolkits-admin.onrender.com/api/questions/upload', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        });
-
-        if (!response.ok) throw new Error(`Server status: ${response.status}`);
-
-        const result = await response.json();
-
-        if (result.success) {
-            if (statusLabel) {
-                statusLabel.innerText = "Synced Successfully";
-                statusLabel.style.color = "#137333";
-            }
-            if (formElement) formElement.reset();
-        } else {
-            throw new Error(result.error || 'Server rejected request');
-        }
-    } catch (error) {
-        console.error("Sync failed:", error);
-        if (statusLabel) {
-            statusLabel.innerText = `Sync Failed: ${error.message}`;
-            statusLabel.style.color = "#c5221f";
-        }
-    } finally {
-        if (submitButton) submitButton.disabled = false;
-    }
-}
-
-// Attach the listener to your explicit form ID from image_aef49e.png
-document.addEventListener('DOMContentLoaded', () => {
-    const form = document.getElementById('questionsSubmitForm');
-    if (form) {
-        form.addEventListener('submit', uploadQuestionBankItem);
-    } else {
-        console.error("Could not find form element with ID 'questionsSubmitForm'");
-    }
-});
     // --- DATA: UIU CSE STANDARD CURRICULUM ---
   const uiuCurriculum = {
         "1st Trimester": [
@@ -3308,9 +3227,12 @@ document.addEventListener('DOMContentLoaded', () => {
         measurementId: 'G-REX8XMHSRC'
     };
 
+    const questionBankBackendConfig = {
+        apiBase: 'https://uiu-toolkits-admin.onrender.com'
+    };
+
     const questionBankCloudinaryConfig = {
         cloudName: 'drdfnqwgp',
-        uploadPreset: 'uiu_toolkits',
         folder: 'uiu-toolkits/question-bank'
     };
 
@@ -3324,6 +3246,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const qbConfigReady = isQuestionBankConfigReady();
 
+    function getBackendApiUrl(path) {
+        const base = normalizeText(questionBankBackendConfig.apiBase).replace(/\/+$/, '');
+        return `${base}${path}`;
+    }
+
     function isQuestionBankConfigReady() {
         return Boolean(
             questionBankFirebaseConfig.apiKey &&
@@ -3331,9 +3258,7 @@ document.addEventListener('DOMContentLoaded', () => {
             questionBankFirebaseConfig.projectId &&
             !questionBankFirebaseConfig.projectId.startsWith('PASTE_') &&
             questionBankCloudinaryConfig.cloudName &&
-            !questionBankCloudinaryConfig.cloudName.startsWith('PASTE_') &&
-            questionBankCloudinaryConfig.uploadPreset &&
-            !questionBankCloudinaryConfig.uploadPreset.startsWith('PASTE_')
+            !questionBankCloudinaryConfig.cloudName.startsWith('PASTE_')
         );
     }
 
@@ -3628,16 +3553,37 @@ document.addEventListener('DOMContentLoaded', () => {
         return file && (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf'));
     }
 
+    async function requestSignedCloudinaryUpload(assetLabel, courseCode, assetType = 'question') {
+        const response = await fetch(getBackendApiUrl('/api/cloudinary/sign-upload'), {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                assetLabel,
+                courseCode,
+                assetType
+            })
+        });
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.error || 'Could not prepare Cloudinary upload.');
+        }
+
+        return data;
+    }
+
     async function uploadPdfToCloudinary(file, assetLabel, courseCode, assetType = 'question') {
-        const endpoint = `https://api.cloudinary.com/v1_1/${questionBankCloudinaryConfig.cloudName}/raw/upload`;
+        const signedUpload = await requestSignedCloudinaryUpload(assetLabel, courseCode, assetType);
         const formData = new FormData();
         formData.append('file', file);
-        formData.append('upload_preset', questionBankCloudinaryConfig.uploadPreset);
-        formData.append('folder', questionBankCloudinaryConfig.folder);
-        formData.append('tags', `uiu-toolkits,question-bank,pending-review,${assetType}`);
-        formData.append('context', `caption=${assetLabel}|course=${courseCode}|asset=${assetType}`);
+        formData.append('api_key', signedUpload.apiKey);
+        formData.append('signature', signedUpload.signature);
 
-        const response = await fetch(endpoint, {
+        Object.entries(signedUpload.uploadParams || {}).forEach(([key, value]) => {
+            formData.append(key, String(value));
+        });
+
+        const response = await fetch(signedUpload.uploadUrl, {
             method: 'POST',
             body: formData
         });
@@ -3812,7 +3758,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const submitButton = getQbElement('qbSubmitBtn');
         if (!qbConfigReady) {
             if (submitButton) submitButton.disabled = true;
-            setQbStatus('qbSubmitStatus', 'Setup needed: add Firebase config and Cloudinary unsigned upload preset in index.html.', 'info');
+            setQbStatus('qbSubmitStatus', 'Setup needed: add Firebase config and run the backend server with Cloudinary credentials.', 'info');
             return;
         }
 
