@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <title>UIU ToolKits | Spring 2026 - Exam Routine & CGPA Calc</title>
-    <meta name="title" content="UIU ToolKits | Spring 2026 - Exam Routine & CGPA Calc">
+    <title>UIU ToolKits | Fall 2026 - Exam Routine & CGPA Calc</title>
+    <meta name="title" content="UIU ToolKits | Fall 2026 - Exam Routine & CGPA Calc">
     <meta name="description" content="The ultimate toolkit for United International University (UIU) CSE students. Features include an Exam Clash Solver, Section Planner, CGPA Calculator, and Academic Calendar.">
     <meta name="keywords" content="UIU, United International University, UIU Toolkit, UIU exam routine, UIU clash solver, UIU CGPA calculator, UIU section planner, CSE routine">
     <meta name="author" content="UIU Toolkits">
@@ -1084,10 +1084,10 @@
 
     <div id="exam-section" class="tool-section">
         <h1 class="gradient-text">Exam Clash Solver</h1>
-        <p class="subtitle">Spring 2026 | CSE Dept. | Updated with Official Routine</p>
+        <p class="subtitle">Fall 2026 | CSE Dept. | Updated with Official Routine</p>
 
         <div class="disclaimer-box">
-            ⚠️ DISCLAIMER: Data sourced from the "Spring 2026 Exam Template". Always verify with your official UCAM routine for last-minute changes.
+            ⚠️ DISCLAIMER: Data sourced from the "Fall 2026 Exam Template". Always verify with your official UCAM routine for last-minute changes.
         </div>
 
         <div id="clash-alert" class="alert-box">⚠️ CRITICAL CLASH: You have 2 exams at the EXACT same time!</div>
@@ -1456,6 +1456,11 @@
         <div id="plannerGrid" class="planner-grid">
             </div>
 
+        <h2 style="color: var(--secondary-color); margin-top: 50px; border-bottom: 3px solid var(--border-color); padding-bottom: 10px; font-size: 1.8em;">🏛️ General Education (GED Options)</h2>
+        <p style="color: var(--text-muted); margin-top: 5px; margin-bottom: 20px;">Students must take 3 General Education Optional courses (GED OPT-I, OPT-II, and OPT-III in Trimesters 9, 10, and 11) from the offerings below.</p>
+        <div id="gedGrid" class="planner-grid">
+            </div>
+
         <h2 style="color: var(--secondary-color); margin-top: 50px; border-bottom: 3px solid var(--border-color); padding-bottom: 10px; font-size: 1.8em;">🔬 Elective Tracks (Majors)</h2>
         <div id="electiveGrid" class="planner-grid">
             </div>
@@ -1468,214 +1473,229 @@
 <script>
 
     // --- DATA: UIU CSE STANDARD CURRICULUM ---
-  const uiuCurriculum = {
+    const uiuCurriculum = {
         "1st Trimester": [
-            { code: "ENG 1011", title: "Intensive English I", cr: 3.0 },
-            { code: "CSE 1112", title: "Introduction to Computer Systems", cr: 1.0 },
+            { code: "ENG 1011", title: "English I", cr: 3.0 },
             { code: "BDS 1201", title: "History of the Emergence of Bangladesh", cr: 2.0 },
-            { code: "MATH 1151", title: "Fundamental calculas", cr: 3.0 }
+            { code: "CSE 1110", title: "Introduction to Computer Systems", cr: 1.0 },
+            { code: "MATH 1151", title: "Fundamental Calculus", cr: 3.0 }
         ],
         "2nd Trimester": [
-            { code: "ENG 1013", title: "Intensive English II", cr: 3.0 },
-            { code: "CSE 1111", title: "SPL", cr: 3.0 },
-            { code: "CSE 1112", title: "SPL Lab", cr: 1.0 },
-            { code: "CSE 2213", title: "Discrete Mathematics", cr: 3.0 },
+            { code: "ENG 1013", title: "English II", cr: 3.0 },
+            { code: "CSE 1111", title: "Structured Programming Language", cr: 3.0 },
+            { code: "CSE 1112", title: "Structured Programming Language Laboratory", cr: 1.0 },
+            { code: "CSE 2213", title: "Discrete Mathematics", cr: 3.0 }
         ],
         "3rd Trimester": [
-            { code: "MATH 2183", title: "Calculas & Linear algebra", cr: 3.0 },
-            { code: "CSE 2215", title: "Data Structures & Algo I", cr: 3.0 },
-            { code: "CSE 2216", title: "DSA I Lab", cr: 1.0 },
+            { code: "MATH 2183", title: "Calculus and Linear Algebra", cr: 3.0 },
             { code: "PHY 2105", title: "Physics", cr: 3.0 },
-            { code: "PHY 2106", title: "Physics Lab", cr: 1.0 }
+            { code: "PHY 2106", title: "Physics Lab", cr: 1.0 },
+            { code: "CSE 2215", title: "Data Structure and Algorithms I", cr: 3.0 },
+            { code: "CSE 2216", title: "Data Structure and Algorithms I Laboratory", cr: 1.0 }
         ],
         "4th Trimester": [
+            { code: "MATH 2201", title: "Coordinate Geometry and Vector Analysis", cr: 3.0 },
             { code: "CSE 1325", title: "Digital Logic Design", cr: 3.0 },
-            { code: "CSE 2218", title: "DLD Lab", cr: 1.0 },
-            { code: "MATH 2201", title: "Coord Geometry & Vector", cr: 3.0 },
+            { code: "CSE 1326", title: "Digital Logic Design Lab", cr: 1.0 },
             { code: "CSE 1115", title: "Object Oriented Programming", cr: 3.0 },
-            { code: "CSE 1116", title: "OOP Lab", cr: 1.0 },
+            { code: "CSE 1116", title: "Object Oriented Programming Lab", cr: 1.0 }
         ],
         "5th Trimester": [
-            { code: "CSE 2215", title: "Data Structures & Algo II", cr: 3.0 },
-            { code: "CSE 2216", title: "DSA II Lab", cr: 1.0 },
-            { code: "SOC 2101", title: "Society, Environment and Engineering Ethic", cr: 3.0 },
-            { code: "MATH 2205", title: "Prob & Stats", cr: 3.0 },
+            { code: "MATH 2205", title: "Probability and Statistics", cr: 3.0 },
+            { code: "SOC 2101", title: "Society, Technology and Engineering Ethics", cr: 3.0 },
+            { code: "CSE 2217", title: "Data Structure and Algorithms II", cr: 3.0 },
+            { code: "CSE 2218", title: "Data Structure and Algorithms II Laboratory", cr: 1.0 },
             { code: "EEE 2113", title: "Electrical Circuits", cr: 3.0 }
         ],
         "6th Trimester": [
             { code: "CSE 3521", title: "Database Management Systems", cr: 3.0 },
-            { code: "CSE 3522", title: "DBMS Lab", cr: 1.0 },
+            { code: "CSE 3522", title: "Database Management Systems Lab", cr: 1.0 },
             { code: "EEE 2123", title: "Electronics", cr: 3.0 },
             { code: "EEE 2124", title: "Electronics Lab", cr: 1.0 },
             { code: "CSE 4165", title: "Web Programming", cr: 3.0 }
         ],
         "7th Trimester": [
             { code: "CSE 3313", title: "Computer Architecture", cr: 3.0 },
-            { code: "CSE 2118", title: "AOOP Lab", cr: 1.0 },
+            { code: "CSE 2118", title: "Advanced Object Oriented Programming Lab", cr: 1.0 },
+            { code: "BIO 3105", title: "Biology for Engineers", cr: 3.0 },
             { code: "CSE 3411", title: "System Analysis and Design", cr: 3.0 },
-            { code: "CSE 3412", title: "SAD Lab", cr: 1.0 },
-            { code: "BIO 3105", title: "Biology for Engineers", cr: 3.0 }
+            { code: "CSE 3412", title: "System Analysis and Design Lab", cr: 1.0 }
         ],
         "8th Trimester": [
-            { code: "CSE 4325", title: "Microprocessors", cr: 3.0 },
-            { code: "CSE 4326", title: "Microprocessors Lab", cr: 1.0 },
+            { code: "CSE 4325", title: "Microprocessors and Microcontrollers", cr: 3.0 },
+            { code: "CSE 4326", title: "Microprocessors and Microcontrollers Lab", cr: 1.0 },
             { code: "CSE 3421", title: "Software Engineering", cr: 3.0 },
             { code: "CSE 3422", title: "Software Engineering Lab", cr: 1.0 },
             { code: "CSE 3811", title: "Artificial Intelligence", cr: 3.0 },
-            { code: "CSE 3812", title: "AI Lab", cr: 1.0 },
+            { code: "CSE 3812", title: "Artificial Intelligence Lab", cr: 1.0 }
         ],
         "9th Trimester": [
             { code: "CSE 2233", title: "Theory of Computation", cr: 3.0 },
-            { code: "PMG 4101", title: "Project Management", cr: 3.0 },
             { code: "GED OPT1", title: "General Education Optional-I", cr: 3.0 },
+            { code: "PMG 4101", title: "Project Management", cr: 3.0 },
             { code: "CSE 3711", title: "Computer Networks", cr: 3.0 },
-            { code: "CSE 3712", title: "CN Lab", cr: 1.0 }
+            { code: "CSE 3712", title: "Computer Networks Lab", cr: 1.0 }
         ],
         "10th Trimester": [
-            { code: "CSE 4509", title: "Operating Systems", cr: 3.0 },
-            { code: "CSE 4510", title: "OS Lab", cr: 1.0 },
-            { code: "CSE 4000A", title: "FYP Part 1", cr: 2.0 },
+            { code: "GED OPT2", title: "General Education Optional-II", cr: 3.0 },
+            { code: "CSE 4000 A", title: "Final Year Design Project - I", cr: 2.0 },
             { code: "Elective I", title: "Major Elective", cr: 3.0 },
-            { code: "GED OPT2", title: "General Education Optional-II", cr: 3.0 }
+            { code: "CSE 4509", title: "Operating Systems", cr: 3.0 },
+            { code: "CSE 4510", title: "Operating Systems Laboratory", cr: 1.0 }
         ],
         "11th Trimester": [
+            { code: "GED OPT3", title: "General Education Optional-III", cr: 3.0 },
             { code: "Elective II", title: "Major Elective", cr: 3.0 },
             { code: "Elective III", title: "Major Elective", cr: 3.0 },
-            { code: "CSE 4531", title: "Computer Security", cr: 3.0 },
-            { code: "CSE 4000B", title: "FYP Part 2", cr: 2.0 },
-            { code: "GED OPT3", title: "General Education Optional-III", cr: 3.0 }
+            { code: "CSE 4000 B", title: "Final Year Design Project - II", cr: 2.0 },
+            { code: "CSE 4531", title: "Computer Security", cr: 3.0 }
         ],
         "12th Trimester": [
+            { code: "CSE 4000 C", title: "Final Year Design Project - III", cr: 2.0 },
             { code: "EEE 4261", title: "Green Computing", cr: 3.0 },
-            { code: "CSE 4000C", title: "FYP Part 3", cr: 2.0 },
             { code: "Elective IV", title: "Major Elective", cr: 3.0 },
-            { code: "Elective V", title: "Major Elective", cr: 3.0 },
-        ]
-    };
-    // --- DATA: ELECTIVE TRACKS ---
-    const electiveTracks = {
-        "Computational Theory": [
-            { code: "CSE 4601", title: "Mathematical Analysis for Computer Science", cr: 3.0 },
-            { code: "CSE 4633", title: "Basic Graph Theory", cr: 3.0 },
-            { code: "CSE 4655", title: "Algorithm Engineering", cr: 3.0 },
-            { code: "CSE 4611", title: "Compiler Design", cr: 3.0 },
-            { code: "CSE 4613", title: "Computational Geometry", cr: 3.0 },
-            { code: "CSE 4621", title: "Computer Graphics", cr: 3.0 }
-        ],
-        "Network and Communications": [
-            { code: "CSE 3715", title: "Data Communication", cr: 3.0 },
-            { code: "CSE 4759", title: "Wireless and Cellular Communication", cr: 3.0 },
-            { code: "CSE 4793", title: "Advanced Network Services and Management", cr: 3.0 },
-            { code: "CSE 4783", title: "Cryptography", cr: 3.0 },
-            { code: "CSE 4777", title: "Networks Security", cr: 3.0 },
-            { code: "CSE 4763", title: "Electronic Business", cr: 3.0 }
-        ],
-        "Systems": [
-            { code: "CSE 4547", title: "Multimedia Systems Design", cr: 3.0 },
-            { code: "CSE 4519", title: "Distributed Systems", cr: 3.0 },
-            { code: "CSE 4523", title: "Simulation and Modeling", cr: 3.0 },
-            { code: "CSE 4521", title: "Computer Graphics", cr: 3.0 },
-            { code: "CSE 4587", title: "Cloud Computing", cr: 3.0 },
-            { code: "CSE 4567", title: "Advanced Database Management Systems", cr: 3.0 }
-        ],
-        "Data Science": [
-            { code: "CSE 4889", title: "Machine Learning", cr: 3.0 },
-            { code: "CSE 4891", title: "Data Mining", cr: 3.0 },
-            { code: "CSE 4893", title: "Introduction to Bioinformatics", cr: 3.0 },
-            { code: "CSE 4883", title: "Digital Image Processing", cr: 3.0 },
-            { code: "CSE 4817", title: "Big Data Analytics", cr: 3.0 }
-        ],
-        "Information and Communication Technology": [
-            { code: "CSE 4941", title: "Enterprise Systems: Concepts and Practice", cr: 3.0 },
-            { code: "CSE 4943", title: "Web Application Security", cr: 3.0 },
-            { code: "CSE 4463", title: "Electronic Business", cr: 3.0 },
-            { code: "CSE 4165", title: "Web Programming", cr: 3.0 },
-            { code: "CSE 4181", title: "Mobile Application Development", cr: 3.0 },
-            { code: "CSE 4945", title: "UI: Concepts and Design", cr: 3.0 },
-            { code: "CSE 4949", title: "IT Audit: Concepts and Practice", cr: 3.0 },
-            { code: "CSE 4587", title: "Cloud Computing", cr: 3.0 },
-            { code: "CSE 4495", title: "Software Testing and Quality Assurance", cr: 3.0 }
-        ],
-        "Software Engineering": [
-            { code: "CSE 4451", title: "Human Computer Interaction", cr: 3.0 },
-            { code: "CSE 4435", title: "Software Architecture", cr: 3.0 },
-            { code: "CSE 4165", title: "Web Programming", cr: 3.0 },
-            { code: "CSE 4181", title: "Mobile Application Development", cr: 3.0 },
-            { code: "CSE 4495", title: "Software Testing and Quality Assurance", cr: 3.0 },
-            { code: "CSE 4485", title: "Game Design and Development", cr: 3.0 }
-        ],
-        "Hardware": [
-            { code: "CSE 4329", title: "Digital System Design", cr: 3.0 },
-            { code: "CSE 4379", title: "Real-time Embedded Systems", cr: 3.0 },
-            { code: "CSE 4327", title: "VLSI Design", cr: 3.0 },
-            { code: "CSE 4337", title: "Robotics", cr: 3.0 },
-            { code: "CSE 4397", title: "Interfacing", cr: 3.0 }
+            { code: "Elective V", title: "Major Elective", cr: 3.0 }
         ]
     };
 
-    // --- DATA: SPRING 2026 ROUTINE MAPPING ---
+    // --- DATA: GENERAL EDUCATION COURSES ---
+    const generalEducation = [
+        { code: "GED 1005", title: "AI Literacy and Prompt Engineering", cr: 3.0, prereq: "None", examDay: 1, examSlot: "T1" },
+        { code: "ECO 4101", title: "Economics", cr: 3.0, prereq: "None", examDay: 6, examSlot: "T1" },
+        { code: "ACT 2111", title: "Financial and Managerial Accounting", cr: 3.0, prereq: "None", examDay: 2, examSlot: "T3" },
+        { code: "TEC 2499", title: "Technology Entrepreneurship", cr: 3.0, prereq: "None", examDay: 3, examSlot: "T2" }
+    ];
+
+    // --- DATA: ELECTIVE TRACKS (MAJORS) ---
+    const electiveTracks = {
+        "Network and Cyber Security": [
+            { code: "CSE 4125", title: "Ethical Hacking and Network Defense", cr: 3.0, prereq: "CSE 4531", examDay: 1, examSlot: "T3" },
+            { code: "CSE 4777", title: "Network Security", cr: 3.0, prereq: "CSE 3711", examDay: 3, examSlot: "T3" }
+        ],
+        "Software Engineering": [
+            { code: "CSE 4587", title: "Cloud Computing", cr: 3.0, prereq: "CSE 4509, CSE 3711", examDay: 5, examSlot: "T3" },
+            { code: "CSE 4611", title: "Compiler Design", cr: 3.0, prereq: "CSE 2233", examDay: 4, examSlot: "T1" },
+            { code: "CSE 4621", title: "Computer Graphics", cr: 3.0, prereq: "MATH 2201, MATH 2183", examDay: 2, examSlot: "T1" },
+            { code: "CSE 4451", title: "Human Computer Interaction", cr: 3.0, prereq: "Min 70 Credits", examDay: 3, examSlot: "T1" },
+            { code: "CSE 4435", title: "Software Architecture", cr: 3.0, prereq: "None", examDay: 4, examSlot: "T2" },
+            { code: "CSE 4181", title: "Mobile Application Development", cr: 3.0, prereq: "CSE 4165", examDay: 6, examSlot: "T3" },
+            { code: "CSE 4945", title: "UI: Concepts and Design", cr: 3.0, prereq: "None", examDay: 1, examSlot: "T2" },
+            { code: "CSE 4495", title: "Software Testing and Quality Assurance", cr: 3.0, prereq: "CSE 3421", examDay: 7, examSlot: "T3" }
+        ],
+        "Embedded System and Robotics / Hardware": [
+            { code: "CSE 4327", title: "VLSI Design", cr: 3.0, prereq: "CSE 4325", examDay: 4, examSlot: "T1" },
+            { code: "CSE 4399", title: "Embedded Machine Learning (Special Topics)", cr: 3.0, prereq: "CSE 1111, CSE 4325", examDay: 7, examSlot: "T2" }
+        ],
+        "AI and Data Science": [
+            { code: "CSE 4889", title: "Machine Learning", cr: 3.0, prereq: "CSE 3811", examDay: 1, examSlot: "T3" },
+            { code: "CSE 4891", title: "Data Mining", cr: 3.0, prereq: "CSE 3811", examDay: 7, examSlot: "T1" },
+            { code: "CSE 4817", title: "Big Data Analytics", cr: 3.0, prereq: "CSE 4889", examDay: 5, examSlot: "T3" },
+            { code: "CSE 4883", title: "Digital Image Processing", cr: 3.0, prereq: "CSE 4889", examDay: 4, examSlot: "T1" },
+            { code: "CSE 4811", title: "Natural Language Processing", cr: 3.0, prereq: "CSE 4889", examDay: 4, examSlot: "T1" },
+            { code: "CSE 4813", title: "Deep Learning", cr: 3.0, prereq: "CSE 4889", examDay: 1, examSlot: "T3" },
+            { code: "CSE 4893", title: "Introduction to Bioinformatics", cr: 3.0, prereq: "CSE 4889", examDay: 4, examSlot: "T3" }
+        ],
+        "Business System Engineering": [
+            { code: "CSE 4451", title: "Human Computer Interaction", cr: 3.0, prereq: "Min 70 Credits", examDay: 3, examSlot: "T1" },
+            { code: "CSE 4891", title: "Data Mining", cr: 3.0, prereq: "CSE 3811", examDay: 7, examSlot: "T1" },
+            { code: "CSE 4817", title: "Big Data Analytics", cr: 3.0, prereq: "CSE 4889", examDay: 5, examSlot: "T3" },
+            { code: "CSE 4945", title: "UI: Concepts and Design", cr: 3.0, prereq: "None", examDay: 1, examSlot: "T2" },
+            { code: "CSE 4133", title: "Business Intelligence", cr: 3.0, prereq: "CSE 3411", examDay: 6, examSlot: "T3" }
+        ]
+    };
+
+    // --- DATA: FALL 2026 ROUTINE MAPPING ---
     const rawRoutine = [
-        { day: 1, time: 1, codes: ["ENG 1011", "ENG 101"], name: "Intensive English I", keywords: ["eng 1", "english"] },
-        { day: 1, time: 1, codes: ["CSE 4509", "CSI 309"], name: "Operating Systems Concepts", keywords: ["os", "operating"] },
-        { day: 1, time: 1, codes: ["IPE 3401", "IPE 401"], name: "Industrial & Operational Management", keywords: ["ipe", "management"] },
-        { day: 1, time: 1, codes: ["DS 4491"], name: "Data Science Elective", keywords: [] },
-        { day: 1, time: 2, codes: ["ENG 1013", "ENG 103"], name: "Intensive English II", keywords: ["eng 2", "english"] },
-        { day: 1, time: 2, codes: ["DS 3885"], name: "DS Elective", keywords: [] },
-        { day: 1, time: 2, codes: ["CSE 4945"], name: "UI: Concepts and Design", keywords: ["ui", "design", "user interface"] },
-        { day: 1, time: 3, codes: ["MATH 2183", "MATH 183"], name: "Calculas & Linear algebra", keywords: ["linear", "math", "calculas"] },
-        { day: 1, time: 3, codes: ["CSE 3313", "CSE 313"], name: "Computer Architecture", keywords: ["ca", "archi"] },
-        { day: 1, time: 3, codes: ["SOC 2101", "SOC 101"], name: "Society, Env. & Engineering Ethics", keywords: ["soc", "ethics"] },
-        { day: 1, time: 3, codes: ["CSE 4889", "CSE 489"], name: "Machine Learning", keywords: ["ml", "machine"] },
-        { day: 2, time: 1, codes: ["CSE 4621", "CSI 421"], name: "Computer Graphics", keywords: ["cg", "graphics"] },
-        { day: 2, time: 1, codes: ["CSE 3521", "CSI 221"], name: "Database Management Systems", keywords: ["dbms", "database"] },
-        { day: 2, time: 2, codes: ["CSE 4325", "CSE 425"], name: "Microprocessors & Microcontrollers", keywords: ["micro", "mpi"] },
-        { day: 2, time: 2, codes: ["MATH 1151", "MATH 151"], name: "Fundamental calculas", keywords: ["calc 1", "calculas"] },
-        { day: 2, time: 3, codes: ["ACT 2111", "ACT 111"], name: "Financial & Managerial Accounting", keywords: ["act", "accounting"] },
-        { day: 2, time: 3, codes: ["MATH 2205", "STAT 205"], name: "Probability & Statistics", keywords: ["stat", "prob"] },
-        { day: 3, time: 1, codes: ["CSE 3811", "CSI 341"], name: "Artificial Intelligence", keywords: ["ai", "artificial"] },
-        { day: 3, time: 1, codes: ["CSE 4451"], name: "Human Computer Interaction", keywords: ["hci"] },
-        { day: 3, time: 2, codes: ["CSE 2213", "CSI 219"], name: "Discrete Mathematics", keywords: ["dm", "discrete"] },
-        { day: 3, time: 2, codes: ["PMG 4101", "CSE 469"], name: "Project Management", keywords: ["pmg", "project"] },
-        { day: 3, time: 2, codes: ["TEC 2499"], name: "Technology Entrepreneurship", keywords: ["entrepreneurship"] },
-        { day: 3, time: 3, codes: ["CSE 1325", "CSE 225"], name: "Digital Logic Design", keywords: ["dld", "logic"] },
-        { day: 3, time: 3, codes: ["CSE 4587", "CSE 487"], name: "Cloud Computing", keywords: ["cloud"] },
-        { day: 3, time: 3, codes: ["BIO 3105", "BIO 101"], name: "Biology for Engineers", keywords: ["bio", "biology"] },
-        { day: 3, time: 3, codes: ["CSE 4777"], name: "Network Security", keywords: ["security", "netsec"] },
-        { day: 4, time: 1, codes: ["CSE 4611", "CSI 411"], name: "Compiler Design", keywords: ["compiler", "cd"] },
-        { day: 4, time: 1, codes: ["CSE 4883", "CSI 483"], name: "Digital Image Processing", keywords: ["dip", "image"] },
-        { day: 4, time: 2, codes: ["CSE 1111", "CSI 121"], name: "Structured Programming Language", keywords: ["spl", "c programming"] },
-        { day: 4, time: 2, codes: ["CSE 2215", "CSI 217"], name: "Data Structure & Algorithms I", keywords: ["dsa 1", "dsa"] },
-        { day: 4, time: 2, codes: ["DS 1501"], name: "Programming for Data Science", keywords: ["pds"] },
-        { day: 4, time: 2, codes: ["CSE 4435"], name: "Software Architecture", keywords: ["sa", "architecture"] },
-        { day: 4, time: 2, codes: ["DS 2251"], name: "Data Structures & Algorithms II (DS)", keywords: [] },
-        { day: 4, time: 3, codes: ["CSE 3711", "CSE 323"], name: "Computer Networks", keywords: ["network", "net", "cn"] },
-        { day: 4, time: 3, codes: ["DS 4523"], name: "DS Elective", keywords: [] },
-        { day: 4, time: 3, codes: ["CSE 4893", "CSE 493"], name: "Introduction to Bioinformatics", keywords: ["bioinformatics"] },
-        { day: 4, time: 3, codes: ["DS 3101"], name: "Data Science Core", keywords: [] },
-        { day: 5, time: 1, codes: ["MATH 2201", "MATH 201"], name: "Coord. Geometry & Vector Analysis", keywords: ["math 2", "vector"] },
-        { day: 5, time: 1, codes: ["CSE 3411", "CSI 311"], name: "System Analysis and Design", keywords: ["sad", "system analysis"] },
-        { day: 5, time: 1, codes: ["EEE 4261"], name: "Green Computing", keywords: ["green", "energy"] },
-        { day: 5, time: 2, codes: ["CSE 2217", "CSI 227"], name: "Data Structure & Algorithms II", keywords: ["dsa 2", "algo"] },
-        { day: 5, time: 2, codes: ["DS 1101"], name: "Fund. of Data Science", keywords: ["fds"] },
-        { day: 5, time: 3, codes: ["CSE 3421", "CSI 321"], name: "Software Engineering", keywords: ["se", "software"] },
-        { day: 6, time: 1, codes: ["BDS 1201"], name: "History of the Emergence of BD", keywords: ["bds", "history"] },
-        { day: 6, time: 1, codes: ["ECO 4101", "ECO 213"], name: "Economics", keywords: ["eco", "economics"] },
-        { day: 6, time: 1, codes: ["DS 3521"], name: "Database Systems (DS)", keywords: [] },
-        { day: 6, time: 2, codes: ["CSE 1115", "CSI 211"], name: "Object Oriented Programming", keywords: ["oop", "java"] },
-        { day: 6, time: 2, codes: ["CSE 4783"], name: "Cryptography", keywords: ["crypto", "security"] },
-        { day: 6, time: 2, codes: ["DS 4891"], name: "DS Elective", keywords: [] },
-        { day: 6, time: 3, codes: ["EEE 2113", "CSE 113"], name: "Electrical Circuits", keywords: ["circuit", "electrical","ec"] },
-        { day: 6, time: 3, codes: ["EEE 2123", "CSE 123"], name: "Electronics", keywords: ["electronics"] },
-        { day: 6, time: 3, codes: ["CSE 4531"], name: "Computer Security", keywords: ["security", "cyber"] },
-        { day: 6, time: 3, codes: ["CSE 4181", "CSE 481"], name: "Mobile App Development", keywords: ["mad", "android"] },
-        { day: 7, time: 1, codes: ["CSE 4891", "CSE 491"], name: "Data Mining", keywords: ["mining", "dm"] },
-        { day: 7, time: 1, codes: ["CSE 4165", "CSE 465"], name: "Web Programming", keywords: ["web", "internet"] },
-        { day: 7, time: 2, codes: ["CSE 2233", "CSI 233"], name: "Theory of Computation", keywords: ["toc", "theory"] },
-        { day: 7, time: 3, codes: ["CSE 4495", "CSE 495"], name: "Software Testing & QA", keywords: ["sqa", "testing"] },
-        { day: 7, time: 3, codes: ["PHY 2105", "PHY 105"], name: "Physics", keywords: ["phy", "physics"] },
-        { day: 7, time: 3, codes: ["DS 3881"], name: "DS Elective", keywords: [] }
+        // Day 1
+        { day: 1, time: 1, codes: ["ENG 1011", "ENG 101"], name: "English I", keywords: ["eng 1", "english", "eng1011", "intensive english"] },
+        { day: 1, time: 1, codes: ["CSE 4509", "CSI 309"], name: "Operating Systems", keywords: ["os", "operating", "systems", "csi 309", "cse4509"] },
+        { day: 1, time: 1, codes: ["GED 1005"], name: "AI Literacy and Prompt Engineering", keywords: ["ai literacy", "prompt engineering", "ged", "ged1005", "prompt", "ai prompt"] },
+        { day: 1, time: 1, codes: ["DS 4491"], name: "Data Science Elective (DS 4491)", keywords: ["ds", "data science"] },
+        { day: 1, time: 2, codes: ["ENG 1013", "ENG 103"], name: "English II", keywords: ["eng 2", "english", "eng1013"] },
+        { day: 1, time: 2, codes: ["CSE 4945"], name: "UI: Concepts and Design (Final Only)", keywords: ["ui", "ux", "design", "user interface", "concepts", "cse4945"] },
+        { day: 1, time: 2, codes: ["DS 4217"], name: "DS 4217", keywords: ["ds", "data science"] },
+        { day: 1, time: 2, codes: ["DS 3885"], name: "DS Elective (DS 3885)", keywords: ["ds", "data science"] },
+        { day: 1, time: 3, codes: ["MATH 2183", "MATH 183", "MATH 2107"], name: "Calculus and Linear Algebra", keywords: ["linear", "algebra", "calculus", "math", "math2183", "math 183"] },
+        { day: 1, time: 3, codes: ["CSE 3313", "CSE 313"], name: "Computer Architecture", keywords: ["ca", "archi", "architecture", "cse3313", "cse 313"] },
+        { day: 1, time: 3, codes: ["SOC 2101", "SOC 101", "SOC 2102"], name: "Society, Technology and Engineering Ethics", keywords: ["soc", "ethics", "society", "soc2101", "soc 101"] },
+        { day: 1, time: 3, codes: ["CSE 4889", "CSE 489", "DS 4889"], name: "Machine Learning", keywords: ["ml", "machine learning", "cse4889", "cse 489"] },
+        { day: 1, time: 3, codes: ["CSE 4813"], name: "Deep Learning", keywords: ["dl", "deep learning", "neural networks", "cse4813"] },
+        { day: 1, time: 3, codes: ["CSE 4125"], name: "Ethical Hacking and Network Defense", keywords: ["hacking", "ethical hacking", "network defense", "security", "defense", "cse4125"] },
+        { day: 1, time: 3, codes: ["DS 4211"], name: "DS 4211", keywords: ["ds", "data science"] },
+
+        // Day 2
+        { day: 2, time: 1, codes: ["CSE 4621", "CSI 421"], name: "Computer Graphics", keywords: ["cg", "graphics", "computer graphics", "cse4621", "csi 421"] },
+        { day: 2, time: 1, codes: ["CSE 3521", "CSI 221"], name: "Database Management Systems", keywords: ["dbms", "database", "sql", "cse3521", "csi 221"] },
+        { day: 2, time: 2, codes: ["CSE 4325", "CSE 425"], name: "Microprocessors and Microcontrollers", keywords: ["micro", "mpi", "microprocessors", "microcontrollers", "cse4325", "cse 425"] },
+        { day: 2, time: 2, codes: ["MATH 1151", "MATH 151"], name: "Fundamental Calculus", keywords: ["calc 1", "calculus", "math", "fundamental calculus", "math1151", "math 151"] },
+        { day: 2, time: 3, codes: ["ACT 2111", "ACT 111"], name: "Financial and Managerial Accounting", keywords: ["act", "accounting", "financial", "act2111", "act 111"] },
+        { day: 2, time: 3, codes: ["MATH 2205", "STAT 205"], name: "Probability and Statistics", keywords: ["stat", "prob", "statistics", "probability", "math2205", "stat 205"] },
+
+        // Day 3
+        { day: 3, time: 1, codes: ["CSE 3811", "CSI 341"], name: "Artificial Intelligence", keywords: ["ai", "artificial intelligence", "cse3811", "csi 341"] },
+        { day: 3, time: 1, codes: ["CSE 4451", "CSE 451"], name: "Human Computer Interaction (Final Only)", keywords: ["hci", "interaction", "human computer", "cse4451", "cse 451"] },
+        { day: 3, time: 1, codes: ["DS 4123"], name: "DS 4123", keywords: ["ds", "data science"] },
+        { day: 3, time: 2, codes: ["CSE 2213", "CSI 219"], name: "Discrete Mathematics", keywords: ["dm", "discrete", "discrete math", "cse2213", "csi 219"] },
+        { day: 3, time: 2, codes: ["PMG 4101", "CSE 469"], name: "Project Management", keywords: ["pmg", "project", "project management", "pmg4101", "cse 469"] },
+        { day: 3, time: 2, codes: ["TEC 2499"], name: "Technology Entrepreneurship (Final Only)", keywords: ["tec", "entrepreneurship", "startup", "tec2499"] },
+        { day: 3, time: 3, codes: ["CSE 1325", "CSE 225"], name: "Digital Logic Design", keywords: ["dld", "logic", "digital logic", "cse1325", "cse 225"] },
+        { day: 3, time: 3, codes: ["BIO 3105", "BIO 3107"], name: "Biology for Engineers", keywords: ["bio", "biology", "bio3105", "bio 3107"] },
+        { day: 3, time: 3, codes: ["CSE 4777"], name: "Network Security", keywords: ["netsec", "network security", "security", "cse4777"] },
+
+        // Day 4
+        { day: 4, time: 1, codes: ["CSE 4611", "CSI 411"], name: "Compiler Design", keywords: ["compiler", "cd", "compiler design", "cse4611", "csi 411"] },
+        { day: 4, time: 1, codes: ["CSE 4883", "CSI 483"], name: "Digital Image Processing", keywords: ["dip", "image", "image processing", "cse4883", "csi 483"] },
+        { day: 4, time: 1, codes: ["CSE 4327"], name: "VLSI Design", keywords: ["vlsi", "chip", "hardware", "cse4327"] },
+        { day: 4, time: 1, codes: ["CSE 4811", "DS 4213"], name: "Natural Language Processing", keywords: ["nlp", "natural language", "cse4811", "ds 4213"] },
+        { day: 4, time: 2, codes: ["CSE 1111", "CSI 121"], name: "Structured Programming Language", keywords: ["spl", "c programming", "structured programming", "cse1111", "csi 121"] },
+        { day: 4, time: 2, codes: ["CSE 2215", "CSI 217"], name: "Data Structure and Algorithms I", keywords: ["dsa 1", "dsa", "data structures", "cse2215", "csi 217"] },
+        { day: 4, time: 2, codes: ["CSE 4435"], name: "Software Architecture", keywords: ["sa", "architecture", "software architecture", "cse4435"] },
+        { day: 4, time: 2, codes: ["DS 1501"], name: "Programming for Data Science", keywords: ["pds", "programming", "ds1501"] },
+        { day: 4, time: 2, codes: ["DS 2251"], name: "Data Structures & Algorithms II (DS)", keywords: ["dsa ds", "ds2251"] },
+        { day: 4, time: 3, codes: ["CSE 3711", "CSE 323"], name: "Computer Networks", keywords: ["network", "net", "cn", "computer networks", "cse3711", "cse 323"] },
+        { day: 4, time: 3, codes: ["CSE 4893", "CSE 493"], name: "Introduction to Bioinformatics (Final Only)", keywords: ["bioinformatics", "bio", "cse4893", "cse 493"] },
+        { day: 4, time: 3, codes: ["DS 4523"], name: "DS Elective (DS 4523)", keywords: ["ds", "data science"] },
+        { day: 4, time: 3, codes: ["DS 3101"], name: "Data Science Core (DS 3101)", keywords: ["ds", "data science"] },
+
+        // Day 5
+        { day: 5, time: 1, codes: ["MATH 2201", "MATH 201", "MATH 1153"], name: "Coordinate Geometry and Vector Analysis", keywords: ["math 2", "vector", "geometry", "coordinate", "math2201", "math 201"] },
+        { day: 5, time: 1, codes: ["CSE 3411", "CSI 311"], name: "System Analysis and Design", keywords: ["sad", "system analysis", "design", "cse3411", "csi 311"] },
+        { day: 5, time: 1, codes: ["EEE 4261"], name: "Green Computing (Final Only)", keywords: ["green", "green computing", "energy", "eee4261"] },
+        { day: 5, time: 1, codes: ["CSE 4511"], name: "CSE 4511 (DS)", keywords: ["ds", "data science"] },
+        { day: 5, time: 2, codes: ["CSE 2217", "CSI 227"], name: "Data Structure and Algorithms II", keywords: ["dsa 2", "algo", "algorithms", "cse2217", "csi 227"] },
+        { day: 5, time: 2, codes: ["DS 1101"], name: "Fundamentals of Data Science", keywords: ["fds", "data science", "ds1101"] },
+        { day: 5, time: 3, codes: ["CSE 3421", "CSI 321"], name: "Software Engineering", keywords: ["se", "software", "software engineering", "cse3421", "csi 321"] },
+        { day: 5, time: 3, codes: ["CSE 4587"], name: "Cloud Computing (Final Only)", keywords: ["cloud", "cloud computing", "aws", "cse4587", "cse 487"] },
+        { day: 5, time: 3, codes: ["CSE 4817", "DS 4817"], name: "Big Data Analytics", keywords: ["big data", "bda", "analytics", "hadoop", "spark", "cse4817"] },
+        { day: 5, time: 3, codes: ["DS 3120"], name: "DS 3120", keywords: ["ds", "data science"] },
+
+        // Day 6
+        { day: 6, time: 1, codes: ["BDS 1201"], name: "History of the Emergence of Bangladesh", keywords: ["bds", "history", "bangladesh", "emergence", "bds1201"] },
+        { day: 6, time: 1, codes: ["ECO 4101", "ECO 213"], name: "Economics", keywords: ["eco", "economics", "economy", "eco4101", "eco 213"] },
+        { day: 6, time: 1, codes: ["DS 3521"], name: "Database Systems (DS)", keywords: ["database", "dbms", "ds3521"] },
+        { day: 6, time: 2, codes: ["CSE 1115", "CSI 211"], name: "Object Oriented Programming", keywords: ["oop", "java", "object oriented", "cse1115", "csi 211"] },
+        { day: 6, time: 2, codes: ["DS 1115"], name: "DS 1115", keywords: ["ds", "data science"] },
+        { day: 6, time: 3, codes: ["EEE 2113", "CSE 113"], name: "Electrical Circuits", keywords: ["circuit", "electrical", "ec", "circuits", "eee2113", "cse 113"] },
+        { day: 6, time: 3, codes: ["EEE 2123", "CSE 123"], name: "Electronics", keywords: ["electronics", "eee2123", "cse 123"] },
+        { day: 6, time: 3, codes: ["CSE 4531"], name: "Computer Security (Final Only)", keywords: ["security", "cyber", "cybersecurity", "cse4531"] },
+        { day: 6, time: 3, codes: ["CSE 4181", "CSE 481"], name: "Mobile Application Development (Final Only)", keywords: ["mad", "android", "mobile app", "app dev", "cse4181", "cse 481"] },
+        { day: 6, time: 3, codes: ["CSE 4133"], name: "Business Intelligence", keywords: ["bi", "business intelligence", "analytics", "cse4133"] },
+
+        // Day 7
+        { day: 7, time: 1, codes: ["CSE 4891", "CSE 491", "DS 4891"], name: "Data Mining", keywords: ["mining", "dm", "data mining", "cse4891", "cse 491"] },
+        { day: 7, time: 1, codes: ["CSE 4165", "CSE 465"], name: "Web Programming", keywords: ["web", "internet", "web programming", "cse4165", "cse 465"] },
+        { day: 7, time: 1, codes: ["DS 4115"], name: "DS 4115", keywords: ["ds", "data science"] },
+        { day: 7, time: 2, codes: ["CSE 2233", "CSI 233"], name: "Theory of Computation", keywords: ["toc", "theory", "automata", "computation", "cse2233", "csi 233"] },
+        { day: 7, time: 2, codes: ["CSE 4399"], name: "Embedded Machine Learning (Special Topics)", keywords: ["embedded ml", "eml", "embedded machine learning", "special topics", "cse4399"] },
+        { day: 7, time: 2, codes: ["DS 4229"], name: "DS 4229", keywords: ["ds", "data science"] },
+        { day: 7, time: 3, codes: ["PHY 2105", "PHY 105"], name: "Physics", keywords: ["phy", "physics", "phy2105", "phy 105"] },
+        { day: 7, time: 3, codes: ["CSE 4495", "CSE 495"], name: "Software Testing and Quality Assurance (Final Only)", keywords: ["sqa", "testing", "qa", "software testing", "cse4495", "cse 495"] },
+        { day: 7, time: 3, codes: ["DS 3881"], name: "DS Elective (DS 3881)", keywords: ["ds", "data science"] }
     ];
     window.uiuRawRoutine = rawRoutine;
+    window.uiuCurriculum = uiuCurriculum;
+    window.generalEducation = generalEducation;
+    window.electiveTracks = electiveTracks;
 
     // Build unified map of courses to remove duplicates, then map keywords
     let allCoursesMap = new Map();
@@ -1685,17 +1705,21 @@
         tri.forEach(c => allCoursesMap.set(c.code, c));
     });
 
-    // 2. Add Elective Tracks
+    // 2. Add General Education Courses
+    generalEducation.forEach(c => allCoursesMap.set(c.code, c));
+
+    // 3. Add Elective Tracks
     Object.values(electiveTracks).forEach(track => {
         track.forEach(c => allCoursesMap.set(c.code, c));
     });
 
-    // 3. Map keywords from Routine
+    // 4. Map keywords from Routine
     let allCourses = Array.from(allCoursesMap.values()).map(c => {
         let routineMatch = rawRoutine.find(r => r.codes.includes(c.code));
         let keywords = routineMatch && routineMatch.keywords ? routineMatch.keywords : [];
         return { ...c, keywords: keywords };
     });
+    window.allCourses = allCourses;
 
     // --- ACADEMIC CALENDAR EVENTS DATA ---
     const academicEvents = [
@@ -2194,15 +2218,30 @@
         if (input.length < 2) { suggestionBox.style.display = 'none'; return; }
 
         const matches = [];
+        const seen = new Set();
+
         rawRoutine.forEach(item => {
             if (item.name.toLowerCase().includes(input) || item.codes.some(c => c.toLowerCase().includes(input)) || item.keywords.some(k => k.toLowerCase().includes(input))) {
-                matches.push({ displayName: `${item.name} (${item.codes[0]})`, data: item });
+                const key = item.codes[0];
+                if (!seen.has(key)) {
+                    seen.add(key);
+                    matches.push({ displayName: `${item.name} (${item.codes[0]})`, data: item });
+                }
+            }
+        });
+
+        allCourses.forEach(c => {
+            if (c.code && (c.code.toLowerCase().includes(input) || c.title.toLowerCase().includes(input) || (c.keywords && c.keywords.some(k => k.toLowerCase().includes(input))))) {
+                if (!seen.has(c.code)) {
+                    seen.add(c.code);
+                    matches.push({ displayName: `${c.title} (${c.code})`, data: { name: c.title, codes: [c.code] } });
+                }
             }
         });
 
         if (matches.length > 0) {
             suggestionBox.style.display = 'block';
-            matches.forEach(match => {
+            matches.slice(0, 15).forEach(match => {
                 const div = document.createElement('div');
                 div.className = 'suggestion-item';
                 div.innerHTML = `<strong>${match.displayName}</strong>`;
@@ -2339,13 +2378,21 @@
     function initPlanner() {
         const select = document.getElementById('cgpaPlannerSelect');
         const corePlannerGrid = document.getElementById('plannerGrid');
+        const gedGrid = document.getElementById('gedGrid');
         const electiveGrid = document.getElementById('electiveGrid');
         
+        if (select) select.innerHTML = '<option value="">-- Select a Trimester to Load --</option>';
+        if (corePlannerGrid) corePlannerGrid.innerHTML = '';
+        if (gedGrid) gedGrid.innerHTML = '';
+        if (electiveGrid) electiveGrid.innerHTML = '';
+
         Object.keys(uiuCurriculum).forEach(triName => {
-            const option = document.createElement('option');
-            option.value = triName;
-            option.innerText = triName;
-            select.appendChild(option);
+            if (select) {
+                const option = document.createElement('option');
+                option.value = triName;
+                option.innerText = triName;
+                select.appendChild(option);
+            }
 
             const card = document.createElement('div');
             card.className = 'tri-card';
@@ -2355,7 +2402,7 @@
                 courseListHTML += `
                     <li class="tri-course-item">
                         <span><strong>${c.code}</strong> ${c.title}</span>
-                        <span class="badge-credit">${c.cr} Cr</span>
+                        <span class="badge-credit">${c.cr.toFixed(1)} Cr</span>
                     </li>`;
             });
 
@@ -2365,8 +2412,36 @@
                 </div>
                 <ul class="tri-course-list">${courseListHTML}</ul>
             `;
-            corePlannerGrid.appendChild(card);
+            if (corePlannerGrid) corePlannerGrid.appendChild(card);
         });
+
+        // Render General Education section
+        if (gedGrid && typeof generalEducation !== 'undefined') {
+            const card = document.createElement('div');
+            card.className = 'tri-card';
+            card.style.gridColumn = "1 / -1";
+            let courseListHTML = '';
+            generalEducation.forEach(c => {
+                courseListHTML += `
+                    <li class="tri-course-item" style="padding: 10px 0;">
+                        <div>
+                            <strong>${c.code}</strong> ${c.title}
+                            <div style="font-size: 0.85em; color: var(--text-muted); margin-top: 3px;">
+                                📅 Exam: Day ${c.examDay}, Slot ${c.examSlot} | 📋 Prereq: ${c.prereq}
+                            </div>
+                        </div>
+                        <span class="badge-credit">${c.cr.toFixed(1)} Cr</span>
+                    </li>`;
+            });
+
+            card.innerHTML = `
+                <div class="tri-header">
+                    <span>General Education Optional Courses (Trimester 9, 10, 11)</span>
+                </div>
+                <ul class="tri-course-list">${courseListHTML}</ul>
+            `;
+            gedGrid.appendChild(card);
+        }
 
         Object.keys(electiveTracks).forEach(trackName => {
             const card = document.createElement('div');
@@ -2374,10 +2449,14 @@
             
             let courseListHTML = '';
             electiveTracks[trackName].forEach(c => {
+                const prereqInfo = c.prereq ? `<div style="font-size: 0.8em; color: var(--text-muted); margin-top: 2px;">Prereq: ${c.prereq} | Exam: Day ${c.examDay}, ${c.examSlot}</div>` : `<div style="font-size: 0.8em; color: var(--text-muted); margin-top: 2px;">Exam: Day ${c.examDay}, ${c.examSlot}</div>`;
                 courseListHTML += `
-                    <li class="tri-course-item">
-                        <span><strong>${c.code}</strong> ${c.title}</span>
-                        <span class="badge-credit">${c.cr} Cr</span>
+                    <li class="tri-course-item" style="padding: 8px 0;">
+                        <div>
+                            <strong>${c.code}</strong> ${c.title}
+                            ${prereqInfo}
+                        </div>
+                        <span class="badge-credit">${c.cr.toFixed(1)} Cr</span>
                     </li>`;
             });
 
@@ -2387,7 +2466,7 @@
                 </div>
                 <ul class="tri-course-list">${courseListHTML}</ul>
             `;
-            electiveGrid.appendChild(card);
+            if (electiveGrid) electiveGrid.appendChild(card);
         });
     }
 
