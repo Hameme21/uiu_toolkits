@@ -1306,17 +1306,10 @@
                     Taking Retake Credits? (50% Cost per Credit)
                 </label>
                 <div id="t-retake-inputs" style="display: none; margin-top: 15px; animation: slideUpFade 0.3s ease-out;">
-<<<<<<< Updated upstream
-                    <div style="max-width: 240px;">
-                        <label style="font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 5px;">Retake Credits</label>
-                        <input type="number" id="t-retake-credits" placeholder="e.g., 3" step="0.5" min="0" value="0">
-                        <small style="color: var(--text-muted); display: block; margin-top: 4px;">💡 Retake fee is calculated at 50% rate (half the cost per credit).</small>
-=======
                     <div style="max-width: 320px;">
                         <label style="font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 5px;">Retake Credits</label>
                         <input type="number" id="t-retake-credits" placeholder="e.g., 3" step="0.5" min="0" value="0">
                         <small style="color: var(--text-muted); display: block; margin-top: 4px;">💡 Retake fee is calculated at 50% rate (half cost/credit). <strong>Note:</strong> Per UIU policy, scholarships and waivers do not affect or apply to retake courses.</small>
->>>>>>> Stashed changes
                     </div>
                 </div>
             </div>
@@ -1377,17 +1370,10 @@
                 <hr style="border: none; border-top: 1px dashed var(--border-color); margin: 20px 0;">
                 
                 <div style="display: flex; justify-content: space-between; font-size: 0.95em; color: var(--text-muted); flex-wrap: wrap; gap: 15px; text-align: left;">
-<<<<<<< Updated upstream
-                    <div style="flex:1; min-width: 100px;">Base Tuition:<br><strong id="t-base-tuition" style="color: var(--text-main); font-size: 1.1em;">0</strong></div>
-                    <div style="flex:1; min-width: 100px; display: none;" id="t-retake-box">Retake Fee (50%):<br><strong id="t-retake-fee" style="color: #d35400; font-size: 1.1em;">+0</strong><br><small id="t-retake-note" style="font-size: 0.8em; color: var(--text-muted); font-weight:bold;"></small></div>
-                    <div style="flex:1; min-width: 100px; display: none;" id="t-scholarship-box">Scholarship:<br><strong id="t-scholarship-discount" style="color: #d32f2f; font-size: 1.1em;">-0</strong><br><small id="t-scholarship-note" style="font-size: 0.8em; color: var(--primary-color); font-weight:bold;"></small></div>
-                    <div style="flex:1; min-width: 100px; display: none;" id="t-waiver-box">General Waiver:<br><strong id="t-waiver-discount" style="color: #d32f2f; font-size: 1.1em;">-0</strong><br><small id="t-waiver-note" style="font-size: 0.8em; color: var(--primary-color); font-weight:bold;"></small></div>
-=======
                     <div style="flex:1; min-width: 100px;">Regular Tuition:<br><strong id="t-base-tuition" style="color: var(--text-main); font-size: 1.1em;">0</strong></div>
                     <div style="flex:1; min-width: 100px; display: none;" id="t-retake-box">Retake Fee (Half Cost):<br><strong id="t-retake-fee" style="color: #d35400; font-size: 1.1em;">+0</strong><br><small id="t-retake-note" style="font-size: 0.8em; color: var(--text-muted); font-weight:bold;"></small></div>
                     <div style="flex:1; min-width: 100px; display: none;" id="t-scholarship-box">Scholarship (Regular):<br><strong id="t-scholarship-discount" style="color: #d32f2f; font-size: 1.1em;">-0</strong><br><small id="t-scholarship-note" style="font-size: 0.8em; color: var(--primary-color); font-weight:bold;"></small></div>
                     <div style="flex:1; min-width: 100px; display: none;" id="t-waiver-box">General Waiver (Regular):<br><strong id="t-waiver-discount" style="color: #d32f2f; font-size: 1.1em;">-0</strong><br><small id="t-waiver-note" style="font-size: 0.8em; color: var(--primary-color); font-weight:bold;"></small></div>
->>>>>>> Stashed changes
                     <div style="flex:1; min-width: 100px;">Trimester Fee:<br><strong id="t-trim-fee" style="color: var(--primary-color); font-size: 1.1em;">0</strong></div>
                 </div>
 
@@ -2861,11 +2847,7 @@
             if (retakeTuition > 0) {
                 rBox.style.display = 'block';
                 document.getElementById('t-retake-fee').innerText = '+' + retakeTuition.toLocaleString('en-IN') + ' ৳';
-<<<<<<< Updated upstream
-                document.getElementById('t-retake-note').innerText = `(${retakeCredits} cr @ ${retakeCostPerCredit.toLocaleString('en-IN')} ৳)`;
-=======
                 document.getElementById('t-retake-note').innerText = `(${retakeCredits} cr @ ${retakeCostPerCredit.toLocaleString('en-IN')} ৳ • unaffected by waiver/scholarship)`;
->>>>>>> Stashed changes
             } else {
                 rBox.style.display = 'none';
             }
@@ -2911,17 +2893,10 @@
                 <label class="sem-label" style="font-size: 0.9em; font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 5px;">Trimester ${rowCount} Regular Cr</label>
                 <input type="number" class="multi-credits-input" placeholder="e.g. 12" value="12" step="0.5" min="0">
             </div>
-<<<<<<< Updated upstream
-            <div style="flex:1; min-width: 150px;">
-                <label style="font-weight: bold; color: var(--text-main); display: flex; align-items: center; gap: 8px; margin-bottom: 8px; cursor: pointer;">
-                    <input type="checkbox" class="multi-retake-check" style="width: 18px; height: 18px; accent-color: var(--primary-color);" onchange="const inp = this.closest('.multi-sem-row').querySelector('.multi-retake-input'); inp.disabled = !this.checked; if(!this.checked) inp.value='0';">
-                    Retake? (Half Cost)
-=======
             <div style="flex:1; min-width: 170px;">
                 <label style="font-weight: bold; color: var(--text-main); display: flex; align-items: center; gap: 8px; margin-bottom: 8px; cursor: pointer;">
                     <input type="checkbox" class="multi-retake-check" style="width: 18px; height: 18px; accent-color: var(--primary-color);" onchange="const inp = this.closest('.multi-sem-row').querySelector('.multi-retake-input'); inp.disabled = !this.checked; if(!this.checked) inp.value='0';">
                     Retake? (Half Cost, No Waiver)
->>>>>>> Stashed changes
                 </label>
                 <input type="number" class="multi-retake-input" placeholder="Retake Cr (e.g. 3)" value="0" step="0.5" min="0" disabled>
             </div>
@@ -2972,11 +2947,7 @@
             
             if (totalRowCredits > 0) {
                 let baseRegularTuition = regularCredits * costPerCredit;
-<<<<<<< Updated upstream
-                let retakeTuition = retakeCredits * (costPerCredit * 0.5); // Half cost per credit
-=======
                 let retakeTuition = retakeCredits * (costPerCredit * 0.5); // Half cost per credit (unaffected by waiver/scholarship)
->>>>>>> Stashed changes
                 totalRetakeCost += retakeTuition;
 
                 let rowDiscount = 0;
@@ -3017,11 +2988,7 @@
                 noteParts.push(`Estimated Total Savings: -${totalDiscount.toLocaleString('en-IN')} ৳`);
             }
             if (totalRetakeCost > 0) {
-<<<<<<< Updated upstream
-                noteParts.push(`Includes Retake Fees: +${totalRetakeCost.toLocaleString('en-IN')} ৳ (50% rate)`);
-=======
                 noteParts.push(`Includes Retake Fees: +${totalRetakeCost.toLocaleString('en-IN')} ৳ (50% rate, unaffected by waiver/scholarship)`);
->>>>>>> Stashed changes
             }
             if (noteParts.length > 0) {
                 savedText.innerHTML = noteParts.join('<br>');
