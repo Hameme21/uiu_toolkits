@@ -1299,6 +1299,20 @@
                     <input type="number" id="t-current-credits" placeholder="e.g., 13" step="0.5">
                 </div>
             </div>
+
+            <div style="margin-bottom: 15px; padding: 15px; border-radius: 8px; background: var(--course-added-bg); border: 1px solid var(--border-color); transition: all 0.3s;">
+                <label style="font-weight: bold; color: var(--primary-color); display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 1.1em;">
+                    <input type="checkbox" id="t-has-retake" onchange="toggleRetakeInputs()" style="width: 20px; height: 20px; accent-color: var(--primary-color);">
+                    Taking Retake Credits? (50% Cost per Credit)
+                </label>
+                <div id="t-retake-inputs" style="display: none; margin-top: 15px; animation: slideUpFade 0.3s ease-out;">
+                    <div style="max-width: 240px;">
+                        <label style="font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 5px;">Retake Credits</label>
+                        <input type="number" id="t-retake-credits" placeholder="e.g., 3" step="0.5" min="0" value="0">
+                        <small style="color: var(--text-muted); display: block; margin-top: 4px;">💡 Retake fee is calculated at 50% rate (half the cost per credit).</small>
+                    </div>
+                </div>
+            </div>
             
             <div style="margin-bottom: 15px; padding: 15px; border-radius: 8px; background: var(--course-added-bg); border: 1px solid var(--border-color); transition: all 0.3s;">
                 <label style="font-weight: bold; color: var(--primary-color); display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 1.1em;">
@@ -1357,6 +1371,7 @@
                 
                 <div style="display: flex; justify-content: space-between; font-size: 0.95em; color: var(--text-muted); flex-wrap: wrap; gap: 15px; text-align: left;">
                     <div style="flex:1; min-width: 100px;">Base Tuition:<br><strong id="t-base-tuition" style="color: var(--text-main); font-size: 1.1em;">0</strong></div>
+                    <div style="flex:1; min-width: 100px; display: none;" id="t-retake-box">Retake Fee (50%):<br><strong id="t-retake-fee" style="color: #d35400; font-size: 1.1em;">+0</strong><br><small id="t-retake-note" style="font-size: 0.8em; color: var(--text-muted); font-weight:bold;"></small></div>
                     <div style="flex:1; min-width: 100px; display: none;" id="t-scholarship-box">Scholarship:<br><strong id="t-scholarship-discount" style="color: #d32f2f; font-size: 1.1em;">-0</strong><br><small id="t-scholarship-note" style="font-size: 0.8em; color: var(--primary-color); font-weight:bold;"></small></div>
                     <div style="flex:1; min-width: 100px; display: none;" id="t-waiver-box">General Waiver:<br><strong id="t-waiver-discount" style="color: #d32f2f; font-size: 1.1em;">-0</strong><br><small id="t-waiver-note" style="font-size: 0.8em; color: var(--primary-color); font-weight:bold;"></small></div>
                     <div style="flex:1; min-width: 100px;">Trimester Fee:<br><strong id="t-trim-fee" style="color: var(--primary-color); font-size: 1.1em;">0</strong></div>
@@ -1570,7 +1585,7 @@
     const electiveTracks = {
         "Network and Cyber Security": [
             { code: "CSE 4125", title: "Ethical Hacking and Network Defense", cr: 3.0, prereq: "CSE 4531", examDay: 1, examSlot: "T3" },
-            { code: "CSE 4777", title: "Network Security", cr: 3.0, prereq: "CSE 3711", examDay: 3, examSlot: "T3" }
+            { code: "CSE 4777", title: "Network Security", cr: 3.0, prereq: "CSE 4531", examDay: 3, examSlot: "T3" }
         ],
         "Software Engineering": [
             { code: "CSE 4587", title: "Cloud Computing", cr: 3.0, prereq: "CSE 4509, CSE 3711", examDay: 5, examSlot: "T3" },
@@ -1587,8 +1602,8 @@
             { code: "CSE 4399", title: "Embedded Machine Learning (Special Topics)", cr: 3.0, prereq: "CSE 1111, CSE 4325", examDay: 7, examSlot: "T2" }
         ],
         "AI and Data Science": [
-            { code: "CSE 4889", title: "Machine Learning", cr: 3.0, prereq: "CSE 3811", examDay: 1, examSlot: "T3" },
-            { code: "CSE 4891", title: "Data Mining", cr: 3.0, prereq: "CSE 3811", examDay: 7, examSlot: "T1" },
+            { code: "CSE 4889", title: "Machine Learning", cr: 3.0, prereq: "CSE 3811, CSE 3812, MATH 2183", examDay: 1, examSlot: "T3" },
+            { code: "CSE 4891", title: "Data Mining", cr: 3.0, prereq: "CSE 4889", examDay: 7, examSlot: "T1" },
             { code: "CSE 4817", title: "Big Data Analytics", cr: 3.0, prereq: "CSE 4889", examDay: 5, examSlot: "T3" },
             { code: "CSE 4883", title: "Digital Image Processing", cr: 3.0, prereq: "CSE 4889", examDay: 4, examSlot: "T1" },
             { code: "CSE 4811", title: "Natural Language Processing", cr: 3.0, prereq: "CSE 4889", examDay: 4, examSlot: "T1" },
@@ -1764,7 +1779,7 @@
         { start: "2026-08-27", end: "2026-08-29", title: "Mid-Term Exam", type: "exam" },
 
         { start: "2026-09-04", end: "2026-09-04", title: "Holiday: Janmashtami", type: "holiday" },
-        { start: "2026-09-09", end: "2026-09-09", title: "Last Day of Course Withdrawal", type: "regular" },
+        { start: "2026-09-05", end: "2026-09-05", title: "Last Day of Course Withdrawal", type: "regular" },
         { start: "2026-09-14", end: "2026-09-14", title: "Last date of 2nd Installment", type: "regular" },
         { start: "2026-09-24", end: "2026-09-24", title: "Regular Wednesday Classes", type: "regular" },
         { start: "2026-10-06", end: "2026-10-06", title: "Last date of 3rd Installment", type: "regular" },
@@ -2710,6 +2725,15 @@
         document.getElementById('t-scholarship-inputs').style.display = isChecked ? 'flex' : 'none';
     }
 
+    function toggleRetakeInputs() {
+        const isChecked = document.getElementById('t-has-retake').checked;
+        const div = document.getElementById('t-retake-inputs');
+        div.style.display = isChecked ? 'block' : 'none';
+        if (!isChecked) {
+            document.getElementById('t-retake-credits').value = "0";
+        }
+    }
+
     function loadTuitionFromPlanner() {
         const select = document.getElementById('t-planner-select');
         const triName = select.value;
@@ -2775,6 +2799,11 @@
         const costPerCredit = parseFloat(document.getElementById('t-cost-per-credit').value) || 6500;
         const trimesterFee = parseFloat(document.getElementById('t-trimester-fee').value) || 6500;
 
+        const hasRetake = document.getElementById('t-has-retake') ? document.getElementById('t-has-retake').checked : false;
+        const retakeCredits = hasRetake ? (parseFloat(document.getElementById('t-retake-credits').value) || 0) : 0;
+        const retakeCostPerCredit = costPerCredit * 0.5; // Half cost per credit
+        const retakeTuition = retakeCredits * retakeCostPerCredit;
+
         const hasWaiver = document.getElementById('t-has-waiver').checked;
         const waiverPct = hasWaiver ? parseFloat(document.getElementById('t-waiver-select').value) : 0;
 
@@ -2806,13 +2835,24 @@
             finalDiscount = displayWaiverDiscount;
         }
 
-        const totalFee = (baseTuition - finalDiscount) + trimesterFee;
+        const totalFee = (baseTuition - finalDiscount) + retakeTuition + trimesterFee;
 
         document.getElementById('t-base-tuition').innerText = baseTuition.toLocaleString('en-IN') + ' ৳';
         document.getElementById('t-trim-fee').innerText = trimesterFee.toLocaleString('en-IN') + ' ৳';
         document.getElementById('t-total-fee').innerText = totalFee.toLocaleString('en-IN') + ' ৳';
         updateInstallmentPlan(totalFee);
         
+        const rBox = document.getElementById('t-retake-box');
+        if (rBox) {
+            if (retakeTuition > 0) {
+                rBox.style.display = 'block';
+                document.getElementById('t-retake-fee').innerText = '+' + retakeTuition.toLocaleString('en-IN') + ' ৳';
+                document.getElementById('t-retake-note').innerText = `(${retakeCredits} cr @ ${retakeCostPerCredit.toLocaleString('en-IN')} ৳)`;
+            } else {
+                rBox.style.display = 'none';
+            }
+        }
+
         const sBox = document.getElementById('t-scholarship-box');
         if (displayScholarshipDiscount > 0) {
             sBox.style.display = 'block';
@@ -2849,11 +2889,18 @@
         div.style.marginBottom = '15px';
         
         div.innerHTML = `
-            <div style="flex:1; min-width: 150px;">
-                <label class="sem-label" style="font-size: 0.9em; font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 5px;">Trimester ${rowCount} Credits</label>
-                <input type="number" class="multi-credits-input" placeholder="e.g. 12" value="12" step="0.5">
+            <div style="flex:1; min-width: 130px;">
+                <label class="sem-label" style="font-size: 0.9em; font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 5px;">Trimester ${rowCount} Regular Cr</label>
+                <input type="number" class="multi-credits-input" placeholder="e.g. 12" value="12" step="0.5" min="0">
             </div>
-            <div style="flex:1; min-width: 190px;">
+            <div style="flex:1; min-width: 150px;">
+                <label style="font-weight: bold; color: var(--text-main); display: flex; align-items: center; gap: 8px; margin-bottom: 8px; cursor: pointer;">
+                    <input type="checkbox" class="multi-retake-check" style="width: 18px; height: 18px; accent-color: var(--primary-color);" onchange="const inp = this.closest('.multi-sem-row').querySelector('.multi-retake-input'); inp.disabled = !this.checked; if(!this.checked) inp.value='0';">
+                    Retake? (Half Cost)
+                </label>
+                <input type="number" class="multi-retake-input" placeholder="Retake Cr (e.g. 3)" value="0" step="0.5" min="0" disabled>
+            </div>
+            <div style="flex:1; min-width: 170px;">
                 <label style="font-weight: bold; color: var(--text-main); display: flex; align-items: center; gap: 8px; margin-bottom: 8px; cursor: pointer;">
                     <input type="checkbox" class="multi-scholarship-check" style="width: 18px; height: 18px; accent-color: var(--primary-color);" onchange="this.closest('.multi-sem-row').querySelector('.multi-scholarship-select').disabled = !this.checked">
                     Scholarship
@@ -2873,12 +2920,12 @@
 
     function updateMultiSemLabels() {
         document.querySelectorAll('.multi-sem-row').forEach((row, index) => {
-            row.querySelector('.sem-label').innerText = `Trimester ${index + 1} Credits`;
+            row.querySelector('.sem-label').innerText = `Trimester ${index + 1} Regular Cr`;
         });
     }
 
     function calculateMultiSem() {
-        let totalTuition = 0, totalCredits = 0, semCount = 0, totalDiscount = 0;
+        let totalTuition = 0, totalCredits = 0, semCount = 0, totalDiscount = 0, totalRetakeCost = 0;
         
         const costPerCredit = parseFloat(document.getElementById('t-cost-per-credit').value) || 6500;
         const trimesterFee = parseFloat(document.getElementById('t-trimester-fee').value) || 6500;
@@ -2890,10 +2937,19 @@
         let prevCredits = parseFloat(document.getElementById('t-current-credits').value) || 0;
 
         rows.forEach(row => {
-            const credits = parseFloat(row.querySelector('.multi-credits-input').value) || 0;
+            const regularCredits = parseFloat(row.querySelector('.multi-credits-input').value) || 0;
+            const retakeCheck = row.querySelector('.multi-retake-check');
+            const retakeInp = row.querySelector('.multi-retake-input');
+            const hasRetake = retakeCheck ? retakeCheck.checked : false;
+            const retakeCredits = hasRetake && retakeInp ? (parseFloat(retakeInp.value) || 0) : 0;
             
-            if (credits > 0) {
-                let baseTuition = credits * costPerCredit;
+            const totalRowCredits = regularCredits + retakeCredits;
+            
+            if (totalRowCredits > 0) {
+                let baseRegularTuition = regularCredits * costPerCredit;
+                let retakeTuition = retakeCredits * (costPerCredit * 0.5); // Half cost per credit
+                totalRetakeCost += retakeTuition;
+
                 let rowDiscount = 0;
                 const scholarshipCheck = row.querySelector('.multi-scholarship-check');
                 const scholarshipSelect = row.querySelector('.multi-scholarship-select');
@@ -2901,23 +2957,23 @@
                 const scholarshipPct = hasScholarship && scholarshipSelect ? parseFloat(scholarshipSelect.value) : 0;
 
                 if (scholarshipPct > waiverPct) {
-                    let eligibleCredits = (prevCredits === 0) ? credits : Math.min(credits, prevCredits);
-                    let extraCredits = Math.max(0, credits - eligibleCredits);
+                    let eligibleCredits = (prevCredits === 0) ? regularCredits : Math.min(regularCredits, prevCredits);
+                    let extraCredits = Math.max(0, regularCredits - eligibleCredits);
                     
                     let sDiscount = eligibleCredits * costPerCredit * (scholarshipPct / 100);
                     let wDiscount = hasWaiver ? (extraCredits * costPerCredit * (waiverPct / 100)) : 0;
                     
                     rowDiscount = sDiscount + wDiscount;
                 } else if (waiverPct >= scholarshipPct && waiverPct > 0) {
-                    rowDiscount = credits * costPerCredit * (waiverPct / 100);
+                    rowDiscount = regularCredits * costPerCredit * (waiverPct / 100);
                 }
 
-                totalTuition += (baseTuition - rowDiscount) + trimesterFee;
-                totalCredits += credits;
+                totalTuition += (baseRegularTuition - rowDiscount) + retakeTuition + trimesterFee;
+                totalCredits += totalRowCredits;
                 totalDiscount += rowDiscount;
                 semCount++;
                 
-                prevCredits = credits; 
+                prevCredits = regularCredits; 
             }
         });
 
@@ -2927,8 +2983,15 @@
         
         const savedText = document.getElementById('t-multi-saved');
         if (savedText) {
+            let noteParts = [];
             if (totalDiscount > 0) {
-                savedText.innerText = `Estimated Total Savings: -${totalDiscount.toLocaleString('en-IN')} ৳`;
+                noteParts.push(`Estimated Total Savings: -${totalDiscount.toLocaleString('en-IN')} ৳`);
+            }
+            if (totalRetakeCost > 0) {
+                noteParts.push(`Includes Retake Fees: +${totalRetakeCost.toLocaleString('en-IN')} ৳ (50% rate)`);
+            }
+            if (noteParts.length > 0) {
+                savedText.innerHTML = noteParts.join('<br>');
                 savedText.style.display = 'block';
             } else {
                 savedText.style.display = 'none';
