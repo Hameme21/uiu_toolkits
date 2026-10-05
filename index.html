@@ -1019,7 +1019,31 @@
                 max-height: 2.35em;
             }
         }
-    </style>
+/* Responsive navigation redesign */
+        nav{min-height:72px;padding:12px clamp(16px,3vw,40px);gap:24px;border-bottom:1px solid rgba(243,112,33,.2);border-image:none}
+        .logo{flex:0 0 auto;font-size:1.08rem;letter-spacing:-.02em}
+        .nav-buttons{flex:1 1 auto;justify-content:flex-end;flex-wrap:nowrap;gap:6px}
+        .nav-btn{min-height:42px;padding:8px clamp(10px,1.1vw,16px);border:1px solid transparent;border-radius:12px;font-size:.9rem;color:var(--text-muted);transition:background-color .2s ease,color .2s ease,box-shadow .2s ease}
+        .nav-btn.active{color:white;box-shadow:0 4px 12px rgba(243,112,33,.2)}
+        .nav-btn:hover{transform:none;background:rgba(243,112,33,.1);color:var(--primary-color);border-color:rgba(243,112,33,.2);box-shadow:none}
+        body.dark-mode .nav-btn{color:var(--text-muted)} body.dark-mode .nav-btn.active{color:#121212} body.dark-mode .nav-btn:hover{color:var(--primary-color)}
+        .nav-menu-toggle{display:none}
+        .nav-btn:focus-visible,.nav-menu-toggle:focus-visible{outline:3px solid rgba(243,112,33,.45);outline-offset:2px}
+        @media(max-width:900px){nav{gap:12px;padding-inline:16px}.logo{font-size:1rem}.nav-buttons{gap:2px}.nav-btn{padding-inline:9px;font-size:.82rem}}
+        @media(max-width:768px){
+          nav{flex-direction:row;align-items:center;gap:10px;padding:calc(10px + env(safe-area-inset-top,0px)) 14px 10px}
+          .logo{width:auto;justify-content:flex-start;flex:1;font-size:1rem}
+          .nav-menu-toggle{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 14px;border:1px solid var(--border-color);border-radius:12px;background:var(--bg-container);color:var(--text-main);font:inherit;font-weight:650;cursor:pointer}
+          .nav-menu-icon{color:var(--primary-color);font-size:1.15rem;line-height:1}
+          .nav-buttons{display:none;position:absolute;top:calc(100% + 1px);left:10px;right:10px;width:auto;padding:10px;flex-direction:column;align-items:stretch;gap:4px;background:var(--bg-container);border:1px solid var(--border-color);border-radius:16px;box-shadow:0 16px 38px rgba(0,0,0,.16)}
+          .nav-buttons.is-open{display:flex}
+          .nav-btn{width:100%;min-height:48px;padding:10px 14px;display:flex;align-items:center;text-align:left;border-radius:10px;font-size:.96rem}
+          .nav-btn.active,.nav-btn:hover{transform:none}
+          body.dark-mode .nav-buttons{box-shadow:0 16px 38px rgba(0,0,0,.55)}
+          .container{margin:12px auto;padding:0 10px}
+        }
+        @media(prefers-reduced-motion:reduce){.nav-btn,.nav-buttons{transition:none}}
+            </style>
 </head>
 <body>
 
@@ -1028,7 +1052,8 @@
         <img src="logo.png" alt="UIU Toolkits Logo" style="height: 30px; width: auto; border-radius: 4px;">
         UIU Toolkits
     </a>
-    <div class="nav-buttons">
+    <button class="nav-menu-toggle" type="button" aria-expanded="false" aria-controls="primary-navigation" onclick="toggleNavigation()" aria-label="Open navigation"><span class="nav-menu-icon" aria-hidden="true">☰</span><span>Tools</span></button>
+    <div class="nav-buttons" id="primary-navigation">
         <button class="nav-btn active" onclick="switchTab('dashboard')" id="btn-dashboard">Dashboard</button>
         <button class="nav-btn" onclick="switchTab('exam')" id="btn-exam">Exam Routine</button>
         <button class="nav-btn" onclick="switchTab('sectionplanner')" id="btn-sectionplanner">Section Planner</button>
@@ -1939,7 +1964,7 @@
     }
 
     // --- TAB SWITCHER ---
-    function switchTab(tab) {
+    function toggleNavigation(force) {\n        const menu = document.getElementById('primary-navigation');\n        const toggle = document.querySelector('.nav-menu-toggle');\n        const open = typeof force === 'boolean' ? force : !menu.classList.contains('is-open');\n        menu.classList.toggle('is-open', open);\n        toggle.setAttribute('aria-expanded', String(open));\n        toggle.setAttribute('aria-label', open ? 'Close navigation' : 'Open navigation');\n        toggle.querySelector('.nav-menu-icon').textContent = open ? '✕' : '☰';\n    }\n\n    document.addEventListener('keydown', event => { if (event.key === 'Escape') toggleNavigation(false); });\n\n    function switchTab(tab) {
         document.querySelectorAll('.tool-section').forEach(el => el.classList.remove('active'));
         document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
         document.getElementById(tab + '-section').classList.add('active');
