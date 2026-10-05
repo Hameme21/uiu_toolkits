@@ -1043,7 +1043,8 @@
           body.dark-mode .nav-buttons{box-shadow:0 16px 38px rgba(0,0,0,.55)}
           .container{margin:12px auto;padding:0 10px}
         }
-        @media(prefers-reduced-motion:reduce){.nav-btn,.nav-buttons{transition:none}}
+        @media(max-width:768px){.nav-theme{width:44px;min-width:44px;max-width:44px;flex:0 0 44px;padding:0}}
+                @media(prefers-reduced-motion:reduce){.nav-btn,.nav-buttons{transition:none}}
         
         @media(max-width:768px){
           body.dark-mode nav{background-color:rgba(30,30,30,.95);border-bottom-color:rgba(243,112,33,.25)}
