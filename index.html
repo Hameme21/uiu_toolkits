@@ -1964,7 +1964,22 @@
     }
 
     // --- TAB SWITCHER ---
-    function toggleNavigation(force) {\n        const menu = document.getElementById('primary-navigation');\n        const toggle = document.querySelector('.nav-menu-toggle');\n        const open = typeof force === 'boolean' ? force : !menu.classList.contains('is-open');\n        menu.classList.toggle('is-open', open);\n        toggle.setAttribute('aria-expanded', String(open));\n        toggle.setAttribute('aria-label', open ? 'Close navigation' : 'Open navigation');\n        toggle.querySelector('.nav-menu-icon').textContent = open ? '✕' : '☰';\n    }\n\n    document.addEventListener('keydown', event => { if (event.key === 'Escape') toggleNavigation(false); });\n\n    function switchTab(tab) {
+    function toggleNavigation(force) {
+        const menu = document.getElementById('primary-navigation');
+        const toggle = document.querySelector('.nav-menu-toggle');
+        const open = typeof force === 'boolean' ? force : !menu.classList.contains('is-open');
+        menu.classList.toggle('is-open', open);
+        toggle.setAttribute('aria-expanded', String(open));
+        toggle.setAttribute('aria-label', open ? 'Close navigation' : 'Open navigation');
+        toggle.querySelector('.nav-menu-icon').textContent = open ? '✕' : '☰';
+    }
+
+    document.addEventListener('keydown', event => {
+        if (event.key === 'Escape') toggleNavigation(false);
+    });
+
+    function switchTab(tab) {
+        toggleNavigation(false);
         document.querySelectorAll('.tool-section').forEach(el => el.classList.remove('active'));
         document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
         document.getElementById(tab + '-section').classList.add('active');
