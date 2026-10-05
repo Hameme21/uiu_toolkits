@@ -1019,7 +1019,8 @@
                 max-height: 2.35em;
             }
         }
-/* Responsive navigation redesign */
+.nav-theme{flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;padding:0}
+        /* Responsive navigation redesign */
         nav{min-height:72px;padding:12px clamp(16px,3vw,40px);gap:24px;border-bottom:1px solid rgba(243,112,33,.2);border-image:none}
         .logo{flex:0 0 auto;font-size:1.08rem;letter-spacing:-.02em}
         .nav-buttons{flex:1 1 auto;justify-content:flex-end;flex-wrap:nowrap;gap:6px}
@@ -1061,6 +1062,7 @@
         UIU Toolkits
     </a>
     <button class="nav-menu-toggle" type="button" aria-expanded="false" aria-controls="primary-navigation" onclick="toggleNavigation()" aria-label="Open navigation"><span class="nav-menu-icon" aria-hidden="true">☰</span><span>Tools</span></button>
+    <button class="nav-btn nav-theme" onclick="toggleTheme()" id="btn-theme" title="Toggle Theme" aria-label="Toggle theme">💻</button>
     <div class="nav-buttons" id="primary-navigation">
         <button class="nav-btn active" onclick="switchTab('dashboard')" id="btn-dashboard">Dashboard</button>
         <button class="nav-btn" onclick="switchTab('exam')" id="btn-exam">Exam Routine</button>
@@ -1069,7 +1071,7 @@
         <button class="nav-btn" onclick="switchTab('calendar')" id="btn-calendar">Calendar</button>
         <button class="nav-btn" onclick="switchTab('planner')" id="btn-planner">Course Planner</button>
         <button class="nav-btn" onclick="switchTab('tuition')" id="btn-tuition">Tuition Calc</button>
-        <button class="nav-btn" onclick="toggleTheme()" id="btn-theme" title="Toggle Theme">💻</button>
+        
     </div>
 </nav>
 
