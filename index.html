@@ -1398,6 +1398,109 @@
         .btn-facebook {
             background: #1877f2;
         }
+
+        /* --- CALENDAR ROUTINE & DAY STATUS STYLES --- */
+        .calendar-routine-banner {
+            background: var(--bg-container);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+        }
+        .routine-tag {
+            font-size: 0.68rem;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: inline-block;
+            max-width: 95px;
+            letter-spacing: 0.2px;
+        }
+        .routine-badge-class {
+            background: #e6f4ea;
+            color: #137333;
+        }
+        body.dark-mode .routine-badge-class {
+            background: #1b3d27;
+            color: #81c995;
+        }
+        .routine-badge-off {
+            background: #f1f3f4;
+            color: #5f6368;
+        }
+        body.dark-mode .routine-badge-off {
+            background: #2d3135;
+            color: #9aa0a6;
+        }
+        .routine-badge-makeup {
+            background: #e8f0fe;
+            color: #1a73e8;
+            border: 1px solid #c2e7ff;
+            font-weight: 800;
+        }
+        body.dark-mode .routine-badge-makeup {
+            background: #172b4d;
+            color: #8ab4f8;
+            border-color: #2b4570;
+        }
+        .routine-badge-holiday {
+            background: #fce8e6;
+            color: #d93025;
+        }
+        body.dark-mode .routine-badge-holiday {
+            background: #3c1e1e;
+            color: #f28b82;
+        }
+        .routine-badge-break {
+            background: #e1f5fe;
+            color: #0288d1;
+        }
+        body.dark-mode .routine-badge-break {
+            background: #102a3a;
+            color: #4fc3f7;
+        }
+        .routine-badge-exam {
+            background: #fef7e0;
+            color: #b06000;
+        }
+        body.dark-mode .routine-badge-exam {
+            background: #3c2f0f;
+            color: #fdd663;
+        }
+        .routine-badge-suspended {
+            background: #fef0f0;
+            color: #c5221f;
+            border: 1px dashed #f28b82;
+        }
+        body.dark-mode .routine-badge-suspended {
+            background: #3e1b19;
+            color: #f28b82;
+        }
+        .calendar-day {
+            cursor: pointer;
+            position: relative;
+        }
+        .calendar-day:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+            border-color: var(--primary-color);
+        }
+        .calendar-day.is-class-day {
+            border-top: 3px solid #10b981;
+        }
+        .calendar-day.is-makeup-day {
+            border-top: 3px solid #0081d1;
+        }
+        .calendar-day.is-holiday-day {
+            border-top: 3px solid #ef4444;
+        }
+        .calendar-day.is-exam-day {
+            border-top: 3px solid #f59e0b;
+        }
     </style>
 </head>
 <body>
@@ -1906,28 +2009,65 @@
     </div>
     
     <div id="calendar-section" class="tool-section">
-        <h1 class="gradient-text">Spring 2026 Academic Calendar</h1>
-        <p class="subtitle">Interactive Event Planner</p>
+        <h1 class="gradient-text">UIU Academic Calendar & Class Routine</h1>
+        <p class="subtitle">Official Trimester Schedules, 4-Day Class Structure & Make-up Routines</p>
+
+        <!-- Routine Legend & Info Banner -->
+        <div class="calendar-routine-banner">
+            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 8px;">
+                <h3 style="margin: 0; font-size: 1.1rem; color: var(--secondary-color); display: flex; align-items: center; gap: 8px;">
+                    <span>🗓️</span> UIU 4-Day Weekly Class Routine
+                </h3>
+                <span class="badge-status status-active" style="font-size: 0.8rem;">Sat • Sun • Tue • Wed</span>
+            </div>
+            <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0 0 12px 0; line-height: 1.45;">
+                Regular classes take place on <strong>Saturday, Sunday, Tuesday, and Wednesday</strong>. 
+                <strong>Monday, Thursday, and Friday</strong> are weekly off days unless assigned for a rescheduled make-up class. Click any date below for full schedule breakdown.
+            </p>
+            <div style="display: flex; flex-wrap: wrap; gap: 14px; font-size: 0.8rem; font-weight: 600;">
+                <span style="display: inline-flex; align-items: center; gap: 5px; color: var(--text-color);">
+                    <span style="width: 10px; height: 10px; border-radius: 50%; background: #10b981; display: inline-block;"></span> Class Days (Sat, Sun, Tue, Wed)
+                </span>
+                <span style="display: inline-flex; align-items: center; gap: 5px; color: var(--text-color);">
+                    <span style="width: 10px; height: 10px; border-radius: 50%; background: #0081d1; display: inline-block;"></span> Make-up / Rescheduled Class
+                </span>
+                <span style="display: inline-flex; align-items: center; gap: 5px; color: var(--text-muted);">
+                    <span style="width: 10px; height: 10px; border-radius: 50%; background: #9ca3af; display: inline-block;"></span> Weekly Off (Mon, Thu, Fri)
+                </span>
+                <span style="display: inline-flex; align-items: center; gap: 5px; color: #d32f2f;">
+                    <span style="width: 10px; height: 10px; border-radius: 50%; background: #ef4444; display: inline-block;"></span> Holiday / Trimester Break
+                </span>
+                <span style="display: inline-flex; align-items: center; gap: 5px; color: #b08100;">
+                    <span style="width: 10px; height: 10px; border-radius: 50%; background: #f59e0b; display: inline-block;"></span> Exams & Prep (No Regular Class)
+                </span>
+            </div>
+        </div>
 
         <div id="today-event-banner" style="display: none; text-align: center; padding: 20px; margin-bottom: 25px; border-radius: 12px; font-weight: bold; font-size: 1.2em; box-shadow: 0 4px 15px rgba(0,0,0,0.05);"></div>
 
         <div class="search-box">
-            <input type="text" id="calendarSearch" placeholder="Search events or dates (e.g., 'Mid-Term', 'Eid', 'Mar 15')..." oninput="searchCalendarEvents()">
+            <input type="text" id="calendarSearch" placeholder="Search events, routines or dates (e.g., 'Make-up', 'Break', 'Mid-Term', 'Eid')..." oninput="searchCalendarEvents()">
             <div class="suggestions" id="calendarSuggestions"></div>
         </div>
 
         <div class="calendar-controls">
-            <button onclick="changeMonth(-1)">&#10094; Prev</button>
+            <button type="button" onclick="changeMonth(-1)">&#10094; Prev</button>
             <h2 id="month-year-display">February 2026</h2>
-            <button onclick="changeMonth(1)">Next &#10095;</button>
+            <button type="button" onclick="changeMonth(1)">Next &#10095;</button>
         </div>
 
         <div class="calendar-wrapper">
             <div class="calendar-grid-header">
-                <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+                <div>Sun <small style="display:block; font-size: 0.72em; opacity: 0.85; font-weight: 500;">Class</small></div>
+                <div>Mon <small style="display:block; font-size: 0.72em; opacity: 0.85; font-weight: 500;">Off</small></div>
+                <div>Tue <small style="display:block; font-size: 0.72em; opacity: 0.85; font-weight: 500;">Class</small></div>
+                <div>Wed <small style="display:block; font-size: 0.72em; opacity: 0.85; font-weight: 500;">Class</small></div>
+                <div>Thu <small style="display:block; font-size: 0.72em; opacity: 0.85; font-weight: 500;">Off</small></div>
+                <div>Fri <small style="display:block; font-size: 0.72em; opacity: 0.85; font-weight: 500;">Off</small></div>
+                <div>Sat <small style="display:block; font-size: 0.72em; opacity: 0.85; font-weight: 500;">Class</small></div>
             </div>
             <div id="calendar-days" class="calendar-grid">
-                </div>
+            </div>
         </div>
     </div>
 
@@ -2232,6 +2372,7 @@
         { start: "2026-06-21", end: "2026-06-25", title: "Final Exams", type: "exam" },
         { start: "2026-06-26", end: "2026-06-26", title: "Ashura", type: "holiday" },
         { start: "2026-06-27", end: "2026-06-28", title: "Final Exams", type: "exam" },
+        { start: "2026-06-29", end: "2026-07-06", title: "Holiday: Trimester Break (Spring → Summer)", type: "holiday" },
         { start: "2026-07-07", end: "2026-07-07", title: "Summer 2026 Begins", type: "regular" },
         { start: "2026-07-04", end: "2026-07-06", title: "Course Advising & Registration", type: "regular" },
         { start: "2026-07-06", end: "2026-07-06", title: "Last day of Course Advising & Registration without Fine", type: "regular" },
@@ -2257,6 +2398,7 @@
         { start: "2026-10-06", end: "2026-10-06", title: "Last date of 3rd Installment", type: "regular" },
         { start: "2026-10-07", end: "2026-10-09", title: "Classes will remain suspended", type: "regular" },
         { start: "2026-10-10", end: "2026-10-17", title: "Final Exam", type: "exam" },
+        { start: "2026-10-18", end: "2026-10-26", title: "Holiday: Trimester Break (Summer → Fall)", type: "holiday" },
         { start: "2026-10-20", end: "2026-10-21", title: "Holiday: Durga Puja", type: "holiday" },
         { start: "2026-10-22", end: "2026-10-22", title: "Last day of Grade Submission (Including Self-Study courses)", type: "regular" },
         { start: "2026-10-27", end: "2026-10-27", title: "Fall 2026 Trimester Begins", type: "regular" },
@@ -3060,6 +3202,296 @@
     let currentCalYear = actualToday.getFullYear();
     let currentCalMonth = actualToday.getMonth(); 
 
+    
+    // --- UIU 4-DAY CLASS ROUTINE & CALENDAR ENGINE ---
+    const semesterSchedules = [
+        {
+            name: "Spring 2026",
+            start: "2026-02-28",
+            regularEnd: "2026-06-17", // Exam prep begins 2026-06-18
+            finalStart: "2026-06-21",
+            finalEnd: "2026-06-28",
+            breakEnd: "2026-07-06",   // Break until Summer begins 2026-07-07
+            nextSemStart: "2026-07-07"
+        },
+        {
+            name: "Summer 2026",
+            start: "2026-07-07",
+            regularEnd: "2026-10-06", // Suspended starts 2026-10-07
+            finalStart: "2026-10-10",
+            finalEnd: "2026-10-17",
+            breakEnd: "2026-10-26",   // Break until Fall begins 2026-10-27
+            nextSemStart: "2026-10-27"
+        },
+        {
+            name: "Fall 2026",
+            start: "2026-10-27",
+            regularEnd: "2027-02-15",
+            finalStart: "2027-02-20",
+            finalEnd: "2027-02-28",
+            breakEnd: "2027-03-05",
+            nextSemStart: "2027-03-06"
+        }
+    ];
+
+    const specialRoutineDays = {
+        "2026-04-13": {
+            routineDay: "Tuesday",
+            type: "makeup",
+            badge: "🔄 Tue Routine",
+            title: "Make-up Class (Tuesday Routine)",
+            reason: "Monday is normally an off day, but UIU scheduled a Make-up class following Tuesday's routine because Tuesday April 14 is Holiday: Bangla New Year."
+        },
+        "2026-04-25": {
+            routineDay: "Tuesday",
+            type: "rescheduled",
+            badge: "🔄 Tue Routine",
+            title: "Rescheduled Class (Tuesday Routine)",
+            reason: "Saturday class follows Tuesday's routine."
+        },
+        "2026-04-26": {
+            routineDay: "Wednesday",
+            type: "rescheduled",
+            badge: "🔄 Wed Routine",
+            title: "Rescheduled Class (Wednesday Routine)",
+            reason: "Sunday class follows Wednesday's routine."
+        },
+        "2026-08-18": {
+            routineDay: "Saturday",
+            type: "rescheduled",
+            badge: "🔄 Sat Routine",
+            title: "Rescheduled Class (Saturday Routine)",
+            reason: "Tuesday class follows Saturday's routine."
+        },
+        "2026-09-24": {
+            routineDay: "Wednesday",
+            type: "makeup",
+            badge: "🔄 Wed Routine",
+            title: "Make-up Class (Wednesday Routine)",
+            reason: "Thursday is normally an off day, but UIU scheduled Wednesday's class routine today to make up for July Mass Uprising Day on August 5."
+        }
+    };
+
+    function getDaySchedule(dateStr) {
+        const parts = dateStr.split('-');
+        const dateObj = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+        const dayOfWeek = dateObj.getDay();
+        const weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+        const weekdayName = weekdays[dayOfWeek];
+
+        // 1. Holiday Check
+        const holidayEvt = academicEvents.find(e => e.type === 'holiday' && dateStr >= e.start && dateStr <= e.end);
+        if (holidayEvt) {
+            const isBreak = holidayEvt.title.toLowerCase().includes('break');
+            return {
+                status: isBreak ? 'break' : 'holiday',
+                badgeText: isBreak ? '🌴 Trimester Break' : '🎉 Holiday',
+                badgeClass: isBreak ? 'routine-badge-break' : 'routine-badge-holiday',
+                cardClass: isBreak ? 'is-holiday-day' : 'is-holiday-day',
+                hasClasses: false,
+                activeRoutine: null,
+                weekdayName: weekdayName,
+                title: holidayEvt.title,
+                explanation: isBreak 
+                    ? `Trimester break vacation between semesters. University closed and no classes held.` 
+                    : `University Holiday: '${holidayEvt.title}'. University closed and no classes held.`
+            };
+        }
+
+        // 2. Exam Day Check
+        const examEvt = academicEvents.find(e => e.type === 'exam' && dateStr >= e.start && dateStr <= e.end);
+        if (examEvt) {
+            return {
+                status: 'exam',
+                badgeText: '📝 Exam Day',
+                badgeClass: 'routine-badge-exam',
+                cardClass: 'is-exam-day',
+                hasClasses: false,
+                activeRoutine: null,
+                weekdayName: weekdayName,
+                title: examEvt.title,
+                explanation: `${examEvt.title} period. Regular lectures are suspended. Please consult your Exam Routine.`
+            };
+        }
+
+        // 3. Classes Suspended / Exam Prep Check
+        const suspendEvt = academicEvents.find(e => 
+            (e.title.toLowerCase().includes('suspend') || e.title.toLowerCase().includes('exam prep')) 
+            && dateStr >= e.start && dateStr <= e.end
+        );
+        if (suspendEvt) {
+            return {
+                status: 'suspended',
+                badgeText: '🛑 Suspended',
+                badgeClass: 'routine-badge-suspended',
+                cardClass: 'is-exam-day',
+                hasClasses: false,
+                activeRoutine: null,
+                weekdayName: weekdayName,
+                title: suspendEvt.title,
+                explanation: `Semester classes have concluded. Classes remain suspended for final exam preparation (${suspendEvt.title}).`
+            };
+        }
+
+        // 4. Semester Break Check (between final exams and next semester begin)
+        const breakSem = semesterSchedules.find(s => dateStr > s.finalEnd && dateStr < s.nextSemStart);
+        if (breakSem) {
+            return {
+                status: 'break',
+                badgeText: '🌴 Trimester Break',
+                badgeClass: 'routine-badge-break',
+                cardClass: 'is-holiday-day',
+                hasClasses: false,
+                activeRoutine: null,
+                weekdayName: weekdayName,
+                title: `Trimester Break (${breakSem.name} → Next Trimester)`,
+                explanation: `Semester break vacation. Classes for the next trimester begin on ${breakSem.nextSemStart}.`
+            };
+        }
+
+        // 5. Special Make-up or Rescheduled Class Day
+        if (specialRoutineDays[dateStr]) {
+            const special = specialRoutineDays[dateStr];
+            return {
+                status: special.type,
+                badgeText: special.badge,
+                badgeClass: 'routine-badge-makeup',
+                cardClass: 'is-makeup-day',
+                hasClasses: true,
+                activeRoutine: special.routineDay,
+                weekdayName: weekdayName,
+                title: special.title,
+                explanation: special.reason
+            };
+        }
+
+        // 6. Active Semester Class Window Check
+        const activeSem = semesterSchedules.find(s => dateStr >= s.start && dateStr <= s.regularEnd);
+        if (!activeSem) {
+            return {
+                status: 'off_day',
+                badgeText: '☕ No Class',
+                badgeClass: 'routine-badge-off',
+                cardClass: '',
+                hasClasses: false,
+                activeRoutine: null,
+                weekdayName: weekdayName,
+                title: 'Non-instructional period',
+                explanation: 'No regular classes scheduled outside trimester instruction dates.'
+            };
+        }
+
+        // 7. Regular Class Days (Saturday, Sunday, Tuesday, Wednesday)
+        const regularClassDays = ["Saturday", "Sunday", "Tuesday", "Wednesday"];
+        if (regularClassDays.includes(weekdayName)) {
+            return {
+                status: 'class_day',
+                badgeText: `📚 ${weekdayName.slice(0,3)} Class`,
+                badgeClass: 'routine-badge-class',
+                cardClass: 'is-class-day',
+                hasClasses: true,
+                activeRoutine: weekdayName,
+                weekdayName: weekdayName,
+                title: `Regular ${weekdayName} Class Day`,
+                explanation: `Regular class day at UIU following the standard ${weekdayName} routine.`
+            };
+        } else {
+            // Monday, Thursday, Friday are Weekly Off Days
+            return {
+                status: 'off_day',
+                badgeText: '☕ Weekly Off',
+                badgeClass: 'routine-badge-off',
+                cardClass: '',
+                hasClasses: false,
+                activeRoutine: null,
+                weekdayName: weekdayName,
+                title: `Weekly Off (${weekdayName})`,
+                explanation: `${weekdayName} is a scheduled weekly off day at UIU (Off days: Monday, Thursday, Friday).`
+            };
+        }
+    }
+    window.getDaySchedule = getDaySchedule;
+
+    function showCalendarDayModal(dateStr) {
+        const schedule = getDaySchedule(dateStr);
+        const parts = dateStr.split('-');
+        const dateObj = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+        const formattedDate = dateObj.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+        const dateEl = document.getElementById('cal-modal-date-full');
+        const titleEl = document.getElementById('cal-modal-day-title');
+        const badgeContainer = document.getElementById('cal-modal-status-badge-container');
+        const expEl = document.getElementById('cal-modal-explanation');
+        const enrolledSec = document.getElementById('cal-modal-enrolled-section');
+        const classesList = document.getElementById('cal-modal-classes-list');
+        const eventsSec = document.getElementById('cal-modal-events-section');
+        const eventsList = document.getElementById('cal-modal-events-list');
+
+        if (dateEl) dateEl.textContent = formattedDate;
+        if (titleEl) titleEl.textContent = schedule.title;
+        if (badgeContainer) {
+            badgeContainer.innerHTML = `<span class="routine-tag ${schedule.badgeClass}" style="font-size: 0.85rem; padding: 4px 10px; max-width: none;">${schedule.badgeText}</span>`;
+        }
+        if (expEl) expEl.textContent = schedule.explanation;
+
+        // Render Enrolled classes if applicable
+        if (schedule.hasClasses && schedule.activeRoutine) {
+            enrolledSec.style.display = 'block';
+            const enrolled = mySectionClasses.filter(c => {
+                if (!c.day) return false;
+                if (c.day.includes('&')) {
+                    const parts = c.day.split('&').map(s => s.trim());
+                    return parts.includes(schedule.activeRoutine);
+                }
+                return c.day.trim() === schedule.activeRoutine;
+            });
+
+            if (enrolled.length > 0) {
+                classesList.innerHTML = enrolled.map(c => {
+                    const slotTime = c.type === 'Theory' ? (theoryTimeSlots[c.slotIndex] || 'Theory') : (labTimeSlots[c.slotIndex] || 'Lab');
+                    return `
+                        <div style="background: var(--bg-container); border: 1px solid var(--border-color); border-radius: 8px; padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;">
+                            <div>
+                                <strong>${c.course}</strong>
+                                <span style="font-size: 0.8rem; background: var(--course-added-bg); color: var(--primary-color); padding: 2px 6px; border-radius: 4px; margin-left: 4px;">Sec ${c.section}</span>
+                                <div style="font-size: 0.8rem; color: var(--text-muted);">${slotTime}</div>
+                            </div>
+                            <span class="badge-status ${c.type === 'Theory' ? 'status-active' : 'status-warning'}" style="font-size: 0.75rem;">${c.type}</span>
+                        </div>
+                    `;
+                }).join('');
+            } else {
+                classesList.innerHTML = `<div style="color: var(--text-muted); font-size: 0.88rem; padding: 4px 0;">No courses added for ${schedule.activeRoutine} in Section Planner.</div>`;
+            }
+        } else {
+            enrolledSec.style.display = 'none';
+        }
+
+        // Render academic events for date
+        const matchingEvts = academicEvents.filter(e => dateStr >= e.start && dateStr <= e.end);
+        if (matchingEvts.length > 0) {
+            eventsSec.style.display = 'block';
+            eventsList.innerHTML = matchingEvts.map(e => `
+                <div style="background: var(--bg-container); border: 1px solid var(--border-color); border-radius: 8px; padding: 8px 12px; font-size: 0.88rem;">
+                    <strong>${e.title}</strong>
+                    <div style="font-size: 0.78rem; color: var(--text-muted);">${e.start === e.end ? e.start : e.start + ' to ' + e.end}</div>
+                </div>
+            `).join('');
+        } else {
+            eventsSec.style.display = 'none';
+        }
+
+        openModal('calendar-day-modal');
+    }
+    window.showCalendarDayModal = showCalendarDayModal;
+
+    function openModal(id) {
+        const modal = document.getElementById(id);
+        if (modal) modal.classList.add('is-open');
+    }
+    window.openModal = openModal;
+
+
     function renderFullCalendar() {
         const daysContainer = document.getElementById('calendar-days');
         const monthYearDisplay = document.getElementById('month-year-display');
@@ -3085,21 +3517,24 @@
                              day === actualToday.getDate());
                              
             let todayClass = isToday ? ' today' : '';
-            let eventsHTML = '';
+            const schedule = getDaySchedule(currentCellDate);
             
+            let eventsHTML = '';
             academicEvents.forEach(evt => {
                 if (currentCellDate >= evt.start && currentCellDate <= evt.end) {
                     let typeClass = '';
                     if (evt.type === 'holiday') typeClass = 'event-holiday';
                     if (evt.type === 'exam') typeClass = 'event-exam';
-                    
                     eventsHTML += `<div class="event-badge ${typeClass}">${evt.title}</div>`;
                 }
             });
             
             daysContainer.innerHTML += `
-                <div class="calendar-day${todayClass}">
-                    <span class="day-num">${day}</span>
+                <div class="calendar-day${todayClass} ${schedule.cardClass}" onclick="showCalendarDayModal('${currentCellDate}')" title="Click to view routine details for ${currentCellDate}">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 4px; margin-bottom: 4px;">
+                        <span class="routine-tag ${schedule.badgeClass}">${schedule.badgeText}</span>
+                        <span class="day-num">${day}</span>
+                    </div>
                     ${eventsHTML}
                 </div>
             `;
@@ -3114,30 +3549,63 @@
     }
 
     function searchCalendarEvents() {
-        const input = document.getElementById('calendarSearch').value.toLowerCase();
+        const input = document.getElementById('calendarSearch').value.toLowerCase().trim();
         const suggestionBox = document.getElementById('calendarSuggestions');
         suggestionBox.innerHTML = '';
         if (input.length < 2) { suggestionBox.style.display = 'none'; return; }
 
-        const matches = academicEvents.filter(evt => {
+        const matches = [];
+
+        // 1. Search in academicEvents
+        academicEvents.forEach(evt => {
             const dateStr = new Date(evt.start).toLocaleDateString('en-US', { month: 'short', day: 'numeric'}).toLowerCase();
-            return evt.title.toLowerCase().includes(input) || evt.start.includes(input) || dateStr.includes(input);
+            if (evt.title.toLowerCase().includes(input) || evt.start.includes(input) || dateStr.includes(input) || (evt.type && evt.type.toLowerCase().includes(input))) {
+                matches.push({
+                    title: evt.title,
+                    date: evt.start,
+                    badge: evt.type === 'holiday' ? 'Holiday' : (evt.type === 'break' ? 'Break' : (evt.type === 'exam' ? 'Exam' : 'Event'))
+                });
+            }
         });
+
+        // 2. Search in specialRoutineDays (make-up / rescheduled days)
+        if (typeof specialRoutineDays !== 'undefined') {
+            Object.keys(specialRoutineDays).forEach(dateStr => {
+                const special = specialRoutineDays[dateStr];
+                const parts = dateStr.split('-');
+                const dObj = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+                const dateDisplay = dObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric'}).toLowerCase();
+                const searchHaystack = `${special.title} ${special.badge} ${special.reason} ${special.routineDay} ${dateStr} ${dateDisplay} makeup make-up routine`.toLowerCase();
+                if (searchHaystack.includes(input)) {
+                    if (!matches.some(m => m.date === dateStr && m.title === special.title)) {
+                        matches.push({
+                            title: special.title,
+                            date: dateStr,
+                            badge: special.badge
+                        });
+                    }
+                }
+            });
+        }
 
         if (matches.length > 0) {
             suggestionBox.style.display = 'block';
-            matches.forEach(match => {
+            matches.slice(0, 8).forEach(match => {
                 const div = document.createElement('div');
                 div.className = 'suggestion-item';
-                const dateStrDisplay = new Date(match.start).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-                div.innerHTML = `<strong>${match.title}</strong><span class="shortcut-badge">${dateStrDisplay}</span>`;
+                const parts = match.date.split('-');
+                const dObj = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+                const dateStrDisplay = dObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                div.innerHTML = `<strong>${match.title}</strong><span class="shortcut-badge" style="background:#eef2ff; color:#4f46e5; margin-left:6px;">${match.badge || ''}</span><span class="shortcut-badge">${dateStrDisplay}</span>`;
                 div.onclick = () => {
-                    const matchDate = new Date(match.start);
-                    currentCalYear = matchDate.getFullYear();
-                    currentCalMonth = matchDate.getMonth();
+                    currentCalYear = dObj.getFullYear();
+                    currentCalMonth = dObj.getMonth();
                     renderFullCalendar();
                     document.getElementById('calendarSearch').value = '';
                     suggestionBox.style.display = 'none';
+                    if (typeof showCalendarDayModal === 'function') {
+                        showCalendarDayModal(match.date);
+                    }
                 };
                 suggestionBox.appendChild(div);
             });
@@ -3667,29 +4135,38 @@
         const todayDayTag = document.getElementById('today-day-tag');
         if (todayDayTag) todayDayTag.textContent = todayWeekday;
 
-        // 3. Today at UIU -> Classes
+        // 3. Today at UIU -> Classes (Integrated with 4-day Routine & Calendar Engine)
         const classesContainer = document.getElementById('today-classes-list');
         const classesStatusBadge = document.getElementById('classes-status-badge');
+        const todaySchedule = getDaySchedule(todayStr);
 
-        const todayEvents = academicEvents.filter(evt => todayStr >= evt.start && todayStr <= evt.end);
-        const todayHoliday = todayEvents.find(evt => evt.type === 'holiday');
-        const todayExam = todayEvents.find(evt => evt.type === 'exam');
-        const todaySuspended = todayEvents.find(evt => evt.title.toLowerCase().includes('suspend'));
-
-        if (todayHoliday) {
+        if (todaySchedule.status === 'holiday') {
             if (classesStatusBadge) {
                 classesStatusBadge.className = 'badge-status status-suspended';
                 classesStatusBadge.textContent = 'Holiday 🎊';
             }
             if (classesContainer) {
                 classesContainer.innerHTML = `
-                    <div style="background: var(--course-added-bg); border-radius: 8px; padding: 12px; border-left: 4px solid #10b981;">
-                        <strong style="color: var(--primary-color);">Holiday Today:</strong> ${todayHoliday.title}
-                        <div style="font-size: 0.82rem; color: var(--text-muted); margin-top: 4px;">No university classes scheduled today. Enjoy your day!</div>
+                    <div style="background: var(--course-added-bg); border-radius: 8px; padding: 12px; border-left: 4px solid #ef4444;">
+                        <strong style="color: #d93025;">Holiday Today:</strong> ${todaySchedule.title}
+                        <div style="font-size: 0.82rem; color: var(--text-muted); margin-top: 4px;">${todaySchedule.explanation}</div>
                     </div>
                 `;
             }
-        } else if (todaySuspended) {
+        } else if (todaySchedule.status === 'break') {
+            if (classesStatusBadge) {
+                classesStatusBadge.className = 'badge-status status-active';
+                classesStatusBadge.textContent = 'Trimester Break 🏖️';
+            }
+            if (classesContainer) {
+                classesContainer.innerHTML = `
+                    <div style="background: var(--course-added-bg); border-radius: 8px; padding: 12px; border-left: 4px solid #0288d1;">
+                        <strong style="color: #0288d1;">Trimester Break:</strong> ${todaySchedule.title}
+                        <div style="font-size: 0.82rem; color: var(--text-muted); margin-top: 4px;">${todaySchedule.explanation}</div>
+                    </div>
+                `;
+            }
+        } else if (todaySchedule.status === 'suspended') {
             if (classesStatusBadge) {
                 classesStatusBadge.className = 'badge-status status-warning';
                 classesStatusBadge.textContent = 'Suspended ⚠️';
@@ -3697,12 +4174,12 @@
             if (classesContainer) {
                 classesContainer.innerHTML = `
                     <div style="background: var(--course-added-bg); border-radius: 8px; padding: 12px; border-left: 4px solid #f59e0b;">
-                        <strong style="color: #b06000;">Notice:</strong> ${todaySuspended.title}
-                        <div style="font-size: 0.82rem; color: var(--text-muted); margin-top: 4px;">Lectures are suspended for exam preparation. Prepare well for upcoming tests!</div>
+                        <strong style="color: #b06000;">Notice:</strong> ${todaySchedule.title}
+                        <div style="font-size: 0.82rem; color: var(--text-muted); margin-top: 4px;">${todaySchedule.explanation}</div>
                     </div>
                 `;
             }
-        } else if (todayExam) {
+        } else if (todaySchedule.status === 'exam') {
             if (classesStatusBadge) {
                 classesStatusBadge.className = 'badge-status status-exam';
                 classesStatusBadge.textContent = 'Exams Ongoing 📝';
@@ -3710,14 +4187,61 @@
             if (classesContainer) {
                 classesContainer.innerHTML = `
                     <div style="background: var(--course-added-bg); border-radius: 8px; padding: 12px; border-left: 4px solid #d93025;">
-                        <strong style="color: #d93025;">Exam Period:</strong> ${todayExam.title}
-                        <div style="font-size: 0.82rem; color: var(--text-muted); margin-top: 4px;">Regular lectures may be suspended during exams. Check your Exam Routine!</div>
+                        <strong style="color: #d93025;">Exam Period:</strong> ${todaySchedule.title}
+                        <div style="font-size: 0.82rem; color: var(--text-muted); margin-top: 4px;">${todaySchedule.explanation}</div>
                         <button type="button" class="btn-action" style="margin-top: 8px; padding: 4px 10px; font-size: 0.8rem;" onclick="switchTab('exam')">View Exam Routine →</button>
                     </div>
                 `;
             }
-        } else {
-            // Check enrolled section classes
+        } else if (todaySchedule.status === 'makeup' || todaySchedule.status === 'rescheduled') {
+            // Make-up or rescheduled class day
+            const routineDay = todaySchedule.activeRoutine;
+            const enrolledToday = mySectionClasses.filter(c => {
+                if (!c.day) return false;
+                if (c.day.includes('&')) {
+                    const parts = c.day.split('&').map(s => s.trim());
+                    return parts.includes(routineDay);
+                }
+                return c.day.trim() === routineDay;
+            });
+
+            if (classesStatusBadge) {
+                classesStatusBadge.className = 'badge-status status-active';
+                classesStatusBadge.textContent = `Make-up (${routineDay.slice(0,3)}) 🔄`;
+            }
+            if (classesContainer) {
+                let classesHTML = '';
+                if (enrolledToday.length > 0) {
+                    classesHTML = enrolledToday.map(c => {
+                        const timeSlot = c.type === 'Theory' 
+                            ? (theoryTimeSlots[c.slotIndex] || 'Theory Slot') 
+                            : (labTimeSlots[c.slotIndex] || 'Lab Slot');
+                        return `
+                            <div style="background: var(--bg-container); border: 1px solid var(--border-color); border-radius: 8px; padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;">
+                                <div>
+                                    <strong>${c.course}</strong>
+                                    <span style="font-size: 0.8rem; background: var(--course-added-bg); color: var(--primary-color); padding: 2px 6px; border-radius: 4px; margin-left: 4px;">Sec ${c.section}</span>
+                                    <div style="font-size: 0.8rem; color: var(--text-muted);">${timeSlot}</div>
+                                </div>
+                                <span class="badge-status ${c.type === 'Theory' ? 'status-active' : 'status-warning'}" style="font-size: 0.75rem;">${c.type}</span>
+                            </div>
+                        `;
+                    }).join('');
+                } else {
+                    classesHTML = `<div style="font-size: 0.85rem; color: var(--text-muted);">No enrolled classes for ${routineDay} in your Section Planner.</div>`;
+                }
+
+                classesContainer.innerHTML = `
+                    <div style="background: #e8f0fe; color: #1a73e8; border: 1px solid #c2e7ff; border-radius: 8px; padding: 10px 12px; margin-bottom: 10px; font-size: 0.85rem; line-height: 1.4;">
+                        <strong>🔄 Special Schedule:</strong> ${todaySchedule.explanation}
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                        ${classesHTML}
+                    </div>
+                `;
+            }
+        } else if (todaySchedule.status === 'class_day') {
+            // Regular class day (Sat, Sun, Tue, Wed)
             const enrolledToday = mySectionClasses.filter(c => {
                 if (!c.day) return false;
                 if (c.day.includes('&')) {
@@ -3727,12 +4251,12 @@
                 return c.day.trim() === todayWeekday;
             });
 
-            if (enrolledToday.length > 0) {
-                if (classesStatusBadge) {
-                    classesStatusBadge.className = 'badge-status status-active';
-                    classesStatusBadge.textContent = `${enrolledToday.length} Classes Today`;
-                }
-                if (classesContainer) {
+            if (classesStatusBadge) {
+                classesStatusBadge.className = 'badge-status status-active';
+                classesStatusBadge.textContent = enrolledToday.length > 0 ? `${enrolledToday.length} Classes Today` : 'Class Day (Sat/Sun/Tue/Wed)';
+            }
+            if (classesContainer) {
+                if (enrolledToday.length > 0) {
                     classesContainer.innerHTML = `
                         <div style="display: flex; flex-direction: column; gap: 8px;">
                             ${enrolledToday.map(c => {
@@ -3752,20 +4276,28 @@
                             }).join('')}
                         </div>
                     `;
-                }
-            } else {
-                if (classesStatusBadge) {
-                    classesStatusBadge.className = 'badge-status status-active';
-                    classesStatusBadge.textContent = 'Active Trimester';
-                }
-                if (classesContainer) {
+                } else {
                     classesContainer.innerHTML = `
                         <div style="padding: 6px 0; color: var(--text-muted); line-height: 1.5;">
-                            <div style="margin-bottom: 6px;">No classes scheduled in your Section Planner for <strong>${todayWeekday}</strong>.</div>
+                            <div style="margin-bottom: 6px;">Today is a regular class day, but no classes were found in Section Planner for <strong>${todayWeekday}</strong>.</div>
                             <button type="button" class="btn-action" style="padding: 4px 12px; font-size: 0.82rem;" onclick="switchTab('sectionplanner')">📅 Open Section Planner</button>
                         </div>
                     `;
                 }
+            }
+        } else {
+            // Weekly Off Day (Monday, Thursday, Friday)
+            if (classesStatusBadge) {
+                classesStatusBadge.className = 'badge-status status-warning';
+                classesStatusBadge.textContent = 'Weekly Off ☕';
+            }
+            if (classesContainer) {
+                classesContainer.innerHTML = `
+                    <div style="padding: 10px 0; color: var(--text-muted); line-height: 1.5;">
+                        <div style="font-weight: 600; color: var(--text-color); margin-bottom: 4px;">No Classes Today (${todayWeekday})</div>
+                        <div>Monday, Thursday, and Friday are scheduled off days at UIU (Active class days: Saturday, Sunday, Tuesday, and Wednesday). Enjoy your day!</div>
+                    </div>
+                `;
             }
         }
 
@@ -4128,6 +4660,36 @@
     </div>
 </div>
 
+
+
+<!-- Calendar Day Details Modal -->
+<div class="custom-modal-backdrop" id="calendar-day-modal" onclick="closeModalOnBackdrop(event, 'calendar-day-modal')">
+    <div class="custom-modal-card" style="max-width: 500px;">
+        <button type="button" class="modal-close-btn" onclick="closeModal('calendar-day-modal')" aria-label="Close modal">✕</button>
+        <div style="margin-bottom: 16px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px;">
+            <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;" id="cal-modal-date-full">Date</div>
+            <h2 style="font-size: 1.35rem; margin: 4px 0 0 0; color: var(--text-color);" id="cal-modal-day-title">Day Schedule</h2>
+        </div>
+        <div id="cal-modal-status-badge-container" style="margin-bottom: 14px;"></div>
+        <div style="background: var(--bg-body); border: 1px solid var(--border-color); border-radius: 12px; padding: 14px; margin-bottom: 16px; font-size: 0.92rem; line-height: 1.5; color: var(--text-color);" id="cal-modal-explanation"></div>
+        
+        <!-- Enrolled classes for this routine -->
+        <div id="cal-modal-enrolled-section" style="margin-bottom: 16px;">
+            <h4 style="font-size: 0.95rem; margin: 0 0 8px 0; color: var(--text-muted); display: flex; align-items: center; gap: 6px;">
+                <span>📚</span> Your Section Schedule For This Routine:
+            </h4>
+            <div id="cal-modal-classes-list" style="display: flex; flex-direction: column; gap: 6px;"></div>
+        </div>
+
+        <!-- Academic Events & Deadlines -->
+        <div id="cal-modal-events-section" style="display: none;">
+            <h4 style="font-size: 0.95rem; margin: 0 0 8px 0; color: var(--text-muted); display: flex; align-items: center; gap: 6px;">
+                <span>📌</span> Academic Events & Notices:
+            </h4>
+            <div id="cal-modal-events-list" style="display: flex; flex-direction: column; gap: 6px;"></div>
+        </div>
+    </div>
+</div>
 
 </body>
 </html>
