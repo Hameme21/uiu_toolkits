@@ -1676,6 +1676,30 @@
             ⚠️ DISCLAIMER: Data sourced from the "Fall 2026 Exam Template". Always verify with your official UCAM routine for last-minute changes.
         </div>
 
+        <!-- Official Fall 2026 Exam Schedule Banner -->
+        <div style="background: linear-gradient(135deg, rgba(243, 112, 33, 0.08), rgba(0, 86, 150, 0.08)); border: 1px solid var(--border-color); border-left: 5px solid var(--primary-color); border-radius: 10px; padding: 14px 18px; margin-bottom: 20px;">
+            <div style="font-weight: 700; color: var(--secondary-color); font-size: 1.05rem; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+                <span>📅 Official Fall 2026 Examination Dates</span>
+                <button type="button" class="btn-action" style="padding: 3px 12px; font-size: 0.8rem;" onclick="switchTab('calendar'); jumpCalendarTo(2026, 11)">View in Calendar ↗</button>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; font-size: 0.88rem; line-height: 1.5; color: var(--text-color);">
+                <div style="background: var(--bg-container); border: 1px solid var(--border-color); border-radius: 8px; padding: 10px 14px; cursor: pointer;" onclick="switchTab('calendar'); jumpCalendarTo(2026, 11, '2026-12-05')">
+                    <div style="font-weight: 700; color: #b06000; margin-bottom: 4px;">📝 Mid-Term Exam: Dec 5 – Dec 12, 2026</div>
+                    <div style="color: var(--text-muted); font-size: 0.82rem;">
+                        Day 1 (Dec 5) • Day 2 (Dec 6) • Day 3 (Dec 7) • Day 4 (Dec 8)<br>
+                        Day 5 (Dec 9) • Day 6 (Dec 10) • <em>Fri Break (Dec 11)</em> • Day 7 (Dec 12)
+                    </div>
+                </div>
+                <div style="background: var(--bg-container); border: 1px solid var(--border-color); border-radius: 8px; padding: 10px 14px; cursor: pointer;" onclick="switchTab('calendar'); jumpCalendarTo(2027, 0, '2027-01-25')">
+                    <div style="font-weight: 700; color: #c5221f; margin-bottom: 4px;">🎓 Final Exam: Jan 25 – Feb 1, 2027</div>
+                    <div style="color: var(--text-muted); font-size: 0.82rem;">
+                        Day 1 (Jan 25) • Day 2 (Jan 26) • Day 3 (Jan 27) • Day 4 (Jan 28)<br>
+                        <em>Fri Break (Jan 29)</em> • Day 5 (Jan 30) • Day 6 (Jan 31) • Day 7 (Feb 1)
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div id="clash-alert" class="alert-box">⚠️ CRITICAL CLASH: You have 2 exams at the EXACT same time!</div>
         <div id="sameday-alert" class="alert-box">⚠️ PRESSURE WARNING: Multiple exams on the same day.</div>
 
@@ -2061,6 +2085,16 @@
             <div class="suggestions" id="calendarSuggestions"></div>
         </div>
 
+        <!-- Quick Jump Navigation for Fall 2026 -->
+        <div class="calendar-quick-nav" style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; justify-content: center;">
+            <button type="button" class="btn-action" style="padding: 6px 14px; font-size: 0.85rem;" onclick="jumpCalendarTo(2026, 9)">🎯 Fall 2026 Classes (Oct)</button>
+            <button type="button" class="btn-action" style="padding: 6px 14px; font-size: 0.85rem; background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd;" onclick="jumpCalendarTo(2026, 10)">🌐 Online Make-ups (Nov)</button>
+            <button type="button" class="btn-action" style="padding: 6px 14px; font-size: 0.85rem; background: #fef7e0; color: #b06000; border: 1px solid #fce8b2;" onclick="jumpCalendarTo(2026, 11, '2026-12-05')">📝 Mid-Term Exam (Dec 5 - 12)</button>
+            <button type="button" class="btn-action" style="padding: 6px 14px; font-size: 0.85rem; background: #fce8e6; color: #c5221f; border: 1px solid #fad2cf;" onclick="jumpCalendarTo(2027, 0, '2027-01-25')">🎓 Final Exam (Jan 25 - Feb 1)</button>
+            <button type="button" class="btn-action" style="padding: 6px 14px; font-size: 0.85rem; background: #e6f4ea; color: #137333; border: 1px solid #ceead6;" onclick="jumpCalendarTo(2026, 11, '2026-12-16')">🎉 Victory Day (Dec 16)</button>
+            <button type="button" class="btn-action" style="padding: 6px 14px; font-size: 0.85rem; background: #e1f5fe; color: #0288d1; border: 1px solid #b3e5fc;" onclick="jumpCalendarTo(2027, 1, '2027-02-02')">🌴 Trimester Break (Feb 2027)</button>
+        </div>
+
         <div class="calendar-controls">
             <button type="button" onclick="changeMonth(-1)">&#10094; Prev</button>
             <h2 id="month-year-display">October 2026</h2>
@@ -2078,6 +2112,145 @@
                 <div>Sat <small style="display:block; font-size: 0.72em; opacity: 0.85; font-weight: 500;">Class</small></div>
             </div>
             <div id="calendar-days" class="calendar-grid">
+            </div>
+        </div>
+
+        <!-- Dedicated Fall 2026 Key Dates: Mid-Terms, Final Exams & Holidays -->
+        <div class="fall2026-key-schedule" style="margin-top: 35px;">
+            <div style="border-bottom: 2px solid var(--border-color); padding-bottom: 10px; margin-bottom: 20px;">
+                <h2 style="color: var(--secondary-color); font-size: 1.4rem; margin: 0 0 6px 0; display: flex; align-items: center; gap: 8px;">
+                    <span>📌</span> Fall 2026 Key Schedule: Mid Exams, Final Exams & Holidays
+                </h2>
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0;">
+                    Click any day below to jump directly to its date in the calendar and inspect routine details.
+                </p>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 20px;">
+                <!-- Mid-Term Exams Card -->
+                <div style="background: var(--bg-input); border: 1px solid var(--border-color); border-radius: 12px; padding: 18px; border-top: 4px solid #f59e0b;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <h3 style="margin: 0; font-size: 1.1rem; color: #b06000;">📝 Mid-Term Exam Routine</h3>
+                        <span class="badge-status status-exam" style="font-size: 0.75rem;">Dec 5 - 12, 2026</span>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 6px; font-size: 0.85rem;">
+                        <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: var(--bg-container); border-radius: 6px; cursor: pointer;" onclick="jumpCalendarTo(2026, 11, '2026-12-05')">
+                            <strong>Day 1 (Slots T1, T2, T3)</strong>
+                            <span style="color: var(--text-muted);">Sat, Dec 5</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: var(--bg-container); border-radius: 6px; cursor: pointer;" onclick="jumpCalendarTo(2026, 11, '2026-12-06')">
+                            <strong>Day 2 (Slots T1, T2, T3)</strong>
+                            <span style="color: var(--text-muted);">Sun, Dec 6</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: var(--bg-container); border-radius: 6px; cursor: pointer;" onclick="jumpCalendarTo(2026, 11, '2026-12-07')">
+                            <strong>Day 3 (Slots T1, T2, T3)</strong>
+                            <span style="color: var(--text-muted);">Mon, Dec 7</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: var(--bg-container); border-radius: 6px; cursor: pointer;" onclick="jumpCalendarTo(2026, 11, '2026-12-08')">
+                            <strong>Day 4 (Slots T1, T2, T3)</strong>
+                            <span style="color: var(--text-muted);">Tue, Dec 8</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: var(--bg-container); border-radius: 6px; cursor: pointer;" onclick="jumpCalendarTo(2026, 11, '2026-12-09')">
+                            <strong>Day 5 (Slots T1, T2, T3)</strong>
+                            <span style="color: var(--text-muted);">Wed, Dec 9</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: var(--bg-container); border-radius: 6px; cursor: pointer;" onclick="jumpCalendarTo(2026, 11, '2026-12-10')">
+                            <strong>Day 6 (Slots T1, T2, T3)</strong>
+                            <span style="color: var(--text-muted);">Thu, Dec 10</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: var(--bg-container); border-radius: 6px; opacity: 0.7; cursor: pointer;" onclick="jumpCalendarTo(2026, 11, '2026-12-11')">
+                            <em>Friday Break (No Exam)</em>
+                            <span style="color: var(--text-muted);">Fri, Dec 11</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: var(--bg-container); border-radius: 6px; cursor: pointer;" onclick="jumpCalendarTo(2026, 11, '2026-12-12')">
+                            <strong>Day 7 (Slots T1, T2, T3)</strong>
+                            <span style="color: var(--text-muted);">Sat, Dec 12</span>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-action" style="width: 100%; margin-top: 12px; font-size: 0.82rem; padding: 6px;" onclick="switchTab('exam')">🔍 Solve Mid-Term Exam Clashes →</button>
+                </div>
+
+                <!-- Final Exams Card -->
+                <div style="background: var(--bg-input); border: 1px solid var(--border-color); border-radius: 12px; padding: 18px; border-top: 4px solid #ef4444;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <h3 style="margin: 0; font-size: 1.1rem; color: #c5221f;">🎓 Final Exam Routine</h3>
+                        <span class="badge-status status-exam" style="font-size: 0.75rem; background: #fce8e6; color: #c5221f;">Jan 25 - Feb 1, 2027</span>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 6px; font-size: 0.85rem;">
+                        <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: var(--bg-container); border-radius: 6px; cursor: pointer;" onclick="jumpCalendarTo(2027, 0, '2027-01-25')">
+                            <strong>Day 1 (Slots T1, T2, T3)</strong>
+                            <span style="color: var(--text-muted);">Mon, Jan 25</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: var(--bg-container); border-radius: 6px; cursor: pointer;" onclick="jumpCalendarTo(2027, 0, '2027-01-26')">
+                            <strong>Day 2 (Slots T1, T2, T3)</strong>
+                            <span style="color: var(--text-muted);">Tue, Jan 26</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: var(--bg-container); border-radius: 6px; cursor: pointer;" onclick="jumpCalendarTo(2027, 0, '2027-01-27')">
+                            <strong>Day 3 (Slots T1, T2, T3)</strong>
+                            <span style="color: var(--text-muted);">Wed, Jan 27</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: var(--bg-container); border-radius: 6px; cursor: pointer;" onclick="jumpCalendarTo(2027, 0, '2027-01-28')">
+                            <strong>Day 4 (Slots T1, T2, T3)</strong>
+                            <span style="color: var(--text-muted);">Thu, Jan 28</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: var(--bg-container); border-radius: 6px; opacity: 0.7; cursor: pointer;" onclick="jumpCalendarTo(2027, 0, '2027-01-29')">
+                            <em>Friday Break (No Exam)</em>
+                            <span style="color: var(--text-muted);">Fri, Jan 29</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: var(--bg-container); border-radius: 6px; cursor: pointer;" onclick="jumpCalendarTo(2027, 0, '2027-01-30')">
+                            <strong>Day 5 (Slots T1, T2, T3)</strong>
+                            <span style="color: var(--text-muted);">Sat, Jan 30</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: var(--bg-container); border-radius: 6px; cursor: pointer;" onclick="jumpCalendarTo(2027, 0, '2027-01-31')">
+                            <strong>Day 6 (Slots T1, T2, T3)</strong>
+                            <span style="color: var(--text-muted);">Sun, Jan 31</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: var(--bg-container); border-radius: 6px; cursor: pointer;" onclick="jumpCalendarTo(2027, 1, '2027-02-01')">
+                            <strong>Day 7 (Slots T1, T2, T3)</strong>
+                            <span style="color: var(--text-muted);">Mon, Feb 1</span>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-action" style="width: 100%; margin-top: 12px; font-size: 0.82rem; padding: 6px;" onclick="switchTab('exam')">🔍 Solve Final Exam Clashes →</button>
+                </div>
+
+                <!-- Official Holidays Card -->
+                <div style="background: var(--bg-input); border: 1px solid var(--border-color); border-radius: 12px; padding: 18px; border-top: 4px solid #10b981;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <h3 style="margin: 0; font-size: 1.1rem; color: #059669;">🎉 Official Holidays & Breaks</h3>
+                        <span class="badge-status status-active" style="font-size: 0.75rem;">No Classes</span>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 6px; font-size: 0.85rem;">
+                        <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: var(--bg-container); border-radius: 6px; cursor: pointer;" onclick="jumpCalendarTo(2026, 10, '2026-11-07')">
+                            <strong>Revolution & Solidarity Day</strong>
+                            <span style="color: var(--text-muted);">Sat, Nov 7</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: var(--bg-container); border-radius: 6px; cursor: pointer;" onclick="jumpCalendarTo(2026, 11, '2026-12-16')">
+                            <strong>Victory Day</strong>
+                            <span style="color: var(--text-muted);">Wed, Dec 16</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: var(--bg-container); border-radius: 6px; cursor: pointer;" onclick="jumpCalendarTo(2026, 11, '2026-12-25')">
+                            <strong>Christmas Day</strong>
+                            <span style="color: var(--text-muted);">Fri, Dec 25</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: var(--bg-container); border-radius: 6px; cursor: pointer;" onclick="jumpCalendarTo(2027, 0, '2027-01-21')">
+                            <strong>Exam Prep / Suspended</strong>
+                            <span style="color: var(--text-muted);">Jan 21 - 24</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: var(--bg-container); border-radius: 6px; cursor: pointer;" onclick="jumpCalendarTo(2027, 0, '2027-01-24')">
+                            <strong>Shab-e-Barat</strong>
+                            <span style="color: var(--text-muted);">Sun, Jan 24</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: var(--bg-container); border-radius: 6px; cursor: pointer;" onclick="jumpCalendarTo(2027, 1, '2027-02-02')">
+                            <strong>Trimester Break (Fall → Spring)</strong>
+                            <span style="color: var(--text-muted);">Feb 2 - 8</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: var(--bg-container); border-radius: 6px; cursor: pointer;" onclick="jumpCalendarTo(2027, 1, '2027-02-09')">
+                            <strong>Spring 2027 Classes Begin</strong>
+                            <span style="color: var(--text-muted);">Tue, Feb 9</span>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-action" style="width: 100%; margin-top: 12px; font-size: 0.82rem; padding: 6px;" onclick="jumpCalendarTo(2026, 9)">🎯 View Fall 2026 Full Calendar</button>
+                </div>
             </div>
         </div>
     </div>
