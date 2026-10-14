@@ -1447,6 +1447,17 @@
             color: #8ab4f8;
             border-color: #2b4570;
         }
+        .routine-badge-online {
+            background: #e0f2fe;
+            color: #0369a1;
+            border: 1px solid #bae6fd;
+            font-weight: 800;
+        }
+        body.dark-mode .routine-badge-online {
+            background: #082f49;
+            color: #38bdf8;
+            border-color: #075985;
+        }
         .routine-badge-holiday {
             background: #fce8e6;
             color: #d93025;
@@ -1663,6 +1674,30 @@
 
         <div class="disclaimer-box">
             ⚠️ DISCLAIMER: Data sourced from the "Fall 2026 Exam Template". Always verify with your official UCAM routine for last-minute changes.
+        </div>
+
+        <!-- Official Fall 2026 Exam Schedule Banner -->
+        <div style="background: linear-gradient(135deg, rgba(243, 112, 33, 0.08), rgba(0, 86, 150, 0.08)); border: 1px solid var(--border-color); border-left: 5px solid var(--primary-color); border-radius: 10px; padding: 14px 18px; margin-bottom: 20px;">
+            <div style="font-weight: 700; color: var(--secondary-color); font-size: 1.05rem; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+                <span>📅 Official Fall 2026 Examination Dates</span>
+                <button type="button" class="btn-action" style="padding: 3px 12px; font-size: 0.8rem;" onclick="switchTab('calendar'); jumpCalendarTo(2026, 11)">View in Calendar ↗</button>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; font-size: 0.88rem; line-height: 1.5; color: var(--text-color);">
+                <div style="background: var(--bg-container); border: 1px solid var(--border-color); border-radius: 8px; padding: 10px 14px; cursor: pointer;" onclick="switchTab('calendar'); jumpCalendarTo(2026, 11, '2026-12-05')">
+                    <div style="font-weight: 700; color: #b06000; margin-bottom: 4px;">📝 Mid-Term Exam: Dec 5 – Dec 12, 2026</div>
+                    <div style="color: var(--text-muted); font-size: 0.82rem;">
+                        Day 1 (Dec 5) • Day 2 (Dec 6) • Day 3 (Dec 7) • Day 4 (Dec 8)<br>
+                        Day 5 (Dec 9) • Day 6 (Dec 10) • <em>Fri Break (Dec 11)</em> • Day 7 (Dec 12)
+                    </div>
+                </div>
+                <div style="background: var(--bg-container); border: 1px solid var(--border-color); border-radius: 8px; padding: 10px 14px; cursor: pointer;" onclick="switchTab('calendar'); jumpCalendarTo(2027, 0, '2027-01-25')">
+                    <div style="font-weight: 700; color: #c5221f; margin-bottom: 4px;">🎓 Final Exam: Jan 25 – Feb 1, 2027</div>
+                    <div style="color: var(--text-muted); font-size: 0.82rem;">
+                        Day 1 (Jan 25) • Day 2 (Jan 26) • Day 3 (Jan 27) • Day 4 (Jan 28)<br>
+                        <em>Fri Break (Jan 29)</em> • Day 5 (Jan 30) • Day 6 (Jan 31) • Day 7 (Feb 1)
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div id="clash-alert" class="alert-box">⚠️ CRITICAL CLASH: You have 2 exams at the EXACT same time!</div>
@@ -2029,7 +2064,7 @@
                     <span style="width: 10px; height: 10px; border-radius: 50%; background: #10b981; display: inline-block;"></span> Class Days (Sat, Sun, Tue, Wed)
                 </span>
                 <span style="display: inline-flex; align-items: center; gap: 5px; color: var(--text-color);">
-                    <span style="width: 10px; height: 10px; border-radius: 50%; background: #0081d1; display: inline-block;"></span> Make-up / Rescheduled Class
+                    <span style="width: 10px; height: 10px; border-radius: 50%; background: #0081d1; display: inline-block;"></span> Make-up / Online Rescheduled Class
                 </span>
                 <span style="display: inline-flex; align-items: center; gap: 5px; color: var(--text-muted);">
                     <span style="width: 10px; height: 10px; border-radius: 50%; background: #9ca3af; display: inline-block;"></span> Weekly Off (Mon, Thu, Fri)
@@ -2050,9 +2085,19 @@
             <div class="suggestions" id="calendarSuggestions"></div>
         </div>
 
+        <!-- Quick Jump Navigation for Fall 2026 -->
+        <div class="calendar-quick-nav" style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; justify-content: center;">
+            <button type="button" class="btn-action" style="padding: 6px 14px; font-size: 0.85rem;" onclick="jumpCalendarTo(2026, 9)">🎯 Fall 2026 Classes (Oct)</button>
+            <button type="button" class="btn-action" style="padding: 6px 14px; font-size: 0.85rem; background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd;" onclick="jumpCalendarTo(2026, 10)">🌐 Online Make-ups (Nov)</button>
+            <button type="button" class="btn-action" style="padding: 6px 14px; font-size: 0.85rem; background: #fef7e0; color: #b06000; border: 1px solid #fce8b2;" onclick="jumpCalendarTo(2026, 11, '2026-12-05')">📝 Mid-Term Exam (Dec 5 - 12)</button>
+            <button type="button" class="btn-action" style="padding: 6px 14px; font-size: 0.85rem; background: #fce8e6; color: #c5221f; border: 1px solid #fad2cf;" onclick="jumpCalendarTo(2027, 0, '2027-01-25')">🎓 Final Exam (Jan 25 - Feb 1)</button>
+            <button type="button" class="btn-action" style="padding: 6px 14px; font-size: 0.85rem; background: #e6f4ea; color: #137333; border: 1px solid #ceead6;" onclick="jumpCalendarTo(2026, 11, '2026-12-16')">🎉 Victory Day (Dec 16)</button>
+            <button type="button" class="btn-action" style="padding: 6px 14px; font-size: 0.85rem; background: #e1f5fe; color: #0288d1; border: 1px solid #b3e5fc;" onclick="jumpCalendarTo(2027, 1, '2027-02-02')">🌴 Trimester Break (Feb 2027)</button>
+        </div>
+
         <div class="calendar-controls">
             <button type="button" onclick="changeMonth(-1)">&#10094; Prev</button>
-            <h2 id="month-year-display">February 2026</h2>
+            <h2 id="month-year-display">October 2026</h2>
             <button type="button" onclick="changeMonth(1)">Next &#10095;</button>
         </div>
 
@@ -2067,6 +2112,145 @@
                 <div>Sat <small style="display:block; font-size: 0.72em; opacity: 0.85; font-weight: 500;">Class</small></div>
             </div>
             <div id="calendar-days" class="calendar-grid">
+            </div>
+        </div>
+
+        <!-- Dedicated Fall 2026 Key Dates: Mid-Terms, Final Exams & Holidays -->
+        <div class="fall2026-key-schedule" style="margin-top: 35px;">
+            <div style="border-bottom: 2px solid var(--border-color); padding-bottom: 10px; margin-bottom: 20px;">
+                <h2 style="color: var(--secondary-color); font-size: 1.4rem; margin: 0 0 6px 0; display: flex; align-items: center; gap: 8px;">
+                    <span>📌</span> Fall 2026 Key Schedule: Mid Exams, Final Exams & Holidays
+                </h2>
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0;">
+                    Click any day below to jump directly to its date in the calendar and inspect routine details.
+                </p>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 20px;">
+                <!-- Mid-Term Exams Card -->
+                <div style="background: var(--bg-input); border: 1px solid var(--border-color); border-radius: 12px; padding: 18px; border-top: 4px solid #f59e0b;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <h3 style="margin: 0; font-size: 1.1rem; color: #b06000;">📝 Mid-Term Exam Routine</h3>
+                        <span class="badge-status status-exam" style="font-size: 0.75rem;">Dec 5 - 12, 2026</span>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 6px; font-size: 0.85rem;">
+                        <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: var(--bg-container); border-radius: 6px; cursor: pointer;" onclick="jumpCalendarTo(2026, 11, '2026-12-05')">
+                            <strong>Day 1 (Slots T1, T2, T3)</strong>
+                            <span style="color: var(--text-muted);">Sat, Dec 5</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: var(--bg-container); border-radius: 6px; cursor: pointer;" onclick="jumpCalendarTo(2026, 11, '2026-12-06')">
+                            <strong>Day 2 (Slots T1, T2, T3)</strong>
+                            <span style="color: var(--text-muted);">Sun, Dec 6</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: var(--bg-container); border-radius: 6px; cursor: pointer;" onclick="jumpCalendarTo(2026, 11, '2026-12-07')">
+                            <strong>Day 3 (Slots T1, T2, T3)</strong>
+                            <span style="color: var(--text-muted);">Mon, Dec 7</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: var(--bg-container); border-radius: 6px; cursor: pointer;" onclick="jumpCalendarTo(2026, 11, '2026-12-08')">
+                            <strong>Day 4 (Slots T1, T2, T3)</strong>
+                            <span style="color: var(--text-muted);">Tue, Dec 8</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: var(--bg-container); border-radius: 6px; cursor: pointer;" onclick="jumpCalendarTo(2026, 11, '2026-12-09')">
+                            <strong>Day 5 (Slots T1, T2, T3)</strong>
+                            <span style="color: var(--text-muted);">Wed, Dec 9</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: var(--bg-container); border-radius: 6px; cursor: pointer;" onclick="jumpCalendarTo(2026, 11, '2026-12-10')">
+                            <strong>Day 6 (Slots T1, T2, T3)</strong>
+                            <span style="color: var(--text-muted);">Thu, Dec 10</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: var(--bg-container); border-radius: 6px; opacity: 0.7; cursor: pointer;" onclick="jumpCalendarTo(2026, 11, '2026-12-11')">
+                            <em>Friday Break (No Exam)</em>
+                            <span style="color: var(--text-muted);">Fri, Dec 11</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: var(--bg-container); border-radius: 6px; cursor: pointer;" onclick="jumpCalendarTo(2026, 11, '2026-12-12')">
+                            <strong>Day 7 (Slots T1, T2, T3)</strong>
+                            <span style="color: var(--text-muted);">Sat, Dec 12</span>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-action" style="width: 100%; margin-top: 12px; font-size: 0.82rem; padding: 6px;" onclick="switchTab('exam')">🔍 Solve Mid-Term Exam Clashes →</button>
+                </div>
+
+                <!-- Final Exams Card -->
+                <div style="background: var(--bg-input); border: 1px solid var(--border-color); border-radius: 12px; padding: 18px; border-top: 4px solid #ef4444;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <h3 style="margin: 0; font-size: 1.1rem; color: #c5221f;">🎓 Final Exam Routine</h3>
+                        <span class="badge-status status-exam" style="font-size: 0.75rem; background: #fce8e6; color: #c5221f;">Jan 25 - Feb 1, 2027</span>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 6px; font-size: 0.85rem;">
+                        <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: var(--bg-container); border-radius: 6px; cursor: pointer;" onclick="jumpCalendarTo(2027, 0, '2027-01-25')">
+                            <strong>Day 1 (Slots T1, T2, T3)</strong>
+                            <span style="color: var(--text-muted);">Mon, Jan 25</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: var(--bg-container); border-radius: 6px; cursor: pointer;" onclick="jumpCalendarTo(2027, 0, '2027-01-26')">
+                            <strong>Day 2 (Slots T1, T2, T3)</strong>
+                            <span style="color: var(--text-muted);">Tue, Jan 26</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: var(--bg-container); border-radius: 6px; cursor: pointer;" onclick="jumpCalendarTo(2027, 0, '2027-01-27')">
+                            <strong>Day 3 (Slots T1, T2, T3)</strong>
+                            <span style="color: var(--text-muted);">Wed, Jan 27</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: var(--bg-container); border-radius: 6px; cursor: pointer;" onclick="jumpCalendarTo(2027, 0, '2027-01-28')">
+                            <strong>Day 4 (Slots T1, T2, T3)</strong>
+                            <span style="color: var(--text-muted);">Thu, Jan 28</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: var(--bg-container); border-radius: 6px; opacity: 0.7; cursor: pointer;" onclick="jumpCalendarTo(2027, 0, '2027-01-29')">
+                            <em>Friday Break (No Exam)</em>
+                            <span style="color: var(--text-muted);">Fri, Jan 29</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: var(--bg-container); border-radius: 6px; cursor: pointer;" onclick="jumpCalendarTo(2027, 0, '2027-01-30')">
+                            <strong>Day 5 (Slots T1, T2, T3)</strong>
+                            <span style="color: var(--text-muted);">Sat, Jan 30</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: var(--bg-container); border-radius: 6px; cursor: pointer;" onclick="jumpCalendarTo(2027, 0, '2027-01-31')">
+                            <strong>Day 6 (Slots T1, T2, T3)</strong>
+                            <span style="color: var(--text-muted);">Sun, Jan 31</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: var(--bg-container); border-radius: 6px; cursor: pointer;" onclick="jumpCalendarTo(2027, 1, '2027-02-01')">
+                            <strong>Day 7 (Slots T1, T2, T3)</strong>
+                            <span style="color: var(--text-muted);">Mon, Feb 1</span>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-action" style="width: 100%; margin-top: 12px; font-size: 0.82rem; padding: 6px;" onclick="switchTab('exam')">🔍 Solve Final Exam Clashes →</button>
+                </div>
+
+                <!-- Official Holidays Card -->
+                <div style="background: var(--bg-input); border: 1px solid var(--border-color); border-radius: 12px; padding: 18px; border-top: 4px solid #10b981;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <h3 style="margin: 0; font-size: 1.1rem; color: #059669;">🎉 Official Holidays & Breaks</h3>
+                        <span class="badge-status status-active" style="font-size: 0.75rem;">No Classes</span>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 6px; font-size: 0.85rem;">
+                        <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: var(--bg-container); border-radius: 6px; cursor: pointer;" onclick="jumpCalendarTo(2026, 10, '2026-11-07')">
+                            <strong>Revolution & Solidarity Day</strong>
+                            <span style="color: var(--text-muted);">Sat, Nov 7</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: var(--bg-container); border-radius: 6px; cursor: pointer;" onclick="jumpCalendarTo(2026, 11, '2026-12-16')">
+                            <strong>Victory Day</strong>
+                            <span style="color: var(--text-muted);">Wed, Dec 16</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: var(--bg-container); border-radius: 6px; cursor: pointer;" onclick="jumpCalendarTo(2026, 11, '2026-12-25')">
+                            <strong>Christmas Day</strong>
+                            <span style="color: var(--text-muted);">Fri, Dec 25</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: var(--bg-container); border-radius: 6px; cursor: pointer;" onclick="jumpCalendarTo(2027, 0, '2027-01-21')">
+                            <strong>Exam Prep / Suspended</strong>
+                            <span style="color: var(--text-muted);">Jan 21 - 24</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: var(--bg-container); border-radius: 6px; cursor: pointer;" onclick="jumpCalendarTo(2027, 0, '2027-01-24')">
+                            <strong>Shab-e-Barat</strong>
+                            <span style="color: var(--text-muted);">Sun, Jan 24</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: var(--bg-container); border-radius: 6px; cursor: pointer;" onclick="jumpCalendarTo(2027, 1, '2027-02-02')">
+                            <strong>Trimester Break (Fall → Spring)</strong>
+                            <span style="color: var(--text-muted);">Feb 2 - 8</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: var(--bg-container); border-radius: 6px; cursor: pointer;" onclick="jumpCalendarTo(2027, 1, '2027-02-09')">
+                            <strong>Spring 2027 Classes Begin</strong>
+                            <span style="color: var(--text-muted);">Tue, Feb 9</span>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-action" style="width: 100%; margin-top: 12px; font-size: 0.82rem; padding: 6px;" onclick="jumpCalendarTo(2026, 9)">🎯 View Fall 2026 Full Calendar</button>
+                </div>
             </div>
         </div>
     </div>
@@ -2401,7 +2585,40 @@
         { start: "2026-10-18", end: "2026-10-26", title: "Holiday: Trimester Break (Summer → Fall)", type: "holiday" },
         { start: "2026-10-20", end: "2026-10-21", title: "Holiday: Durga Puja", type: "holiday" },
         { start: "2026-10-22", end: "2026-10-22", title: "Last day of Grade Submission (Including Self-Study courses)", type: "regular" },
-        { start: "2026-10-27", end: "2026-10-27", title: "Fall 2026 Trimester Begins", type: "regular" },
+        // --- Fall 2026 Trimester Events ---
+        { start: "2026-10-24", end: "2026-10-26", title: "Course Advising and Registration", type: "regular" },
+        { start: "2026-10-25", end: "2026-10-26", title: "Open Day Orientation", type: "regular" },
+        { start: "2026-10-26", end: "2026-10-26", title: "Last day of Course Advising & Registration without Fine", type: "regular" },
+        { start: "2026-10-27", end: "2026-10-27", title: "Classes Begin (Fall 2026)", type: "regular" },
+        { start: "2026-10-31", end: "2026-10-31", title: "Last day to drop course(s) with 100% adjustable refund", type: "regular" },
+        { start: "2026-11-04", end: "2026-11-04", title: "Last day to apply for Grade Change (Summer 2026)", type: "regular" },
+        { start: "2026-11-05", end: "2026-11-05", title: "Regular Saturday Class (online)", type: "regular" },
+        { start: "2026-11-07", end: "2026-11-07", title: "Holiday: National Revolution and Solidarity Day", type: "holiday" },
+        { start: "2026-11-08", end: "2026-11-08", title: "Last day of Grade Submission for Project/Thesis/Internship", type: "regular" },
+        { start: "2026-11-09", end: "2026-11-09", title: "Last day to drop course(s) with 50% adjustable refund only", type: "regular" },
+        { start: "2026-11-09", end: "2026-11-09", title: "Last day of Course Advising & Registration with Fine (Tk. 500)", type: "regular" },
+        { start: "2026-11-09", end: "2026-11-09", title: "Last day of Grade Submission of Incomplete Grades (Summer 2026)", type: "regular" },
+        { start: "2026-11-12", end: "2026-11-12", title: "Regular Saturday Class (online)", type: "regular" },
+        { start: "2026-11-22", end: "2026-11-22", title: "Last date of 1st Installment", type: "regular" },
+        { start: "2026-11-26", end: "2026-11-26", title: "Regular Sunday Class (online)", type: "regular" },
+        { start: "2026-12-04", end: "2026-12-04", title: "1st Admission Test (Spring 2027)", type: "regular" },
+        { start: "2026-12-05", end: "2026-12-12", title: "Mid-Term Exam", type: "exam" },
+        { start: "2026-12-15", end: "2026-12-15", title: "Last date of 2nd Installment", type: "regular" },
+        { start: "2026-12-16", end: "2026-12-16", title: "Holiday: Victory Day", type: "holiday" },
+        { start: "2026-12-17", end: "2026-12-17", title: "Regular Wednesday Class (online)", type: "regular" },
+        { start: "2026-12-23", end: "2026-12-23", title: "Last Day of Course Withdrawal", type: "regular" },
+        { start: "2026-12-23", end: "2026-12-23", title: "Last Date of Admission (1st Test, Spring 2027)", type: "regular" },
+        { start: "2026-12-25", end: "2026-12-25", title: "Holiday: Christmas Day", type: "holiday" },
+        { start: "2026-12-31", end: "2026-12-31", title: "Regular Saturday Class (online)", type: "regular" },
+        { start: "2027-01-13", end: "2027-01-13", title: "Last date of 3rd Installment", type: "regular" },
+        { start: "2027-01-15", end: "2027-01-15", title: "2nd Admission Test (Spring 2027)", type: "regular" },
+        { start: "2027-01-21", end: "2027-01-24", title: "Classes will remain suspended", type: "regular" },
+        { start: "2027-01-24", end: "2027-01-24", title: "Holiday: Shab-e-Barat", type: "holiday" },
+        { start: "2027-01-25", end: "2027-02-01", title: "Final Exam", type: "exam" },
+        { start: "2027-01-31", end: "2027-01-31", title: "Last Date of Admission (2nd Test, Spring 2027)", type: "regular" },
+        { start: "2027-02-02", end: "2027-02-08", title: "Holiday: Trimester Break (Fall → Spring)", type: "holiday" },
+        { start: "2027-02-04", end: "2027-02-04", title: "Last day of Grade Submission (Including Self-Study courses)", type: "regular" },
+        { start: "2027-02-09", end: "2027-02-09", title: "Spring 2027 Classes Begin", type: "regular" }
     ];
 
     let myCourses = [];
@@ -3199,8 +3416,12 @@
     // --- FULL CALENDAR LOGIC ---
     const actualToday = new Date();
     window.actualToday = actualToday;
-    let currentCalYear = actualToday.getFullYear();
-    let currentCalMonth = actualToday.getMonth(); 
+    let currentCalYear = (actualToday.getFullYear() >= 2026 && actualToday.getFullYear() <= 2027) 
+        ? actualToday.getFullYear() 
+        : 2026;
+    let currentCalMonth = (actualToday.getFullYear() === 2026 && actualToday.getMonth() >= 9) 
+        ? actualToday.getMonth() 
+        : (actualToday.getFullYear() === 2027 ? actualToday.getMonth() : 9); // Defaults to October 2026 (Fall 2026 start) 
 
     
     // --- UIU 4-DAY CLASS ROUTINE & CALENDAR ENGINE ---
@@ -3226,11 +3447,20 @@
         {
             name: "Fall 2026",
             start: "2026-10-27",
-            regularEnd: "2027-02-15",
-            finalStart: "2027-02-20",
-            finalEnd: "2027-02-28",
-            breakEnd: "2027-03-05",
-            nextSemStart: "2027-03-06"
+            regularEnd: "2027-01-20", // Classes remain suspended from Jan 21, 2027
+            finalStart: "2027-01-25",
+            finalEnd: "2027-02-01",
+            breakEnd: "2027-02-08",   // Break until Spring 2027 begins Feb 9, 2027
+            nextSemStart: "2027-02-09"
+        },
+        {
+            name: "Spring 2027",
+            start: "2027-02-09",
+            regularEnd: "2027-05-31",
+            finalStart: "2027-06-05",
+            finalEnd: "2027-06-15",
+            breakEnd: "2027-06-25",
+            nextSemStart: "2027-06-26"
         }
     ];
 
@@ -3269,6 +3499,46 @@
             badge: "🔄 Wed Routine",
             title: "Make-up Class (Wednesday Routine)",
             reason: "Thursday is normally an off day, but UIU scheduled Wednesday's class routine today to make up for July Mass Uprising Day on August 5."
+        },
+        "2026-11-05": {
+            routineDay: "Saturday",
+            type: "makeup",
+            isOnline: true,
+            badge: "🌐 Sat (Online)",
+            title: "Regular Saturday Class (Online)",
+            reason: "Thursday is normally an off day, but UIU scheduled a Regular Saturday Class (online) today (in lieu of Saturday Nov 7 Holiday: National Revolution and Solidarity Day)."
+        },
+        "2026-11-12": {
+            routineDay: "Saturday",
+            type: "makeup",
+            isOnline: true,
+            badge: "🌐 Sat (Online)",
+            title: "Regular Saturday Class (Online)",
+            reason: "Thursday is normally an off day, but UIU scheduled a Regular Saturday Class (online) today."
+        },
+        "2026-11-26": {
+            routineDay: "Sunday",
+            type: "makeup",
+            isOnline: true,
+            badge: "🌐 Sun (Online)",
+            title: "Regular Sunday Class (Online)",
+            reason: "Thursday is normally an off day, but UIU scheduled a Regular Sunday Class (online) today."
+        },
+        "2026-12-17": {
+            routineDay: "Wednesday",
+            type: "makeup",
+            isOnline: true,
+            badge: "🌐 Wed (Online)",
+            title: "Regular Wednesday Class (Online)",
+            reason: "Thursday is normally an off day, but UIU scheduled a Regular Wednesday Class (online) today to make up for Victory Day holiday on Wednesday Dec 16."
+        },
+        "2026-12-31": {
+            routineDay: "Saturday",
+            type: "makeup",
+            isOnline: true,
+            badge: "🌐 Sat (Online)",
+            title: "Regular Saturday Class (Online)",
+            reason: "Thursday is normally an off day, but UIU scheduled a Regular Saturday Class (online) today."
         }
     };
 
@@ -3283,9 +3553,19 @@
         const holidayEvt = academicEvents.find(e => e.type === 'holiday' && dateStr >= e.start && dateStr <= e.end);
         if (holidayEvt) {
             const isBreak = holidayEvt.title.toLowerCase().includes('break');
+            let shortHoliday = 'Holiday';
+            if (holidayEvt.title.includes('Revolution')) shortHoliday = 'Revolution Day';
+            else if (holidayEvt.title.includes('Victory')) shortHoliday = 'Victory Day';
+            else if (holidayEvt.title.includes('Christmas')) shortHoliday = 'Christmas';
+            else if (holidayEvt.title.includes('Shab-e-Barat')) shortHoliday = 'Shab-e-Barat';
+            else if (holidayEvt.title.includes('Durga')) shortHoliday = 'Durga Puja';
+            else if (holidayEvt.title.includes('Bangla')) shortHoliday = 'Bangla New Year';
+            else if (holidayEvt.title.includes('Independence')) shortHoliday = 'Independence Day';
+            else if (holidayEvt.title.includes('Eid')) shortHoliday = 'Eid Holiday';
+
             return {
                 status: isBreak ? 'break' : 'holiday',
-                badgeText: isBreak ? '🌴 Trimester Break' : '🎉 Holiday',
+                badgeText: isBreak ? '🌴 Trimester Break' : `🎉 ${shortHoliday}`,
                 badgeClass: isBreak ? 'routine-badge-break' : 'routine-badge-holiday',
                 cardClass: isBreak ? 'is-holiday-day' : 'is-holiday-day',
                 hasClasses: false,
@@ -3298,12 +3578,74 @@
             };
         }
 
-        // 2. Exam Day Check
-        const examEvt = academicEvents.find(e => e.type === 'exam' && dateStr >= e.start && dateStr <= e.end);
-        if (examEvt) {
+        // 2. Exam Day Check (Mid-Term & Final Exams Day-by-Day Mapping)
+        const midExamDays = {
+            "2026-12-05": { dayNum: 1, title: "Mid-Term Exam (Day 1)" },
+            "2026-12-06": { dayNum: 2, title: "Mid-Term Exam (Day 2)" },
+            "2026-12-07": { dayNum: 3, title: "Mid-Term Exam (Day 3)" },
+            "2026-12-08": { dayNum: 4, title: "Mid-Term Exam (Day 4)" },
+            "2026-12-09": { dayNum: 5, title: "Mid-Term Exam (Day 5)" },
+            "2026-12-10": { dayNum: 6, title: "Mid-Term Exam (Day 6)" },
+            "2026-12-11": { dayNum: null, title: "Mid-Term Break (Friday - No Exam)" },
+            "2026-12-12": { dayNum: 7, title: "Mid-Term Exam (Day 7)" }
+        };
+
+        const finalExamDays = {
+            "2027-01-25": { dayNum: 1, title: "Final Exam (Day 1)" },
+            "2027-01-26": { dayNum: 2, title: "Final Exam (Day 2)" },
+            "2027-01-27": { dayNum: 3, title: "Final Exam (Day 3)" },
+            "2027-01-28": { dayNum: 4, title: "Final Exam (Day 4)" },
+            "2027-01-29": { dayNum: null, title: "Final Exam Break (Friday - No Exam)" },
+            "2027-01-30": { dayNum: 5, title: "Final Exam (Day 5)" },
+            "2027-01-31": { dayNum: 6, title: "Final Exam (Day 6)" },
+            "2027-02-01": { dayNum: 7, title: "Final Exam (Day 7)" }
+        };
+
+        if (midExamDays[dateStr]) {
+            const med = midExamDays[dateStr];
             return {
                 status: 'exam',
-                badgeText: '📝 Exam Day',
+                examType: 'mid',
+                examDayNum: med.dayNum,
+                badgeText: med.dayNum ? `📝 Mid Day ${med.dayNum}` : `☕ Exam Break`,
+                badgeClass: 'routine-badge-exam',
+                cardClass: 'is-exam-day',
+                hasClasses: false,
+                activeRoutine: null,
+                weekdayName: weekdayName,
+                title: med.title,
+                explanation: med.dayNum 
+                    ? `Mid-Term Examination Day ${med.dayNum}. Check the Exam Clash Solver for your Slot (T1: 9-11 AM, T2: 11:30-1:30 PM, T3: 2-4 PM).`
+                    : `Friday Exam Break during Mid-Terms. No examinations scheduled.`
+            };
+        }
+
+        if (finalExamDays[dateStr]) {
+            const fed = finalExamDays[dateStr];
+            return {
+                status: 'exam',
+                examType: 'final',
+                examDayNum: fed.dayNum,
+                badgeText: fed.dayNum ? `🎓 Final Day ${fed.dayNum}` : `☕ Exam Break`,
+                badgeClass: 'routine-badge-exam',
+                cardClass: 'is-exam-day',
+                hasClasses: false,
+                activeRoutine: null,
+                weekdayName: weekdayName,
+                title: fed.title,
+                explanation: fed.dayNum 
+                    ? `Final Examination Day ${fed.dayNum}. Check the Exam Clash Solver for your Slot (T1: 9-11 AM, T2: 11:30-1:30 PM, T3: 2-4 PM).`
+                    : `Friday Exam Break during Final Exams. No examinations scheduled.`
+            };
+        }
+
+        const examEvt = academicEvents.find(e => e.type === 'exam' && dateStr >= e.start && dateStr <= e.end);
+        if (examEvt) {
+            const isMid = examEvt.title.toLowerCase().includes('mid');
+            return {
+                status: 'exam',
+                examType: isMid ? 'mid' : 'final',
+                badgeText: isMid ? '📝 Mid Exam' : '🎓 Final Exam',
                 badgeClass: 'routine-badge-exam',
                 cardClass: 'is-exam-day',
                 hasClasses: false,
@@ -3355,7 +3697,7 @@
             return {
                 status: special.type,
                 badgeText: special.badge,
-                badgeClass: 'routine-badge-makeup',
+                badgeClass: special.isOnline ? 'routine-badge-online' : 'routine-badge-makeup',
                 cardClass: 'is-makeup-day',
                 hasClasses: true,
                 activeRoutine: special.routineDay,
@@ -3481,9 +3823,84 @@
             eventsSec.style.display = 'none';
         }
 
+        // Render Exam schedule & slots if exam day
+        const examSec = document.getElementById('cal-modal-exam-section');
+        const examList = document.getElementById('cal-modal-exam-list');
+        if (examSec && examList) {
+            if (schedule.status === 'exam') {
+                examSec.style.display = 'block';
+                if (schedule.examDayNum) {
+                    const examSlotTimes = {
+                        1: "09:00 AM – 11:00 AM",
+                        2: "11:30 AM – 01:30 PM",
+                        3: "02:00 PM – 04:00 PM"
+                    };
+                    const dayNum = Number(schedule.examDayNum);
+                    const dayCourses = (typeof myCourses !== 'undefined' && Array.isArray(myCourses))
+                        ? myCourses.filter(c => Number(c.day) === dayNum)
+                        : [];
+
+                    let examHTML = '';
+                    [1, 2, 3].forEach(slot => {
+                        const slotCourses = dayCourses.filter(c => Number(c.time) === slot);
+                        const hasClash = slotCourses.length > 1;
+                        examHTML += `
+                            <div style="background: var(--bg-container); border: 1px solid ${hasClash ? 'var(--clash-border)' : 'var(--border-color)'}; border-radius: 8px; padding: 8px 12px; font-size: 0.88rem;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: ${slotCourses.length > 0 ? '6px' : '0'};">
+                                    <strong style="color: var(--primary-color);">Slot T${slot} (${examSlotTimes[slot]})</strong>
+                                    ${hasClash ? '<span class="badge-status status-danger" style="font-size:0.75rem; background:#fee2e2; color:#dc2626; padding:2px 6px; border-radius:4px;">⚠️ Clash</span>' : ''}
+                                </div>
+                                ${slotCourses.length > 0 ? slotCourses.map(c => `
+                                    <div style="padding: 4px 0; border-top: 1px dashed var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+                                        <div>
+                                            <strong>${c.name}</strong>
+                                            <div style="font-size: 0.78rem; color: var(--text-muted);">${c.codes ? c.codes.join(' / ') : ''}</div>
+                                        </div>
+                                    </div>
+                                `).join('') : '<div style="font-size: 0.8rem; color: var(--text-muted);">No courses registered in Clash Solver for this slot.</div>'}
+                            </div>
+                        `;
+                    });
+
+                    if (dayCourses.length === 0) {
+                        examHTML += `
+                            <div style="font-size: 0.82rem; color: var(--text-muted); text-align: center; margin-top: 6px; padding: 6px; background: var(--bg-body); border-radius: 6px;">
+                                💡 Tip: Add your courses in <strong>Exam Clash Solver</strong> to auto-detect your exams and clash alerts here.
+                            </div>
+                        `;
+                    }
+                    examList.innerHTML = examHTML;
+                } else {
+                    examList.innerHTML = `
+                        <div style="background: var(--bg-container); border: 1px solid var(--border-color); border-radius: 8px; padding: 10px 12px; font-size: 0.88rem; color: var(--text-muted);">
+                            ☕ <strong>Exam Break (Friday)</strong><br>No examinations scheduled across all slots today. Take rest and prepare for upcoming exams!
+                        </div>
+                    `;
+                }
+            } else {
+                examSec.style.display = 'none';
+            }
+        }
+
         openModal('calendar-day-modal');
     }
     window.showCalendarDayModal = showCalendarDayModal;
+
+    function jumpCalendarTo(year, month, dateStr) {
+        if (typeof switchTab === 'function') {
+            const calSec = document.getElementById('calendar-section');
+            if (calSec && !calSec.classList.contains('active')) {
+                switchTab('calendar');
+            }
+        }
+        currentCalYear = year;
+        currentCalMonth = month;
+        renderFullCalendar();
+        if (dateStr && typeof showCalendarDayModal === 'function') {
+            showCalendarDayModal(dateStr);
+        }
+    }
+    window.jumpCalendarTo = jumpCalendarTo;
 
     function openModal(id) {
         const modal = document.getElementById(id);
@@ -3577,7 +3994,10 @@
                 const dateDisplay = dObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric'}).toLowerCase();
                 const searchHaystack = `${special.title} ${special.badge} ${special.reason} ${special.routineDay} ${dateStr} ${dateDisplay} makeup make-up routine`.toLowerCase();
                 if (searchHaystack.includes(input)) {
-                    if (!matches.some(m => m.date === dateStr && m.title === special.title)) {
+                    const existing = matches.find(m => m.date === dateStr && (m.title.toLowerCase() === special.title.toLowerCase() || m.title.toLowerCase().includes('regular')));
+                    if (existing) {
+                        existing.badge = special.badge;
+                    } else if (!matches.some(m => m.date === dateStr && m.title.toLowerCase() === special.title.toLowerCase())) {
                         matches.push({
                             title: special.title,
                             date: dateStr,
@@ -4207,7 +4627,10 @@
 
             if (classesStatusBadge) {
                 classesStatusBadge.className = 'badge-status status-active';
-                classesStatusBadge.textContent = `Make-up (${routineDay.slice(0,3)}) 🔄`;
+                const isOnline = specialRoutineDays[todayStr] && specialRoutineDays[todayStr].isOnline;
+                classesStatusBadge.textContent = isOnline
+                    ? `Online (${routineDay.slice(0,3)}) 🌐`
+                    : `Make-up (${routineDay.slice(0,3)}) 🔄`;
             }
             if (classesContainer) {
                 let classesHTML = '';
@@ -4679,6 +5102,15 @@
                 <span>📚</span> Your Section Schedule For This Routine:
             </h4>
             <div id="cal-modal-classes-list" style="display: flex; flex-direction: column; gap: 6px;"></div>
+        </div>
+
+        <!-- Exam Routine & Clashes for this day -->
+        <div id="cal-modal-exam-section" style="display: none; margin-bottom: 16px;">
+            <h4 style="font-size: 0.95rem; margin: 0 0 8px 0; color: var(--text-muted); display: flex; align-items: center; justify-content: space-between;">
+                <span><span>📝</span> Exam Schedule & Slots:</span>
+                <button type="button" class="btn-action" style="padding: 2px 8px; font-size: 0.75rem;" onclick="closeModal('calendar-day-modal'); switchTab('exam');">Open Clash Solver ↗</button>
+            </h4>
+            <div id="cal-modal-exam-list" style="display: flex; flex-direction: column; gap: 6px;"></div>
         </div>
 
         <!-- Academic Events & Deadlines -->
