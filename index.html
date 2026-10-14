@@ -2044,55 +2044,14 @@
     </div>
     
     <div id="calendar-section" class="tool-section">
-        <h1 class="gradient-text">UIU Academic Calendar & Class Routine</h1>
-        <p class="subtitle">Official Trimester Schedules, 4-Day Class Structure & Make-up Routines</p>
+        <h1 class="gradient-text">UIU Academic Calendar</h1>
+        <p class="subtitle">Official Academic Schedules & Daily Routines</p>
 
-        <!-- Routine Legend & Info Banner -->
-        <div class="calendar-routine-banner">
-            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 8px;">
-                <h3 style="margin: 0; font-size: 1.1rem; color: var(--secondary-color); display: flex; align-items: center; gap: 8px;">
-                    <span>🗓️</span> UIU 4-Day Weekly Class Routine
-                </h3>
-                <span class="badge-status status-active" style="font-size: 0.8rem;">Sat • Sun • Tue • Wed</span>
-            </div>
-            <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0 0 12px 0; line-height: 1.45;">
-                Regular classes take place on <strong>Saturday, Sunday, Tuesday, and Wednesday</strong>. 
-                <strong>Monday, Thursday, and Friday</strong> are weekly off days unless assigned for a rescheduled make-up class. Click any date below for full schedule breakdown.
-            </p>
-            <div style="display: flex; flex-wrap: wrap; gap: 14px; font-size: 0.8rem; font-weight: 600;">
-                <span style="display: inline-flex; align-items: center; gap: 5px; color: var(--text-color);">
-                    <span style="width: 10px; height: 10px; border-radius: 50%; background: #10b981; display: inline-block;"></span> Class Days (Sat, Sun, Tue, Wed)
-                </span>
-                <span style="display: inline-flex; align-items: center; gap: 5px; color: var(--text-color);">
-                    <span style="width: 10px; height: 10px; border-radius: 50%; background: #0081d1; display: inline-block;"></span> Make-up / Online Rescheduled Class
-                </span>
-                <span style="display: inline-flex; align-items: center; gap: 5px; color: var(--text-muted);">
-                    <span style="width: 10px; height: 10px; border-radius: 50%; background: #9ca3af; display: inline-block;"></span> Weekly Off (Mon, Thu, Fri)
-                </span>
-                <span style="display: inline-flex; align-items: center; gap: 5px; color: #d32f2f;">
-                    <span style="width: 10px; height: 10px; border-radius: 50%; background: #ef4444; display: inline-block;"></span> Holiday / Trimester Break
-                </span>
-                <span style="display: inline-flex; align-items: center; gap: 5px; color: #b08100;">
-                    <span style="width: 10px; height: 10px; border-radius: 50%; background: #f59e0b; display: inline-block;"></span> Exams & Prep (No Regular Class)
-                </span>
-            </div>
-        </div>
-
-        <div id="today-event-banner" style="display: none; text-align: center; padding: 20px; margin-bottom: 25px; border-radius: 12px; font-weight: bold; font-size: 1.2em; box-shadow: 0 4px 15px rgba(0,0,0,0.05);"></div>
+        <div id="today-event-banner" style="display: none; text-align: center; padding: 18px 20px; margin-bottom: 25px; border-radius: 12px; font-weight: bold; font-size: 1.15em; box-shadow: 0 4px 15px rgba(0,0,0,0.05);"></div>
 
         <div class="search-box">
             <input type="text" id="calendarSearch" placeholder="Search events, routines or dates (e.g., 'Make-up', 'Break', 'Mid-Term', 'Eid')..." oninput="searchCalendarEvents()">
             <div class="suggestions" id="calendarSuggestions"></div>
-        </div>
-
-        <!-- Quick Jump Navigation for Fall 2026 -->
-        <div class="calendar-quick-nav" style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; justify-content: center;">
-            <button type="button" class="btn-action" style="padding: 6px 14px; font-size: 0.85rem;" onclick="jumpCalendarTo(2026, 9)">🎯 Fall 2026 Classes (Oct)</button>
-            <button type="button" class="btn-action" style="padding: 6px 14px; font-size: 0.85rem; background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd;" onclick="jumpCalendarTo(2026, 10)">🌐 Online Make-ups (Nov)</button>
-            <button type="button" class="btn-action" style="padding: 6px 14px; font-size: 0.85rem; background: #fef7e0; color: #b06000; border: 1px solid #fce8b2;" onclick="jumpCalendarTo(2026, 11, '2026-12-05')">📝 Mid-Term Exam (Dec 5 - 12)</button>
-            <button type="button" class="btn-action" style="padding: 6px 14px; font-size: 0.85rem; background: #fce8e6; color: #c5221f; border: 1px solid #fad2cf;" onclick="jumpCalendarTo(2027, 0, '2027-01-25')">🎓 Final Exam (Jan 25 - Feb 1)</button>
-            <button type="button" class="btn-action" style="padding: 6px 14px; font-size: 0.85rem; background: #e6f4ea; color: #137333; border: 1px solid #ceead6;" onclick="jumpCalendarTo(2026, 11, '2026-12-16')">🎉 Victory Day (Dec 16)</button>
-            <button type="button" class="btn-action" style="padding: 6px 14px; font-size: 0.85rem; background: #e1f5fe; color: #0288d1; border: 1px solid #b3e5fc;" onclick="jumpCalendarTo(2027, 1, '2027-02-02')">🌴 Trimester Break (Feb 2027)</button>
         </div>
 
         <div class="calendar-controls">
@@ -2112,145 +2071,6 @@
                 <div>Sat <small style="display:block; font-size: 0.72em; opacity: 0.85; font-weight: 500;">Class</small></div>
             </div>
             <div id="calendar-days" class="calendar-grid">
-            </div>
-        </div>
-
-        <!-- Dedicated Fall 2026 Key Dates: Mid-Terms, Final Exams & Holidays -->
-        <div class="fall2026-key-schedule" style="margin-top: 35px;">
-            <div style="border-bottom: 2px solid var(--border-color); padding-bottom: 10px; margin-bottom: 20px;">
-                <h2 style="color: var(--secondary-color); font-size: 1.4rem; margin: 0 0 6px 0; display: flex; align-items: center; gap: 8px;">
-                    <span>📌</span> Fall 2026 Key Schedule: Mid Exams, Final Exams & Holidays
-                </h2>
-                <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0;">
-                    Click any day below to jump directly to its date in the calendar and inspect routine details.
-                </p>
-            </div>
-
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 20px;">
-                <!-- Mid-Term Exams Card -->
-                <div style="background: var(--bg-input); border: 1px solid var(--border-color); border-radius: 12px; padding: 18px; border-top: 4px solid #f59e0b;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                        <h3 style="margin: 0; font-size: 1.1rem; color: #b06000;">📝 Mid-Term Exam Routine</h3>
-                        <span class="badge-status status-exam" style="font-size: 0.75rem;">Dec 5 - 12, 2026</span>
-                    </div>
-                    <div style="display: flex; flex-direction: column; gap: 6px; font-size: 0.85rem;">
-                        <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: var(--bg-container); border-radius: 6px; cursor: pointer;" onclick="jumpCalendarTo(2026, 11, '2026-12-05')">
-                            <strong>Day 1 (Slots T1, T2, T3)</strong>
-                            <span style="color: var(--text-muted);">Sat, Dec 5</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: var(--bg-container); border-radius: 6px; cursor: pointer;" onclick="jumpCalendarTo(2026, 11, '2026-12-06')">
-                            <strong>Day 2 (Slots T1, T2, T3)</strong>
-                            <span style="color: var(--text-muted);">Sun, Dec 6</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: var(--bg-container); border-radius: 6px; cursor: pointer;" onclick="jumpCalendarTo(2026, 11, '2026-12-07')">
-                            <strong>Day 3 (Slots T1, T2, T3)</strong>
-                            <span style="color: var(--text-muted);">Mon, Dec 7</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: var(--bg-container); border-radius: 6px; cursor: pointer;" onclick="jumpCalendarTo(2026, 11, '2026-12-08')">
-                            <strong>Day 4 (Slots T1, T2, T3)</strong>
-                            <span style="color: var(--text-muted);">Tue, Dec 8</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: var(--bg-container); border-radius: 6px; cursor: pointer;" onclick="jumpCalendarTo(2026, 11, '2026-12-09')">
-                            <strong>Day 5 (Slots T1, T2, T3)</strong>
-                            <span style="color: var(--text-muted);">Wed, Dec 9</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: var(--bg-container); border-radius: 6px; cursor: pointer;" onclick="jumpCalendarTo(2026, 11, '2026-12-10')">
-                            <strong>Day 6 (Slots T1, T2, T3)</strong>
-                            <span style="color: var(--text-muted);">Thu, Dec 10</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: var(--bg-container); border-radius: 6px; opacity: 0.7; cursor: pointer;" onclick="jumpCalendarTo(2026, 11, '2026-12-11')">
-                            <em>Friday Break (No Exam)</em>
-                            <span style="color: var(--text-muted);">Fri, Dec 11</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: var(--bg-container); border-radius: 6px; cursor: pointer;" onclick="jumpCalendarTo(2026, 11, '2026-12-12')">
-                            <strong>Day 7 (Slots T1, T2, T3)</strong>
-                            <span style="color: var(--text-muted);">Sat, Dec 12</span>
-                        </div>
-                    </div>
-                    <button type="button" class="btn-action" style="width: 100%; margin-top: 12px; font-size: 0.82rem; padding: 6px;" onclick="switchTab('exam')">🔍 Solve Mid-Term Exam Clashes →</button>
-                </div>
-
-                <!-- Final Exams Card -->
-                <div style="background: var(--bg-input); border: 1px solid var(--border-color); border-radius: 12px; padding: 18px; border-top: 4px solid #ef4444;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                        <h3 style="margin: 0; font-size: 1.1rem; color: #c5221f;">🎓 Final Exam Routine</h3>
-                        <span class="badge-status status-exam" style="font-size: 0.75rem; background: #fce8e6; color: #c5221f;">Jan 25 - Feb 1, 2027</span>
-                    </div>
-                    <div style="display: flex; flex-direction: column; gap: 6px; font-size: 0.85rem;">
-                        <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: var(--bg-container); border-radius: 6px; cursor: pointer;" onclick="jumpCalendarTo(2027, 0, '2027-01-25')">
-                            <strong>Day 1 (Slots T1, T2, T3)</strong>
-                            <span style="color: var(--text-muted);">Mon, Jan 25</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: var(--bg-container); border-radius: 6px; cursor: pointer;" onclick="jumpCalendarTo(2027, 0, '2027-01-26')">
-                            <strong>Day 2 (Slots T1, T2, T3)</strong>
-                            <span style="color: var(--text-muted);">Tue, Jan 26</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: var(--bg-container); border-radius: 6px; cursor: pointer;" onclick="jumpCalendarTo(2027, 0, '2027-01-27')">
-                            <strong>Day 3 (Slots T1, T2, T3)</strong>
-                            <span style="color: var(--text-muted);">Wed, Jan 27</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: var(--bg-container); border-radius: 6px; cursor: pointer;" onclick="jumpCalendarTo(2027, 0, '2027-01-28')">
-                            <strong>Day 4 (Slots T1, T2, T3)</strong>
-                            <span style="color: var(--text-muted);">Thu, Jan 28</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: var(--bg-container); border-radius: 6px; opacity: 0.7; cursor: pointer;" onclick="jumpCalendarTo(2027, 0, '2027-01-29')">
-                            <em>Friday Break (No Exam)</em>
-                            <span style="color: var(--text-muted);">Fri, Jan 29</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: var(--bg-container); border-radius: 6px; cursor: pointer;" onclick="jumpCalendarTo(2027, 0, '2027-01-30')">
-                            <strong>Day 5 (Slots T1, T2, T3)</strong>
-                            <span style="color: var(--text-muted);">Sat, Jan 30</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: var(--bg-container); border-radius: 6px; cursor: pointer;" onclick="jumpCalendarTo(2027, 0, '2027-01-31')">
-                            <strong>Day 6 (Slots T1, T2, T3)</strong>
-                            <span style="color: var(--text-muted);">Sun, Jan 31</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: var(--bg-container); border-radius: 6px; cursor: pointer;" onclick="jumpCalendarTo(2027, 1, '2027-02-01')">
-                            <strong>Day 7 (Slots T1, T2, T3)</strong>
-                            <span style="color: var(--text-muted);">Mon, Feb 1</span>
-                        </div>
-                    </div>
-                    <button type="button" class="btn-action" style="width: 100%; margin-top: 12px; font-size: 0.82rem; padding: 6px;" onclick="switchTab('exam')">🔍 Solve Final Exam Clashes →</button>
-                </div>
-
-                <!-- Official Holidays Card -->
-                <div style="background: var(--bg-input); border: 1px solid var(--border-color); border-radius: 12px; padding: 18px; border-top: 4px solid #10b981;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                        <h3 style="margin: 0; font-size: 1.1rem; color: #059669;">🎉 Official Holidays & Breaks</h3>
-                        <span class="badge-status status-active" style="font-size: 0.75rem;">No Classes</span>
-                    </div>
-                    <div style="display: flex; flex-direction: column; gap: 6px; font-size: 0.85rem;">
-                        <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: var(--bg-container); border-radius: 6px; cursor: pointer;" onclick="jumpCalendarTo(2026, 10, '2026-11-07')">
-                            <strong>Revolution & Solidarity Day</strong>
-                            <span style="color: var(--text-muted);">Sat, Nov 7</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: var(--bg-container); border-radius: 6px; cursor: pointer;" onclick="jumpCalendarTo(2026, 11, '2026-12-16')">
-                            <strong>Victory Day</strong>
-                            <span style="color: var(--text-muted);">Wed, Dec 16</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: var(--bg-container); border-radius: 6px; cursor: pointer;" onclick="jumpCalendarTo(2026, 11, '2026-12-25')">
-                            <strong>Christmas Day</strong>
-                            <span style="color: var(--text-muted);">Fri, Dec 25</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: var(--bg-container); border-radius: 6px; cursor: pointer;" onclick="jumpCalendarTo(2027, 0, '2027-01-21')">
-                            <strong>Exam Prep / Suspended</strong>
-                            <span style="color: var(--text-muted);">Jan 21 - 24</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: var(--bg-container); border-radius: 6px; cursor: pointer;" onclick="jumpCalendarTo(2027, 0, '2027-01-24')">
-                            <strong>Shab-e-Barat</strong>
-                            <span style="color: var(--text-muted);">Sun, Jan 24</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: var(--bg-container); border-radius: 6px; cursor: pointer;" onclick="jumpCalendarTo(2027, 1, '2027-02-02')">
-                            <strong>Trimester Break (Fall → Spring)</strong>
-                            <span style="color: var(--text-muted);">Feb 2 - 8</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: var(--bg-container); border-radius: 6px; cursor: pointer;" onclick="jumpCalendarTo(2027, 1, '2027-02-09')">
-                            <strong>Spring 2027 Classes Begin</strong>
-                            <span style="color: var(--text-muted);">Tue, Feb 9</span>
-                        </div>
-                    </div>
-                    <button type="button" class="btn-action" style="width: 100%; margin-top: 12px; font-size: 0.82rem; padding: 6px;" onclick="jumpCalendarTo(2026, 9)">🎯 View Fall 2026 Full Calendar</button>
-                </div>
             </div>
         </div>
     </div>
@@ -4048,31 +3868,95 @@
         }
     }
 
+    let eventCountdownInterval = null;
+
     function checkTodayEvents() {
-        const y = actualToday.getFullYear();
-        const m = String(actualToday.getMonth() + 1).padStart(2, '0');
-        const d = String(actualToday.getDate()).padStart(2, '0');
-        const todayStr = `${y}-${m}-${d}`;
-        
-        const banner = document.getElementById('today-event-banner');
-        
-        let todayEvents = academicEvents.filter(evt => todayStr >= evt.start && todayStr <= evt.end);
-        
-        if (todayEvents.length > 0) {
-            banner.style.display = 'block';
-            let evt = todayEvents[0]; 
-            
-            if (evt.type === 'holiday') {
-                banner.className = 'today-holiday';
-                banner.innerHTML = `Congrats 🎊 , Today is Holiday: '${evt.title}'`;
-            } else {
-                banner.className = 'today-regular';
-                banner.innerHTML = `Be Ready!! Today is '${evt.title}'`;
-            }
-        } else {
-            banner.style.display = 'none';
+        updateEventNotification();
+        if (!eventCountdownInterval) {
+            eventCountdownInterval = setInterval(updateEventNotification, 1000);
         }
     }
+    window.checkTodayEvents = checkTodayEvents;
+
+    function updateEventNotification() {
+        const banner = document.getElementById('today-event-banner');
+        if (!banner) return;
+
+        const now = new Date();
+        const y = now.getFullYear();
+        const m = String(now.getMonth() + 1).padStart(2, '0');
+        const d = String(now.getDate()).padStart(2, '0');
+        const todayStr = `${y}-${m}-${d}`;
+
+        const todayEvents = academicEvents.filter(evt => todayStr >= evt.start && todayStr <= evt.end);
+        
+        // Find next future event starting after today
+        let nextEvent = academicEvents
+            .filter(evt => evt.start > todayStr)
+            .sort((a, b) => a.start.localeCompare(b.start))[0];
+
+        if (todayEvents.length === 0 && !nextEvent) {
+            banner.style.display = 'none';
+            return;
+        }
+
+        banner.style.display = 'block';
+
+        let todayHTML = '';
+        if (todayEvents.length > 0) {
+            const evt = todayEvents[0];
+            const icon = evt.type === 'holiday' ? '🎉' : (evt.type === 'exam' ? '📝' : '📌');
+            todayHTML = `
+                <div style="font-size: 1.15rem; font-weight: 700; margin-bottom: 6px;">
+                    ${icon} Today: <span>${evt.title}</span>
+                </div>
+            `;
+        }
+
+        let countdownHTML = '';
+        if (nextEvent) {
+            const nextStart = new Date(`${nextEvent.start}T00:00:00`);
+            const diffMs = nextStart.getTime() - now.getTime();
+            
+            let countdownStr = '';
+            if (diffMs > 0) {
+                const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((diffMs % (1000 * 60)) / 1000);
+
+                countdownStr = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+            } else {
+                countdownStr = 'Starts today!';
+            }
+
+            const parts = nextEvent.start.split('-');
+            const nextDateObj = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+            const nextDateDisplay = nextDateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            const nextIcon = nextEvent.type === 'holiday' ? '🎉' : (nextEvent.type === 'exam' ? '📝' : '⏳');
+
+            countdownHTML = `
+                <div style="display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; font-size: 0.95rem; font-weight: 600;">
+                    <span>${nextIcon} Next Event: <strong>${nextEvent.title}</strong> (${nextDateDisplay})</span>
+                    <span style="display: inline-flex; align-items: center; gap: 4px; background: rgba(243, 112, 33, 0.12); color: var(--primary-color); border: 1px solid var(--primary-color); border-radius: 20px; padding: 3px 12px; font-size: 0.88rem; font-family: monospace;">
+                        ⏱️ ${countdownStr}
+                    </span>
+                </div>
+            `;
+        }
+
+        if (todayEvents.length > 0 && todayEvents[0].type === 'holiday') {
+            banner.className = 'today-holiday';
+        } else {
+            banner.className = 'today-regular';
+        }
+
+        banner.innerHTML = `
+            ${todayHTML}
+            ${countdownHTML}
+        `;
+    }
+    window.updateEventNotification = updateEventNotification;
 
     // --- TARGET CGPA PLANNER LOGIC ---
     function calculateGoalCGPA() {
