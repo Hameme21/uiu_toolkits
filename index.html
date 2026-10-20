@@ -441,9 +441,10 @@
         /* --- TIMELINE GRID STYLES --- */
         .timeline-row-cell {
             position: relative;
-            height: 90px;
+            min-height: 85px;
             padding: 0 !important;
             background-image: repeating-linear-gradient(to right, transparent, transparent calc(11.111% - 1px), var(--border-color) calc(11.111% - 1px), var(--border-color) 11.111%);
+            transition: min-height 0.2s ease;
         }
         
         .day-col {
@@ -458,31 +459,95 @@
         
         .timeline-event {
             position: absolute;
-            top: 5px; bottom: 5px;
             color: white;
             border-radius: 6px;
-            padding: 6px 10px;
-            font-size: 0.8em;
-            line-height: 1.4;
+            padding: 5px 8px;
+            font-size: 0.78em;
+            line-height: 1.25;
             overflow: hidden;
             text-overflow: ellipsis;
             box-shadow: 0 4px 10px rgba(0,0,0,0.2);
             text-align: left;
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), z-index 0.2s;
-            border-left: 4px solid rgba(255,255,255,0.8);
+            transition: transform 0.2s ease, box-shadow 0.2s ease, z-index 0.2s ease;
+            border-left: 4px solid rgba(255,255,255,0.85);
             white-space: nowrap;
+            box-sizing: border-box;
+            cursor: pointer;
         }
         
         .timeline-event:hover {
-            transform: translateY(-5px) scale(1.02); 
-            z-index: 10;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.3); 
+            transform: translateY(-2px) scale(1.02); 
+            z-index: 50 !important;
+            box-shadow: 0 8px 22px rgba(0,0,0,0.35); 
+        }
+
+        .timeline-event.is-focused {
+            border: 2px solid #ffd700 !important;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.75) !important;
+            z-index: 45 !important;
+        }
+
+        .timeline-event.is-clash {
+            border: 2px solid #ff4d4d;
+        }
+
+        .timeline-event .sec-type-pill {
+            display: inline-block;
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 1px 5px;
+            border-radius: 4px;
+            margin-right: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            vertical-align: middle;
+        }
+        .sec-type-pill.pill-theory {
+            background: rgba(255,255,255,0.25);
+            color: #ffffff;
+            border: 1px solid rgba(255,255,255,0.5);
+        }
+        .sec-type-pill.pill-lab {
+            background: #ffffff;
+            color: #15803d;
+            font-weight: 800;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+        }
+
+        .sec-clash-tag {
+            background: #dc2626;
+            color: #ffffff;
+            font-size: 0.62rem;
+            font-weight: 700;
+            padding: 1px 5px;
+            border-radius: 4px;
+            letter-spacing: 0.3px;
+        }
+
+        .btn-keep-sec {
+            background: #ffffff;
+            color: #dc2626;
+            border: 1px solid #ffffff;
+            font-size: 0.64rem;
+            font-weight: 700;
+            padding: 1px 6px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            line-height: 1.2;
+        }
+        .btn-keep-sec:hover {
+            background: #fef2f2;
+            color: #991b1b;
+            transform: scale(1.05);
         }
         
         .remove-btn-timeline {
             position: absolute; top: 2px; right: 5px;
-            cursor: pointer; color: rgba(255,255,255,0.8);
-            font-size: 1.2em; font-weight: bold; z-index: 2; transition: 0.2s;
+            cursor: pointer; color: rgba(255,255,255,0.85);
+            font-size: 1.15em; font-weight: bold; z-index: 2; transition: 0.2s;
+            line-height: 1;
         }
         .remove-btn-timeline:hover { color: #ff4d4d; transform: scale(1.2); }
 
@@ -1737,35 +1802,56 @@
 
         <div class="section-box">
             <span class="section-title">Add Class Session to Routine</span>
-            <div class="search-box" style="margin-bottom: 15px; max-width: 100%;">
-                <input type="text" id="sectionCourseSearch" placeholder="Search Course using code or keyword (e.g., spl, dbms)..." oninput="filterSectionCourses()" autocomplete="off">
-                <div class="suggestions" id="sectionSuggestions"></div>
+            
+            <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 15px;">
+                <div class="search-box" style="flex: 1.2; min-width: 250px; margin-bottom: 0; position: relative;">
+                    <label style="display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-bottom: 4px;">Course Search</label>
+                    <input type="text" id="sectionCourseSearch" placeholder="Search Course (e.g., spl, electronics, cse 1111)..." oninput="filterSectionCourses()" autocomplete="off">
+                    <div class="suggestions" id="sectionSuggestions"></div>
+                </div>
+                <div class="search-box" style="flex: 1; min-width: 230px; margin-bottom: 0; position: relative;">
+                    <label style="display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-bottom: 4px;">Faculty Search</label>
+                    <input type="text" id="sectionFacultySearch" placeholder="Search Faculty (e.g., AKMMI, Osama, AHMOH)..." oninput="filterSectionFaculties()" autocomplete="off">
+                    <div class="suggestions" id="sectionFacultySuggestions"></div>
+                </div>
             </div>
             
-            <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 10px;">
-                <div style="flex:2; min-width: 200px;">
+            <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; align-items: flex-end;">
+                <div style="flex: 1.6; min-width: 170px;">
+                    <label style="display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-bottom: 4px;">Selected Course</label>
                     <input type="text" id="sectionCourseSelected" placeholder="Selected Course" readonly style="background: var(--bg-body);">
                 </div>
-                <div style="flex:1; min-width: 100px;">
-                    <input type="text" id="sectionNameInput" placeholder="Section (e.g., A)">
+                <div style="flex: 1.2; min-width: 140px;">
+                    <label style="display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-bottom: 4px;">Faculty</label>
+                    <div style="display: flex; gap: 4px;">
+                        <input type="text" id="sectionFacultySelected" placeholder="Faculty (e.g. AKMMI)" style="background: var(--bg-body);">
+                        <button type="button" onclick="clearSelectedFaculty()" title="Clear faculty" style="background: none; border: 1px solid var(--border-color); border-radius: 6px; padding: 0 8px; cursor: pointer; color: var(--text-muted);">✕</button>
+                    </div>
                 </div>
-                <div style="flex:1; min-width: 100px;">
+                <div style="flex: 0.7; min-width: 80px;">
+                    <label style="display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-bottom: 4px;">Section</label>
+                    <input type="text" id="sectionNameInput" placeholder="Sec (e.g. A)">
+                </div>
+                <div style="flex: 0.8; min-width: 95px;">
+                    <label style="display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-bottom: 4px;">Type</label>
                     <select id="sectionTypeSelect" onchange="updateSectionDropdowns()">
                         <option value="Theory">Theory</option>
                         <option value="Lab">Lab</option>
                     </select>
                 </div>
-                <div style="flex:1; min-width: 160px;">
+                <div style="flex: 1.2; min-width: 150px;">
+                    <label style="display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-bottom: 4px;">Day(s)</label>
                     <select id="sectionDaySelect"></select>
                 </div>
-                <div style="flex:1; min-width: 160px;">
+                <div style="flex: 1.2; min-width: 150px;">
+                    <label style="display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-bottom: 4px;">Time Slot</label>
                     <select id="sectionTimeSelect"></select>
                 </div>
                 <div>
-                    <button class="btn-action btn-add" style="margin-top:0; height: 100%;" onclick="addSectionClass()">Add to Routine</button>
+                    <button class="btn-action btn-add" style="margin-top:0; height: 42px; display: inline-flex; align-items: center; justify-content: center; gap: 6px;" onclick="addSectionClass()">➕ Add to Routine</button>
                 </div>
             </div>
-            <small style="color:var(--text-muted); display: block; margin-top: 10px;">💡 Tip: You can add the same course multiple times with different sections to visualize your alternative options!</small>
+            <small style="color:var(--text-muted); display: block; margin-top: 10px;">💡 Tip: You can add alternative sections or conflicting classes to visualize overlaps, and use <strong>"✓ Keep"</strong> to easily pick your preferred section!</small>
         </div>
 
         <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 30px; flex-wrap: wrap; gap: 15px;">
@@ -2352,6 +2438,10 @@
     });
     window.allCourses = allCourses;
 
+    // --- UIU FACULTIES DATA (348 faculties) ---
+    const uiuFaculties = [{"id":6992,"name":"A.H.M. Osama Haque (AHMOH)","code":"AHMOH"},{"id":6496,"name":"A.K.M. Muzahidul Islam (AKMMI)","code":"AKMMI"},{"id":6438,"name":"Abdullah Al Fahad (AAFd)","code":"AAFd"},{"id":1250,"name":"Abdullah Al Mamun (AM)","code":"AM"},{"id":7292,"name":"Abdullah Al-Muyeed (AbAMd)","code":"AbAMd"},{"id":7073,"name":"Abdullah Ibne Masud Mahi (AIMM)","code":"AIMM"},{"id":7333,"name":"Abrar Mahmood Sami (AMSa)","code":"AMSa"},{"id":7180,"name":"Abrar Mahmud (ArMd)","code":"ArMd"},{"id":6954,"name":"Abu Bakar Fahad (ABF)","code":"ABF"},{"id":1278,"name":"Abu Saleh Md. Sohel-Uz-Zaman (ASSZ)","code":"ASSZ"},{"id":6099,"name":"Abu Shafin Mohammad Mahdee Jameel (ASMMJ)","code":"ASMMJ"},{"id":7245,"name":"Ahmed Abdullah Bin Farooqi Rayhan (AAFR)","code":"AAFR"},{"id":6502,"name":"Ahmed Imran Kabir (AIK)","code":"AIK"},{"id":7321,"name":"Ahmed Nesar Tahsin Choudhury (ANTC)","code":"ANTC"},{"id":7270,"name":"Ahnaf Rafi Sharan (AhRSh)","code":"AhRSh"},{"id":7156,"name":"Akif Hamid (AkHd)","code":"AkHd"},{"id":7317,"name":"Al Amin Hossain (AAHn)","code":"AAHn"},{"id":7052,"name":"Al Jamal Mustafa Shindaini (AJMSh)","code":"AJMSh"},{"id":6645,"name":"Al-Sakib Khan Pathan (ASKP)","code":"ASKP"},{"id":7320,"name":"Alvi Ahmed Sarker (AAS)","code":"AAS"},{"id":7381,"name":"Amit Bin Tariqul (ABT)","code":"ABT"},{"id":6670,"name":"Anika Tasnim Rodela (ATR)","code":"ATR"},{"id":7263,"name":"Anindya Hoque (AnHq)","code":"AnHq"},{"id":7332,"name":"Antara Chowdhury (ACh)","code":"ACh"},{"id":7161,"name":"Arnab Bhattacharjee (ArBh)","code":"ArBh"},{"id":6093,"name":"Ashek Ahmed (AkAd)","code":"AkAd"},{"id":7261,"name":"Ashraful Islam Paran (AIP)","code":"AIP"},{"id":7214,"name":"Asif Abrar (AsAr)","code":"AsAr"},{"id":6864,"name":"Asif Ahmed Utsa (AAU)","code":"AAU"},{"id":6910,"name":"Asnuva Tanvin (AsTn)","code":"AsTn"},{"id":6991,"name":"Azizur Rahman Anik (ARnA)","code":"ARnA"},{"id":1296,"name":"B.K.M. Mizanur Rahman (BKM)","code":"BKM"},{"id":6858,"name":"Charles Aunkan Gomes (CAG)","code":"CAG"},{"id":7232,"name":"Chowdhury Omar Sharif (COS)","code":"COS"},{"id":6927,"name":"Christina Miti Rozario (ChMR)","code":"ChMR"},{"id":1307,"name":"Dewan Md. Farid (DMF)","code":"DMF"},{"id":7129,"name":"Didarul Islam Didar (DID)","code":"DID"},{"id":4911,"name":"Dil  Nusrat (DN)","code":"DN"},{"id":7357,"name":"Diniya Tahrin Bhuiyan (DTB)","code":"DTB"},{"id":4882,"name":"Dr. Mahtab Uddin Ahmmed (MUnAd)","code":"MUnAd"},{"id":7359,"name":"Emrul Kayes Raceme (EKR)","code":"EKR"},{"id":7370,"name":"Erina Sharmin (ESh)","code":"ESh"},{"id":7128,"name":"Fairoz Anika (FzAn)","code":"FzAn"},{"id":6427,"name":"Farhan Anan Himu (FAH)","code":"FAH"},{"id":7114,"name":"Faria Tabassum (FT)","code":"FT"},{"id":7340,"name":"Fariha Yousuf Monia (FYM)","code":"FYM"},{"id":7334,"name":"Fazle Rabby (FRa)","code":"FRa"},{"id":7289,"name":"Fazlul Hoque (FHoq)","code":"FHoq"},{"id":7100,"name":"Ferdous-Ul-Haque Joy (FHJ)","code":"FHJ"},{"id":6938,"name":"Golam Mohammed Bhuiyan (GMB)","code":"GMB"},{"id":6613,"name":"Gouranga Chandra Debnath (GCD)","code":"GCD"},{"id":7179,"name":"Hafijul Hoque Chowdhury (HHCh)","code":"HHCh"},{"id":6011,"name":"Hamidul Huq (HHq)","code":"HHq"},{"id":6652,"name":"Hamudi Hasan Sonet (HHS)","code":"HHS"},{"id":1369,"name":"Hasan Sarwar (HS)","code":"HS"},{"id":6693,"name":"Hasin Anupama Azhari (HAA)","code":"HAA"},{"id":1358,"name":"Helena Bulbul (HB)","code":"HB"},{"id":7012,"name":"Humaira Anzum Neha (HAN)","code":"HAN"},{"id":6746,"name":"Iftekharul Abedeen (IAb)","code":"IAb"},{"id":7127,"name":"Imran Hossain (IHn)","code":"IHn"},{"id":1371,"name":"Intekhab Alam (IA)","code":"IA"},{"id":1380,"name":"Ishrat Jahan (IJ)","code":"IJ"},{"id":1384,"name":"Ishrat Sultana (IS)","code":"IS"},{"id":7308,"name":"Ismat Zarin (IZn)","code":"IZn"},{"id":7080,"name":"Israt Jabin (ItJn)","code":"ItJn"},{"id":6253,"name":"Jakowan (Jkn)","code":"Jkn"},{"id":1390,"name":"James Bakul Sarkar (JBS)","code":"JBS"},{"id":7192,"name":"Jamil Ahmed Joy (JAJ)","code":"JAJ"},{"id":7364,"name":"Jannatul Ferdous Nishat (JFNt)","code":"JFNt"},{"id":7086,"name":"Jannatun Noor Mukta (JNM)","code":"JNM"},{"id":7325,"name":"Jarin Tasneem (JT)","code":"JT"},{"id":1389,"name":"Jashodhan Saha (JAS)","code":"JAS"},{"id":5999,"name":"Jerin Haque Chhanda (JHC)","code":"JHC"},{"id":7230,"name":"Jerin Hasan Priya (JHP)","code":"JHP"},{"id":7316,"name":"Joyonty Ghosh (JG)","code":"JG"},{"id":7186,"name":"K M Faizullah Fuhad (KMFF)","code":"KMFF"},{"id":7290,"name":"K Shayekh Ebne Mizan (KShEM)","code":"KShEM"},{"id":7330,"name":"Kafi Anan (KaAn)","code":"KaAn"},{"id":6972,"name":"Kais Zaman (KZ)","code":"KZ"},{"id":1502,"name":"Kaled Masukur Rahman (MKMR)","code":"MKMR"},{"id":7338,"name":"Kaspia Kabir (KKr)","code":"KKr"},{"id":3805,"name":"Kawsar Ahmmed (KA)","code":"KA"},{"id":6749,"name":"Kazi Abdun Noor (KAN)","code":"KAN"},{"id":7147,"name":"Kazi Abrar Mahmud (KAM)","code":"KAM"},{"id":7327,"name":"Kazi Fahim Tahmid (KFT)","code":"KFT"},{"id":6808,"name":"Kazi Kamrun Nahar Tania (KKNT)","code":"KKNT"},{"id":7106,"name":"Kazi Yousuf Hasan (KYH)","code":"KYH"},{"id":7281,"name":"Kh Ehsanur Rahman (KhER)","code":"KhER"},{"id":7219,"name":"Khalid Shahriar (KS)","code":"KS"},{"id":1413,"name":"Khandoker Mahmudur Rahman (KMR)","code":"KMR"},{"id":7279,"name":"Khandoker Makjum Wahid (KhMW)","code":"KhMW"},{"id":1411,"name":"Khondaker Abdullah -Al-Mamun (KM)","code":"KM"},{"id":6146,"name":"Khushnur Binte Jahangir (KBJ)","code":"KBJ"},{"id":6937,"name":"Kirsten Gudgeon (KnGn)","code":"KnGn"},{"id":7234,"name":"Labib Rashid Inan (LRI)","code":"LRI"},{"id":7268,"name":"Liakat Omar Rihan (LOR)","code":"LOR"},{"id":7015,"name":"M. Fahmin Rahman (MFRn)","code":"MFRn"},{"id":1553,"name":"M. Rezwan Khan (MRK)","code":"MRK"},{"id":7331,"name":"M.A. Mosabbir Antor (MAMA)","code":"MAMA"},{"id":7336,"name":"M.M. Fahim Siddiquee (MMFS)","code":"MMFS"},{"id":7371,"name":"M.M. Rafin Mahmud (MMRM)","code":"MMRM"},{"id":7155,"name":"Mahbuba Sultana (MaSa)","code":"MaSa"},{"id":7221,"name":"Mahir Amer Haque (MAmH)","code":"MAmH"},{"id":7081,"name":"Mahmudul Hasan (MahHsn)","code":"MahHsn"},{"id":1586,"name":"Mahtab Uddin (MUn)","code":"MUn"},{"id":7280,"name":"Maksuda Akter (MaAkr)","code":"MaAkr"},{"id":7208,"name":"Maliha Tasnim (MaTm)","code":"MaTm"},{"id":6815,"name":"Mallika Datta (MD)","code":"MD"},{"id":7362,"name":"Marjana Morshed (MMd)","code":"MMd"},{"id":6563,"name":"Marzia Shurovi (MaShu)","code":"MaShu"},{"id":6902,"name":"Md. Abid Hossain (AbHn)","code":"AbHn"},{"id":1450,"name":"Md. Abu Saklayen (MASn)","code":"MASn"},{"id":6939,"name":"Md. Aminur Islam (MdAIm)","code":"MdAIm"},{"id":7372,"name":"Md. Anowarul Abedin (MAnAn)","code":"MAnAn"},{"id":6706,"name":"Md. Arifur Rahman (MdArR)","code":"MdArR"},{"id":6892,"name":"Md. Asadujjaman (MdAsn)","code":"MdAsn"},{"id":1444,"name":"Md. Asaduzzaman (MAn)","code":"MAn"},{"id":6759,"name":"Md. Ashadullah (MdAU)","code":"MdAU"},{"id":5991,"name":"Md. Benzir Ahmed (MBAd)","code":"MBAd"},{"id":7307,"name":"Md. Elias Uddin (MEUn)","code":"MEUn"},{"id":6952,"name":"Md. Enamul Haque (MEHq)","code":"MEHq"},{"id":7069,"name":"Md. Fayyaz Khan (MFK)","code":"MFK"},{"id":7287,"name":"Md. Golam Hossain (MGH)","code":"MGH"},{"id":6929,"name":"Md. Golam Mahabub Sarwar (GMS)","code":"GMS"},{"id":7329,"name":"Md. Habibur Rahman (MdHR)","code":"MdHR"},{"id":7350,"name":"Md. Hachhibur Rahman (MdHRn)","code":"MdHRn"},{"id":6416,"name":"Md. Hasanuzzaman (MdHn)","code":"MdHn"},{"id":7269,"name":"Md. Hossain Safayet (MHSt)","code":"MHSt"},{"id":7291,"name":"Md. Intishar Rahman (MIR)","code":"MIR"},{"id":1377,"name":"Md. Iqbal Bahar Chowdhury (IBC)","code":"IBC"},{"id":7339,"name":"Md. Ismail Hosen (MdIH)","code":"MdIH"},{"id":6065,"name":"Md. Jalal Uddin (MJUn)","code":"MJUn"},{"id":1501,"name":"Md. Kaium Hossain (MKHn)","code":"MKHn"},{"id":6890,"name":"Md. Kamrul Bari (MKB)","code":"MKB"},{"id":1499,"name":"Md. Kamrul Hasan (MKH)","code":"MKH"},{"id":7360,"name":"Md. Kamruzzaman (MdK)","code":"MdK"},{"id":6708,"name":"Md. Kashedul Wahab Tuhin (KWT)","code":"KWT"},{"id":6023,"name":"Md. Kazimul Hoque (MKHq)","code":"MKHq"},{"id":7185,"name":"Md. Mainul Islam (MMaIm)","code":"MMaIm"},{"id":7091,"name":"Md. Maruf Jihan Shoyeb (MJSh)","code":"MJSh"},{"id":7346,"name":"Md. Mehedi Hasan (MdMeHn)","code":"MdMeHn"},{"id":7315,"name":"Md. Mehedi Hasan (MMeHn)","code":"MMeHn"},{"id":6965,"name":"Md. Minhajul Islam (MMiIm)","code":"MMiIm"},{"id":7355,"name":"Md. Mofizur Rhaman (MMRh)","code":"MMRh"},{"id":1591,"name":"Md. Mohan Uddin (MUd)","code":"MUd"},{"id":7267,"name":"Md. Mostaqul Islam (MdMoIm)","code":"MdMoIm"},{"id":6560,"name":"Md. Motaharul Islam (MdMIm)","code":"MdMIm"},{"id":6977,"name":"Md. Moynul Islam (MoIm)","code":"MoIm"},{"id":7126,"name":"Md. Muhaiminul Islam Nafi (MMIN)","code":"MMIN"},{"id":6750,"name":"Md. Muhyminul Haque (MdMH)","code":"MdMH"},{"id":6869,"name":"Md. Mujibur Rahman (MrRh)","code":"MrRh"},{"id":1540,"name":"Md. Musharrof Hossain (MoHn)","code":"MoHn"},{"id":7010,"name":"Md. Mushfiqul Haque Omi (MHO)","code":"MHO"},{"id":6909,"name":"Md. Mutasim Billah Kouser (MMBK)","code":"MMBK"},{"id":7363,"name":"Md. Nazmul Huda (MNaHu)","code":"MNaHu"},{"id":7074,"name":"Md. Nobir Hosen (MNHn)","code":"MNHn"},{"id":7058,"name":"Md. Nure-Alam-Dipu (NAD)","code":"NAD"},{"id":6068,"name":"Md. Qamruzzaman (MdQ)","code":"MdQ"},{"id":6696,"name":"Md. Romizul Islam (MdRIm)","code":"MdRIm"},{"id":7099,"name":"Md. Saiful Islam (MSaIm)","code":"MSaIm"},{"id":7210,"name":"Md. Saiful Islam (MSIs)","code":"MSIs"},{"id":7216,"name":"Md. Sajjad Hossain (MSdHn)","code":"MSdHn"},{"id":7375,"name":"Md. Salim Al Mamun (SAMn)","code":"SAMn"},{"id":7342,"name":"Md. Sanzed Alam (SdAm)","code":"SdAm"},{"id":6792,"name":"Md. Shadman Aadeeb (MdShA)","code":"MdShA"},{"id":6859,"name":"Md. Shafqat Talukder (MSTR)","code":"MSTR"},{"id":1664,"name":"Md. Shahriar Ahmed Chowdhury (SAC)","code":"SAC"},{"id":1465,"name":"Md. Shariful Alam (MdSA)","code":"MdSA"},{"id":7071,"name":"Md. Shohrab Hossain (MShH)","code":"MShH"},{"id":7252,"name":"Md. Siam (MdSam)","code":"MdSam"},{"id":7344,"name":"Md. Suzauddola (MdSu)","code":"MdSu"},{"id":7345,"name":"Md. Taky Shaharair (MTSh)","code":"MTSh"},{"id":6867,"name":"Md. Tanvir Raihan (MTR)","code":"MTR"},{"id":6700,"name":"Md. Tarek Hasan (MdTH)","code":"MdTH"},{"id":7235,"name":"Md. Zahin Alam (MZAm)","code":"MZAm"},{"id":6917,"name":"Md. Ziaul Karim (MZK)","code":"MZK"},{"id":7217,"name":"Md. Zunaid-Ul-Alam (MZUA)","code":"MZUA"},{"id":7231,"name":"Miftahul Sheikh (MfSh)","code":"MfSh"},{"id":1575,"name":"Mimnun Sultana (MSna)","code":"MSna"},{"id":6156,"name":"Minhajul Bashir (MiBa)","code":"MiBa"},{"id":7305,"name":"Mir Md. Fazle Rabbi (MMFR)","code":"MMFR"},{"id":6668,"name":"Mir Moynuddin Ahmed Shibly (MMAS)","code":"MMAS"},{"id":7200,"name":"Mobashara Islam (MobIm)","code":"MobIm"},{"id":7064,"name":"Mobaswirul Islam (MoIsm)","code":"MoIsm"},{"id":1478,"name":"Mofijul Hoq Masum (MHM)","code":"MHM"},{"id":7286,"name":"Mofiz Mojib Haider (MMHr)","code":"MMHr"},{"id":7165,"name":"Mohammad Akhtaruzzaman (MdAkh)","code":"MdAkh"},{"id":1209,"name":"Mohammad Ali Ashraf (AAsh)","code":"AAsh"},{"id":6072,"name":"Mohammad Amzad Hossain (MdAHn)","code":"MdAHn"},{"id":1293,"name":"Mohammad Behroz Jalil (BJ)","code":"BJ"},{"id":7189,"name":"Mohammad Johirul Islam (MdJI)","code":"MdJI"},{"id":1451,"name":"Mohammad Mahboob Ali Siddiqi (MASq)","code":"MASq"},{"id":7319,"name":"Mohammad Mahmudul Hasan Chowdhury (MMHC)","code":"MMHC"},{"id":1466,"name":"Mohammad Mamun Elahi (ME)","code":"ME"},{"id":1526,"name":"Mohammad Musa (MMs)","code":"MMs"},{"id":1536,"name":"Mohammad Nurul Huda (MNH)","code":"MNH"},{"id":6878,"name":"Mohammad Omar Farooq (MOF)","code":"MOF"},{"id":6601,"name":"Mohammad Shahriar Rahman (MdSR)","code":"MdSR"},{"id":7213,"name":"Mohammad Shamsul Alam Wasimi (MSAW)","code":"MSAW"},{"id":7374,"name":"Mohammad Syful Hoque (MSHq)","code":"MSHq"},{"id":1580,"name":"Mohammad Tariq Hasan (MTH)","code":"MTH"},{"id":1774,"name":"Mohammad Tohidul Islam Miya (TIM)","code":"TIM"},{"id":7187,"name":"Mohammed Jawwadul Islam (MJIm)","code":"MJIm"},{"id":6709,"name":"Mohammed Zia Uddin (MZU)","code":"MZU"},{"id":1368,"name":"Mohd. H. R. Joarder (HRJ)","code":"HRJ"},{"id":6678,"name":"Mohmmad Ali (MoA)","code":"MoA"},{"id":7314,"name":"Mohsina Rahman (MoRhn)","code":"MoRhn"},{"id":7273,"name":"Montaha Ayub Vasha (MAV)","code":"MAV"},{"id":1419,"name":"Mosabbir Uddin Ahmad (MA)","code":"MA"},{"id":7079,"name":"Mosharof Hossain (MfHn)","code":"MfHn"},{"id":6021,"name":"Muhaiminul Islam Adnan (MIA)","code":"MIA"},{"id":6928,"name":"Muhammad Al-Amin Hoque (AAnH)","code":"AAnH"},{"id":7373,"name":"Muhammad Amir Hossain (MdAmHn)","code":"MdAmHn"},{"id":7111,"name":"Muhammad Anwarul Azim (MAnAm)","code":"MAnAm"},{"id":1467,"name":"Muhammad Enamul Haque (MEH)","code":"MEH"},{"id":3812,"name":"Muhammad Hasan Al-Mamun (MHAMn)","code":"MHAMn"},{"id":6788,"name":"Muhammad Nomani Kabir (MNK)","code":"MNK"},{"id":7312,"name":"Muhammad Saiful Islam (MSIsm)","code":"MSIsm"},{"id":7272,"name":"Muhammad Sibgatullah Zunnun (MdSZ)","code":"MdSZ"},{"id":7244,"name":"Muntasir Ahmad (MAd)","code":"MAd"},{"id":6207,"name":"Musharrat Shabnam Shuchi (MSS)","code":"MSS"},{"id":6626,"name":"Nabila Sabrin Sworna (NSS)","code":"NSS"},{"id":6888,"name":"Nabila Sultana (NaSa)","code":"NaSa"},{"id":7354,"name":"Nadiratur Rahman (NrRn)","code":"NrRn"},{"id":7167,"name":"Nafisa Rahman (NRn)","code":"NRn"},{"id":6616,"name":"Nafisa Tabassum (NT)","code":"NT"},{"id":6669,"name":"Nahid Ferdous Aurna (NaFA)","code":"NaFA"},{"id":6288,"name":"Nahid Hossain (NHn)","code":"NHn"},{"id":7262,"name":"Nahin F. Siddiqui (NaFS)","code":"NaFS"},{"id":7271,"name":"Naima Ansar Khan (NArKh)","code":"NArKh"},{"id":4852,"name":"Nasrin Akter (NAr)","code":"NAr"},{"id":7366,"name":"Nawshin Tabassum (NTm)","code":"NTm"},{"id":7093,"name":"Nazia Shifa Mugdha (NSM)","code":"NSM"},{"id":6983,"name":"Nazmul Hasan (NzHn)","code":"NzHn"},{"id":6801,"name":"Nazmul Huda (NaHu)","code":"NaHu"},{"id":6904,"name":"Nazmul Huda Mohd. Sharif Uddin (NHMS)","code":"NHMS"},{"id":7176,"name":"Nazmun Nahar Showmi (NNS)","code":"NNS"},{"id":1615,"name":"Nousin Laila Bristi (NLB)","code":"NLB"},{"id":7178,"name":"Novia Nurain (NoNn)","code":"NoNn"},{"id":7164,"name":"Nusaiba Zaman Manifa (NZMa)","code":"NZMa"},{"id":3814,"name":"Nusrat Farzana (NFa)","code":"NFa"},{"id":7094,"name":"Nusrath Jahan Borna (NJB)","code":"NJB"},{"id":7072,"name":"Ohidujjaman (Ojn)","code":"Ojn"},{"id":6635,"name":"Oliver Tirtho Sarkar (OTS)","code":"OTS"},{"id":7172,"name":"Partha Pratim Das Roy (PPDR)","code":"PPDR"},{"id":7152,"name":"Pranta Biswas (PB)","code":"PB"},{"id":7057,"name":"Qazi Moinuddin Mahmud (QMMd)","code":"QMMd"},{"id":6975,"name":"Rabeya Bakar Sarna (RBS)","code":"RBS"},{"id":7162,"name":"Rafid Nahiyan Farabi (RNF)","code":"RNF"},{"id":7020,"name":"Rahil Afzal Nihal (RaAN)","code":"RaAN"},{"id":7227,"name":"Raiyan Janik Monir (RJM)","code":"RJM"},{"id":7123,"name":"Rakibul Hasan Rafi (RaHR)","code":"RaHR"},{"id":1650,"name":"Raqibul Mostafa (RM)","code":"RM"},{"id":7361,"name":"Rejwan Ahmed (ReAd)","code":"ReAd"},{"id":6791,"name":"Riasat Azim (RtAm)","code":"RtAm"},{"id":7353,"name":"Rifa Noor (RfNr)","code":"RfNr"},{"id":7153,"name":"Rizvan Jawad Ruhan (RJR)","code":"RJR"},{"id":7358,"name":"Robiul Islam (RoIm)","code":"RoIm"},{"id":1656,"name":"Rubaiya Rahtin Khan (RRK)","code":"RRK"},{"id":7107,"name":"Rukaiya Rob (RuRb)","code":"RuRb"},{"id":6558,"name":"Rumana Afrin (RAf)","code":"RAf"},{"id":7365,"name":"Rusafa Islam Aurchi (RIA)","code":"RIA"},{"id":1721,"name":"S.M. Asif-Ur-Rahman (SMAR)","code":"SMAR"},{"id":6976,"name":"S.M. Hasibul Hassan Rizvee (HaHR)","code":"HaHR"},{"id":7347,"name":"S.M. Kausar Parvej (SMKP)","code":"SMKP"},{"id":7028,"name":"S.M. Rafiqul Islam (SMRI)","code":"SMRI"},{"id":6593,"name":"Saad Hasan (SdHn)","code":"SdHn"},{"id":7324,"name":"Sadatul lslam Sadi (SlS)","code":"SlS"},{"id":6569,"name":"Sadia Afrin (SaAn)","code":"SaAn"},{"id":6905,"name":"Sadia Binte Anwar (SBAr)","code":"SBAr"},{"id":6646,"name":"Sadia Islam (SaIs)","code":"SaIs"},{"id":7277,"name":"Sadia Islam (SaIsm)","code":"SaIsm"},{"id":7367,"name":"Sadia Zaman (SZn)","code":"SZn"},{"id":1686,"name":"Sadid Muneer (SdM)","code":"SdM"},{"id":6704,"name":"Sagar Dutta (SaDa)","code":"SaDa"},{"id":7000,"name":"Sahid Hossain Mustakim (SHMm)","code":"SHMm"},{"id":7018,"name":"Saidul Islam (SIsm)","code":"SIsm"},{"id":7182,"name":"Saifullah Mahbub (SaMb)","code":"SaMb"},{"id":7376,"name":"Saima Ansar Jui (SAJ)","code":"SAJ"},{"id":1667,"name":"Saima Hasin (SaHn)","code":"SaHn"},{"id":7110,"name":"Sajid Ahmed Chowdhury (SdACh)","code":"SdACh"},{"id":7197,"name":"Sajjad Ahmed (SdAh)","code":"SdAh"},{"id":7311,"name":"Sajjad Hossain (SaHsn)","code":"SaHsn"},{"id":7341,"name":"Sakibul Satter Shupto (SaSSh)","code":"SaSSh"},{"id":6711,"name":"Salma Begum (SaB)","code":"SaB"},{"id":1711,"name":"Salma Karim (SKa)","code":"SKa"},{"id":6702,"name":"Samin Sharaf Somik (SSSk)","code":"SSSk"},{"id":7265,"name":"Saqif Kaisar (SaKar)","code":"SaKar"},{"id":1739,"name":"Sarker Rafij Ahmed Ratan (SRA)","code":"SRA"},{"id":7382,"name":"Sarwat Amin (StA)","code":"StA"},{"id":6094,"name":"Sayeda Chandra Tabassum (SCT)","code":"SCT"},{"id":7228,"name":"Sayeem Been Zaman (SBZ)","code":"SBZ"},{"id":7177,"name":"Sayem Shahad (SmSd)","code":"SmSd"},{"id":6208,"name":"Seyama Sultana (SeyS)","code":"SeyS"},{"id":7309,"name":"Shafqat Chaudhuri (SCh)","code":"SCh"},{"id":6960,"name":"Shahil Yasar Haque (SYH)","code":"SYH"},{"id":7163,"name":"Shahriar Mahmud (ShMd)","code":"ShMd"},{"id":7159,"name":"Shahriare Mahmud Sakib (ShMS)","code":"ShMS"},{"id":7337,"name":"Shaila Ahsan (ShAhn)","code":"ShAhn"},{"id":1694,"name":"Shakila Aziz (ShAz)","code":"ShAz"},{"id":6598,"name":"Shantanu Kumar Saha (SKS)","code":"SKS"},{"id":6811,"name":"Sharif Ahmed Mukul (ShAM)","code":"ShAM"},{"id":1710,"name":"Shayla Khanam (SK)","code":"SK"},{"id":6778,"name":"Sheikh Mohammad Shafiul Islam (SMSI)","code":"SMSI"},{"id":7326,"name":"Sheikh Mohammed Al Hadi Elaf (SMAHE)","code":"SMAHE"},{"id":7060,"name":"Shekh. Md. Saifur Rahman (SMSR)","code":"SMSR"},{"id":7063,"name":"Sherajul Arifin (ShArn)","code":"ShArn"},{"id":7061,"name":"Shihab Ahmed (ShAhd)","code":"ShAhd"},{"id":7243,"name":"Shishir Shahriar Arif (SSAf)","code":"SSAf"},{"id":6600,"name":"Shoaib Ahmed (SbAd)","code":"SbAd"},{"id":6426,"name":"Shoib Ahmed Shourav (SAhSh)","code":"SAhSh"},{"id":7056,"name":"Shuva Ghosh (ShGh)","code":"ShGh"},{"id":7218,"name":"Siana Rizwan (SnRn)","code":"SnRn"},{"id":4878,"name":"Siddique Md. Lutful Kabir (SMLK)","code":"SMLK"},{"id":6868,"name":"Sidratul Muntaha (SiMa)","code":"SiMa"},{"id":7062,"name":"Sidratul Tanzila Tasmi (STT)","code":"STT"},{"id":7369,"name":"Sudipto Mondal (SuMo)","code":"SuMo"},{"id":7335,"name":"Sumaiya Tarannum (SuT)","code":"SuT"},{"id":1661,"name":"Suman Ahmmed (SA)","code":"SA"},{"id":7008,"name":"Sumia Zahid (SZ)","code":"SZ"},{"id":7264,"name":"Syed Abu Ammar Muhammad Zarif (SAMZ)","code":"SAMZ"},{"id":7157,"name":"Syed Moktacim Billah (SMB)","code":"SMB"},{"id":7266,"name":"Syed Samin Sadaf (SSSf)","code":"SSSf"},{"id":7229,"name":"Tahia Hossain (TaH)","code":"TaH"},{"id":6973,"name":"Tahmid Mosaddeque (TaMo)","code":"TaMo"},{"id":6874,"name":"Taki Yashir (TY)","code":"TY"},{"id":6911,"name":"Taniah Mahmuda Tinni (TMT)","code":"TMT"},{"id":7011,"name":"Tanmoy Bipro Das (TBD)","code":"TBD"},{"id":6783,"name":"Tanseer Ahamed (TrAd)","code":"TrAd"},{"id":7318,"name":"Tanveer Ahmed Khan Fahim (TAKF)","code":"TAKF"},{"id":6256,"name":"Tanzila Amir (TaA)","code":"TaA"},{"id":7351,"name":"Tariq Bin Yousuf (TBY)","code":"TBY"},{"id":7246,"name":"Tashrifa Fairuz (TaFz)","code":"TaFz"},{"id":7323,"name":"Tasinul Islam Ahon (TIA)","code":"TIA"},{"id":7150,"name":"Tasmia Binte Sogir (TBS)","code":"TBS"},{"id":6974,"name":"Tasmin Sanjida (TaSa)","code":"TaSa"},{"id":6784,"name":"Tasneem Jahan Tumpa (TJT)","code":"TJT"},{"id":7348,"name":"Tasriad Ahmed Tias (TATs)","code":"TATs"},{"id":7276,"name":"Torun Haldar (THr)","code":"THr"},{"id":6845,"name":"Umama Rahman (UR)","code":"UR"},{"id":7009,"name":"Umme Ammara (UA)","code":"UA"},{"id":7233,"name":"Umme Habiba (UmH)","code":"UmH"},{"id":7328,"name":"Zaara Zabeen Arpa (ZZA)","code":"ZZA"},{"id":7368,"name":"Zakia Tabassum (ZT)","code":"ZT"},{"id":7322,"name":"Zia Ul Hassan Abdullah (ZUHA)","code":"ZUHA"},{"id":1801,"name":"Zinnatun Nesa (ZN)","code":"ZN"},{"id":7356,"name":"Zobaer Ibn Razzaque (ZIR)","code":"ZIR"},{"id":7352,"name":"Zolakha Akter Shifa (ZAS)","code":"ZAS"}];
+    window.uiuFaculties = uiuFaculties;
+
     // --- ACADEMIC CALENDAR EVENTS DATA ---
     const academicEvents = [
         { start: "2026-02-23", end: "2026-02-25", title: "Registration without Fine", type: "regular" },
@@ -2572,11 +2662,12 @@
             alert("No classes to export in your Section Planner!");
             return;
         }
-        let csv = "Course,Section,Type,Days,Time Slot\n";
+        let csv = "Course,Section,Type,Days,Time Slot,Faculty\n";
         mySectionClasses.forEach(c => {
             const courseName = `"${c.course}"`;
             const timeStr = c.type === 'Theory' ? theoryTimeSlots[c.slotIndex] : labTimeSlots[c.slotIndex];
-            csv += `${courseName},${c.section},${c.type},"${c.day}","${timeStr}"\n`;
+            const facultyStr = `"${c.faculty || ''}"`;
+            csv += `${courseName},${c.section},${c.type},"${c.day}","${timeStr}",${facultyStr}\n`;
         });
         downloadCSV(csv, "Section_Planner.csv");
     }
@@ -2596,6 +2687,7 @@
                 const type = row[2];
                 const slotStr = row[4];
                 const slotIndex = type === 'Theory' ? theoryTimeSlots.indexOf(slotStr) : labTimeSlots.indexOf(slotStr);
+                const faculty = row[5] ? row[5].trim() : '';
                 
                 const newClass = {
                     id: Date.now().toString() + i, 
@@ -2603,7 +2695,8 @@
                     section: row[1],
                     type: type,
                     day: row[3],
-                    slotIndex: slotIndex > -1 ? slotIndex : 0
+                    slotIndex: slotIndex > -1 ? slotIndex : 0,
+                    faculty: faculty
                 };
                 importedClasses.push(newClass);
             }
@@ -2843,97 +2936,55 @@
         });
     }
 
-    function renderSectionRoutine() {
-        // Clear the timeline grid
-        allTimelineDays.forEach(day => {
-            const row = document.getElementById(`sec-row-${day}`);
-            if (row) row.innerHTML = '';
-        });
-        
-        let hasClash = false;
-        
-        // Track scheduled intervals per day to detect overlapping time ranges
-        const daySchedules = {
-            "Saturday": [], "Sunday": [], "Monday": [], 
-            "Tuesday": [], "Wednesday": [], "Thursday": [], "Friday": []
-        };
+    let focusedSectionClassId = null;
 
-        mySectionClasses.forEach(c => {
-            // Determine days to render
-            let daysToRender = [];
-            if (c.day === "Saturday & Tuesday") daysToRender = ["Saturday", "Tuesday"];
-            else if (c.day === "Sunday & Wednesday") daysToRender = ["Sunday", "Wednesday"];
-            else daysToRender = [c.day];
+    function filterSectionFaculties() {
+        const input = (document.getElementById('sectionFacultySearch').value || '').toLowerCase().trim();
+        const suggestionBox = document.getElementById('sectionFacultySuggestions');
+        suggestionBox.innerHTML = '';
+        if (!input || input.length < 1) { 
+            suggestionBox.style.display = 'none'; 
+            return; 
+        }
 
-            // Extract exact start and end times from slot strings
-            let timeLabel = c.type === 'Theory' ? theoryTimeSlots[c.slotIndex] : labTimeSlots[c.slotIndex];
-            let timeMatch = timeLabel.match(/\((.*?)\s*-\s*(.*?)\)/);
-            if (!timeMatch) return;
-            
-            let startStr = timeMatch[1].trim();
-            let endStr = timeMatch[2].trim();
+        const matches = (window.uiuFaculties || []).filter(f => 
+            (f.code && f.code.toLowerCase().includes(input)) || 
+            (f.name && f.name.toLowerCase().includes(input))
+        );
 
-            let startMin = parseTimeToMinutes(startStr);
-            let endMin = parseTimeToMinutes(endStr);
-
-            // Our visual timeline spans from 8:00 AM (480 mins) to 5:00 PM (1020 mins) -> Total 540 mins
-            let timelineStart = 480; 
-            let timelineTotal = 540;
-
-            // Calculate exact position and width as a percentage
-            let leftPercent = ((startMin - timelineStart) / timelineTotal) * 100;
-            let widthPercent = ((endMin - startMin) / timelineTotal) * 100;
-
-            daysToRender.forEach(d => {
-                // Check if the current class overlaps with any existing class on this day
-                // Condition for overlap: StartA < EndB AND EndA > StartB
-                let overlappingClasses = daySchedules[d].filter(existing => 
-                    startMin < existing.end && endMin > existing.start
-                );
-                
-                if (overlappingClasses.length > 0) {
-                    hasClash = true;
-                }
-
-                const cell = document.getElementById(`sec-row-${d}`);
-                if(!cell) return;
-
-                const block = document.createElement('div');
-                block.className = 'timeline-event';
-                
-                // Colors matching UCAM style: #17a2b8 (Teal/Blue) for Theory, #28a745 (Green) for Lab
-                block.style.background = c.type === 'Theory' ? 'linear-gradient(135deg, #17a2b8, #1fc8e3)' : 'linear-gradient(135deg, #28a745, #34ce57)';
-                
-                // Apply exact positions
-                block.style.left = `${leftPercent}%`;
-                block.style.width = `${widthPercent}%`;
-                
-                // Visual overlap warning (stacks them slightly offset if they clash so you can read both)
-                const clashIndex = overlappingClasses.length;
-                if(clashIndex > 0) {
-                    block.style.top = `${5 + (clashIndex * 25)}px`; // Drop it down a bit more
-                    block.style.zIndex = 5 + clashIndex;
-                    block.style.border = "2px solid #ff4d4d";
-                }
-
-                // Add to schedule history for this day to catch future loops
-                daySchedules[d].push({ start: startMin, end: endMin, id: c.id });
-
-                block.innerHTML = `
-                    <span class="remove-btn-timeline" onclick="removeSectionClass('${c.id}')">&times;</span>
-                    <strong>${c.course.split(' (')[0]}</strong><br>
-                    <small>${startStr} - ${endStr} | Sec: ${c.section}</small>
-                `;
-                block.title = `${c.course}\nType: ${c.type}\nTime: ${startStr} - ${endStr}`;
-                cell.appendChild(block);
+        if (matches.length > 0) {
+            suggestionBox.style.display = 'block';
+            matches.slice(0, 15).forEach(f => {
+                const div = document.createElement('div');
+                div.className = 'suggestion-item';
+                div.style.display = 'flex';
+                div.style.justifyContent = 'space-between';
+                div.style.alignItems = 'center';
+                div.innerHTML = `<span><strong>${f.name}</strong></span><span style="background: var(--course-added-bg); color: var(--primary-color); font-weight: bold; padding: 2px 6px; border-radius: 4px; font-size: 0.8em; margin-left: 8px;">${f.code}</span>`;
+                div.onclick = () => {
+                    document.getElementById('sectionFacultySelected').value = f.code;
+                    document.getElementById('sectionFacultySelected').title = f.name;
+                    document.getElementById('sectionFacultySearch').value = '';
+                    suggestionBox.style.display = 'none';
+                };
+                suggestionBox.appendChild(div);
             });
-        });
-        
-        document.getElementById('section-clash-alert').style.display = hasClash ? 'block' : 'none';
+        } else {
+            suggestionBox.style.display = 'none';
+        }
     }
-    
+
+    function clearSelectedFaculty() {
+        document.getElementById('sectionFacultySelected').value = '';
+        document.getElementById('sectionFacultySelected').title = '';
+        const searchInput = document.getElementById('sectionFacultySearch');
+        if (searchInput) searchInput.value = '';
+        const sugg = document.getElementById('sectionFacultySuggestions');
+        if (sugg) sugg.style.display = 'none';
+    }
+
     function filterSectionCourses() {
-        const input = document.getElementById('sectionCourseSearch').value.toLowerCase();
+        const input = document.getElementById('sectionCourseSearch').value.toLowerCase().trim();
         const suggestionBox = document.getElementById('sectionSuggestions');
         suggestionBox.innerHTML = '';
         if (input.length < 2) { suggestionBox.style.display = 'none'; return; }
@@ -2941,7 +2992,26 @@
         const matches = [];
         const seen = new Set();
 
+        const isExcluded = (name, codes) => {
+            const lowerName = (name || '').toLowerCase();
+            const lowerCodes = (codes || []).map(c => (c || '').toLowerCase());
+            
+            // 1. Remove Electronics Lab (keep only Electronics)
+            if (lowerCodes.includes('eee 2124') || lowerName.includes('electronics lab') || lowerName.includes('electronics laboratory')) {
+                return true;
+            }
+
+            // 2. Remove all names that have math / mathematics
+            if (lowerName.includes('math') || lowerCodes.some(c => c.startsWith('math'))) {
+                return true;
+            }
+
+            return false;
+        };
+
         rawRoutine.forEach(item => {
+            if (isExcluded(item.name, item.codes)) return;
+
             if (item.name.toLowerCase().includes(input) || item.codes.some(c => c.toLowerCase().includes(input)) || item.keywords.some(k => k.toLowerCase().includes(input))) {
                 const key = item.codes[0];
                 if (!seen.has(key)) {
@@ -2952,6 +3022,8 @@
         });
 
         allCourses.forEach(c => {
+            if (isExcluded(c.title, [c.code])) return;
+
             if (c.code && (c.code.toLowerCase().includes(input) || c.title.toLowerCase().includes(input) || (c.keywords && c.keywords.some(k => k.toLowerCase().includes(input))))) {
                 if (!seen.has(c.code)) {
                     seen.add(c.code);
@@ -2978,7 +3050,8 @@
 
     function addSectionClass() {
         const courseStr = document.getElementById('sectionCourseSelected').value;
-        const secName = document.getElementById('sectionNameInput').value || "N/A";
+        const secName = document.getElementById('sectionNameInput').value.trim() || "A";
+        const facultyStr = document.getElementById('sectionFacultySelected').value.trim();
         const type = document.getElementById('sectionTypeSelect').value;
         const day = document.getElementById('sectionDaySelect').value;
         const slot = document.getElementById('sectionTimeSelect').value;
@@ -2992,6 +3065,7 @@
             id: Date.now().toString(),
             course: courseStr,
             section: secName,
+            faculty: facultyStr,
             type: type,
             day: day, // This will be "Saturday & Tuesday" or a single day
             slotIndex: type === 'Theory' ? theoryTimeSlots.indexOf(slot) : labTimeSlots.indexOf(slot)
@@ -3000,8 +3074,244 @@
         mySectionClasses.push(newClass);
         saveSectionClasses();
         renderSectionRoutine();
+
+        // Clear input selections for quick subsequent entry
+        document.getElementById('sectionCourseSelected').value = '';
+        document.getElementById('sectionCourseSearch').value = '';
+        document.getElementById('sectionFacultySelected').value = '';
+        document.getElementById('sectionFacultySearch').value = '';
+        document.getElementById('sectionNameInput').value = '';
+
         const dashSec = document.getElementById('dashboard-section');
         if (dashSec && dashSec.classList.contains('active')) initDashboard();
+    }
+
+    function removeSectionClass(id) {
+        mySectionClasses = mySectionClasses.filter(c => c.id !== id);
+        if (focusedSectionClassId === id) focusedSectionClassId = null;
+        saveSectionClasses();
+        renderSectionRoutine();
+        const dashSec = document.getElementById('dashboard-section');
+        if (dashSec && dashSec.classList.contains('active')) initDashboard();
+    }
+
+    function highlightSectionClass(id) {
+        focusedSectionClassId = (focusedSectionClassId === id) ? null : id;
+        renderSectionRoutine();
+    }
+
+    function selectKeepSectionClass(keepId, day, startMin, endMin) {
+        // Keep this class, remove any conflicting classes on that slot
+        const conflictingIds = new Set();
+        
+        mySectionClasses.forEach(c => {
+            if (c.id === keepId) return;
+            
+            let daysToRender = [];
+            if (c.day === "Saturday & Tuesday") daysToRender = ["Saturday", "Tuesday"];
+            else if (c.day === "Sunday & Wednesday") daysToRender = ["Sunday", "Wednesday"];
+            else daysToRender = [c.day];
+            
+            if (!daysToRender.includes(day)) return;
+            
+            let timeLabel = c.type === 'Theory' ? theoryTimeSlots[c.slotIndex] : labTimeSlots[c.slotIndex];
+            let timeMatch = timeLabel ? timeLabel.match(/\((.*?)\s*-\s*(.*?)\)/) : null;
+            if (!timeMatch) return;
+            
+            let cStart = parseTimeToMinutes(timeMatch[1].trim());
+            let cEnd = parseTimeToMinutes(timeMatch[2].trim());
+            
+            if (startMin < cEnd && endMin > cStart) {
+                conflictingIds.add(c.id);
+            }
+        });
+
+        if (conflictingIds.size > 0) {
+            mySectionClasses = mySectionClasses.filter(c => !conflictingIds.has(c.id));
+            saveSectionClasses();
+            renderSectionRoutine();
+            const dashSec = document.getElementById('dashboard-section');
+            if (dashSec && dashSec.classList.contains('active')) initDashboard();
+        }
+    }
+
+    function renderSectionRoutine() {
+        // Clear the timeline grid
+        allTimelineDays.forEach(day => {
+            const row = document.getElementById(`sec-row-${day}`);
+            if (row) {
+                row.innerHTML = '';
+                row.style.minHeight = '85px';
+            }
+        });
+        
+        let totalClashesDetected = 0;
+
+        // Prepare instances per day
+        const dayInstances = {
+            "Saturday": [], "Sunday": [], "Monday": [], 
+            "Tuesday": [], "Wednesday": [], "Thursday": [], "Friday": []
+        };
+
+        mySectionClasses.forEach(c => {
+            let daysToRender = [];
+            if (c.day === "Saturday & Tuesday") daysToRender = ["Saturday", "Tuesday"];
+            else if (c.day === "Sunday & Wednesday") daysToRender = ["Sunday", "Wednesday"];
+            else daysToRender = [c.day];
+
+            let timeLabel = c.type === 'Theory' ? theoryTimeSlots[c.slotIndex] : labTimeSlots[c.slotIndex];
+            if (!timeLabel) return;
+            let timeMatch = timeLabel.match(/\((.*?)\s*-\s*(.*?)\)/);
+            if (!timeMatch) return;
+            
+            let startStr = timeMatch[1].trim();
+            let endStr = timeMatch[2].trim();
+            let startMin = parseTimeToMinutes(startStr);
+            let endMin = parseTimeToMinutes(endStr);
+
+            let timelineStart = 480; // 8:00 AM
+            let timelineTotal = 540; // 9 hours (8:00 AM to 5:00 PM)
+
+            let leftPercent = Math.max(0, ((startMin - timelineStart) / timelineTotal) * 100);
+            let widthPercent = Math.min(100 - leftPercent, ((endMin - startMin) / timelineTotal) * 100);
+
+            daysToRender.forEach(d => {
+                if (dayInstances[d]) {
+                    dayInstances[d].push({
+                        classObj: c,
+                        startMin: startMin,
+                        endMin: endMin,
+                        startStr: startStr,
+                        endStr: endStr,
+                        leftPercent: leftPercent,
+                        widthPercent: widthPercent
+                    });
+                }
+            });
+        });
+
+        // Layout and render each day
+        allTimelineDays.forEach(d => {
+            const cell = document.getElementById(`sec-row-${d}`);
+            if (!cell) return;
+
+            const instances = dayInstances[d];
+            if (!instances || instances.length === 0) return;
+
+            // Sort: earlier start first, then longer duration first
+            instances.sort((a, b) => a.startMin - b.startMin || (b.endMin - b.startMin) - (a.endMin - a.startMin));
+
+            // Interval lane assignment (interval graph coloring)
+            const lanes = [];
+            instances.forEach(inst => {
+                // Find conflicting instances in the same day
+                inst.overlappingWith = instances.filter(other => 
+                    other !== inst && inst.startMin < other.endMin && inst.endMin > other.startMin
+                );
+                inst.isClash = inst.overlappingWith.length > 0;
+                if (inst.isClash) totalClashesDetected++;
+
+                let placed = false;
+                for (let l = 0; l < lanes.length; l++) {
+                    const hasConflictInLane = lanes[l].some(item => 
+                        inst.startMin < item.endMin && inst.endMin > item.startMin
+                    );
+                    if (!hasConflictInLane) {
+                        lanes[l].push(inst);
+                        inst.lane = l;
+                        placed = true;
+                        break;
+                    }
+                }
+                if (!placed) {
+                    inst.lane = lanes.length;
+                    lanes.push([inst]);
+                }
+            });
+
+            const totalLanes = Math.max(1, lanes.length);
+            const isMultiLane = totalLanes > 1;
+
+            if (isMultiLane) {
+                cell.style.minHeight = `${totalLanes * 60 + 16}px`;
+            } else {
+                cell.style.minHeight = '85px';
+            }
+
+            instances.forEach(inst => {
+                const c = inst.classObj;
+                const block = document.createElement('div');
+                block.className = 'timeline-event';
+
+                if (inst.isClash) block.classList.add('is-clash');
+                if (focusedSectionClassId === c.id) block.classList.add('is-focused');
+
+                // Dynamic vertical positioning based on lane
+                if (isMultiLane) {
+                    block.style.top = `${8 + inst.lane * 58}px`;
+                    block.style.height = '52px';
+                } else {
+                    block.style.top = '6px';
+                    block.style.height = '72px';
+                }
+
+                block.style.left = `${inst.leftPercent}%`;
+                block.style.width = `${inst.widthPercent}%`;
+                block.style.zIndex = 5 + inst.lane;
+
+                // Color styling: Theory (teal/cyan gradient), Lab (emerald/green gradient)
+                block.style.background = c.type === 'Theory' 
+                    ? 'linear-gradient(135deg, #0284c7, #0ea5e9)' 
+                    : 'linear-gradient(135deg, #15803d, #16a34a)';
+
+                // If another class is focused and this one is not the focused one, slightly fade
+                if (focusedSectionClassId && focusedSectionClassId !== c.id) {
+                    block.style.opacity = '0.7';
+                }
+
+                // Click to highlight/focus
+                block.onclick = () => {
+                    highlightSectionClass(c.id);
+                };
+
+                const facultyTag = c.faculty ? `<span style="opacity: 0.95; font-size: 0.85em; background: rgba(0,0,0,0.18); padding: 1px 5px; border-radius: 4px; margin-left: 4px;">👨‍🏫 ${c.faculty}</span>` : '';
+                const typePillClass = c.type === 'Theory' ? 'pill-theory' : 'pill-lab';
+
+                block.innerHTML = `
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; width:100%; gap:4px;">
+                        <div style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; padding-right:16px;">
+                            <span class="sec-type-pill ${typePillClass}">${c.type}</span>
+                            <strong>${c.course.split(' (')[0]}</strong>
+                            <span style="opacity:0.95; font-weight:700; margin-left:3px;">Sec ${c.section}</span>
+                            ${facultyTag}
+                        </div>
+                        <span class="remove-btn-timeline" onclick="event.stopPropagation(); removeSectionClass('${c.id}')" title="Remove this session">&times;</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:${isMultiLane ? '2px' : '6px'}; font-size:0.75rem;">
+                        <span style="opacity:0.92; font-size: 0.72rem;">🕒 ${inst.startStr} - ${inst.endStr}</span>
+                        ${inst.isClash ? `
+                            <div style="display:flex; align-items:center; gap:4px;" onclick="event.stopPropagation()">
+                                <span class="sec-clash-tag">⚠️ Clash</span>
+                                <button class="btn-keep-sec" onclick="event.stopPropagation(); selectKeepSectionClass('${c.id}', '${d}', ${inst.startMin}, ${inst.endMin})" title="Select & keep this section (removes clashing section)">✓ Keep</button>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+
+                block.title = `${c.course}\nType: ${c.type}\nSection: ${c.section}\nFaculty: ${c.faculty || 'TBA'}\nTime: ${inst.startStr} - ${inst.endStr}${inst.isClash ? '\n⚠️ Overlaps with another class! Click "✓ Keep" to select.' : ''}`;
+                cell.appendChild(block);
+            });
+        });
+
+        const clashAlert = document.getElementById('section-clash-alert');
+        if (clashAlert) {
+            if (totalClashesDetected > 0) {
+                clashAlert.style.display = 'block';
+                clashAlert.innerHTML = `⚠️ <strong>CLASS CLASH DETECTED:</strong> You have overlapping classes at the exact same time! In the routine below, look for the <strong>⚠️ Clash</strong> indicator and click <strong>"✓ Keep"</strong> to easily pick your preferred section.`;
+            } else {
+                clashAlert.style.display = 'none';
+            }
+        }
     }
 
     function removeSectionClass(id) {
@@ -3629,7 +3939,7 @@
                         <div style="background: var(--bg-container); border: 1px solid var(--border-color); border-radius: 8px; padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;">
                             <div>
                                 <strong>${c.course}</strong>
-                                <span style="font-size: 0.8rem; background: var(--course-added-bg); color: var(--primary-color); padding: 2px 6px; border-radius: 4px; margin-left: 4px;">Sec ${c.section}</span>
+                                <span style="font-size: 0.8rem; background: var(--course-added-bg); color: var(--primary-color); padding: 2px 6px; border-radius: 4px; margin-left: 4px;">Sec ${c.section}</span>${c.faculty ? `<span style="font-size: 0.8rem; background: #e0f2fe; color: #0284c7; padding: 2px 6px; border-radius: 4px; margin-left: 4px;">👨‍🏫 ${c.faculty}</span>` : ''}
                                 <div style="font-size: 0.8rem; color: var(--text-muted);">${slotTime}</div>
                             </div>
                             <span class="badge-status ${c.type === 'Theory' ? 'status-active' : 'status-warning'}" style="font-size: 0.75rem;">${c.type}</span>
@@ -4541,7 +4851,7 @@
                             <div style="background: var(--bg-container); border: 1px solid var(--border-color); border-radius: 8px; padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;">
                                 <div>
                                     <strong>${c.course}</strong>
-                                    <span style="font-size: 0.8rem; background: var(--course-added-bg); color: var(--primary-color); padding: 2px 6px; border-radius: 4px; margin-left: 4px;">Sec ${c.section}</span>
+                                    <span style="font-size: 0.8rem; background: var(--course-added-bg); color: var(--primary-color); padding: 2px 6px; border-radius: 4px; margin-left: 4px;">Sec ${c.section}</span>${c.faculty ? `<span style="font-size: 0.8rem; background: #e0f2fe; color: #0284c7; padding: 2px 6px; border-radius: 4px; margin-left: 4px;">👨‍🏫 ${c.faculty}</span>` : ''}
                                     <div style="font-size: 0.8rem; color: var(--text-muted);">${timeSlot}</div>
                                 </div>
                                 <span class="badge-status ${c.type === 'Theory' ? 'status-active' : 'status-warning'}" style="font-size: 0.75rem;">${c.type}</span>
@@ -4588,7 +4898,7 @@
                                     <div style="background: var(--bg-container); border: 1px solid var(--border-color); border-radius: 8px; padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;">
                                         <div>
                                             <strong>${c.course}</strong>
-                                            <span style="font-size: 0.8rem; background: var(--course-added-bg); color: var(--primary-color); padding: 2px 6px; border-radius: 4px; margin-left: 4px;">Sec ${c.section}</span>
+                                            <span style="font-size: 0.8rem; background: var(--course-added-bg); color: var(--primary-color); padding: 2px 6px; border-radius: 4px; margin-left: 4px;">Sec ${c.section}</span>${c.faculty ? `<span style="font-size: 0.8rem; background: #e0f2fe; color: #0284c7; padding: 2px 6px; border-radius: 4px; margin-left: 4px;">👨‍🏫 ${c.faculty}</span>` : ''}
                                             <div style="font-size: 0.8rem; color: var(--text-muted);">${timeSlot}</div>
                                         </div>
                                         <span class="badge-status ${c.type === 'Theory' ? 'status-active' : 'status-warning'}" style="font-size: 0.75rem;">${c.type}</span>
@@ -4910,9 +5220,13 @@
                 const secSugg = document.getElementById('sectionSuggestions');
                 if (secSugg) secSugg.style.display = 'none';
             }
+            if (!e.target.closest('#sectionFacultySearch')) {
+                const facSugg = document.getElementById('sectionFacultySuggestions');
+                if (facSugg) facSugg.style.display = 'none';
+            }
             if (!e.target.closest('.c-name')) {
                 document.querySelectorAll('.suggestions').forEach(s => {
-                    if (s.id !== 'suggestions' && s.id !== 'calendarSuggestions' && s.id !== 'sectionSuggestions') {
+                    if (s.id !== 'suggestions' && s.id !== 'calendarSuggestions' && s.id !== 'sectionSuggestions' && s.id !== 'sectionFacultySuggestions') {
                         s.style.display = 'none';
                     }
                 });
