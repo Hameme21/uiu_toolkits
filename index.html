@@ -253,6 +253,7 @@
             transform: translateY(-10px);
             box-shadow: 0 15px 35px rgba(243, 112, 33, 0.2);
             border-color: var(--primary-color);
+            z-index: 10;
         }
 
         .dash-card:hover::before {
@@ -446,6 +447,9 @@
             background-image: repeating-linear-gradient(to right, transparent, transparent calc(11.111% - 1px), var(--border-color) calc(11.111% - 1px), var(--border-color) 11.111%);
             transition: min-height 0.2s ease;
         }
+        .timeline-row-cell:hover {
+            z-index: 100;
+        }
         
         .day-col {
             background: var(--gradient-secondary);
@@ -468,17 +472,23 @@
             text-overflow: ellipsis;
             box-shadow: 0 4px 10px rgba(0,0,0,0.2);
             text-align: left;
-            transition: transform 0.2s ease, box-shadow 0.2s ease, z-index 0.2s ease;
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.2s ease, filter 0.2s ease;
             border-left: 4px solid rgba(255,255,255,0.85);
             white-space: nowrap;
             box-sizing: border-box;
             cursor: pointer;
         }
         
-        .timeline-event:hover {
-            transform: translateY(-2px) scale(1.02); 
-            z-index: 50 !important;
-            box-shadow: 0 8px 22px rgba(0,0,0,0.35); 
+        .timeline-event:hover,
+        .timeline-event.is-preview:hover,
+        .timeline-event.is-backup:hover,
+        .timeline-event.is-faculty-overlay:hover,
+        .timeline-event.is-clash:hover,
+        .timeline-event.is-focused:hover {
+            transform: translateY(-3px) scale(1.04) !important;
+            z-index: 9999 !important;
+            box-shadow: 0 14px 32px rgba(0, 0, 0, 0.55), 0 0 14px rgba(255, 255, 255, 0.35) !important;
+            filter: brightness(1.1) !important;
         }
 
         .timeline-event.is-focused {
@@ -566,7 +576,14 @@
             border: 1px solid var(--border-color);
             border-radius: 8px;
             padding: 12px 16px;
-            transition: all 0.2s ease;
+            position: relative;
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .course-plan-item:hover {
+            transform: translateY(-2px);
+            z-index: 20;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.08);
         }
 
         .course-plan-item.is-selected {
@@ -582,6 +599,8 @@
             font-size: 0.85rem;
             flex-wrap: wrap;
             gap: 8px;
+            position: relative;
+            transition: all 0.15s ease;
         }
 
         .section-option-row:last-child {
@@ -590,6 +609,9 @@
 
         .section-option-row:hover {
             background: var(--bg-hover);
+            z-index: 10;
+            transform: translateX(3px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
         }
 
         .timeline-event.is-preview {
@@ -767,7 +789,7 @@
             content: ""; position: absolute; top: 0; left: 0; width: 5px; height: 100%;
             background: var(--gradient-secondary);
         }
-        .tri-card:hover { transform: translateY(-8px); box-shadow: var(--shadow); border-color: var(--secondary-color); }
+        .tri-card:hover { transform: translateY(-8px); box-shadow: var(--shadow); border-color: var(--secondary-color); z-index: 10; }
         
         .tri-header {
             color: var(--secondary-color);
