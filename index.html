@@ -442,10 +442,10 @@
         /* --- TIMELINE GRID STYLES --- */
         .timeline-row-cell {
             position: relative;
-            min-height: 126px;
+            min-height: 64px;
             padding: 0 !important;
             background-image: repeating-linear-gradient(to right, transparent, transparent calc(11.111% - 1px), var(--border-color) calc(11.111% - 1px), var(--border-color) 11.111%);
-            transition: min-height 0.25s ease;
+            transition: min-height 0.25s ease, height 0.25s ease;
             border-bottom: 1px solid var(--border-color);
         }
         .timeline-row-cell:hover {
@@ -453,18 +453,53 @@
         }
         
         .day-col {
+            background: var(--bg-container);
+            vertical-align: middle;
+            border-right: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+            padding: 4px !important;
+            width: 8.5%;
+            min-width: 80px;
+            box-sizing: border-box;
+        }
+        
+        .weekday-card {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
             background: var(--gradient-secondary);
             color: white;
+            border-radius: 10px;
+            padding: 6px 4px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.18);
             font-weight: 800;
-            font-size: 0.95rem;
+            font-size: 0.92rem;
             letter-spacing: 0.5px;
+            box-sizing: border-box;
+            transition: all 0.25s ease;
             text-align: center;
-            vertical-align: middle;
-            border-right: 2px solid white;
-            border-bottom: 1px solid var(--border-color);
-            padding: 12px 6px;
+            width: 100%;
         }
-        body.dark-mode .day-col { background: #002b4d; border-right-color: #333; }
+        .weekday-card .day-sublabel {
+            font-size: 0.65rem;
+            font-weight: 600;
+            opacity: 0.88;
+            margin-top: 2px;
+            text-transform: none;
+            letter-spacing: normal;
+        }
+        .weekday-card.is-active {
+            box-shadow: 0 6px 16px rgba(0,0,0,0.22);
+            border: 1px solid rgba(255,255,255,0.25);
+        }
+        .weekday-card.is-empty {
+            opacity: 0.6;
+            background: var(--bg-card);
+            color: var(--text-muted);
+            border: 1px dashed var(--border-color);
+            box-shadow: none;
+        }
         
         .timeline-event {
             position: absolute;
@@ -2115,20 +2150,20 @@
             </div>
         </div>
 
-        <div class="table-scroll" style="margin-bottom: 30px; box-shadow: 0 6px 20px rgba(0,0,0,0.06); border-radius: 12px; overflow-x: auto;">
-            <table class="routine-table" id="unifiedRoutineTable" style="min-width: 1240px; width: 100%; margin-top: 15px; border-collapse: separate; border-spacing: 0; border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden;">
+        <div class="table-scroll" style="margin-bottom: 30px; box-shadow: 0 6px 20px rgba(0,0,0,0.06); border-radius: 12px; overflow-x: auto; width: 100%;">
+            <table class="routine-table" id="unifiedRoutineTable" style="width: 100%; min-width: 860px; max-width: 100%; margin-top: 15px; border-collapse: separate; border-spacing: 0; border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden;">
                 <thead>
                     <tr style="background: var(--bg-input);">
-                        <th style="width: 8.5%; min-width: 85px; background: var(--bg-input); color: var(--text-main); border: 1px solid var(--border-color); font-size: 0.95rem; font-weight: 800; padding: 14px 8px; text-align: center;">Day</th>
-                        <th style="width: 10.16%; font-size: 0.9rem; font-weight: 700; color: white; border: 1px solid var(--border-color); padding: 14px 6px; letter-spacing: 0.3px;">8 AM - 9 AM</th>
-                        <th style="width: 10.16%; font-size: 0.9rem; font-weight: 700; color: white; border: 1px solid var(--border-color); padding: 14px 6px; letter-spacing: 0.3px;">9 AM - 10 AM</th>
-                        <th style="width: 10.16%; font-size: 0.9rem; font-weight: 700; color: white; border: 1px solid var(--border-color); padding: 14px 6px; letter-spacing: 0.3px;">10 AM - 11 AM</th>
-                        <th style="width: 10.16%; font-size: 0.9rem; font-weight: 700; color: white; border: 1px solid var(--border-color); padding: 14px 6px; letter-spacing: 0.3px;">11 AM - 12 PM</th>
-                        <th style="width: 10.16%; font-size: 0.9rem; font-weight: 700; color: white; border: 1px solid var(--border-color); padding: 14px 6px; letter-spacing: 0.3px;">12 PM - 1 PM</th>
-                        <th style="width: 10.16%; font-size: 0.9rem; font-weight: 700; color: white; border: 1px solid var(--border-color); padding: 14px 6px; letter-spacing: 0.3px;">1 PM - 2 PM</th>
-                        <th style="width: 10.16%; font-size: 0.9rem; font-weight: 700; color: white; border: 1px solid var(--border-color); padding: 14px 6px; letter-spacing: 0.3px;">2 PM - 3 PM</th>
-                        <th style="width: 10.16%; font-size: 0.9rem; font-weight: 700; color: white; border: 1px solid var(--border-color); padding: 14px 6px; letter-spacing: 0.3px;">3 PM - 4 PM</th>
-                        <th style="width: 10.16%; font-size: 0.9rem; font-weight: 700; color: white; border: 1px solid var(--border-color); padding: 14px 6px; letter-spacing: 0.3px;">4 PM - 5 PM</th>
+                        <th style="width: 8.5%; min-width: 80px; background: var(--bg-input); color: var(--text-main); border: 1px solid var(--border-color); font-size: 0.88rem; font-weight: 800; padding: 10px 4px; text-align: center;">Day</th>
+                        <th style="width: 10.16%; font-size: 0.82rem; font-weight: 700; color: white; border: 1px solid var(--border-color); padding: 10px 4px; letter-spacing: 0.2px;">8 AM - 9 AM</th>
+                        <th style="width: 10.16%; font-size: 0.82rem; font-weight: 700; color: white; border: 1px solid var(--border-color); padding: 10px 4px; letter-spacing: 0.2px;">9 AM - 10 AM</th>
+                        <th style="width: 10.16%; font-size: 0.82rem; font-weight: 700; color: white; border: 1px solid var(--border-color); padding: 10px 4px; letter-spacing: 0.2px;">10 AM - 11 AM</th>
+                        <th style="width: 10.16%; font-size: 0.82rem; font-weight: 700; color: white; border: 1px solid var(--border-color); padding: 10px 4px; letter-spacing: 0.2px;">11 AM - 12 PM</th>
+                        <th style="width: 10.16%; font-size: 0.82rem; font-weight: 700; color: white; border: 1px solid var(--border-color); padding: 10px 4px; letter-spacing: 0.2px;">12 PM - 1 PM</th>
+                        <th style="width: 10.16%; font-size: 0.82rem; font-weight: 700; color: white; border: 1px solid var(--border-color); padding: 10px 4px; letter-spacing: 0.2px;">1 PM - 2 PM</th>
+                        <th style="width: 10.16%; font-size: 0.82rem; font-weight: 700; color: white; border: 1px solid var(--border-color); padding: 10px 4px; letter-spacing: 0.2px;">2 PM - 3 PM</th>
+                        <th style="width: 10.16%; font-size: 0.82rem; font-weight: 700; color: white; border: 1px solid var(--border-color); padding: 10px 4px; letter-spacing: 0.2px;">3 PM - 4 PM</th>
+                        <th style="width: 10.16%; font-size: 0.82rem; font-weight: 700; color: white; border: 1px solid var(--border-color); padding: 10px 4px; letter-spacing: 0.2px;">4 PM - 5 PM</th>
                     </tr>
                 </thead>
                 <tbody id="unifiedRoutineBody">
@@ -3154,9 +3189,14 @@ window.uiuFallOfferings = uiuFallOfferings;
         const tbody = document.getElementById('unifiedRoutineBody');
         tbody.innerHTML = '';
         allTimelineDays.forEach(day => {
-            // Render the Day column and a single large span column for the timeline events to float in
+            // Render the Day column with a matching weekday-card and a single large span column for timing cards
             let rowHTML = `<tr>
-                <td class="day-col">${day}</td>
+                <td class="day-col" id="sec-daycol-${day}">
+                    <div class="weekday-card is-empty" id="sec-daycard-${day}">
+                        <strong>${day.substring(0, 3).toUpperCase()}</strong>
+                        <span class="day-sublabel">${day}</span>
+                    </div>
+                </td>
                 <td colspan="9" class="timeline-row-cell" id="sec-row-${day}"></td>
             </tr>`;
             tbody.innerHTML += rowHTML;
@@ -4217,9 +4257,16 @@ window.uiuFallOfferings = uiuFallOfferings;
     function renderSectionRoutine() {
         allTimelineDays.forEach(day => {
             const row = document.getElementById(`sec-row-${day}`);
+            const dayCard = document.getElementById(`sec-daycard-${day}`);
             if (row) {
                 row.innerHTML = '';
-                row.style.minHeight = '126px';
+                row.style.minHeight = '64px';
+                row.style.height = '64px';
+            }
+            if (dayCard) {
+                dayCard.className = 'weekday-card is-empty';
+                dayCard.style.height = '56px';
+                dayCard.innerHTML = `<strong>${day.substring(0, 3).toUpperCase()}</strong><span class="day-sublabel">No Class</span>`;
             }
         });
         
@@ -4346,10 +4393,21 @@ window.uiuFallOfferings = uiuFallOfferings;
         // Layout and render each day
         allTimelineDays.forEach(d => {
             const cell = document.getElementById(`sec-row-${d}`);
+            const dayCard = document.getElementById(`sec-daycard-${d}`);
             if (!cell) return;
 
             const instances = dayInstances[d];
-            if (!instances || instances.length === 0) return;
+            if (!instances || instances.length === 0) {
+                cell.innerHTML = '<div style="display:flex; align-items:center; height:100%; min-height:56px; padding-left:16px; color:var(--text-muted); font-size:0.75rem; opacity:0.55; font-style:italic;">No classes scheduled</div>';
+                cell.style.height = '64px';
+                cell.style.minHeight = '64px';
+                if (dayCard) {
+                    dayCard.className = 'weekday-card is-empty';
+                    dayCard.style.height = '56px';
+                    dayCard.innerHTML = `<strong>${d.substring(0, 3).toUpperCase()}</strong><span class="day-sublabel">No Class</span>`;
+                }
+                return;
+            }
 
             // Sort: earlier start first, then longer duration first
             instances.sort((a, b) => a.startMin - b.startMin || (b.endMin - b.startMin) - (a.endMin - a.startMin));
@@ -4367,7 +4425,7 @@ window.uiuFallOfferings = uiuFallOfferings;
 
             // Card layering assignment (like playing cards in a spread hand / deck):
             // Instead of splitting rows into separate vertical bands (one above another),
-            // overlapping items share the row with a graceful card stagger (e.g. +18px right, +10px down)
+            // overlapping items share the row with a graceful card stagger (e.g. +18px right, +14px down)
             // and full card height, so all layers peek through and pop to the front on hover!
             let maxCardIndexOnDay = 0;
             instances.forEach(inst => {
@@ -4387,10 +4445,16 @@ window.uiuFallOfferings = uiuFallOfferings;
                 }
             });
 
-            const cardHeight = 98;
-            const baseRowHeight = 126;
-            const dynamicRowHeight = Math.max(baseRowHeight, 10 + (maxCardIndexOnDay * 12) + cardHeight + 12);
+            const cardHeight = 108; // Matching card height (longer vertically)
+            const dynamicRowHeight = Math.max(116, 4 + (maxCardIndexOnDay * 14) + cardHeight + 4);
+            cell.style.height = `${dynamicRowHeight}px`;
             cell.style.minHeight = `${dynamicRowHeight}px`;
+
+            if (dayCard) {
+                dayCard.className = 'weekday-card is-active';
+                dayCard.style.height = `${dynamicRowHeight - 8}px`;
+                dayCard.innerHTML = `<strong>${d.substring(0, 3).toUpperCase()}</strong><span class="day-sublabel">${d}</span><span style="font-size:0.65rem; background:rgba(255,255,255,0.22); padding:1px 6px; border-radius:4px; margin-top:4px; font-weight:700;">${instances.length} ${instances.length === 1 ? 'class' : 'classes'}</span>`;
+            }
 
             instances.forEach(inst => {
                 const item = inst.item;
@@ -4412,9 +4476,9 @@ window.uiuFallOfferings = uiuFallOfferings;
                 // Staggered card positioning for overlap visibility
                 const cardIdx = inst.cardIndex || 0;
                 const xOffset = cardIdx * 18;
-                const yOffset = cardIdx * 10;
+                const yOffset = cardIdx * 14;
 
-                block.style.top = `${10 + yOffset}px`;
+                block.style.top = `${4 + yOffset}px`;
                 block.style.left = cardIdx > 0 
                     ? `calc(${inst.leftPercent}% + ${xOffset}px)` 
                     : `${inst.leftPercent}%`;
