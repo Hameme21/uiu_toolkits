@@ -2255,6 +2255,7 @@
                 </div>
                 <div style="display: flex; gap: 8px; flex-wrap: wrap;">
                     <button type="button" class="btn-action" style="margin: 0; font-size: 0.82rem; padding: 6px 12px; background: #8b5cf6;" onclick="openGenEdModal()">📚 + Choose GenEd</button>
+                    <button type="button" class="btn-action" style="margin: 0; font-size: 0.82rem; padding: 6px 12px; background: #d97706;" onclick="openMajorModal()">🔬 + Choose Major</button>
                     <button type="button" class="btn-action" style="margin: 0; font-size: 0.82rem; padding: 6px 12px; background: #0284c7;" onclick="openFydpModal()">🎓 + Choose FYDP</button>
                     <button type="button" class="btn-action" style="margin: 0; font-size: 0.82rem; padding: 6px 12px; background: #64748b;" onclick="clearTrimesterPlan()">🗑️ Clear Plan</button>
                 </div>
@@ -2767,7 +2768,7 @@
         ],
         "10th Trimester": [
             { code: "GED OPT2", title: "General Education Optional-II", cr: 3.0 },
-            { code: "CSE 4000 A", title: "Final Year Design Project - I", cr: 2.0 },
+            { code: "CSE 4000A", title: "Final Year Design Project - I", cr: 2.0 },
             { code: "Elective I", title: "Major Elective", cr: 3.0 },
             { code: "CSE 4509", title: "Operating Systems", cr: 3.0 },
             { code: "CSE 4510", title: "Operating Systems Laboratory", cr: 1.0 }
@@ -2776,11 +2777,11 @@
             { code: "GED OPT3", title: "General Education Optional-III", cr: 3.0 },
             { code: "Elective II", title: "Major Elective", cr: 3.0 },
             { code: "Elective III", title: "Major Elective", cr: 3.0 },
-            { code: "CSE 4000 B", title: "Final Year Design Project - II", cr: 2.0 },
+            { code: "CSE 4000B", title: "Final Year Design Project - II", cr: 2.0 },
             { code: "CSE 4531", title: "Computer Security", cr: 3.0 }
         ],
         "12th Trimester": [
-            { code: "CSE 4000 C", title: "Final Year Design Project - III", cr: 2.0 },
+            { code: "CSE 4000C", title: "Final Year Design Project - III", cr: 2.0 },
             { code: "EEE 4261", title: "Green Computing", cr: 3.0 },
             { code: "Elective IV", title: "Major Elective", cr: 3.0 },
             { code: "Elective V", title: "Major Elective", cr: 3.0 }
@@ -2968,6 +2969,30 @@ const uiuFallOfferings = uiuRawOfferings.map(r => ({
     type: r[8],
     credit: r[9]
 }));
+
+// Provide sections for FYDP-II (CSE 4000B), FYDP-III (CSE 4000C), and Computer Graphics like other courses
+const fydpExtraSections = [
+    // CSE 4000B: Final Year Design Project - II (6 sections)
+    { code: "CSE 4000B", title: "Final Year Design Project - II", section: "A", days: "Saturday", time: "08:30 AM - 11:00 AM", faculty: "Hasan Sarwar", initial: "HS", room: "530 (Computer Lab)", type: "Lab", credit: 2.0 },
+    { code: "CSE 4000B", title: "Final Year Design Project - II", section: "B", days: "Sunday", time: "08:30 AM - 11:00 AM", faculty: "Muhammad Nomani Kabir", initial: "MNK", room: "528 (Computer Lab)", type: "Lab", credit: 2.0 },
+    { code: "CSE 4000B", title: "Final Year Design Project - II", section: "C", days: "Sunday", time: "11:11 AM - 01:40 PM", faculty: "Mohammad Nurul Huda", initial: "MNH", room: "426 (Computer Lab)", type: "Lab", credit: 2.0 },
+    { code: "CSE 4000B", title: "Final Year Design Project - II", section: "D", days: "Tuesday", time: "08:30 AM - 11:00 AM", faculty: "Suman Ahmmed", initial: "SA", room: "727 (Computer Lab)", type: "Lab", credit: 2.0 },
+    { code: "CSE 4000B", title: "Final Year Design Project - II", section: "E", days: "Tuesday", time: "11:11 AM - 01:40 PM", faculty: "Al-Sakib Khan Pathan", initial: "ASKP", room: "626 (Computer Lab)", type: "Lab", credit: 2.0 },
+    { code: "CSE 4000B", title: "Final Year Design Project - II", section: "F", days: "Wednesday", time: "11:11 AM - 01:40 PM", faculty: "Jannatun Noor Mukta", initial: "JNM", room: "426 (Computer Lab)", type: "Lab", credit: 2.0 },
+
+    // CSE 4000C: Final Year Design Project - III (5 sections)
+    { code: "CSE 4000C", title: "Final Year Design Project - III", section: "A", days: "Saturday", time: "11:11 AM - 01:40 PM", faculty: "Mohammad Shahriar Rahman", initial: "MdSR", room: "626 (Computer Lab)", type: "Lab", credit: 2.0 },
+    { code: "CSE 4000C", title: "Final Year Design Project - III", section: "B", days: "Sunday", time: "02:00 PM - 04:30 PM", faculty: "Md. Motaharul Islam", initial: "MdMIm", room: "727 (Computer Lab)", type: "Lab", credit: 2.0 },
+    { code: "CSE 4000C", title: "Final Year Design Project - III", section: "C", days: "Tuesday", time: "02:00 PM - 04:30 PM", faculty: "Riasat Azim", initial: "RtAm", room: "626 (Computer Lab)", type: "Lab", credit: 2.0 },
+    { code: "CSE 4000C", title: "Final Year Design Project - III", section: "D", days: "Wednesday", time: "08:30 AM - 11:00 AM", faculty: "Ohidujjaman", initial: "Ojn", room: "530 (Computer Lab)", type: "Lab", credit: 2.0 },
+    { code: "CSE 4000C", title: "Final Year Design Project - III", section: "E", days: "Monday", time: "11:11 AM - 01:40 PM", faculty: "Dewan Md. Farid", initial: "DMF", room: "528 (Computer Lab)", type: "Lab", credit: 2.0 },
+
+    // CSE 4621: Computer Graphics (2 sections)
+    { code: "CSE 4621", title: "Computer Graphics", section: "A", days: "Saturday & Tuesday", time: "09:51 AM - 11:10 AM", faculty: "TBA", initial: "TBA", room: "324 324", type: "Theory", credit: 3.0 },
+    { code: "CSE 4621", title: "Computer Graphics", section: "B", days: "Sunday & Wednesday", time: "11:11 AM - 12:30 PM", faculty: "TBA", initial: "TBA", room: "324 324", type: "Theory", credit: 3.0 }
+];
+uiuFallOfferings.push(...fydpExtraSections);
+
 window.uiuFallOfferings = uiuFallOfferings;
 
 
@@ -3605,14 +3630,39 @@ window.uiuFallOfferings = uiuFallOfferings;
     const uiuFydpCatalog = [
         { code: "CSE 4000A", title: "Final Year Design Project - I", cr: 2.0 },
         { code: "CSE 4000B", title: "Final Year Design Project - II", cr: 2.0 },
+        { code: "CSE 4000C", title: "Final Year Design Project - III", cr: 2.0 },
         { code: "DS 4000A", title: "Capstone Project - I", cr: 2.0 },
         { code: "DS 4000B", title: "Capstone Project - II", cr: 2.0 }
     ];
 
+    let targetSlotForModal = null; // Tracks placeholder like 'GED OPT1' or 'Elective I'
+
+    function isGedPlaceholder(code) {
+        return typeof code === 'string' && /^GED\s*OPT/i.test(code.trim());
+    }
+
+    function isMajorPlaceholder(code) {
+        if (!code || typeof code !== 'string') return false;
+        const c = code.trim();
+        return /^Elective\s+[I|V|X]+/i.test(c) || c === 'Elective' || c === 'Major Elective';
+    }
+
+    function openGenEdModalForSlot(slotCode) {
+        targetSlotForModal = slotCode;
+        openGenEdModal();
+    }
+
     function openGenEdModal() {
         const modal = document.getElementById('gened-modal');
         const list = document.getElementById('gened-courses-modal-list');
+        const titleEl = document.getElementById('gened-modal-title');
         if (!modal || !list) return;
+
+        if (titleEl) {
+            titleEl.innerText = targetSlotForModal 
+                ? `Choose General Education Course (for ${targetSlotForModal})` 
+                : 'Choose General Education Course';
+        }
         list.innerHTML = '';
 
         uiuGenEdCatalog.forEach(c => {
@@ -3629,13 +3679,17 @@ window.uiuFallOfferings = uiuFallOfferings;
             div.style.flexWrap = 'wrap';
             div.style.gap = '8px';
 
+            const btnText = isAdded 
+                ? '✓ Added' 
+                : (targetSlotForModal ? `+ Select for ${targetSlotForModal}` : '+ Add to Planner');
+
             div.innerHTML = `
                 <div>
                     <strong>${c.code}: ${c.title}</strong>
                     <div style="font-size: 0.8rem; color: var(--text-muted);">${c.cr} Credits • ${count} sections offered in Fall 2026</div>
                 </div>
-                <button type="button" class="btn-action" style="margin: 0; padding: 4px 10px; font-size: 0.8rem; ${isAdded ? 'background: #10b981;' : 'background: var(--primary-color);'}" onclick="selectGenEdCourse('${c.code}')">
-                    ${isAdded ? '✓ Added' : '+ Add to Planner'}
+                <button type="button" class="btn-action" style="margin: 0; padding: 4px 10px; font-size: 0.8rem; ${isAdded ? 'background: #10b981;' : 'background: #8b5cf6;'}" onclick="selectGenEdCourse('${c.code}')">
+                    ${btnText}
                 </button>
             `;
             list.appendChild(div);
@@ -3647,13 +3701,227 @@ window.uiuFallOfferings = uiuFallOfferings;
     function closeGenEdModal() {
         const modal = document.getElementById('gened-modal');
         if (modal) modal.classList.remove('is-open');
+        targetSlotForModal = null;
     }
 
     function selectGenEdCourse(code) {
         const c = uiuGenEdCatalog.find(item => item.code === code);
         if (!c) return;
+
+        // If target slot is set
+        if (targetSlotForModal) {
+            const idx = plannedCourses.findIndex(p => p.code === targetSlotForModal);
+            if (idx !== -1) {
+                const oldCode = plannedCourses[idx].code;
+                mySectionClasses = mySectionClasses.filter(cl => !(cl.courseCode === oldCode || (cl.course && cl.course.includes(oldCode))));
+                saveSectionClasses();
+                backupClasses = backupClasses.filter(b => !(b.courseCode === oldCode || (b.course && b.course.includes(oldCode))));
+                saveBackupClasses();
+
+                plannedCourses[idx] = {
+                    code: c.code,
+                    title: c.title,
+                    cr: c.cr,
+                    type: 'Theory',
+                    isCore: false,
+                    isGed: true,
+                    slotReplaced: targetSlotForModal
+                };
+                targetSlotForModal = null;
+                savePlannedCourses();
+                closeGenEdModal();
+                renderPlannerCourses();
+                renderSectionRoutine();
+                return;
+            }
+        }
+
+        // Auto-replace first unfilled GED placeholder if available
+        const placeholderIdx = plannedCourses.findIndex(p => isGedPlaceholder(p.code));
+        if (placeholderIdx !== -1) {
+            const slot = plannedCourses[placeholderIdx].code;
+            plannedCourses[placeholderIdx] = {
+                code: c.code,
+                title: c.title,
+                cr: c.cr,
+                type: 'Theory',
+                isCore: false,
+                isGed: true,
+                slotReplaced: slot
+            };
+            savePlannedCourses();
+            closeGenEdModal();
+            renderPlannerCourses();
+            renderSectionRoutine();
+            return;
+        }
+
         addCourseToPlanner(c.code, c.title, c.cr, 'Theory');
-        openGenEdModal(); // refresh checkmarks
+        openGenEdModal();
+    }
+
+    // --- MAJOR ELECTIVE MODAL LOGIC ---
+    function openMajorModalForSlot(slotCode) {
+        targetSlotForModal = slotCode;
+        openMajorModal();
+    }
+
+    function openMajorModal() {
+        const modal = document.getElementById('major-modal');
+        const titleEl = document.getElementById('major-modal-title');
+        if (!modal) return;
+        if (titleEl) {
+            titleEl.innerText = targetSlotForModal 
+                ? `Choose Major Elective Course (for ${targetSlotForModal})` 
+                : 'Choose Major Elective Course';
+        }
+        renderMajorModalList();
+        modal.classList.add('is-open');
+    }
+
+    function closeMajorModal() {
+        const modal = document.getElementById('major-modal');
+        if (modal) modal.classList.remove('is-open');
+        targetSlotForModal = null;
+    }
+
+    function renderMajorModalList() {
+        const list = document.getElementById('major-courses-modal-list');
+        const trackSelect = document.getElementById('major-track-select');
+        const searchInput = document.getElementById('major-search-input');
+        if (!list) return;
+
+        const selectedTrack = trackSelect ? trackSelect.value : 'ALL';
+        const searchFilter = (searchInput ? searchInput.value : '').toLowerCase().trim();
+
+        list.innerHTML = '';
+
+        let totalShown = 0;
+        for (const [trackName, courses] of Object.entries(electiveTracks)) {
+            if (selectedTrack !== 'ALL' && selectedTrack !== trackName) continue;
+
+            const filteredCourses = courses.filter(c => {
+                if (!searchFilter) return true;
+                return c.code.toLowerCase().includes(searchFilter) || c.title.toLowerCase().includes(searchFilter);
+            });
+
+            if (filteredCourses.length === 0) continue;
+
+            // Track header
+            const trackHeader = document.createElement('div');
+            trackHeader.style.fontSize = '0.86rem';
+            trackHeader.style.fontWeight = '800';
+            trackHeader.style.color = '#d97706';
+            trackHeader.style.marginTop = '6px';
+            trackHeader.style.display = 'flex';
+            trackHeader.style.alignItems = 'center';
+            trackHeader.style.gap = '6px';
+            trackHeader.innerHTML = `<span>🔬</span> Track: ${trackName}`;
+            list.appendChild(trackHeader);
+
+            filteredCourses.forEach(c => {
+                totalShown++;
+                const isAdded = plannedCourses.some(p => p.code === c.code);
+                const count = (window.uiuFallOfferings || []).filter(o => o.code === c.code).length;
+                const div = document.createElement('div');
+                div.style.background = 'var(--bg-container)';
+                div.style.border = '1px solid var(--border-color)';
+                div.style.borderRadius = '8px';
+                div.style.padding = '9px 12px';
+                div.style.display = 'flex';
+                div.style.justifyContent = 'space-between';
+                div.style.alignItems = 'center';
+                div.style.flexWrap = 'wrap';
+                div.style.gap = '8px';
+
+                const btnText = isAdded 
+                    ? '✓ Added' 
+                    : (targetSlotForModal ? `+ Select for ${targetSlotForModal}` : '+ Add to Planner');
+
+                div.innerHTML = `
+                    <div style="flex: 1; min-width: 220px;">
+                        <strong>${c.code}: ${c.title}</strong>
+                        <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 2px;">
+                            ${c.cr} Credits • Prereq: ${c.prereq || 'None'} • <span style="font-weight:700; color:${count > 0 ? '#10b981' : '#ef4444'};">${count} section(s) in Fall 2026</span>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-action" style="margin: 0; padding: 4px 10px; font-size: 0.8rem; ${isAdded ? 'background: #10b981;' : 'background: #d97706;'}" onclick="selectMajorCourse('${c.code}')">
+                        ${btnText}
+                    </button>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        if (totalShown === 0) {
+            list.innerHTML = `<div style="text-align:center; padding:16px; color:var(--text-muted); font-size:0.85rem;">No courses found matching your filter.</div>`;
+        }
+    }
+
+    function selectMajorCourse(code) {
+        let c = null;
+        let trackName = '';
+        for (const [t, courses] of Object.entries(electiveTracks)) {
+            const found = courses.find(item => item.code === code);
+            if (found) {
+                c = found;
+                trackName = t;
+                break;
+            }
+        }
+        if (!c) return;
+
+        if (targetSlotForModal) {
+            const idx = plannedCourses.findIndex(p => p.code === targetSlotForModal);
+            if (idx !== -1) {
+                const oldCode = plannedCourses[idx].code;
+                mySectionClasses = mySectionClasses.filter(cl => !(cl.courseCode === oldCode || (cl.course && cl.course.includes(oldCode))));
+                saveSectionClasses();
+                backupClasses = backupClasses.filter(b => !(b.courseCode === oldCode || (b.course && b.course.includes(oldCode))));
+                saveBackupClasses();
+
+                plannedCourses[idx] = {
+                    code: c.code,
+                    title: c.title,
+                    cr: c.cr,
+                    type: 'Theory',
+                    isCore: false,
+                    isMajor: true,
+                    majorTrack: trackName,
+                    slotReplaced: targetSlotForModal
+                };
+                targetSlotForModal = null;
+                savePlannedCourses();
+                closeMajorModal();
+                renderPlannerCourses();
+                renderSectionRoutine();
+                return;
+            }
+        }
+
+        // Auto-replace first unfilled Major Elective placeholder if available
+        const placeholderIdx = plannedCourses.findIndex(p => isMajorPlaceholder(p.code));
+        if (placeholderIdx !== -1) {
+            const slot = plannedCourses[placeholderIdx].code;
+            plannedCourses[placeholderIdx] = {
+                code: c.code,
+                title: c.title,
+                cr: c.cr,
+                type: 'Theory',
+                isCore: false,
+                isMajor: true,
+                majorTrack: trackName,
+                slotReplaced: slot
+            };
+            savePlannedCourses();
+            closeMajorModal();
+            renderPlannerCourses();
+            renderSectionRoutine();
+            return;
+        }
+
+        addCourseToPlanner(c.code, c.title, c.cr, 'Theory');
+        openMajorModal();
     }
 
     function openFydpModal() {
@@ -3798,6 +4066,59 @@ window.uiuFallOfferings = uiuFallOfferings;
 
         let html = '';
         plannedCourses.forEach(p => {
+            const isGed = isGedPlaceholder(p.code);
+            const isMajor = isMajorPlaceholder(p.code);
+            const isReplacedGed = p.isGed || (p.slotReplaced && isGedPlaceholder(p.slotReplaced));
+            const isReplacedMajor = p.isMajor || (p.slotReplaced && isMajorPlaceholder(p.slotReplaced));
+
+            if (isGed) {
+                html += `
+                    <div class="course-plan-item" style="margin-bottom: 4px; border: 1.5px dashed #8b5cf6; background: rgba(139, 92, 246, 0.05);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                            <div>
+                                <span class="sec-type-pill pill-theory" style="background:#8b5cf6; color:white;">GED</span>
+                                <strong style="color: #6d28d9;">${p.code}: ${p.title}</strong>
+                                <span style="font-size: 0.82rem; color: var(--text-muted); margin-left: 6px;">(${p.cr} Cr)</span>
+                                <span style="font-size: 0.78rem; color: #8b5cf6; margin-left: 8px; font-weight: 700;">👈 Please select a course</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                                <button type="button" class="btn-action" style="padding: 5px 14px; margin: 0; font-size: 0.82rem; font-weight: 800; background: #8b5cf6; color: white;" onclick="openGenEdModalForSlot('${p.code}')">
+                                    👉 Select Course
+                                </button>
+                                <button type="button" class="btn-action" style="padding: 3px 8px; margin: 0; font-size: 0.78rem; background: none; border: 1px solid var(--border-color); color: var(--text-muted);" onclick="removeCourseFromPlanner('${p.code}')" title="Remove placeholder">
+                                    ✕
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            if (isMajor) {
+                html += `
+                    <div class="course-plan-item" style="margin-bottom: 4px; border: 1.5px dashed #d97706; background: rgba(217, 119, 6, 0.05);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                            <div>
+                                <span class="sec-type-pill pill-theory" style="background:#d97706; color:white;">MAJOR</span>
+                                <strong style="color: #b45309;">${p.code}: ${p.title}</strong>
+                                <span style="font-size: 0.82rem; color: var(--text-muted); margin-left: 6px;">(${p.cr} Cr)</span>
+                                <span style="font-size: 0.78rem; color: #d97706; margin-left: 8px; font-weight: 700;">👈 Please select a course</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                                <button type="button" class="btn-action" style="padding: 5px 14px; margin: 0; font-size: 0.82rem; font-weight: 800; background: #d97706; color: white;" onclick="openMajorModalForSlot('${p.code}')">
+                                    👉 Select Course
+                                </button>
+                                <button type="button" class="btn-action" style="padding: 3px 8px; margin: 0; font-size: 0.78rem; background: none; border: 1px solid var(--border-color); color: var(--text-muted);" onclick="removeCourseFromPlanner('${p.code}')" title="Remove placeholder">
+                                    ✕
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
             const currentSelection = mySectionClasses.find(c => c.courseCode === p.code || (c.course && c.course.includes(p.code)));
             const currentBackups = backupClasses.filter(b => b.courseCode === p.code || (b.course && b.course.includes(p.code)));
             const isExpanded = expandedSectionsCourseCode === p.code;
@@ -3814,8 +4135,28 @@ window.uiuFallOfferings = uiuFallOfferings;
                             <span class="sec-type-pill ${p.type === 'Theory' ? 'pill-theory' : 'pill-lab'}">${p.type}</span>
                             <strong>${p.code}: ${p.title}</strong>
                             <span style="font-size: 0.82rem; color: var(--text-muted); margin-left: 6px;">(${p.cr} Cr)</span>
+                            ${isReplacedGed ? `
+                                <span style="background: #f5f3ff; color: #6d28d9; border: 1px solid #ddd6fe; padding: 2px 7px; border-radius: 4px; font-size: 0.74rem; font-weight: 700; margin-left: 6px;">
+                                    📚 GED (${p.slotReplaced || 'Elective'})
+                                </span>
+                            ` : ''}
+                            ${isReplacedMajor ? `
+                                <span style="background: #fffbeb; color: #b45309; border: 1px solid #fde68a; padding: 2px 7px; border-radius: 4px; font-size: 0.74rem; font-weight: 700; margin-left: 6px;">
+                                    🔬 Major: ${p.majorTrack || 'Elective'}
+                                </span>
+                            ` : ''}
                         </div>
                         <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                            ${isReplacedGed ? `
+                                <button type="button" class="btn-action" style="padding: 3px 8px; margin: 0; font-size: 0.78rem; background: #8b5cf6;" onclick="openGenEdModalForSlot('${p.code}')" title="Change to another GED course">
+                                    🔄 Change Course
+                                </button>
+                            ` : ''}
+                            ${isReplacedMajor ? `
+                                <button type="button" class="btn-action" style="padding: 3px 8px; margin: 0; font-size: 0.78rem; background: #d97706;" onclick="openMajorModalForSlot('${p.code}')" title="Change to another Major course">
+                                    🔄 Change Course
+                                </button>
+                            ` : ''}
                             ${currentSelection ? `
                                 <span style="background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; padding: 3px 8px; border-radius: 6px; font-weight: 700; font-size: 0.8rem;">
                                     ✓ Primary: Sec ${currentSelection.section} (${currentSelection.initial || currentSelection.faculty})
@@ -4512,6 +4853,123 @@ window.uiuFallOfferings = uiuFallOfferings;
         selectKeepSectionClass(id, day, startMin, endMin);
     }
 
+    // --- HELPER: GET SHORT TITLE / ACRONYM FOR COURSE CARDS ---
+    function getCourseShortTitle(title, type, code) {
+        if (!title && code) return code;
+        title = (title || '').trim();
+        const isLab = type === 'Lab' || /lab|laboratory/i.test(title);
+        
+        // Normalize: remove section suffixes, code parentheticals, and 'Laboratory' / 'Lab'
+        let clean = title.replace(/\s*\([A-Z0-9\s-]+\)\s*/gi, ' ')
+                         .replace(/Laboratory|Lab/gi, '')
+                         .replace(/Society, Environment and Engineering Ethics[A-J]?/i, 'Society, Environment and Engineering Ethics')
+                         .replace(/Technical Report Writing and Presentation[A-Z]{0,2}/i, 'Technical Report Writing and Presentation')
+                         .replace(/Object Oriented Programming for Data Science[A-Z]{0,2}/i, 'Object Oriented Programming for Data Science')
+                         .replace(/\s+/g, ' ')
+                         .trim();
+
+        const map = {
+            "Database Management Systems": "DBMS",
+            "Operating Systems": "OS",
+            "Structured Programming Language": "SPL",
+            "Object Oriented Programming": "OOP",
+            "Object Oriented Programming for Data Science": "OOP (DS)",
+            "Advanced Object Oriented Programming": "AOOP",
+            "Data Structure and Algorithms I": "DSA I",
+            "Data Structure and Algorithms II": "DSA II",
+            "Data Structure and Algorithms": "DSA",
+            "Digital Logic Design": "DLD",
+            "Computer Networks": "CN",
+            "Software Engineering": "SE",
+            "Microprocessors and Microcontrollers": "MPMC",
+            "Artificial Intelligence": "AI",
+            "Theory of Computation": "TOC",
+            "Computer Architecture": "CA",
+            "System Analysis and Design": "SAD",
+            "Human Computer Interaction": "HCI",
+            "Machine Learning": "ML",
+            "Deep Learning": "DL",
+            "Natural Language Processing": "NLP",
+            "Digital Image Processing": "DIP",
+            "Big Data Analytics": "BDA",
+            "Big Data": "BIG DATA",
+            "Data Mining": "DATA MINING",
+            "Data Visualization": "DATA VIZ",
+            "Data Wrangling": "DATA WRANGLING",
+            "Data Warehousing": "DATA WAREHOUSE",
+            "Data Privacy and Ethics": "DATA PRIVACY",
+            "Machine Learning Systems Design": "MLSD",
+            "Compiler Design": "COMPILER",
+            "Computer Graphics": "GRAPHICS",
+            "Computer Security": "SECURITY",
+            "Networks Security": "NET SECURITY",
+            "Network Security": "NET SECURITY",
+            "Ethical Hacking and Network Defense": "ETHICAL HACKING",
+            "Cloud Computing": "CLOUD",
+            "VLSI Design": "VLSI",
+            "Web Programming": "WEB",
+            "Mobile Application Development": "MOBILE APP",
+            "Software Architecture": "SOFTWARE ARCH",
+            "Software Testing and Quality Assurance": "SQA",
+            "UI: Concepts and Design": "UI DESIGN",
+            "Introduction to Bioinformatics": "BIOINFORMATICS",
+            "Final Year Design Project - I": "FYDP I",
+            "Final Year Design Project - II": "FYDP II",
+            "Final Year Design Project - III": "FYDP III",
+            "Final Year Design Project I": "FYDP I",
+            "Final Year Design Project II": "FYDP II",
+            "Final Year Design Project III": "FYDP III",
+            "Capstone Project - I": "CAPSTONE I",
+            "Capstone Project - II": "CAPSTONE II",
+            "Introduction to Computer Systems": "ICS",
+            "Green Computing": "GREEN COMPUTING",
+            "Project Management": "PROJECT MGMT",
+            "Technology Entrepreneurship": "TECH ENTREP",
+            "Financial and Managerial Accounting": "ACCOUNTING",
+            "History of the Emergence of Bangladesh": "HEB",
+            "Society, Environment and Engineering Ethics": "SEEE",
+            "AI Literacy and Prompt Engineering": "AI LITERACY",
+            "Biology for Engineers": "BIOLOGY",
+            "Advanced Calculus": "ADV CALCULUS",
+            "Fundamental Calculus": "CALCULUS",
+            "Linear Algebra": "LINEAR ALGEBRA",
+            "Calculus and Linear Algebra": "CALCULUS & LA",
+            "Probability and Statistics": "PROB & STAT",
+            "Advanced Probability and Statistics": "ADV PROB & STAT",
+            "Bayesian Statistics": "BAYESIAN STAT",
+            "Coordinate Geometry and Vector Analysis": "CGVA",
+            "Technical Report Writing and Presentation": "TECH REPORT",
+            "Programming for Data Science": "PROG (DS)",
+            "Fundamentals of Data Science": "DATA SCIENCE",
+            "Business Intelligence": "BI",
+            "Marketing Analytics": "MARKETING",
+            "Simulation and Modeling": "SIMULATION",
+            "Special Topics - Embedded Machine Learning": "EMBEDDED ML",
+            "Embedded Machine Learning (Special Topics)": "EMBEDDED ML",
+            "Discrete Mathematics": "DISCRETE MATH",
+            "Electrical Circuits": "CIRCUITS",
+            "English I": "ENGLISH I",
+            "English II": "ENGLISH II"
+        };
+
+        let short = map[clean];
+        if (!short) {
+            const words = clean.split(/\s+/).filter(Boolean);
+            if (words.length === 1) {
+                // If single word, show that single word
+                short = words[0].toUpperCase();
+            } else {
+                short = words.map(w => w[0].toUpperCase()).join('');
+            }
+        }
+
+        // If lab card, append ' LAB' unless FYDP / Capstone or already contains LAB
+        if (isLab && !short.startsWith('FYDP') && !short.startsWith('CAPSTONE') && !short.includes('LAB')) {
+            short = `${short} LAB`;
+        }
+        return short.trim();
+    }
+
     // --- UNIFIED ROUTINE RENDERING (WITH SIMULTANEOUS PREVIEW & CONFLICT VISUALIZATION) ---
     function renderSectionRoutine() {
         allTimelineDays.forEach(day => {
@@ -4778,6 +5236,7 @@ window.uiuFallOfferings = uiuFallOfferings;
                     courseTitle = item.courseCode || 'COURSE';
                 }
                 const courseUpper = courseTitle.toUpperCase();
+                const courseShortDisplay = getCourseShortTitle(courseTitle, item.type, item.courseCode);
 
                 // Faculty name (prefer full name if available)
                 let facultyDisplayName = item.faculty || '';
@@ -4829,8 +5288,8 @@ window.uiuFallOfferings = uiuFallOfferings;
 
                 block.innerHTML = `
                     <div class="card-top-row">
-                        <div class="card-course-pill" title="${courseUpper}">
-                            ${courseUpper}
+                        <div class="card-course-pill" title="${courseUpper} (${item.courseCode || ''})">
+                            ${courseShortDisplay}
                         </div>
                         <div class="card-action-group">
                             ${statusIconHtml}
@@ -6889,14 +7348,41 @@ window.uiuFallOfferings = uiuFallOfferings;
 <div class="modal-backdrop-custom" id="gened-modal" onclick="closeCustomModalOnBackdrop(event, 'gened-modal')">
     <div class="modal-dialog-custom">
         <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 12px; margin-bottom: 16px;">
-            <h3 style="margin: 0; color: var(--primary-color); display: flex; align-items: center; gap: 8px;">
-                <span>📚</span> Choose General Education Course
+            <h3 style="margin: 0; color: #8b5cf6; display: flex; align-items: center; gap: 8px;">
+                <span>📚</span> <span id="gened-modal-title">Choose General Education Course</span>
             </h3>
             <button type="button" class="btn-action" style="padding: 4px 10px; margin: 0;" onclick="closeGenEdModal()">✕</button>
         </div>
         <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 14px;">Select any General Education course offered in Fall 2026 to add to your advising planner:</p>
         <div id="gened-courses-modal-list" style="display: flex; flex-direction: column; gap: 8px; max-height: 55vh; overflow-y: auto;">
-            <!-- Rendered by renderGenEdModal() -->
+            <!-- Rendered by openGenEdModal() -->
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Choose Major Elective Course -->
+<div class="modal-backdrop-custom" id="major-modal" onclick="closeCustomModalOnBackdrop(event, 'major-modal')">
+    <div class="modal-dialog-custom" style="max-width: 660px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 12px; margin-bottom: 16px;">
+            <h3 style="margin: 0; color: #d97706; display: flex; align-items: center; gap: 8px;">
+                <span>🔬</span> <span id="major-modal-title">Choose Major Elective Course</span>
+            </h3>
+            <button type="button" class="btn-action" style="padding: 4px 10px; margin: 0;" onclick="closeMajorModal()">✕</button>
+        </div>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; align-items: center;">
+            <select id="major-track-select" onchange="renderMajorModalList()" style="flex: 1; min-width: 200px; padding: 7px 10px; border-radius: 6px; border: 1.5px solid var(--border-color); background: var(--bg-card); color: var(--text-main); font-size: 0.84rem; font-weight: 600;">
+                <option value="ALL">All Major Tracks</option>
+                <option value="AI and Data Science">AI and Data Science</option>
+                <option value="Software Engineering">Software Engineering</option>
+                <option value="Network and Cyber Security">Network and Cyber Security</option>
+                <option value="Embedded System and Robotics / Hardware">Embedded System and Robotics / Hardware</option>
+                <option value="Business System Engineering">Business System Engineering</option>
+            </select>
+            <input type="text" id="major-search-input" oninput="renderMajorModalList()" placeholder="Search code or title..." style="flex: 1; min-width: 160px; padding: 7px 10px; border-radius: 6px; border: 1.5px solid var(--border-color); background: var(--bg-card); color: var(--text-main); font-size: 0.84rem;">
+        </div>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">Select your specialized Major Elective course offered in Fall 2026:</p>
+        <div id="major-courses-modal-list" style="display: flex; flex-direction: column; gap: 8px; max-height: 55vh; overflow-y: auto;">
+            <!-- Rendered by renderMajorModalList() -->
         </div>
     </div>
 </div>
@@ -6905,7 +7391,7 @@ window.uiuFallOfferings = uiuFallOfferings;
 <div class="modal-backdrop-custom" id="fydp-modal" onclick="closeCustomModalOnBackdrop(event, 'fydp-modal')">
     <div class="modal-dialog-custom">
         <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 12px; margin-bottom: 16px;">
-            <h3 style="margin: 0; color: var(--primary-color); display: flex; align-items: center; gap: 8px;">
+            <h3 style="margin: 0; color: #0284c7; display: flex; align-items: center; gap: 8px;">
                 <span>🎓</span> Choose Final Year Design Project (FYDP)
             </h3>
             <button type="button" class="btn-action" style="padding: 4px 10px; margin: 0;" onclick="closeFydpModal()">✕</button>
