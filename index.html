@@ -612,6 +612,36 @@
             z-index: 30 !important;
         }
 
+        .timeline-event.is-backup {
+            background: linear-gradient(135deg, #0284c7, #0369a1) !important;
+            border: 2px dashed #bae6fd !important;
+            box-shadow: 0 4px 12px rgba(2, 132, 199, 0.4) !important;
+            opacity: 0.94;
+            z-index: 35 !important;
+        }
+
+        .timeline-event.is-backup.is-clash {
+            background: linear-gradient(135deg, #dc2626, #991b1b) !important;
+            border: 2px dashed #fecaca !important;
+            box-shadow: 0 0 16px rgba(220, 38, 38, 0.75) !important;
+            animation: backup-clash-pulse 1.8s infinite ease-in-out;
+        }
+
+        @keyframes backup-clash-pulse {
+            0%, 100% { box-shadow: 0 0 10px rgba(220, 38, 38, 0.6); }
+            50% { box-shadow: 0 0 20px rgba(239, 68, 68, 0.95); }
+        }
+
+        .backup-badge-pill {
+            background: rgba(255, 255, 255, 0.25);
+            padding: 1px 5px;
+            border-radius: 4px;
+            font-size: 0.68rem;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            display: inline-block;
+        }
+
         .preview-comparison-bar {
             background: linear-gradient(135deg, #1e293b, #0f172a);
             color: white;
@@ -2053,6 +2083,7 @@
         <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 30px; flex-wrap: wrap; gap: 15px;">
             <h2 style="color: var(--secondary-color); font-size: 1.4em; margin-bottom: 0; border-bottom: 3px solid var(--primary-color); padding-bottom: 5px;">Unified Class Routine</h2>
             <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button type="button" id="btnToggleBackupsOnRoutine" class="btn-action" style="margin-top: 0; background: #0284c7; color: white; display: inline-flex; align-items: center; gap: 5px;" onclick="toggleShowBackupsOnRoutine()" title="Toggle display of backup sections on weekly routine">🛡️ Backups on Routine: ON</button>
                 <input type="file" id="sectionCsvInput" accept=".csv" style="display: none;" onchange="importSectionCSV(event)">
                 <button class="btn-action btn-import" style="margin-top: 0;" onclick="document.getElementById('sectionCsvInput').click()">📤 Import Planner from CSV</button>
                 <button class="btn-action btn-export" style="margin-top: 0;" onclick="exportSectionCSV()">📥 Export Planner to CSV</button>
@@ -3166,6 +3197,23 @@ window.uiuFallOfferings = uiuFallOfferings;
         } catch(e) {}
     }
 
+    let backupClasses = [];
+    try {
+        const savedBackups = localStorage.getItem('uiu_backup_classes');
+        if (savedBackups) backupClasses = JSON.parse(savedBackups);
+    } catch(e) {}
+    window.backupClasses = backupClasses;
+
+    function saveBackupClasses() {
+        try {
+            window.backupClasses = backupClasses;
+            localStorage.setItem('uiu_backup_classes', JSON.stringify(backupClasses));
+        } catch(e) {}
+    }
+
+    let showBackupsOnRoutine = true;
+    window.showBackupsOnRoutine = showBackupsOnRoutine;
+
     let previewCandidate = null; // { courseCode, section, offering }
     let facultyOverlayActive = null; // faculty initial or null
     window.facultyOverlayActive = null;
@@ -3201,14 +3249,18 @@ window.uiuFallOfferings = uiuFallOfferings;
     }
 
     function clearTrimesterPlan() {
-        if (plannedCourses.length === 0 && mySectionClasses.length === 0) return;
-        if (!confirm("Are you sure you want to clear your planned courses and reset your routine?")) return;
+        if (plannedCourses.length === 0 && mySectionClasses.length === 0 && backupClasses.length === 0) return;
+        if (!confirm("Are you sure you want to clear your planned courses, backups, and reset your routine?")) return;
         plannedCourses = [];
         savePlannedCourses();
         previewCandidate = null;
+        window.previewCandidate = null;
         facultyOverlayActive = null;
+        window.facultyOverlayActive = null;
         mySectionClasses = [];
         saveSectionClasses();
+        backupClasses = [];
+        saveBackupClasses();
         const triSelect = document.getElementById('plannerTrimesterSelect');
         if (triSelect) triSelect.value = '';
         renderPlannerCourses();
@@ -3234,11 +3286,14 @@ window.uiuFallOfferings = uiuFallOfferings;
     function removeCourseFromPlanner(code) {
         plannedCourses = plannedCourses.filter(p => p.code !== code);
         savePlannedCourses();
-        // Also remove any finalized section for this course
+        // Also remove any finalized section or backups for this course
         mySectionClasses = mySectionClasses.filter(c => !(c.courseCode === code || (c.course && c.course.includes(code))));
         saveSectionClasses();
+        backupClasses = backupClasses.filter(b => !(b.courseCode === code || (b.course && b.course.includes(code))));
+        saveBackupClasses();
         if (previewCandidate && previewCandidate.courseCode === code) {
             previewCandidate = null;
+            window.previewCandidate = null;
         }
         renderPlannerCourses();
         renderSectionRoutine();
@@ -3455,6 +3510,7 @@ window.uiuFallOfferings = uiuFallOfferings;
         let html = '';
         plannedCourses.forEach(p => {
             const currentSelection = mySectionClasses.find(c => c.courseCode === p.code || (c.course && c.course.includes(p.code)));
+            const currentBackups = backupClasses.filter(b => b.courseCode === p.code || (b.course && b.course.includes(p.code)));
             const isExpanded = expandedSectionsCourseCode === p.code;
 
             // Find all Fall 2026 offerings for this course code
@@ -3473,7 +3529,7 @@ window.uiuFallOfferings = uiuFallOfferings;
                         <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
                             ${currentSelection ? `
                                 <span style="background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; padding: 3px 8px; border-radius: 6px; font-weight: 700; font-size: 0.8rem;">
-                                    ✓ Sec ${currentSelection.section} (${currentSelection.initial || currentSelection.faculty})
+                                    ✓ Primary: Sec ${currentSelection.section} (${currentSelection.initial || currentSelection.faculty})
                                 </span>
                                 <button type="button" class="btn-action" style="padding: 3px 8px; margin: 0; font-size: 0.78rem; background: #64748b;" onclick="undoCourseSection('${p.code}')" title="Undo section choice">
                                     ↩ Undo
@@ -3483,6 +3539,11 @@ window.uiuFallOfferings = uiuFallOfferings;
                                     ⚠️ Not Selected
                                 </span>
                             `}
+                            ${currentBackups.length > 0 ? `
+                                <span style="background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; padding: 3px 8px; border-radius: 6px; font-weight: 700; font-size: 0.8rem;">
+                                    🛡️ ${currentBackups.length} Backup(s)
+                                </span>
+                            ` : ''}
                             <button type="button" class="btn-action" style="padding: 3px 10px; margin: 0; font-size: 0.8rem; background: var(--secondary-color);" onclick="toggleCourseSections('${p.code}')">
                                 ${isExpanded ? '▲ Hide Sections' : `▼ View Sections (${offerings.length})`}
                             </button>
@@ -3492,6 +3553,21 @@ window.uiuFallOfferings = uiuFallOfferings;
                         </div>
                     </div>
 
+                    ${currentBackups.length > 0 ? `
+                        <div style="margin-top: 6px; padding-top: 6px; border-top: 1px dashed var(--border-color); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 0.8rem;">
+                            <span style="font-weight: 700; color: #0284c7; display: flex; align-items: center; gap: 4px;">
+                                <span>🛡️</span> Saved Backups:
+                            </span>
+                            ${currentBackups.map(b => `
+                                <span style="background: #f0f9ff; color: #0369a1; border: 1px solid #bae6fd; padding: 2px 8px; border-radius: 5px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;">
+                                    <span><strong>Sec ${b.section}</strong> (${b.initial || b.faculty}) • ${b.day} ${b.time}</span>
+                                    <button type="button" onclick="promoteBackupToPrimary('${p.code}', '${b.section}')" title="Promote this backup to Primary (replaces current primary)" style="background: #10b981; color: white; border: none; border-radius: 3px; padding: 1px 6px; cursor: pointer; font-size: 0.7rem; font-weight: bold;">★ Set Primary</button>
+                                    <button type="button" onclick="removeBackupSection('${p.code}', '${b.section}')" title="Remove this backup" style="background: none; border: none; cursor: pointer; color: #ef4444; font-weight: bold; font-size: 0.82rem; line-height: 1;">✕</button>
+                                </span>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+
                     ${isExpanded ? `
                         <div style="margin-top: 12px; border-top: 1px solid var(--border-color); padding-top: 10px;">
                             ${offerings.length === 0 ? `
@@ -3499,17 +3575,18 @@ window.uiuFallOfferings = uiuFallOfferings;
                                     No official section offerings found for ${p.code} in Fall 2026. You can add a manual session using the form below.
                                 </div>
                             ` : `
-                                <div style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 8px;">
-                                    💡 Click <strong>"✓ Finalize Selection"</strong> to lock in your section, or <strong>"🔍 Preview Comparison"</strong> to view it simultaneously with your previous selection to check for conflicts:
+                                <div style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;">
+                                    <span>💡 Choose a <strong>Primary</strong> section, or select multiple <strong>🛡️ Backups</strong> to check time clashes on your routine simultaneously:</span>
                                 </div>
-                                <div style="display: flex; flex-direction: column; gap: 4px; max-height: 320px; overflow-y: auto;">
+                                <div style="display: flex; flex-direction: column; gap: 4px; max-height: 340px; overflow-y: auto;">
                                     ${offerings.map(o => {
                                         const isCurrent = currentSelection && currentSelection.section === o.section;
+                                        const isBackup = currentBackups.some(b => b.section === o.section);
                                         const isCandidate = isPreviewingThisCourse && previewCandidate.section === o.section;
                                         const conflict = checkOfferingConflict(o, p.code);
 
                                         return `
-                                            <div class="section-option-row" style="${isCurrent ? 'background: #ecfdf5; border-left: 3px solid #10b981;' : (isCandidate ? 'background: #fef3c7; border-left: 3px solid #f59e0b;' : '')}">
+                                            <div class="section-option-row" style="${isCurrent ? 'background: #ecfdf5; border-left: 3px solid #10b981;' : (isBackup ? 'background: #f0f9ff; border-left: 3px solid #0284c7;' : (isCandidate ? 'background: #fef3c7; border-left: 3px solid #f59e0b;' : ''))}">
                                                 <div style="flex: 1; min-width: 220px;">
                                                     <span style="font-weight: 800; color: var(--primary-color); margin-right: 6px;">Sec ${o.section}</span>
                                                     <span>👨‍🏫 ${o.faculty} <strong>[${o.initial}]</strong></span>
@@ -3518,7 +3595,7 @@ window.uiuFallOfferings = uiuFallOfferings;
                                                 <div style="flex: 1.2; min-width: 220px;">
                                                     <span style="font-weight: 600;">🕒 ${o.days} • ${o.time}</span>
                                                 </div>
-                                                <div style="flex: 1; min-width: 180px; text-align: right; display: flex; align-items: center; justify-content: flex-end; gap: 6px;">
+                                                <div style="flex: 1.2; min-width: 220px; text-align: right; display: flex; align-items: center; justify-content: flex-end; gap: 6px; flex-wrap: wrap;">
                                                     ${conflict ? `
                                                         <span style="color: #ef4444; font-weight: 700; font-size: 0.78rem;">⚠️ Clashes: ${conflict.course.split(' (')[0]} (Sec ${conflict.section})</span>
                                                     ` : `
@@ -3526,20 +3603,31 @@ window.uiuFallOfferings = uiuFallOfferings;
                                                     `}
 
                                                     ${isCurrent ? `
-                                                        <span style="background: #10b981; color: white; padding: 3px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 700;">✓ Current</span>
+                                                        <span style="background: #10b981; color: white; padding: 3px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 700;">✓ Primary</span>
+                                                    ` : (isBackup ? `
+                                                        <span style="background: #0284c7; color: white; padding: 3px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 700;">🛡️ Backup</span>
+                                                        <button type="button" class="btn-action" style="margin: 0; padding: 3px 8px; font-size: 0.78rem; background: #10b981;" onclick="promoteBackupToPrimary('${p.code}', '${o.section}')" title="Promote this backup to Primary section">
+                                                            ★ Primary
+                                                        </button>
+                                                        <button type="button" class="btn-action" style="margin: 0; padding: 3px 8px; font-size: 0.78rem; background: #64748b;" onclick="removeBackupSection('${p.code}', '${o.section}')" title="Remove from backups">
+                                                            ✕ Remove
+                                                        </button>
                                                     ` : (isCandidate ? `
                                                         <button type="button" class="btn-action" style="margin: 0; padding: 3px 8px; font-size: 0.78rem; background: #10b981;" onclick="finalizePreviewCandidate()">✓ Finalize</button>
                                                         <button type="button" class="btn-action" style="margin: 0; padding: 3px 8px; font-size: 0.78rem; background: #64748b;" onclick="clearPreviewCandidate()">✕ Undo</button>
                                                     ` : `
-                                                        <button type="button" class="btn-action" style="margin: 0; padding: 3px 8px; font-size: 0.78rem; background: #0284c7;" onclick="selectAndFinalizeCourseSection('${p.code}', '${o.section}')" title="Directly finalize this section">
-                                                            ✓ Select
+                                                        <button type="button" class="btn-action" style="margin: 0; padding: 3px 8px; font-size: 0.78rem; background: #10b981;" onclick="selectAndFinalizeCourseSection('${p.code}', '${o.section}')" title="Select as primary section">
+                                                            ✓ Primary
+                                                        </button>
+                                                        <button type="button" class="btn-action" style="margin: 0; padding: 3px 8px; font-size: 0.78rem; background: #0284c7;" onclick="addBackupSection('${p.code}', '${o.section}')" title="Keep this as backup section to see clashes">
+                                                            🛡️ + Backup
                                                         </button>
                                                         ${currentSelection ? `
-                                                            <button type="button" class="btn-action" style="margin: 0; padding: 3px 8px; font-size: 0.78rem; background: #f59e0b; color: #000;" onclick="previewCourseSection('${p.code}', '${o.section}')" title="Preview alongside current selection to check conflicts">
+                                                            <button type="button" class="btn-action" style="margin: 0; padding: 3px 8px; font-size: 0.78rem; background: #f59e0b; color: #000;" onclick="previewCourseSection('${p.code}', '${o.section}')" title="Preview alongside primary to check conflicts">
                                                                 🔍 Preview
                                                             </button>
                                                         ` : ''}
-                                                    `)}
+                                                    `))}
                                                 </div>
                                             </div>
                                         `;
@@ -3562,6 +3650,10 @@ window.uiuFallOfferings = uiuFallOfferings;
 
         // Remove any previous selection for this course
         mySectionClasses = mySectionClasses.filter(c => !(c.courseCode === courseCode || (c.course && c.course.includes(courseCode))));
+
+        // Remove from backups if it was a backup
+        backupClasses = backupClasses.filter(b => !(b.courseCode === courseCode && b.section === sectionName));
+        saveBackupClasses();
 
         const newClass = {
             id: Date.now().toString(),
@@ -3591,6 +3683,92 @@ window.uiuFallOfferings = uiuFallOfferings;
 
         const dashSec = document.getElementById('dashboard-section');
         if (dashSec && dashSec.classList.contains('active')) initDashboard();
+    }
+
+    function addBackupSection(courseCode, sectionName) {
+        const offering = (window.uiuFallOfferings || []).find(o => o.code === courseCode && o.section === sectionName);
+        if (!offering) return;
+
+        if (backupClasses.some(b => b.courseCode === courseCode && b.section === sectionName)) {
+            alert(`${courseCode} Sec ${sectionName} is already in your backup list!`);
+            return;
+        }
+
+        if (mySectionClasses.some(c => (c.courseCode === courseCode || (c.course && c.course.includes(courseCode))) && c.section === sectionName)) {
+            alert(`${courseCode} Sec ${sectionName} is already your PRIMARY enrolled section!`);
+            return;
+        }
+
+        const newBackup = {
+            id: 'backup_' + Date.now().toString() + '_' + Math.random().toString(36).substr(2, 4),
+            course: `${offering.title} (${offering.code})`,
+            courseCode: offering.code,
+            section: offering.section,
+            faculty: offering.faculty,
+            initial: offering.initial,
+            room: offering.room,
+            type: offering.type,
+            day: offering.days,
+            time: offering.time,
+            credit: offering.credit,
+            isBackup: true
+        };
+
+        backupClasses.push(newBackup);
+        saveBackupClasses();
+        renderPlannerCourses();
+        renderSectionRoutine();
+    }
+
+    function removeBackupSection(courseCode, sectionName) {
+        backupClasses = backupClasses.filter(b => !(b.courseCode === courseCode && b.section === sectionName));
+        saveBackupClasses();
+        renderPlannerCourses();
+        renderSectionRoutine();
+    }
+
+    function promoteBackupToPrimary(courseCode, sectionName) {
+        const targetBackup = backupClasses.find(b => b.courseCode === courseCode && b.section === sectionName);
+        if (!targetBackup) return;
+
+        // Remove this backup from backup list
+        backupClasses = backupClasses.filter(b => !(b.courseCode === courseCode && b.section === sectionName));
+
+        // If there was an existing primary section for this course, move it into backup!
+        const existingPrimary = mySectionClasses.find(c => c.courseCode === courseCode || (c.course && c.course.includes(courseCode)));
+        if (existingPrimary) {
+            const oldOffering = (window.uiuFallOfferings || []).find(o => o.code === courseCode && o.section === existingPrimary.section);
+            if (oldOffering && !backupClasses.some(b => b.courseCode === courseCode && b.section === existingPrimary.section)) {
+                backupClasses.push({
+                    id: 'backup_' + Date.now().toString() + '_' + Math.random().toString(36).substr(2, 4),
+                    course: `${oldOffering.title} (${oldOffering.code})`,
+                    courseCode: oldOffering.code,
+                    section: oldOffering.section,
+                    faculty: oldOffering.faculty,
+                    initial: oldOffering.initial,
+                    room: oldOffering.room,
+                    type: oldOffering.type,
+                    day: oldOffering.days,
+                    time: oldOffering.time,
+                    credit: oldOffering.credit,
+                    isBackup: true
+                });
+            }
+        }
+
+        saveBackupClasses();
+        selectAndFinalizeCourseSection(courseCode, sectionName);
+    }
+
+    function toggleShowBackupsOnRoutine() {
+        showBackupsOnRoutine = !showBackupsOnRoutine;
+        window.showBackupsOnRoutine = showBackupsOnRoutine;
+        renderSectionRoutine();
+        const btn = document.getElementById('btnToggleBackupsOnRoutine');
+        if (btn) {
+            btn.innerHTML = showBackupsOnRoutine ? '🛡️ Backups on Routine: ON' : '🛡️ Backups on Routine: OFF';
+            btn.style.background = showBackupsOnRoutine ? '#0284c7' : '#64748b';
+        }
     }
 
     function undoCourseSection(courseCode) {
@@ -4030,7 +4208,7 @@ window.uiuFallOfferings = uiuFallOfferings;
         };
 
         // Helper to register an instance for rendering
-        const registerInstance = (item, isCandidate = false, isFacultyOverlay = false) => {
+        const registerInstance = (item, isCandidate = false, isFacultyOverlay = false, isBackup = false) => {
             let daysToRender = [];
             const dayStr = item.days || item.day || '';
             if (dayStr === "Saturday & Tuesday") daysToRender = ["Saturday", "Tuesday"];
@@ -4075,6 +4253,7 @@ window.uiuFallOfferings = uiuFallOfferings;
                         item: item,
                         isCandidate: isCandidate,
                         isFacultyOverlay: isFacultyOverlay,
+                        isBackup: isBackup,
                         startMin: startMin,
                         endMin: endMin,
                         startStr: startStr,
@@ -4086,21 +4265,26 @@ window.uiuFallOfferings = uiuFallOfferings;
             });
         };
 
-        // 1. Register all finalized student classes
-        mySectionClasses.forEach(c => registerInstance(c, false, false));
+        // 1. Register all finalized student classes (Primary)
+        mySectionClasses.forEach(c => registerInstance(c, false, false, false));
 
-        // 2. Register candidate preview if active (simultaneously with previous selection!)
-        if (previewCandidate && previewCandidate.offering) {
-            registerInstance(previewCandidate.offering, true, false);
+        // 2. Register all backup classes (Multiple selection for clash checking)
+        if (showBackupsOnRoutine && backupClasses.length > 0) {
+            backupClasses.forEach(b => registerInstance(b, false, false, true));
         }
 
-        // 3. Register faculty overlay if active
+        // 3. Register candidate preview if active (simultaneously with previous selection!)
+        if (previewCandidate && previewCandidate.offering) {
+            registerInstance(previewCandidate.offering, true, false, false);
+        }
+
+        // 4. Register faculty overlay if active
         if (facultyOverlayActive) {
             const fCode = facultyOverlayActive.toLowerCase();
             const taught = (window.uiuFallOfferings || []).filter(o => 
                 (o.initial && o.initial.toLowerCase() === fCode)
             );
-            taught.forEach(o => registerInstance(o, false, true));
+            taught.forEach(o => registerInstance(o, false, true, false));
         }
 
         // Comparison Bar update
@@ -4194,6 +4378,9 @@ window.uiuFallOfferings = uiuFallOfferings;
                     block.classList.add('is-preview');
                 } else if (inst.isFacultyOverlay) {
                     block.classList.add('is-faculty-overlay');
+                } else if (inst.isBackup) {
+                    block.classList.add('is-backup');
+                    if (inst.isClash) block.classList.add('is-clash');
                 } else {
                     if (inst.isClash) block.classList.add('is-clash');
                     if (focusedSectionClassId === item.id) block.classList.add('is-focused');
@@ -4211,7 +4398,7 @@ window.uiuFallOfferings = uiuFallOfferings;
                 block.style.width = `${inst.widthPercent}%`;
                 block.style.zIndex = 5 + inst.lane;
 
-                if (!inst.isCandidate && !inst.isFacultyOverlay) {
+                if (!inst.isCandidate && !inst.isFacultyOverlay && !inst.isBackup) {
                     block.style.background = item.type === 'Theory' 
                         ? 'linear-gradient(135deg, #0284c7, #0ea5e9)' 
                         : 'linear-gradient(135deg, #15803d, #16a34a)';
@@ -4226,6 +4413,7 @@ window.uiuFallOfferings = uiuFallOfferings;
                 let badgeLabel = '';
                 if (inst.isCandidate) badgeLabel = '<span style="background: #ffffff; color: #b45309; font-weight: 800; font-size: 0.65rem; padding: 1px 5px; border-radius: 3px; margin-right: 4px;">🔍 PREVIEW</span>';
                 else if (inst.isFacultyOverlay) badgeLabel = `<span style="background: #ffffff; color: #4338ca; font-weight: 800; font-size: 0.65rem; padding: 1px 5px; border-radius: 3px; margin-right: 4px;">👨‍🏫 ${facultyOverlayActive}</span>`;
+                else if (inst.isBackup) badgeLabel = '<span class="backup-badge-pill" style="margin-right: 4px;">🛡️ BACKUP</span>';
 
                 block.innerHTML = `
                     <div style="display:flex; justify-content:space-between; align-items:flex-start; width:100%; gap:4px;">
@@ -4236,24 +4424,31 @@ window.uiuFallOfferings = uiuFallOfferings;
                             <span style="opacity:0.95; font-weight:700; margin-left:3px;">Sec ${item.section}</span>
                             ${facultyTag}
                         </div>
-                        ${(!inst.isCandidate && !inst.isFacultyOverlay) ? `
+                        ${inst.isBackup ? `
+                            <span class="remove-btn-timeline" onclick="event.stopPropagation(); removeBackupSection('${item.courseCode}', '${item.section}')" title="Remove this backup">&times;</span>
+                        ` : (!inst.isCandidate && !inst.isFacultyOverlay ? `
                             <span class="remove-btn-timeline" onclick="event.stopPropagation(); removeSectionClass('${item.id}')" title="Remove this session">&times;</span>
-                        ` : ''}
+                        ` : '')}
                     </div>
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-top:${isMultiLane ? '2px' : '6px'}; font-size:0.75rem;">
                         <span style="opacity:0.92; font-size: 0.72rem;">🕒 ${inst.startStr} - ${inst.endStr}</span>
-                        ${inst.isClash ? `
+                        ${inst.isBackup ? `
+                            <div style="display:flex; align-items:center; gap:4px;" onclick="event.stopPropagation()">
+                                ${inst.isClash ? '<span class="sec-clash-tag" style="background:#dc2626;">⚠️ Clash</span>' : '<span style="font-size:0.7rem; color:#bae6fd; font-weight:700;">✓ Safe</span>'}
+                                <button class="btn-keep-sec" onclick="event.stopPropagation(); promoteBackupToPrimary('${item.courseCode}', '${item.section}')" style="background:#10b981;" title="Promote backup to Primary section">★ Make Primary</button>
+                            </div>
+                        ` : (inst.isClash ? `
                             <div style="display:flex; align-items:center; gap:4px;" onclick="event.stopPropagation()">
                                 <span class="sec-clash-tag">⚠️ Clash</span>
                                 ${(!inst.isCandidate && !inst.isFacultyOverlay) ? `
                                     <button class="btn-keep-sec" onclick="event.stopPropagation(); selectKeepSectionClass('${item.id}', '${d}', ${inst.startMin}, ${inst.endMin})" title="Keep this section (removes conflicting section)">✓ Keep</button>
                                 ` : ''}
                             </div>
-                        ` : ''}
+                        ` : '')}
                     </div>
                 `;
 
-                block.title = `${courseDisplay}\nType: ${item.type}\nSection: ${item.section}\nFaculty: ${item.faculty || facultyInitial || 'TBA'}\nTime: ${inst.startStr} - ${inst.endStr}${inst.isClash ? '\n⚠️ Overlaps with another class!' : ''}`;
+                block.title = `${inst.isBackup ? '[BACKUP] ' : ''}${courseDisplay}\nType: ${item.type}\nSection: ${item.section}\nFaculty: ${item.faculty || facultyInitial || 'TBA'}\nTime: ${inst.startStr} - ${inst.endStr}${inst.isClash ? '\n⚠️ Overlaps with another class!' : ''}`;
                 cell.appendChild(block);
             });
         });
@@ -4262,7 +4457,7 @@ window.uiuFallOfferings = uiuFallOfferings;
         if (clashAlert) {
             if (totalClashesDetected > 0) {
                 clashAlert.style.display = 'block';
-                clashAlert.innerHTML = `⚠️ <strong>CLASS CONFLICT DETECTED:</strong> You have overlapping classes at the exact same time! In the routine below, look for the <strong>⚠️ Clash</strong> indicator and click <strong>"✓ Keep"</strong> to resolve.`;
+                clashAlert.innerHTML = `⚠️ <strong>CLASS CONFLICT DETECTED:</strong> You have overlapping classes at the exact same time! Note: Primary courses, Backups, and candidate sections are displayed together so you can visually verify time clashes. Look for the red dashed <strong>⚠️ Clash</strong> indicators to resolve.`;
             } else {
                 clashAlert.style.display = 'none';
             }
