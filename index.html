@@ -1917,6 +1917,32 @@
         <!-- Preview & Conflict Comparison Floating Bar -->
         <div id="previewComparisonBar" class="preview-comparison-bar" style="display: none;"></div>
 
+        <!-- Dedicated Always-Visible Faculty Schedule & Routine Viewer -->
+        <div class="card" style="margin-bottom: 20px; border-left: 4px solid #8b5cf6; background: var(--bg-card); padding: 16px 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
+                <div style="flex: 1; min-width: 250px;">
+                    <h3 style="margin: 0; font-size: 1.15rem; color: var(--text-color); display: flex; align-items: center; gap: 8px;">
+                        <span>👨‍🏫</span> <strong>Faculty Schedule & Routine Viewer</strong>
+                    </h3>
+                    <p style="margin: 3px 0 0; font-size: 0.85rem; color: var(--text-muted);">
+                        Search any teacher to inspect their Fall 2026 courses, section letters, rooms, and view their weekly schedule.
+                    </p>
+                </div>
+                <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                    <div style="position: relative; min-width: 240px;">
+                        <input type="text" id="dedicatedFacultySearch" placeholder="Search teacher (e.g., MNH, AKMMI)..." oninput="filterDedicatedFacultySearch()" style="width: 100%; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-body); color: var(--text-main);" autocomplete="off">
+                        <div class="suggestions" id="dedicatedFacultySuggestions" style="display: none; position: absolute; top: 100%; left: 0; right: 0; z-index: 100; max-height: 220px; overflow-y: auto;"></div>
+                    </div>
+                    <button type="button" class="btn-action" style="margin: 0; padding: 8px 16px; background: #8b5cf6; color: white; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(139, 92, 246, 0.3);" onclick="triggerDedicatedViewSchedule()">
+                        <span>📅</span> View Schedule
+                    </button>
+                    <button type="button" class="btn-action" style="margin: 0; padding: 8px 12px; background: var(--border-color); color: var(--text-main); font-size: 0.85rem;" onclick="clearFacultyOfferingsView()">
+                        ✕ Clear
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <!-- Faculty Offerings Banner (Appears when faculty is selected) -->
         <div id="facultyOfferingBanner" class="faculty-offering-banner" style="display: none;"></div>
 
@@ -2030,6 +2056,7 @@
                 <input type="file" id="sectionCsvInput" accept=".csv" style="display: none;" onchange="importSectionCSV(event)">
                 <button class="btn-action btn-import" style="margin-top: 0;" onclick="document.getElementById('sectionCsvInput').click()">📤 Import Planner from CSV</button>
                 <button class="btn-action btn-export" style="margin-top: 0;" onclick="exportSectionCSV()">📥 Export Planner to CSV</button>
+                <button class="btn-action" style="margin-top: 0; background: #ef4444; color: white; display: inline-flex; align-items: center; gap: 5px;" onclick="clearSectionRoutine()">🗑️ Clear Routine / Clear CSV</button>
             </div>
         </div>
 
@@ -3647,6 +3674,71 @@ window.uiuFallOfferings = uiuFallOfferings;
         }
     }
 
+    function filterDedicatedFacultySearch() {
+        const input = (document.getElementById('dedicatedFacultySearch').value || '').toLowerCase().trim();
+        const suggestionBox = document.getElementById('dedicatedFacultySuggestions');
+        suggestionBox.innerHTML = '';
+        if (input.length < 1) { suggestionBox.style.display = 'none'; return; }
+
+        const matches = (window.uiuFaculties || []).filter(f => 
+            f.code.toLowerCase().includes(input) || f.name.toLowerCase().includes(input)
+        );
+
+        if (matches.length > 0) {
+            suggestionBox.style.display = 'block';
+            matches.slice(0, 15).forEach(f => {
+                const div = document.createElement('div');
+                div.className = 'suggestion-item';
+                div.style.display = 'flex';
+                div.style.justifyContent = 'space-between';
+                div.style.alignItems = 'center';
+                div.innerHTML = `<span><strong>${f.name}</strong></span><span style="background: var(--course-added-bg); color: var(--primary-color); font-weight: bold; padding: 2px 6px; border-radius: 4px; font-size: 0.8em; margin-left: 8px;">${f.code}</span>`;
+                div.onclick = () => {
+                    document.getElementById('dedicatedFacultySearch').value = `${f.name} (${f.code})`;
+                    suggestionBox.style.display = 'none';
+                    showFacultyOfferings(f.code, f.name);
+                    toggleFacultyRoutineOverlay(f.code);
+                };
+                suggestionBox.appendChild(div);
+            });
+        } else {
+            suggestionBox.style.display = 'none';
+        }
+    }
+
+    function triggerDedicatedViewSchedule() {
+        const val = (document.getElementById('dedicatedFacultySearch').value || '').trim();
+        if (!val) {
+            alert('Please type or select a faculty member first (e.g. MNH, AKMMI).');
+            return;
+        }
+        let match = val.match(/\((.*?)\)/);
+        let code = match ? match[1].trim() : val.split(' ')[0];
+        showFacultyOfferings(code);
+        toggleFacultyRoutineOverlay(code);
+    }
+
+    function clearSectionRoutine() {
+        if (mySectionClasses.length === 0 && !previewCandidate && !facultyOverlayActive) {
+            alert("Routine is already clear.");
+            return;
+        }
+        if (confirm("Are you sure you want to clear all classes (including imported CSV courses) from your routine?")) {
+            mySectionClasses = [];
+            window.mySectionClasses = [];
+            previewCandidate = null;
+            window.previewCandidate = null;
+            facultyOverlayActive = null;
+            window.facultyOverlayActive = null;
+            saveSectionClasses();
+            renderPlannerCourses();
+            renderSectionRoutine();
+            const dashSec = document.getElementById('dashboard-section');
+            if (dashSec && dashSec.classList.contains('active')) initDashboard();
+            alert("Routine and imported CSV classes cleared successfully!");
+        }
+    }
+
     function viewSelectedFacultySchedule() {
         const val = (document.getElementById('sectionFacultySelected').value || '').trim();
         if (!val) return;
@@ -3742,6 +3834,10 @@ window.uiuFallOfferings = uiuFallOfferings;
     function clearFacultyOfferingsView() {
         const banner = document.getElementById('facultyOfferingBanner');
         if (banner) banner.style.display = 'none';
+        const dedInput = document.getElementById('dedicatedFacultySearch');
+        if (dedInput) dedInput.value = '';
+        const dedSugg = document.getElementById('dedicatedFacultySuggestions');
+        if (dedSugg) dedSugg.style.display = 'none';
         facultyOverlayActive = null;
         window.facultyOverlayActive = null;
         renderSectionRoutine();
@@ -6071,6 +6167,10 @@ window.uiuFallOfferings = uiuFallOfferings;
             if (!e.target.closest('#sectionCourseSearch')) {
                 const secSugg = document.getElementById('sectionSuggestions');
                 if (secSugg) secSugg.style.display = 'none';
+            }
+            if (!e.target.closest('#dedicatedFacultySearch')) {
+                const dedSugg = document.getElementById('dedicatedFacultySuggestions');
+                if (dedSugg) dedSugg.style.display = 'none';
             }
             if (!e.target.closest('#sectionFacultySearch')) {
                 const facSugg = document.getElementById('sectionFacultySuggestions');
