@@ -861,6 +861,260 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.06);
         }
 
+        /* Faculty Grouping in Course Sections */
+        .faculty-groups-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .faculty-group-card {
+            background: var(--bg-body);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 8px 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            transition: all 0.15s ease;
+        }
+
+        .faculty-group-card:hover {
+            border-color: rgba(99, 102, 241, 0.4);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+
+        .faculty-info-col {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 220px;
+            flex: 1;
+        }
+
+        .faculty-name-text {
+            font-weight: 700;
+            font-size: 0.88rem;
+            color: var(--text-color);
+        }
+
+        .faculty-initial-badge {
+            background: rgba(99, 102, 241, 0.12);
+            color: #6366f1;
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 4px;
+            padding: 1px 6px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            margin-left: 4px;
+        }
+
+        .faculty-chips-col {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            position: relative;
+        }
+
+        /* Section Chip and Popover */
+        .sec-chip-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .sec-chip-btn {
+            background: var(--bg-card);
+            border: 1.5px solid var(--border-color);
+            color: var(--text-color);
+            padding: 4px 10px;
+            border-radius: 16px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.18s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            user-select: none;
+            outline: none;
+        }
+
+        .sec-chip-btn:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-1px);
+            box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+        }
+
+        .sec-chip-btn.is-primary {
+            background: #065f46;
+            color: #ffffff;
+            border: 1.5px solid #10b981;
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
+        }
+
+        .sec-chip-btn.is-backup {
+            background: #075985;
+            color: #ffffff;
+            border: 1.5px solid #38bdf8;
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
+        }
+
+        .sec-chip-btn.has-clash {
+            border: 1.5px dashed #ef4444;
+            color: #ef4444;
+            background: rgba(239, 68, 68, 0.05);
+        }
+
+        /* Clickable Icon inside Chip */
+        .sec-chip-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 17px;
+            height: 17px;
+            border-radius: 50%;
+            font-size: 0.78rem;
+            font-weight: 900;
+            line-height: 1;
+            cursor: pointer;
+            transition: transform 0.15s ease, filter 0.15s ease;
+        }
+
+        .sec-chip-icon.star-icon {
+            background: #10b981;
+            color: #ffffff;
+        }
+
+        .sec-chip-icon.plus-icon {
+            background: #38bdf8;
+            color: #0c4a6e;
+        }
+
+        .sec-chip-icon:hover {
+            transform: scale(1.25);
+            filter: brightness(1.2);
+        }
+
+        /* Popover on hover */
+        .sec-popover {
+            position: absolute;
+            bottom: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%) translateY(4px);
+            width: 260px;
+            background: #0f172a;
+            color: #f8fafc;
+            border: 1px solid #334155;
+            border-radius: 10px;
+            padding: 10px 12px;
+            font-size: 0.78rem;
+            z-index: 1000;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.4);
+            pointer-events: none;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s ease;
+            text-align: left;
+        }
+
+        .sec-popover::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 6px;
+            border-style: solid;
+            border-color: #0f172a transparent transparent transparent;
+        }
+
+        .sec-chip-wrapper:hover .sec-popover,
+        .sec-chip-wrapper:focus-within .sec-popover {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .sec-popover-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #334155;
+            padding-bottom: 6px;
+            margin-bottom: 6px;
+        }
+
+        .sec-popover-tag {
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 1px 6px;
+            border-radius: 4px;
+        }
+
+        .sec-popover-tag.tag-primary {
+            background: #10b981;
+            color: #ffffff;
+        }
+
+        .sec-popover-tag.tag-backup {
+            background: #0284c7;
+            color: #ffffff;
+        }
+
+        .sec-popover-tag.tag-available {
+            background: #334155;
+            color: #94a3b8;
+        }
+
+        .sec-popover-body {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            line-height: 1.35;
+        }
+
+        .sec-popover-conflict {
+            color: #f87171;
+            font-weight: 700;
+            margin-top: 4px;
+            border-top: 1px dashed rgba(239, 68, 68, 0.4);
+            padding-top: 4px;
+        }
+
+        .sec-popover-ok {
+            color: #34d399;
+            font-weight: 600;
+            margin-top: 4px;
+        }
+
+        .sec-popover-footer {
+            margin-top: 8px;
+            padding-top: 6px;
+            border-top: 1px solid #334155;
+            font-size: 0.72rem;
+            color: #94a3b8;
+        }
+
+        /* Card Icon Button for Star and Plus */
+        button.card-icon-btn {
+            background: transparent;
+            border: none;
+            padding: 0;
+            margin: 0;
+            outline: none;
+            cursor: pointer;
+            line-height: 1;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
         .timeline-event.is-preview {
             background: linear-gradient(135deg, #f59e0b, #ec4899) !important;
             border: 2px dashed #ffffff !important;
@@ -2250,14 +2504,11 @@
                         <span>🎯 Trimester Advising Planner</span>
                     </h3>
                     <p style="margin: 3px 0 0; font-size: 0.85rem; color: var(--text-muted);">
-                        Choose your core trimester, customize with FYDP and General Education, then select or preview sections to detect clashes.
+                        Select your core trimester below to load curriculum courses. Pick courses for General Education & Major electives, and select sections for your routine.
                     </p>
                 </div>
                 <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                    <button type="button" class="btn-action" style="margin: 0; font-size: 0.82rem; padding: 6px 12px; background: #8b5cf6;" onclick="openGenEdModal()">📚 + Choose GenEd</button>
-                    <button type="button" class="btn-action" style="margin: 0; font-size: 0.82rem; padding: 6px 12px; background: #d97706;" onclick="openMajorModal()">🔬 + Choose Major</button>
-                    <button type="button" class="btn-action" style="margin: 0; font-size: 0.82rem; padding: 6px 12px; background: #0284c7;" onclick="openFydpModal()">🎓 + Choose FYDP</button>
-                    <button type="button" class="btn-action" style="margin: 0; font-size: 0.82rem; padding: 6px 12px; background: #64748b;" onclick="clearTrimesterPlan()">🗑️ Clear Plan</button>
+                    <button type="button" class="btn-action" style="margin: 0; font-size: 0.82rem; padding: 6px 14px; background: #64748b;" onclick="clearTrimesterPlan()">🗑️ Clear Plan</button>
                 </div>
             </div>
 
@@ -2285,68 +2536,73 @@
             <!-- Planned Courses List -->
             <div id="plannerCoursesList" class="planner-courses-grid">
                 <div style="grid-column: 1 / -1; font-size: 0.88rem; color: var(--text-muted); text-align: center; padding: 18px 0; background: var(--bg-body); border-radius: 8px;">
-                    👈 Select a core trimester above or click <strong>+ Choose GenEd / FYDP</strong> to populate your advising courses.
+                    👈 Select a core trimester above to load your advising courses.
                 </div>
             </div>
         </div>
 
         <div id="section-clash-alert" class="alert-box">⚠️ CLASS CLASH: You have overlapping classes at the exact same time!</div>
 
-        <div class="section-box">
-            <span class="section-title">Add Class Session to Routine</span>
+        <details class="section-box" style="margin-top: 15px;">
+            <summary style="cursor: pointer; user-select: none; font-weight: 700; color: var(--secondary-color); display: flex; justify-content: space-between; align-items: center; padding: 4px 0;">
+                <span class="section-title" style="margin-bottom: 0;">⚙️ Manual Class Session Entry (Custom / Off-Catalog Classes)</span>
+                <span style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted);">Expand form ▼</span>
+            </summary>
             
-            <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 15px;">
-                <div class="search-box" style="flex: 1.2; min-width: 250px; margin-bottom: 0; position: relative;">
-                    <label style="display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-bottom: 4px;">Course Search</label>
-                    <input type="text" id="sectionCourseSearch" placeholder="Search Course (e.g., spl, electronics, cse 1111)..." oninput="filterSectionCourses()" autocomplete="off">
-                    <div class="suggestions" id="sectionSuggestions"></div>
-                </div>
-                <div class="search-box" style="flex: 1; min-width: 230px; margin-bottom: 0; position: relative;">
-                    <label style="display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-bottom: 4px;">Faculty Search</label>
-                    <input type="text" id="sectionFacultySearch" placeholder="Search Faculty (e.g., AKMMI, Osama, AHMOH)..." oninput="filterSectionFaculties()" autocomplete="off">
-                    <div class="suggestions" id="sectionFacultySuggestions"></div>
-                </div>
-            </div>
-            
-            <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; align-items: flex-end;">
-                <div style="flex: 1.6; min-width: 170px;">
-                    <label style="display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-bottom: 4px;">Selected Course</label>
-                    <input type="text" id="sectionCourseSelected" placeholder="Selected Course" readonly style="background: var(--bg-body);">
-                </div>
-                <div style="flex: 1.5; min-width: 180px;">
-                    <label style="display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-bottom: 4px;">Faculty</label>
-                    <div style="display: flex; gap: 4px; align-items: center;">
-                        <input type="text" id="sectionFacultySelected" placeholder="Faculty (e.g. AKMMI)" style="background: var(--bg-body); flex: 1;">
-                        <button type="button" id="btnViewFacultySchedule" onclick="viewSelectedFacultySchedule()" title="View/Toggle this faculty's schedule on weekly routine" style="display: none; background: #8b5cf6; color: white; border: none; border-radius: 6px; padding: 7px 10px; cursor: pointer; font-size: 0.78rem; font-weight: 600; white-space: nowrap;">📅 View Schedule</button>
-                        <button type="button" onclick="clearSelectedFaculty()" title="Clear faculty" style="background: none; border: 1px solid var(--border-color); border-radius: 6px; padding: 7px 8px; cursor: pointer; color: var(--text-muted);">✕</button>
+            <div style="margin-top: 15px;">
+                <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 15px;">
+                    <div class="search-box" style="flex: 1.2; min-width: 250px; margin-bottom: 0; position: relative;">
+                        <label style="display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-bottom: 4px;">Course Search</label>
+                        <input type="text" id="sectionCourseSearch" placeholder="Search Course (e.g., spl, electronics, cse 1111)..." oninput="filterSectionCourses()" autocomplete="off">
+                        <div class="suggestions" id="sectionSuggestions"></div>
+                    </div>
+                    <div class="search-box" style="flex: 1; min-width: 230px; margin-bottom: 0; position: relative;">
+                        <label style="display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-bottom: 4px;">Faculty Search</label>
+                        <input type="text" id="sectionFacultySearch" placeholder="Search Faculty (e.g., AKMMI, Osama, AHMOH)..." oninput="filterSectionFaculties()" autocomplete="off">
+                        <div class="suggestions" id="sectionFacultySuggestions"></div>
                     </div>
                 </div>
-                <div style="flex: 0.7; min-width: 80px;">
-                    <label style="display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-bottom: 4px;">Section</label>
-                    <input type="text" id="sectionNameInput" placeholder="Sec (e.g. A)">
+                
+                <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; align-items: flex-end;">
+                    <div style="flex: 1.6; min-width: 170px;">
+                        <label style="display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-bottom: 4px;">Selected Course</label>
+                        <input type="text" id="sectionCourseSelected" placeholder="Selected Course" readonly style="background: var(--bg-body);">
+                    </div>
+                    <div style="flex: 1.5; min-width: 180px;">
+                        <label style="display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-bottom: 4px;">Faculty</label>
+                        <div style="display: flex; gap: 4px; align-items: center;">
+                            <input type="text" id="sectionFacultySelected" placeholder="Faculty (e.g. AKMMI)" style="background: var(--bg-body); flex: 1;">
+                            <button type="button" id="btnViewFacultySchedule" onclick="viewSelectedFacultySchedule()" title="View/Toggle this faculty's schedule on weekly routine" style="display: none; background: #8b5cf6; color: white; border: none; border-radius: 6px; padding: 7px 10px; cursor: pointer; font-size: 0.78rem; font-weight: 600; white-space: nowrap;">📅 View Schedule</button>
+                            <button type="button" onclick="clearSelectedFaculty()" title="Clear faculty" style="background: none; border: 1px solid var(--border-color); border-radius: 6px; padding: 7px 8px; cursor: pointer; color: var(--text-muted);">✕</button>
+                        </div>
+                    </div>
+                    <div style="flex: 0.7; min-width: 80px;">
+                        <label style="display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-bottom: 4px;">Section</label>
+                        <input type="text" id="sectionNameInput" placeholder="Sec (e.g. A)">
+                    </div>
+                    <div style="flex: 0.8; min-width: 95px;">
+                        <label style="display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-bottom: 4px;">Type</label>
+                        <select id="sectionTypeSelect" onchange="updateSectionDropdowns()">
+                            <option value="Theory">Theory</option>
+                            <option value="Lab">Lab</option>
+                        </select>
+                    </div>
+                    <div style="flex: 1.2; min-width: 150px;">
+                        <label style="display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-bottom: 4px;">Day(s)</label>
+                        <select id="sectionDaySelect"></select>
+                    </div>
+                    <div style="flex: 1.2; min-width: 150px;">
+                        <label style="display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-bottom: 4px;">Time Slot</label>
+                        <select id="sectionTimeSelect"></select>
+                    </div>
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        <button class="btn-action btn-add" style="margin-top:0; height: 42px; display: inline-flex; align-items: center; justify-content: center; gap: 6px;" onclick="addSectionClass(false)">➕ Add to Routine</button>
+                        <button type="button" class="btn-action" style="margin-top:0; height: 42px; background: #0284c7; color: white; display: inline-flex; align-items: center; justify-content: center; gap: 6px; border-radius: 8px; font-weight: bold; border: none; cursor: pointer; padding: 0 16px; white-space: nowrap;" onclick="addSectionClass(true)" title="Add as a backup section (marked with + icon)">🛡️ + Add Backup</button>
+                    </div>
                 </div>
-                <div style="flex: 0.8; min-width: 95px;">
-                    <label style="display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-bottom: 4px;">Type</label>
-                    <select id="sectionTypeSelect" onchange="updateSectionDropdowns()">
-                        <option value="Theory">Theory</option>
-                        <option value="Lab">Lab</option>
-                    </select>
-                </div>
-                <div style="flex: 1.2; min-width: 150px;">
-                    <label style="display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-bottom: 4px;">Day(s)</label>
-                    <select id="sectionDaySelect"></select>
-                </div>
-                <div style="flex: 1.2; min-width: 150px;">
-                    <label style="display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-bottom: 4px;">Time Slot</label>
-                    <select id="sectionTimeSelect"></select>
-                </div>
-                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                    <button class="btn-action btn-add" style="margin-top:0; height: 42px; display: inline-flex; align-items: center; justify-content: center; gap: 6px;" onclick="addSectionClass(false)">➕ Add to Routine</button>
-                    <button type="button" class="btn-action" style="margin-top:0; height: 42px; background: #0284c7; color: white; display: inline-flex; align-items: center; justify-content: center; gap: 6px; border-radius: 8px; font-weight: bold; border: none; cursor: pointer; padding: 0 16px; white-space: nowrap;" onclick="addSectionClass(true)" title="Add as a backup section (marked with + icon)">🛡️ + Add Backup</button>
-                </div>
+                <small style="color:var(--text-muted); display: block; margin-top: 10px;">💡 Tip: You can click section pills in the planner above to add directly to routine!</small>
             </div>
-            <small style="color:var(--text-muted); display: block; margin-top: 10px;">💡 Tip: You can add alternative sections or conflicting classes to visualize overlaps, and use <strong>"✓ Keep"</strong> to easily pick your preferred section!</small>
-        </div>
+        </details>
 
         <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 30px; flex-wrap: wrap; gap: 15px;">
             <h2 style="color: var(--secondary-color); font-size: 1.4em; margin-bottom: 0; border-bottom: 3px solid var(--primary-color); padding-bottom: 5px;">Unified Class Routine</h2>
@@ -4029,6 +4285,24 @@ window.uiuFallOfferings = uiuFallOfferings;
         return null;
     }
 
+    // --- HELPER: GET CLEAN FACULTY NAME ---
+    function getCleanFacultyName(o) {
+        if (!o) return 'TBA';
+        let name = (o.faculty || '').trim();
+        if (o.initial && window.uiuFaculties) {
+            const found = window.uiuFaculties.find(f => f.code && f.code.toLowerCase() === o.initial.toLowerCase());
+            if (found && found.name) return found.name.trim();
+        }
+        if (name) {
+            const half = Math.floor(name.length / 2);
+            if (half > 5 && name.slice(0, half) === name.slice(half)) {
+                name = name.slice(0, half);
+            }
+        }
+        return name || o.initial || 'TBA';
+    }
+    window.getCleanFacultyName = getCleanFacultyName;
+
     // --- RENDER PLANNED COURSES ---
     function toggleCourseSections(courseCode) {
         expandedSectionsCourseCode = (expandedSectionsCourseCode === courseCode) ? null : courseCode;
@@ -4042,7 +4316,7 @@ window.uiuFallOfferings = uiuFallOfferings;
         if (plannedCourses.length === 0) {
             container.innerHTML = `
                 <div style="grid-column: 1 / -1; font-size: 0.88rem; color: var(--text-muted); text-align: center; padding: 18px 0; background: var(--bg-body); border-radius: 8px;">
-                    👈 Select a core trimester above or click <strong>+ Choose GenEd / FYDP</strong> to populate your advising courses.
+                    👈 Select a core trimester above to load your advising courses.
                 </div>
             `;
             const summary = document.getElementById('plannerCreditsSummary');
@@ -4205,63 +4479,89 @@ window.uiuFallOfferings = uiuFallOfferings;
                                     No official section offerings found for ${p.code} in Fall 2026. You can add a manual session using the form below.
                                 </div>
                             ` : `
-                                <div style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;">
-                                    <span>💡 Choose a <strong>Primary</strong> section, or select multiple <strong>🛡️ Backups</strong> to check time clashes on your routine simultaneously:</span>
+                                <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;">
+                                    <span>💡 Sections grouped by faculty. Hover for timings & clashes. <strong>Click section pill to add to routine</strong> (1st selection = Primary ⭐, next = Backup ➕). Click ⭐ / ➕ to switch!</span>
                                 </div>
-                                <div style="display: flex; flex-direction: column; gap: 4px; max-height: 340px; overflow-y: auto;">
-                                    ${offerings.map(o => {
-                                        const isCurrent = currentSelection && currentSelection.section === o.section;
-                                        const isBackup = currentBackups.some(b => b.section === o.section);
-                                        const isCandidate = isPreviewingThisCourse && previewCandidate.section === o.section;
-                                        const conflict = checkOfferingConflict(o, p.code);
-
-                                        return `
-                                            <div class="section-option-row" style="${isCurrent ? 'background: #ecfdf5; border-left: 3px solid #10b981;' : (isBackup ? 'background: #f0f9ff; border-left: 3px solid #0284c7;' : (isCandidate ? 'background: #fef3c7; border-left: 3px solid #f59e0b;' : ''))}">
-                                                <div style="flex: 1; min-width: 220px;">
-                                                    <span style="font-weight: 800; color: var(--primary-color); margin-right: 6px;">Sec ${o.section}</span>
-                                                    <span>👨‍🏫 ${o.faculty} <strong>[${o.initial}]</strong></span>
-                                                    <span style="font-size: 0.8rem; color: var(--text-muted); margin-left: 6px;">📍 Room ${o.room}</span>
+                                <div class="faculty-groups-container">
+                                    ${(() => {
+                                        const fMap = new Map();
+                                        offerings.forEach(o => {
+                                            const fName = getCleanFacultyName(o);
+                                            const init = (o.initial || '').trim();
+                                            const key = init ? init.toUpperCase() : fName.toLowerCase();
+                                            if (!fMap.has(key)) {
+                                                fMap.set(key, { facultyName: fName, initial: init, sections: [] });
+                                            }
+                                            fMap.get(key).sections.push(o);
+                                        });
+                                        return Array.from(fMap.values()).map(fg => `
+                                            <div class="faculty-group-card">
+                                                <div class="faculty-info-col">
+                                                    <span style="font-size: 1.1rem;">👨‍🏫</span>
+                                                    <div>
+                                                        <span class="faculty-name-text">${fg.facultyName}</span>
+                                                        ${fg.initial ? `<span class="faculty-initial-badge">${fg.initial}</span>` : ''}
+                                                    </div>
                                                 </div>
-                                                <div style="flex: 1.2; min-width: 220px;">
-                                                    <span style="font-weight: 600;">🕒 ${o.days} • ${o.time}</span>
-                                                </div>
-                                                <div style="flex: 1.2; min-width: 220px; text-align: right; display: flex; align-items: center; justify-content: flex-end; gap: 6px; flex-wrap: wrap;">
-                                                    ${conflict ? `
-                                                        <span style="color: #ef4444; font-weight: 700; font-size: 0.78rem;">⚠️ Clashes: ${conflict.course.split(' (')[0]} (Sec ${conflict.section})</span>
-                                                    ` : `
-                                                        <span style="color: #10b981; font-weight: 600; font-size: 0.78rem;">✓ No Clash</span>
-                                                    `}
+                                                <div class="faculty-chips-col">
+                                                    ${fg.sections.map(o => {
+                                                        const isCurrent = currentSelection && currentSelection.section === o.section;
+                                                        const isBackup = currentBackups.some(b => b.section === o.section);
+                                                        const conflict = checkOfferingConflict(o, p.code);
 
-                                                    ${isCurrent ? `
-                                                        <span style="background: #10b981; color: white; padding: 3px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 700;">✓ Primary</span>
-                                                    ` : (isBackup ? `
-                                                        <span style="background: #0284c7; color: white; padding: 3px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 700;">🛡️ Backup</span>
-                                                        <button type="button" class="btn-action" style="margin: 0; padding: 3px 8px; font-size: 0.78rem; background: #10b981;" onclick="promoteBackupToPrimary('${p.code}', '${o.section}')" title="Promote this backup to Primary section">
-                                                            ★ Primary
-                                                        </button>
-                                                        <button type="button" class="btn-action" style="margin: 0; padding: 3px 8px; font-size: 0.78rem; background: #64748b;" onclick="removeBackupSection('${p.code}', '${o.section}')" title="Remove from backups">
-                                                            ✕ Remove
-                                                        </button>
-                                                    ` : (isCandidate ? `
-                                                        <button type="button" class="btn-action" style="margin: 0; padding: 3px 8px; font-size: 0.78rem; background: #10b981;" onclick="finalizePreviewCandidate()">✓ Finalize</button>
-                                                        <button type="button" class="btn-action" style="margin: 0; padding: 3px 8px; font-size: 0.78rem; background: #64748b;" onclick="clearPreviewCandidate()">✕ Undo</button>
-                                                    ` : `
-                                                        <button type="button" class="btn-action" style="margin: 0; padding: 3px 8px; font-size: 0.78rem; background: #10b981;" onclick="selectAndFinalizeCourseSection('${p.code}', '${o.section}')" title="Select as primary section">
-                                                            ✓ Primary
-                                                        </button>
-                                                        <button type="button" class="btn-action" style="margin: 0; padding: 3px 8px; font-size: 0.78rem; background: #0284c7;" onclick="addBackupSection('${p.code}', '${o.section}')" title="Keep this as backup section to see clashes">
-                                                            🛡️ + Backup
-                                                        </button>
-                                                        ${currentSelection ? `
-                                                            <button type="button" class="btn-action" style="margin: 0; padding: 3px 8px; font-size: 0.78rem; background: #f59e0b; color: #000;" onclick="previewCourseSection('${p.code}', '${o.section}')" title="Preview alongside primary to check conflicts">
-                                                                🔍 Preview
-                                                            </button>
-                                                        ` : ''}
-                                                    `))}
+                                                        return `
+                                                            <div class="sec-chip-wrapper">
+                                                                <button type="button" 
+                                                                        class="sec-chip-btn ${isCurrent ? 'is-primary' : (isBackup ? 'is-backup' : '')} ${conflict && !isCurrent && !isBackup ? 'has-clash' : ''}" 
+                                                                        onclick="handleSectionChipClick('${p.code}', '${o.section}')">
+                                                                    
+                                                                    ${isCurrent ? `
+                                                                        <span class="sec-chip-icon star-icon" title="Primary (Click to switch with backup)" onclick="event.stopPropagation(); togglePrimaryBackupRole('${p.code}', '${o.section}')">★</span>
+                                                                    ` : (isBackup ? `
+                                                                        <span class="sec-chip-icon plus-icon" title="Backup (Click to make Primary ⭐)" onclick="event.stopPropagation(); togglePrimaryBackupRole('${p.code}', '${o.section}')">+</span>
+                                                                    ` : '')}
+
+                                                                    <span class="sec-chip-label">Sec ${o.section}</span>
+
+                                                                    ${conflict && !isCurrent && !isBackup ? `
+                                                                        <span style="font-size: 0.72rem;" title="Time Conflict with enrolled class">⚠️</span>
+                                                                    ` : ''}
+                                                                </button>
+                                                                
+                                                                <div class="sec-popover">
+                                                                    <div class="sec-popover-header">
+                                                                        <strong style="color: #ffffff; font-size: 0.82rem;">${p.code} • Sec ${o.section}</strong>
+                                                                        <span class="sec-popover-tag ${isCurrent ? 'tag-primary' : (isBackup ? 'tag-backup' : 'tag-available')}">
+                                                                            ${isCurrent ? '⭐ Primary' : (isBackup ? '🛡️ Backup' : 'Available')}
+                                                                        </span>
+                                                                    </div>
+                                                                    <div class="sec-popover-body">
+                                                                        <div>👨‍🏫 <strong>${fg.facultyName}</strong> ${fg.initial ? `[${fg.initial}]` : ''}</div>
+                                                                        <div>🕒 <strong>${o.days} • ${o.time}</strong></div>
+                                                                        <div>📍 Room: <strong>${o.room || 'TBA'}</strong></div>
+                                                                        ${conflict ? `
+                                                                            <div class="sec-popover-conflict">⚠️ Clashes with: <strong>${conflict.course.split(' (')[0]} (Sec ${conflict.section})</strong></div>
+                                                                        ` : `
+                                                                            <div class="sec-popover-ok">✓ No clash with enrolled routine</div>
+                                                                        `}
+                                                                    </div>
+                                                                    <div class="sec-popover-footer">
+                                                                        ${isCurrent ? `
+                                                                            <span>⭐ Primary: Click chip to remove • Click ★ to demote</span>
+                                                                        ` : (isBackup ? `
+                                                                            <span>🛡️ Backup: Click chip to remove • Click + to make Primary</span>
+                                                                        ` : `
+                                                                            <span>👉 Click to add to routine (${currentSelection ? 'as Backup ➕' : 'as Primary ⭐'})</span>
+                                                                        `)}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        `;
+                                                    }).join('')}
                                                 </div>
                                             </div>
-                                        `;
-                                    }).join('')}
+                                        `).join('');
+                                    })()}
                                 </div>
                             `}
                         </div>
@@ -4315,17 +4615,102 @@ window.uiuFallOfferings = uiuFallOfferings;
         if (dashSec && dashSec.classList.contains('active')) initDashboard();
     }
 
+    function handleSectionChipClick(courseCode, sectionName) {
+        if (!courseCode || !sectionName) return;
+
+        const isPrimary = mySectionClasses.some(c => (c.courseCode === courseCode || (c.course && c.course.includes(courseCode))) && c.section === sectionName);
+        const isBackup = backupClasses.some(b => b.courseCode === courseCode && b.section === sectionName);
+
+        if (isPrimary) {
+            // Already primary. Clicking it again unselects it!
+            // If another backup exists for this course, promote that backup to primary:
+            const backupIdx = backupClasses.findIndex(b => b.courseCode === courseCode);
+            if (backupIdx !== -1) {
+                const nextBackup = backupClasses[backupIdx];
+                promoteBackupToPrimary(courseCode, nextBackup.section);
+                // Also remove the old primary completely from backupClasses
+                backupClasses = backupClasses.filter(b => !(b.courseCode === courseCode && b.section === sectionName));
+                saveBackupClasses();
+                renderPlannerCourses();
+                renderSectionRoutine();
+            } else {
+                undoCourseSection(courseCode);
+            }
+        } else if (isBackup) {
+            // Already backup. Clicking it again removes it from backups!
+            removeBackupSection(courseCode, sectionName);
+        } else {
+            // Not yet selected:
+            const hasPrimary = mySectionClasses.some(c => (c.courseCode === courseCode || (c.course && c.course.includes(courseCode))));
+            if (!hasPrimary) {
+                // 1st selection: automatically becomes Primary (⭐)
+                selectAndFinalizeCourseSection(courseCode, sectionName);
+            } else {
+                // Subsequent selection: automatically becomes Backup (➕)
+                addBackupSection(courseCode, sectionName);
+            }
+        }
+    }
+    window.handleSectionChipClick = handleSectionChipClick;
+
+    function togglePrimaryBackupRole(courseCode, sectionName) {
+        if (!courseCode && sectionName) {
+            const found = mySectionClasses.find(c => c.section === sectionName) || backupClasses.find(b => b.section === sectionName);
+            if (found) courseCode = found.courseCode || (found.course && (found.course.match(/\(([^)]+)\)/) || [])[1]);
+        }
+        if (!courseCode || !sectionName) return;
+
+        const isBackup = backupClasses.some(b => b.courseCode === courseCode && b.section === sectionName);
+        const isPrimary = mySectionClasses.some(c => (c.courseCode === courseCode || (c.course && c.course.includes(courseCode))) && c.section === sectionName);
+
+        if (isBackup) {
+            // Backup -> Primary: promote this backup to Primary (★); old Primary becomes Backup (+)
+            promoteBackupToPrimary(courseCode, sectionName);
+        } else if (isPrimary) {
+            // Primary -> Backup: turn this Primary into Backup (+)
+            const primaryIdx = mySectionClasses.findIndex(c => (c.courseCode === courseCode || (c.course && c.course.includes(courseCode))) && c.section === sectionName);
+            if (primaryIdx === -1) return;
+            const currentPrimary = mySectionClasses[primaryIdx];
+
+            mySectionClasses.splice(primaryIdx, 1);
+
+            if (!backupClasses.some(b => b.courseCode === courseCode && b.section === sectionName)) {
+                backupClasses.push({
+                    ...currentPrimary,
+                    id: 'backup_' + Date.now().toString() + '_' + Math.random().toString(36).substr(2, 4),
+                    isBackup: true
+                });
+            }
+
+            // If another backup exists for this course, promote it to primary!
+            const otherBackupIdx = backupClasses.findIndex(b => b.courseCode === courseCode && b.section !== sectionName);
+            if (otherBackupIdx !== -1) {
+                const nextPrimary = backupClasses.splice(otherBackupIdx, 1)[0];
+                const cleanNext = { ...nextPrimary };
+                delete cleanNext.isBackup;
+                mySectionClasses.push(cleanNext);
+            }
+
+            saveSectionClasses();
+            saveBackupClasses();
+            renderPlannerCourses();
+            renderSectionRoutine();
+
+            const dashSec = document.getElementById('dashboard-section');
+            if (dashSec && dashSec.classList.contains('active')) initDashboard();
+        }
+    }
+    window.togglePrimaryBackupRole = togglePrimaryBackupRole;
+
     function addBackupSection(courseCode, sectionName) {
         const offering = (window.uiuFallOfferings || []).find(o => o.code === courseCode && o.section === sectionName);
         if (!offering) return;
 
         if (backupClasses.some(b => b.courseCode === courseCode && b.section === sectionName)) {
-            alert(`${courseCode} Sec ${sectionName} is already in your backup list!`);
             return;
         }
 
         if (mySectionClasses.some(c => (c.courseCode === courseCode || (c.course && c.course.includes(courseCode))) && c.section === sectionName)) {
-            alert(`${courseCode} Sec ${sectionName} is already your PRIMARY enrolled section!`);
             return;
         }
 
@@ -4381,6 +4766,12 @@ window.uiuFallOfferings = uiuFallOfferings;
                     day: oldOffering.days,
                     time: oldOffering.time,
                     credit: oldOffering.credit,
+                    isBackup: true
+                });
+            } else if (!oldOffering && !backupClasses.some(b => b.courseCode === courseCode && b.section === existingPrimary.section)) {
+                backupClasses.push({
+                    ...existingPrimary,
+                    id: 'backup_' + Date.now().toString() + '_' + Math.random().toString(36).substr(2, 4),
                     isBackup: true
                 });
             }
@@ -5262,12 +5653,12 @@ window.uiuFallOfferings = uiuFallOfferings;
                 }
                 const timeSlotDisplay = `${dayPrefix}: ${inst.startStr}-${inst.endStr}`;
 
-                // Status Icon: Star (⭐) for primary, Plus (+) for backup
+                // Status Icon: Star (⭐) for primary, Plus (+) for backup (Clickable to switch Primary <-> Backup)
                 let statusIconHtml = '';
                 if (!inst.isBackup && !inst.isCandidate && !inst.isFacultyOverlay) {
-                    statusIconHtml = `<span class="card-icon-star" title="Primary Course (Anchor)">★</span>`;
+                    statusIconHtml = `<button type="button" class="card-icon-btn card-icon-star" title="Primary Section (Click to switch with backup)" onclick="event.stopPropagation(); togglePrimaryBackupRole('${item.courseCode || ''}', '${item.section || ''}')">★</button>`;
                 } else if (inst.isBackup) {
-                    statusIconHtml = `<span class="card-icon-plus" title="Backup Course (Multiple Selection)">+</span>`;
+                    statusIconHtml = `<button type="button" class="card-icon-btn card-icon-plus" title="Backup Section (Click to make Primary ⭐)" onclick="event.stopPropagation(); togglePrimaryBackupRole('${item.courseCode || ''}', '${item.section || ''}')">+</button>`;
                 } else if (inst.isCandidate) {
                     statusIconHtml = `<span style="font-size:0.75rem; color:#fbbf24; font-weight:800;" title="Alternative Preview">🔍</span>`;
                 } else if (inst.isFacultyOverlay) {
