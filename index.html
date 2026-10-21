@@ -2339,8 +2339,9 @@
                     <label style="display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-bottom: 4px;">Time Slot</label>
                     <select id="sectionTimeSelect"></select>
                 </div>
-                <div>
-                    <button class="btn-action btn-add" style="margin-top:0; height: 42px; display: inline-flex; align-items: center; justify-content: center; gap: 6px;" onclick="addSectionClass()">➕ Add to Routine</button>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                    <button class="btn-action btn-add" style="margin-top:0; height: 42px; display: inline-flex; align-items: center; justify-content: center; gap: 6px;" onclick="addSectionClass(false)">➕ Add to Routine</button>
+                    <button type="button" class="btn-action" style="margin-top:0; height: 42px; background: #0284c7; color: white; display: inline-flex; align-items: center; justify-content: center; gap: 6px; border-radius: 8px; font-weight: bold; border: none; cursor: pointer; padding: 0 16px; white-space: nowrap;" onclick="addSectionClass(true)" title="Add as a backup section (marked with + icon)">🛡️ + Add Backup</button>
                 </div>
             </div>
             <small style="color:var(--text-muted); display: block; margin-top: 10px;">💡 Tip: You can add alternative sections or conflicting classes to visualize overlaps, and use <strong>"✓ Keep"</strong> to easily pick your preferred section!</small>
@@ -4375,7 +4376,7 @@ window.uiuFallOfferings = uiuFallOfferings;
         } else { suggestionBox.style.display = 'none'; }
     }
 
-    function addSectionClass() {
+    function addSectionClass(isBackup = false) {
         const courseStr = document.getElementById('sectionCourseSelected').value;
         const secName = document.getElementById('sectionNameInput').value.trim() || "A";
         const facultyStr = document.getElementById('sectionFacultySelected').value.trim();
@@ -4392,6 +4393,10 @@ window.uiuFallOfferings = uiuFallOfferings;
         let codeMatch = courseStr.match(/\((.*?)\)/);
         let courseCode = codeMatch ? codeMatch[1].trim() : courseStr;
 
+        // Auto-detect if user already has this course in routine; if so, subsequent section is backup
+        const alreadyHasCourse = mySectionClasses.some(c => c.courseCode === courseCode || (c.course && c.course.includes(courseCode)));
+        const shouldBeBackup = isBackup || alreadyHasCourse;
+
         const newClass = {
             id: Date.now().toString(),
             course: courseStr,
@@ -4400,7 +4405,8 @@ window.uiuFallOfferings = uiuFallOfferings;
             faculty: facultyStr,
             type: type,
             day: day,
-            slotIndex: type === 'Theory' ? theoryTimeSlots.indexOf(slot) : labTimeSlots.indexOf(slot)
+            slotIndex: type === 'Theory' ? theoryTimeSlots.indexOf(slot) : labTimeSlots.indexOf(slot),
+            isBackup: shouldBeBackup
         };
         
         mySectionClasses.push(newClass);
@@ -4435,14 +4441,18 @@ window.uiuFallOfferings = uiuFallOfferings;
 
     function selectKeepSectionClass(keepId, day, startMin, endMin) {
         const keepItem = mySectionClasses.find(c => c.id === keepId);
+        if (keepItem) {
+            keepItem.isBackup = false; // This is the chosen primary!
+        }
         const conflictingIds = new Set();
         
         mySectionClasses.forEach(c => {
             if (c.id === keepId) return;
             
-            // Remove alternative sections of the exact same course
+            // If alternative section of the exact same course:
+            // DO NOT delete it! Turn it into a backup section so it stays on routine with the + icon!
             if (keepItem && keepItem.courseCode && c.courseCode && keepItem.courseCode === c.courseCode) {
-                conflictingIds.add(c.id);
+                c.isBackup = true;
                 return;
             }
 
@@ -4470,18 +4480,20 @@ window.uiuFallOfferings = uiuFallOfferings;
             }
             
             if (startMin < cEnd && endMin > cStart) {
+                // If it's a conflict with a different course:
+                // Drop the other course since user clicked Keep on this section
                 conflictingIds.add(c.id);
             }
         });
 
         if (conflictingIds.size > 0) {
             mySectionClasses = mySectionClasses.filter(c => !conflictingIds.has(c.id));
-            saveSectionClasses();
-            renderPlannerCourses();
-            renderSectionRoutine();
-            const dashSec = document.getElementById('dashboard-section');
-            if (dashSec && dashSec.classList.contains('active')) initDashboard();
         }
+        saveSectionClasses();
+        renderPlannerCourses();
+        renderSectionRoutine();
+        const dashSec = document.getElementById('dashboard-section');
+        if (dashSec && dashSec.classList.contains('active')) initDashboard();
     }
 
     function handleKeepRoutineCourse(id, courseCode, section, day, startMin, endMin, isBackup, isCandidate) {
@@ -4489,10 +4501,14 @@ window.uiuFallOfferings = uiuFallOfferings;
             finalizePreviewCandidate();
             return;
         }
-        if (isBackup) {
+
+        // If it's in backupClasses array: promote to primary, old primary becomes backup!
+        if (backupClasses.some(b => b.courseCode === courseCode && b.section === section)) {
             promoteBackupToPrimary(courseCode, section);
             return;
         }
+
+        // If it's in mySectionClasses:
         selectKeepSectionClass(id, day, startMin, endMin);
     }
 
@@ -4579,8 +4595,21 @@ window.uiuFallOfferings = uiuFallOfferings;
             });
         };
 
-        // 1. Register all finalized student classes (Primary)
-        mySectionClasses.forEach(c => registerInstance(c, false, false, false));
+        // 1. Register student classes (identifying Primary vs Backup for multiple selections of same course)
+        const assignedPrimaryCourses = new Set();
+        mySectionClasses.forEach(c => {
+            const cCode = c.courseCode || (c.course ? (c.course.match(/\((.*?)\)/) ? c.course.match(/\((.*?)\)/)[1].trim() : c.course) : '');
+            let isItemBackup = !!c.isBackup;
+            if (!isItemBackup && cCode) {
+                if (assignedPrimaryCourses.has(cCode)) {
+                    isItemBackup = true;
+                    c.isBackup = true;
+                } else {
+                    assignedPrimaryCourses.add(cCode);
+                }
+            }
+            registerInstance(c, false, false, isItemBackup);
+        });
 
         // 2. Register all backup classes (Multiple selection for clash checking)
         if (showBackupsOnRoutine && backupClasses.length > 0) {
@@ -4815,11 +4844,9 @@ window.uiuFallOfferings = uiuFallOfferings;
                     </div>
                     <div class="card-bottom-row">
                         <span class="card-time-text" title="${timeSlotDisplay}">${timeSlotDisplay}</span>
-                        ${!inst.isBackup && !inst.isCandidate && !inst.isFacultyOverlay ? `
+                        ${item.type !== 'Theory' && !inst.isBackup && !inst.isCandidate && !inst.isFacultyOverlay ? `
                             <span class="card-anchor-tag"><span style="color:#ef4444; font-size:1.05rem;">★</span> anchor</span>
-                        ` : (inst.isBackup ? `
-                            <span class="card-anchor-tag" style="color:#38bdf8;"><span style="color:#38bdf8; font-size:1.05rem; font-weight:900;">+</span> backup</span>
-                        ` : '')}
+                        ` : ''}
                     </div>
                 `;
 
