@@ -1990,11 +1990,12 @@
                     <label style="display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-bottom: 4px;">Selected Course</label>
                     <input type="text" id="sectionCourseSelected" placeholder="Selected Course" readonly style="background: var(--bg-body);">
                 </div>
-                <div style="flex: 1.2; min-width: 140px;">
+                <div style="flex: 1.5; min-width: 180px;">
                     <label style="display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-bottom: 4px;">Faculty</label>
-                    <div style="display: flex; gap: 4px;">
-                        <input type="text" id="sectionFacultySelected" placeholder="Faculty (e.g. AKMMI)" style="background: var(--bg-body);">
-                        <button type="button" onclick="clearSelectedFaculty()" title="Clear faculty" style="background: none; border: 1px solid var(--border-color); border-radius: 6px; padding: 0 8px; cursor: pointer; color: var(--text-muted);">✕</button>
+                    <div style="display: flex; gap: 4px; align-items: center;">
+                        <input type="text" id="sectionFacultySelected" placeholder="Faculty (e.g. AKMMI)" style="background: var(--bg-body); flex: 1;">
+                        <button type="button" id="btnViewFacultySchedule" onclick="viewSelectedFacultySchedule()" title="View/Toggle this faculty's schedule on weekly routine" style="display: none; background: #8b5cf6; color: white; border: none; border-radius: 6px; padding: 7px 10px; cursor: pointer; font-size: 0.78rem; font-weight: 600; white-space: nowrap;">📅 View Schedule</button>
+                        <button type="button" onclick="clearSelectedFaculty()" title="Clear faculty" style="background: none; border: 1px solid var(--border-color); border-radius: 6px; padding: 7px 8px; cursor: pointer; color: var(--text-muted);">✕</button>
                     </div>
                 </div>
                 <div style="flex: 0.7; min-width: 80px;">
@@ -3635,6 +3636,8 @@ window.uiuFallOfferings = uiuFallOfferings;
                     document.getElementById('sectionFacultySelected').title = f.name;
                     document.getElementById('sectionFacultySearch').value = '';
                     suggestionBox.style.display = 'none';
+                    const btnView = document.getElementById('btnViewFacultySchedule');
+                    if (btnView) btnView.style.display = 'inline-block';
                     showFacultyOfferings(f.code, f.name);
                 };
                 suggestionBox.appendChild(div);
@@ -3644,9 +3647,19 @@ window.uiuFallOfferings = uiuFallOfferings;
         }
     }
 
+    function viewSelectedFacultySchedule() {
+        const val = (document.getElementById('sectionFacultySelected').value || '').trim();
+        if (!val) return;
+        const code = val.split(' ')[0];
+        showFacultyOfferings(code);
+        toggleFacultyRoutineOverlay(code);
+    }
+
     function clearSelectedFaculty() {
         document.getElementById('sectionFacultySelected').value = '';
         document.getElementById('sectionFacultySelected').title = '';
+        const btnView = document.getElementById('btnViewFacultySchedule');
+        if (btnView) btnView.style.display = 'none';
         const searchInput = document.getElementById('sectionFacultySearch');
         if (searchInput) searchInput.value = '';
         const sugg = document.getElementById('sectionFacultySuggestions');
@@ -3705,7 +3718,7 @@ window.uiuFallOfferings = uiuFallOfferings;
                 </div>
                 <div style="display: flex; gap: 8px; flex-wrap: wrap;">
                     <button type="button" class="btn-action" style="margin: 0; font-size: 0.82rem; padding: 6px 12px; ${isOverlayActive ? 'background: #dc2626;' : 'background: #8b5cf6;'}" onclick="toggleFacultyRoutineOverlay('${facultyCode}')">
-                        ${isOverlayActive ? '✕ Hide Teacher Routine' : '📅 View Teacher Routine'}
+                        ${isOverlayActive ? '✕ Hide Faculty Schedule' : '📅 View Faculty Schedule'}
                     </button>
                     <button type="button" class="btn-action" style="margin: 0; font-size: 0.82rem; padding: 6px 10px; background: var(--border-color); color: var(--text-main);" onclick="clearFacultyOfferingsView()">
                         ✕ Close
@@ -3716,6 +3729,7 @@ window.uiuFallOfferings = uiuFallOfferings;
                 ${sectionsHTML}
             </div>
         `;
+        banner.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 
     function toggleFacultyRoutineOverlay(facultyCode) {
