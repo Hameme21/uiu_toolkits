@@ -125,7 +125,7 @@
             background-color: rgba(255, 255, 255, 0.85);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
-            padding: 15px 20px;
+            padding: 14px clamp(20px, 3.5vw, 44px);
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -285,22 +285,77 @@
 
         /* --- LAYOUT --- */
         .container {
-            max-width: 1100px;
-            margin: 20px auto;
-            padding: 0 20px;
-            width: 100%;
+            max-width: 1560px;
+            width: 96%;
+            margin: 24px auto;
+            padding: 0 clamp(16px, 2.5vw, 32px);
+            box-sizing: border-box;
         }
 
         .tool-section {
             display: none;
             background: var(--bg-container);
-            padding: 35px 25px;
-            border-radius: 16px;
+            padding: 36px clamp(20px, 3vw, 42px);
+            border-radius: 18px;
             box-shadow: var(--shadow);
             animation: slideUpFade 0.4s ease-out;
             border-top: 5px solid var(--primary-color);
         }
         .tool-section.active { display: block; }
+
+        /* --- WIDE SECTION LAYOUT UTILITIES --- */
+        .planner-courses-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(460px, 1fr));
+            gap: 18px;
+        }
+        @media (max-width: 650px) {
+            .planner-courses-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .tuition-main-grid {
+            display: grid;
+            grid-template-columns: 1.15fr 0.85fr;
+            gap: 32px;
+            align-items: start;
+        }
+        @media (max-width: 980px) {
+            .tuition-main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .tuition-result-sticky {
+            position: sticky;
+            top: 85px;
+            z-index: 10;
+        }
+
+        .cgpa-target-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+            gap: 18px;
+            margin-bottom: 24px;
+        }
+
+        .cgpa-result-grid {
+            display: flex;
+            gap: 20px;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            text-align: center;
+        }
+        .cgpa-stat-card {
+            flex: 1;
+            min-width: 180px;
+            background: var(--bg-container);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
 
         .site-footer {
             color: var(--text-muted);
@@ -351,7 +406,8 @@
         body.dark-mode #sameday-alert { color: #ffca28; }
 
         /* --- INPUTS & SEARCH --- */
-        .search-box { position: relative; max-width: 600px; margin: 0 auto 25px auto; }
+        .search-box { position: relative; width: 100%; margin: 0 0 20px 0; }
+        .search-box.center-search { max-width: 800px; margin: 0 auto 25px auto; }
         input, select {
             width: 100%;
             padding: 14px;
@@ -2075,8 +2131,8 @@
             </div>
 
             <!-- Planned Courses List -->
-            <div id="plannerCoursesList" style="display: flex; flex-direction: column; gap: 12px;">
-                <div style="font-size: 0.88rem; color: var(--text-muted); text-align: center; padding: 15px 0;">
+            <div id="plannerCoursesList" class="planner-courses-grid">
+                <div style="grid-column: 1 / -1; font-size: 0.88rem; color: var(--text-muted); text-align: center; padding: 18px 0; background: var(--bg-body); border-radius: 8px;">
                     👈 Select a core trimester above or click <strong>+ Choose GenEd / FYDP</strong> to populate your advising courses.
                 </div>
             </div>
@@ -2216,37 +2272,48 @@
         <button class="btn-action btn-calc" style="margin-top: 30px; box-shadow: 0 10px 20px rgba(243, 112, 33, 0.3);" onclick="calculateCGPA()">✨ Calculate CGPA ✨</button>
 
         <div id="resultBox" class="result-box">
-            <div style="margin-bottom: 10px;">Current Trimester GPA: <span class="gpa-value" id="currentGPA">0.00</span></div>
-            <div style="margin-bottom: 10px;">Overall Total CGPA: <span class="gpa-value" style="color: var(--secondary-color);" id="totalCGPA">0.00</span></div>
-            <p style="font-size: 1.1em; font-weight: bold; color: var(--text-muted);">Total Degree Credits: <span id="totalCreditsDisplay">0</span></p>
+            <div class="cgpa-result-grid">
+                <div class="cgpa-stat-card">
+                    <div style="color: var(--text-muted); font-size: 0.95rem; font-weight: 600; margin-bottom: 6px;">Current Trimester GPA</div>
+                    <div class="gpa-value" id="currentGPA">0.00</div>
+                </div>
+                <div class="cgpa-stat-card">
+                    <div style="color: var(--text-muted); font-size: 0.95rem; font-weight: 600; margin-bottom: 6px;">Overall Total CGPA</div>
+                    <div class="gpa-value" style="color: var(--secondary-color);" id="totalCGPA">0.00</div>
+                </div>
+                <div class="cgpa-stat-card">
+                    <div style="color: var(--text-muted); font-size: 0.95rem; font-weight: 600; margin-bottom: 6px;">Total Degree Credits</div>
+                    <div class="gpa-value" style="color: #10b981;" id="totalCreditsDisplay">0</div>
+                </div>
+            </div>
         </div>
 
         <h2 style="color: var(--secondary-color); margin-top: 50px; border-bottom: 3px solid var(--border-color); padding-bottom: 15px; font-size: 1.8em;">🎯 Target CGPA Planner</h2>
         
         <div class="section-box" style="background-color: var(--bg-container);">
             <p style="color: var(--text-muted); margin-top: 0; margin-bottom: 25px;">Enter your current standing and graduation goal to calculate the exact average you need to maintain moving forward.</p>
-            <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 20px;">
-                <div style="flex:1; min-width: 150px;">
+            <div class="cgpa-target-grid">
+                <div>
                     <label style="font-size: 0.9em; font-weight: bold; color: var(--text-muted); margin-bottom: 5px; display: block;">Current CGPA</label>
                     <input type="number" id="goalCurrentCGPA" placeholder="e.g. 3.20" step="0.01">
                 </div>
-                <div style="flex:1; min-width: 150px;">
+                <div>
                     <label style="font-size: 0.9em; font-weight: bold; color: var(--text-muted); margin-bottom: 5px; display: block;">Total Earned Credits</label>
                     <input type="number" id="goalEarnedCredits" placeholder="e.g. 60">
                 </div>
-                <div style="flex:1; min-width: 150px;">
+                <div>
                     <label style="font-size: 0.9em; font-weight: bold; color: var(--text-muted); margin-bottom: 5px; display: block;">Target CGPA</label>
                     <input type="number" id="goalTargetCGPA" placeholder="e.g. 3.50" step="0.01">
                 </div>
-                <div style="flex:1; min-width: 150px;">
+                <div>
                     <label style="font-size: 0.9em; font-weight: bold; color: var(--text-muted); margin-bottom: 5px; display: block;">Completed Trimesters</label>
                     <input type="number" id="goalCompletedTrimesters" placeholder="e.g. 5">
                 </div>
-                <div style="flex:1; min-width: 150px;">
+                <div>
                     <label style="font-size: 0.9em; font-weight: bold; color: var(--text-muted); margin-bottom: 5px; display: block;">Total Degree Credits</label>
                     <input type="number" id="goalTotalCredits" value="138" placeholder="UIU CSE standard: 138">
                 </div>
-                <div style="flex:1; min-width: 150px;">
+                <div>
                     <label style="font-size: 0.9em; font-weight: bold; color: var(--text-muted); margin-bottom: 5px; display: block;">Total Trimesters</label>
                     <input type="number" id="goalTotalTrimesters" value="12" placeholder="Standard: 12">
                 </div>
@@ -2276,104 +2343,110 @@
         </div>
 
         <div class="section-box">
-            <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 20px;">
-                <div style="flex:1; min-width: 140px;">
-                    <label style="font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 5px;">Regular Credits (Waiver/Scholarship Applicable)</label>
-                    <input type="number" id="t-current-credits" placeholder="e.g., 13" step="0.5">
-                </div>
-            </div>
-
-            <div style="margin-bottom: 15px; padding: 15px; border-radius: 8px; background: var(--course-added-bg); border: 1px solid var(--border-color); transition: all 0.3s;">
-                <label style="font-weight: bold; color: var(--primary-color); display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 1.1em;">
-                    <input type="checkbox" id="t-has-retake" onchange="toggleRetakeInputs()" style="width: 20px; height: 20px; accent-color: var(--primary-color);">
-                    Taking Retake Credits? (50% Cost per Credit)
-                </label>
-                <div id="t-retake-inputs" style="display: none; margin-top: 15px; animation: slideUpFade 0.3s ease-out;">
-                    <div style="max-width: 320px;">
-                        <label style="font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 5px;">Retake Credits</label>
-                        <input type="number" id="t-retake-credits" placeholder="e.g., 3" step="0.5" min="0" value="0">
-                        <small style="color: var(--text-muted); display: block; margin-top: 4px;">💡 Retake fee is calculated at 50% rate (half cost/credit). <strong>Note:</strong> Per UIU policy, scholarships and waivers do not affect or apply to retake courses.</small>
-                    </div>
-                </div>
-            </div>
-            
-            <div style="margin-bottom: 15px; padding: 15px; border-radius: 8px; background: var(--course-added-bg); border: 1px solid var(--border-color); transition: all 0.3s;">
-                <label style="font-weight: bold; color: var(--primary-color); display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 1.1em;">
-                    <input type="checkbox" id="t-has-waiver" onchange="toggleWaiverInputs()" style="width: 20px; height: 20px; accent-color: var(--primary-color);">
-                    Apply General Waiver? (Applies to Regular Credits Only)
-                </label>
-                <div id="t-waiver-inputs" style="display: none; margin-top: 15px; animation: slideUpFade 0.3s ease-out;">
-                    <label style="font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 5px;">Waiver Percentage</label>
-                    <select id="t-waiver-select" style="max-width: 200px;">
-                        <option value="25">25%</option>
-                        <option value="50">50%</option>
-                    </select>
-                </div>
-            </div>
-            
-            <div style="margin-bottom: 20px; padding: 15px; border-radius: 8px; background: var(--course-added-bg); border: 1px solid var(--border-color); transition: all 0.3s;">
-                <label style="font-weight: bold; color: var(--primary-color); display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 1.1em;">
-                    <input type="checkbox" id="t-has-scholarship" onchange="toggleScholarshipInputs()" style="width: 20px; height: 20px; accent-color: var(--primary-color);">
-                    Apply Result-Based Scholarship? (Applies to Regular Credits Only)
-                </label>
-                
-                <div id="t-scholarship-inputs" style="display: none; margin-top: 15px; flex-wrap: wrap; gap: 15px; animation: slideUpFade 0.3s ease-out;">
-                    <div style="flex:1; min-width: 140px;">
-                        <label style="font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 5px;">Previous Trimester Regular Credits</label>
-                        <input type="number" id="t-prev-credits" placeholder="e.g., 12" step="0.5">
-                    </div>
-                    <div style="flex:1; min-width: 140px;">
-                        <label style="font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 5px;">Scholarship Percentage</label>
-                        <select id="t-scholarship-select">
-                            <option value="25">25%</option>
-                            <option value="50">50%</option>
-                            <option value="100">100%</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-
-            <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 25px; background: var(--bg-body); padding: 15px; border-radius: 8px; border: 1px dashed var(--border-color);">
-                <div style="flex:1; min-width: 140px;">
-                    <label style="font-size: 0.85em; color: var(--text-muted); display: block; margin-bottom: 5px;">Cost Per Credit (BDT)</label>
-                    <input type="number" id="t-cost-per-credit" value="6500">
-                </div>
-                <div style="flex:1; min-width: 140px;">
-                    <label style="font-size: 0.85em; color: var(--text-muted); display: block; margin-bottom: 5px;">Trimester Fee (BDT)</label>
-                    <input type="number" id="t-trimester-fee" value="6500">
-                </div>
-            </div>
-            
-            <button class="btn-action btn-calc" style="width: 100%; box-shadow: 0 10px 20px rgba(0, 129, 209, 0.2); background: var(--gradient-secondary);" onclick="calculateTuition()">💸 Calculate Current Trimester</button>
-
-            <div id="tuitionResultBox" class="result-box" style="margin-top: 25px; border-color: #28a745; background: linear-gradient(135deg, var(--course-added-bg) 0%, var(--bg-body) 100%);">
-                <div style="font-size: 1.1em; color: var(--text-muted); margin-bottom: 5px;">Total Payable Amount:</div>
-                <div class="gpa-value" id="t-total-fee" style="color: #28a745; font-size: 2.2rem;">0 BDT</div>
-                
-                <hr style="border: none; border-top: 1px dashed var(--border-color); margin: 20px 0;">
-                
-                <div style="display: flex; justify-content: space-between; font-size: 0.95em; color: var(--text-muted); flex-wrap: wrap; gap: 15px; text-align: left;">
-                    <div style="flex:1; min-width: 100px;">Regular Tuition:<br><strong id="t-base-tuition" style="color: var(--text-main); font-size: 1.1em;">0</strong></div>
-                    <div style="flex:1; min-width: 100px; display: none;" id="t-retake-box">Retake Fee (Half Cost):<br><strong id="t-retake-fee" style="color: #d35400; font-size: 1.1em;">+0</strong><br><small id="t-retake-note" style="font-size: 0.8em; color: var(--text-muted); font-weight:bold;"></small></div>
-                    <div style="flex:1; min-width: 100px; display: none;" id="t-scholarship-box">Scholarship (Regular):<br><strong id="t-scholarship-discount" style="color: #d32f2f; font-size: 1.1em;">-0</strong><br><small id="t-scholarship-note" style="font-size: 0.8em; color: var(--primary-color); font-weight:bold;"></small></div>
-                    <div style="flex:1; min-width: 100px; display: none;" id="t-waiver-box">General Waiver (Regular):<br><strong id="t-waiver-discount" style="color: #d32f2f; font-size: 1.1em;">-0</strong><br><small id="t-waiver-note" style="font-size: 0.8em; color: var(--primary-color); font-weight:bold;"></small></div>
-                    <div style="flex:1; min-width: 100px;">Trimester Fee:<br><strong id="t-trim-fee" style="color: var(--primary-color); font-size: 1.1em;">0</strong></div>
-                </div>
-
-                <div id="t-installment-box" style="margin-top: 22px; padding-top: 18px; border-top: 1px dashed var(--border-color);">
-                    <div style="font-size: 1em; color: var(--text-main); font-weight: bold; margin-bottom: 12px;">Installment Plan</div>
-                    <div style="display: flex; gap: 12px; flex-wrap: wrap; text-align: left;">
-                        <div style="flex:1; min-width: 130px; background: var(--bg-container); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px;">
-                            <div style="color: var(--text-muted); font-size: 0.85em;">1st Installment (40%)</div>
-                            <strong id="t-installment-1" style="display: block; margin-top: 6px; color: var(--secondary-color); font-size: 1.1em;">0</strong>
+            <div class="tuition-main-grid">
+                <div class="tuition-inputs-col">
+                    <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 20px;">
+                        <div style="flex:1; min-width: 140px;">
+                            <label style="font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 5px;">Regular Credits (Waiver/Scholarship Applicable)</label>
+                            <input type="number" id="t-current-credits" placeholder="e.g., 13" step="0.5">
                         </div>
-                        <div style="flex:1; min-width: 130px; background: var(--bg-container); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px;">
-                            <div style="color: var(--text-muted); font-size: 0.85em;">2nd Installment (30%)</div>
-                            <strong id="t-installment-2" style="display: block; margin-top: 6px; color: var(--secondary-color); font-size: 1.1em;">0</strong>
+                    </div>
+
+                    <div style="margin-bottom: 15px; padding: 15px; border-radius: 8px; background: var(--course-added-bg); border: 1px solid var(--border-color); transition: all 0.3s;">
+                        <label style="font-weight: bold; color: var(--primary-color); display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 1.1em;">
+                            <input type="checkbox" id="t-has-retake" onchange="toggleRetakeInputs()" style="width: 20px; height: 20px; accent-color: var(--primary-color);">
+                            Taking Retake Credits? (50% Cost per Credit)
+                        </label>
+                        <div id="t-retake-inputs" style="display: none; margin-top: 15px; animation: slideUpFade 0.3s ease-out;">
+                            <div style="max-width: 320px;">
+                                <label style="font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 5px;">Retake Credits</label>
+                                <input type="number" id="t-retake-credits" placeholder="e.g., 3" step="0.5" min="0" value="0">
+                                <small style="color: var(--text-muted); display: block; margin-top: 4px;">💡 Retake fee is calculated at 50% rate (half cost/credit). <strong>Note:</strong> Per UIU policy, scholarships and waivers do not affect or apply to retake courses.</small>
+                            </div>
                         </div>
-                        <div style="flex:1; min-width: 130px; background: var(--bg-container); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px;">
-                            <div style="color: var(--text-muted); font-size: 0.85em;">3rd Installment (30%)</div>
-                            <strong id="t-installment-3" style="display: block; margin-top: 6px; color: var(--secondary-color); font-size: 1.1em;">0</strong>
+                    </div>
+                    
+                    <div style="margin-bottom: 15px; padding: 15px; border-radius: 8px; background: var(--course-added-bg); border: 1px solid var(--border-color); transition: all 0.3s;">
+                        <label style="font-weight: bold; color: var(--primary-color); display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 1.1em;">
+                            <input type="checkbox" id="t-has-waiver" onchange="toggleWaiverInputs()" style="width: 20px; height: 20px; accent-color: var(--primary-color);">
+                            Apply General Waiver? (Applies to Regular Credits Only)
+                        </label>
+                        <div id="t-waiver-inputs" style="display: none; margin-top: 15px; animation: slideUpFade 0.3s ease-out;">
+                            <label style="font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 5px;">Waiver Percentage</label>
+                            <select id="t-waiver-select" style="max-width: 200px;">
+                                <option value="25">25%</option>
+                                <option value="50">50%</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-bottom: 20px; padding: 15px; border-radius: 8px; background: var(--course-added-bg); border: 1px solid var(--border-color); transition: all 0.3s;">
+                        <label style="font-weight: bold; color: var(--primary-color); display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 1.1em;">
+                            <input type="checkbox" id="t-has-scholarship" onchange="toggleScholarshipInputs()" style="width: 20px; height: 20px; accent-color: var(--primary-color);">
+                            Apply Result-Based Scholarship? (Applies to Regular Credits Only)
+                        </label>
+                        
+                        <div id="t-scholarship-inputs" style="display: none; margin-top: 15px; flex-wrap: wrap; gap: 15px; animation: slideUpFade 0.3s ease-out;">
+                            <div style="flex:1; min-width: 140px;">
+                                <label style="font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 5px;">Previous Trimester Regular Credits</label>
+                                <input type="number" id="t-prev-credits" placeholder="e.g., 12" step="0.5">
+                            </div>
+                            <div style="flex:1; min-width: 140px;">
+                                <label style="font-weight: bold; color: var(--text-muted); display: block; margin-bottom: 5px;">Scholarship Percentage</label>
+                                <select id="t-scholarship-select">
+                                    <option value="25">25%</option>
+                                    <option value="50">50%</option>
+                                    <option value="100">100%</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 25px; background: var(--bg-body); padding: 15px; border-radius: 8px; border: 1px dashed var(--border-color);">
+                        <div style="flex:1; min-width: 140px;">
+                            <label style="font-size: 0.85em; color: var(--text-muted); display: block; margin-bottom: 5px;">Cost Per Credit (BDT)</label>
+                            <input type="number" id="t-cost-per-credit" value="6500">
+                        </div>
+                        <div style="flex:1; min-width: 140px;">
+                            <label style="font-size: 0.85em; color: var(--text-muted); display: block; margin-bottom: 5px;">Trimester Fee (BDT)</label>
+                            <input type="number" id="t-trimester-fee" value="6500">
+                        </div>
+                    </div>
+                    
+                    <button class="btn-action btn-calc" style="width: 100%; box-shadow: 0 10px 20px rgba(0, 129, 209, 0.2); background: var(--gradient-secondary);" onclick="calculateTuition()">💸 Calculate Current Trimester</button>
+                </div>
+
+                <div class="tuition-result-col tuition-result-sticky">
+                    <div id="tuitionResultBox" class="result-box" style="margin-top: 0; border-color: #28a745; background: linear-gradient(135deg, var(--course-added-bg) 0%, var(--bg-body) 100%);">
+                        <div style="font-size: 1.1em; color: var(--text-muted); margin-bottom: 5px;">Total Payable Amount:</div>
+                        <div class="gpa-value" id="t-total-fee" style="color: #28a745; font-size: 2.2rem;">0 BDT</div>
+                        
+                        <hr style="border: none; border-top: 1px dashed var(--border-color); margin: 20px 0;">
+                        
+                        <div style="display: flex; justify-content: space-between; font-size: 0.95em; color: var(--text-muted); flex-wrap: wrap; gap: 15px; text-align: left;">
+                            <div style="flex:1; min-width: 100px;">Regular Tuition:<br><strong id="t-base-tuition" style="color: var(--text-main); font-size: 1.1em;">0</strong></div>
+                            <div style="flex:1; min-width: 100px; display: none;" id="t-retake-box">Retake Fee (Half Cost):<br><strong id="t-retake-fee" style="color: #d35400; font-size: 1.1em;">+0</strong><br><small id="t-retake-note" style="font-size: 0.8em; color: var(--text-muted); font-weight:bold;"></small></div>
+                            <div style="flex:1; min-width: 100px; display: none;" id="t-scholarship-box">Scholarship (Regular):<br><strong id="t-scholarship-discount" style="color: #d32f2f; font-size: 1.1em;">-0</strong><br><small id="t-scholarship-note" style="font-size: 0.8em; color: var(--primary-color); font-weight:bold;"></small></div>
+                            <div style="flex:1; min-width: 100px; display: none;" id="t-waiver-box">General Waiver (Regular):<br><strong id="t-waiver-discount" style="color: #d32f2f; font-size: 1.1em;">-0</strong><br><small id="t-waiver-note" style="font-size: 0.8em; color: var(--primary-color); font-weight:bold;"></small></div>
+                            <div style="flex:1; min-width: 100px;">Trimester Fee:<br><strong id="t-trim-fee" style="color: var(--primary-color); font-size: 1.1em;">0</strong></div>
+                        </div>
+
+                        <div id="t-installment-box" style="margin-top: 22px; padding-top: 18px; border-top: 1px dashed var(--border-color);">
+                            <div style="font-size: 1em; color: var(--text-main); font-weight: bold; margin-bottom: 12px;">Installment Plan</div>
+                            <div style="display: flex; gap: 12px; flex-wrap: wrap; text-align: left;">
+                                <div style="flex:1; min-width: 130px; background: var(--bg-container); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px;">
+                                    <div style="color: var(--text-muted); font-size: 0.85em;">1st Installment (40%)</div>
+                                    <strong id="t-installment-1" style="display: block; margin-top: 6px; color: var(--secondary-color); font-size: 1.1em;">0</strong>
+                                </div>
+                                <div style="flex:1; min-width: 130px; background: var(--bg-container); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px;">
+                                    <div style="color: var(--text-muted); font-size: 0.85em;">2nd Installment (30%)</div>
+                                    <strong id="t-installment-2" style="display: block; margin-top: 6px; color: var(--secondary-color); font-size: 1.1em;">0</strong>
+                                </div>
+                                <div style="flex:1; min-width: 130px; background: var(--bg-container); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px;">
+                                    <div style="color: var(--text-muted); font-size: 0.85em;">3rd Installment (30%)</div>
+                                    <strong id="t-installment-3" style="display: block; margin-top: 6px; color: var(--secondary-color); font-size: 1.1em;">0</strong>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -3548,7 +3621,7 @@ window.uiuFallOfferings = uiuFallOfferings;
 
         if (plannedCourses.length === 0) {
             container.innerHTML = `
-                <div style="font-size: 0.88rem; color: var(--text-muted); text-align: center; padding: 18px 0; background: var(--bg-body); border-radius: 8px;">
+                <div style="grid-column: 1 / -1; font-size: 0.88rem; color: var(--text-muted); text-align: center; padding: 18px 0; background: var(--bg-body); border-radius: 8px;">
                     👈 Select a core trimester above or click <strong>+ Choose GenEd / FYDP</strong> to populate your advising courses.
                 </div>
             `;
