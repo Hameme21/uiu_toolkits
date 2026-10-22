@@ -922,6 +922,60 @@
             background: var(--bg-container);
         }
 
+        .course-add-card {
+            border: 2px dashed var(--primary-color) !important;
+            background: rgba(0, 86, 150, 0.03) !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            min-height: 88px !important;
+            cursor: pointer !important;
+            transition: all 0.22s ease !important;
+            box-sizing: border-box !important;
+            border-radius: 10px;
+        }
+        .course-add-card:hover {
+            background: rgba(0, 86, 150, 0.08) !important;
+            border-color: #0284c7 !important;
+            transform: translateY(-3px) !important;
+            box-shadow: 0 8px 24px rgba(0, 86, 150, 0.16) !important;
+        }
+        .add-card-icon-circle {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color), #0284c7);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.35rem;
+            font-weight: 800;
+            box-shadow: 0 4px 14px rgba(0, 86, 150, 0.3);
+            transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .course-add-card:hover .add-card-icon-circle {
+            transform: scale(1.15) rotate(90deg);
+        }
+
+        .search-modal-filter-pill {
+            padding: 4px 12px;
+            border-radius: 999px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-card);
+            color: var(--text-muted);
+            font-size: 0.76rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        .search-modal-filter-pill:hover,
+        .search-modal-filter-pill.active {
+            background: var(--primary-color) !important;
+            color: white !important;
+            border-color: var(--primary-color) !important;
+        }
+
         .course-top-actions {
             display: inline-flex;
             align-items: center;
@@ -2750,25 +2804,7 @@
                 <span id="plannerCreditsSummary" style="font-size: 0.85rem; font-weight: 700; color: var(--primary-color);"></span>
             </div>
 
-            <!-- Search & Add Course Bar -->
-            <div class="planner-add-course-bar" style="margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px solid var(--border-color); display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-                <div style="position: relative; flex: 1; min-width: 260px;">
-                    <div style="display: flex; align-items: center; background: var(--bg-card); border: 2px solid var(--border-color); border-radius: 8px; padding: 0 12px; transition: border-color 0.2s;">
-                        <span style="font-size: 1rem; color: var(--text-muted); margin-right: 8px;">🔍</span>
-                        <input type="text" id="plannerCourseSearchInput" placeholder="Search & add courses (e.g. CSE 4181, Data Mining, DBMS, GED)..." 
-                               autocomplete="off"
-                               oninput="handlePlannerSearchInput()" 
-                               onfocus="handlePlannerSearchInput()" 
-                               onkeydown="handlePlannerSearchKey(event)" 
-                               style="flex: 1; border: none; background: transparent; padding: 9px 0; font-size: 0.88rem; color: var(--text-main); outline: none;">
-                        <button type="button" id="plannerSearchClearBtn" onclick="clearPlannerCourseSearch()" style="display: none; background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 0.95rem; padding: 0 4px;" title="Clear search">✕</button>
-                    </div>
-                    <div id="plannerCourseDropdown" style="display: none; position: absolute; top: calc(100% + 4px); left: 0; right: 0; max-height: 280px; overflow-y: auto; background: var(--bg-card); border: 1.5px solid var(--primary-color); border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.22); z-index: 1000;"></div>
-                </div>
-                <button type="button" class="btn-action" style="margin: 0; padding: 9px 18px; font-weight: 700; font-size: 0.88rem; background: var(--primary-color); white-space: nowrap; display: inline-flex; align-items: center; gap: 6px;" onclick="addSearchedCourseDirectly()">
-                    <span>➕</span> Add Course
-                </button>
-            </div>
+
 
             <!-- Planned Courses List -->
             <div id="plannerCoursesList" class="planner-courses-grid">
@@ -3825,6 +3861,7 @@ window.uiuFallOfferings = uiuFallOfferings;
     document.addEventListener('keydown', event => {
         if (event.key === 'Escape') {
             toggleNavigation(false);
+            if (typeof closeCourseSearchModal === 'function') closeCourseSearchModal();
             if (typeof closeSectionsModal === 'function') closeSectionsModal();
             if (typeof closeGenEdModal === 'function') closeGenEdModal();
             if (typeof closeMajorModal === 'function') closeMajorModal();
@@ -4249,24 +4286,103 @@ window.uiuFallOfferings = uiuFallOfferings;
         return Array.from(catalogMap.values()).sort((a, b) => a.code.localeCompare(b.code));
     }
 
-    // --- SEARCH & ADD TO PLANNER INTERACTION ---
-    function handlePlannerSearchInput() {
-        const input = document.getElementById('plannerCourseSearchInput');
-        const dropdown = document.getElementById('plannerCourseDropdown');
-        const clearBtn = document.getElementById('plannerSearchClearBtn');
-        if (!input || !dropdown) return;
+    // --- SEARCH COURSES MODAL & CATALOG INTERACTION ---
+    let currentCourseSearchFilter = 'ALL';
 
-        const query = input.value.trim().toLowerCase();
-        if (clearBtn) clearBtn.style.display = query ? 'block' : 'none';
+    function openCourseSearchModal() {
+        const modal = document.getElementById('course-search-modal');
+        if (!modal) return;
+        modal.classList.add('is-open');
+        const input = document.getElementById('courseSearchModalInput');
+        if (input) {
+            input.value = '';
+            setTimeout(() => input.focus(), 60);
+        }
+        const clearBtn = document.getElementById('courseSearchModalClearBtn');
+        if (clearBtn) clearBtn.style.display = 'none';
+        currentCourseSearchFilter = 'ALL';
+        document.querySelectorAll('.search-modal-filter-pill').forEach((pill, idx) => {
+            if (idx === 0) pill.classList.add('active');
+            else pill.classList.remove('active');
+        });
+        renderCourseSearchModalResults();
+    }
+    window.openCourseSearchModal = openCourseSearchModal;
 
+    function closeCourseSearchModal() {
+        const modal = document.getElementById('course-search-modal');
+        if (modal) modal.classList.remove('is-open');
+    }
+    window.closeCourseSearchModal = closeCourseSearchModal;
+
+    function clearCourseSearchModalInput() {
+        const input = document.getElementById('courseSearchModalInput');
+        const clearBtn = document.getElementById('courseSearchModalClearBtn');
+        if (input) {
+            input.value = '';
+            input.focus();
+        }
+        if (clearBtn) clearBtn.style.display = 'none';
+        renderCourseSearchModalResults();
+    }
+    window.clearCourseSearchModalInput = clearCourseSearchModalInput;
+
+    function setCourseSearchFilter(filterType, btnEl) {
+        currentCourseSearchFilter = filterType;
+        document.querySelectorAll('.search-modal-filter-pill').forEach(b => b.classList.remove('active'));
+        if (btnEl) btnEl.classList.add('active');
+        renderCourseSearchModalResults();
+    }
+    window.setCourseSearchFilter = setCourseSearchFilter;
+
+    function handleCourseSearchModalInput() {
+        const input = document.getElementById('courseSearchModalInput');
+        const clearBtn = document.getElementById('courseSearchModalClearBtn');
+        if (clearBtn && input) {
+            clearBtn.style.display = input.value.trim() ? 'block' : 'none';
+        }
+        renderCourseSearchModalResults();
+    }
+    window.handleCourseSearchModalInput = handleCourseSearchModalInput;
+
+    function handleCourseSearchModalKey(e) {
+        if (e.key === 'Escape') {
+            closeCourseSearchModal();
+        } else if (e.key === 'Enter') {
+            const firstBtn = document.querySelector('#courseSearchModalResults .btn-search-modal-add');
+            if (firstBtn) {
+                firstBtn.click();
+            }
+        }
+    }
+    window.handleCourseSearchModalKey = handleCourseSearchModalKey;
+
+    function renderCourseSearchModalResults() {
+        const resultsContainer = document.getElementById('courseSearchModalResults');
+        const input = document.getElementById('courseSearchModalInput');
+        if (!resultsContainer) return;
+
+        const query = input ? input.value.trim().toLowerCase() : '';
         const catalog = getAllAvailableCoursesCatalog();
-        let results = [];
 
-        if (!query) {
-            // Show first 15 catalog courses when focused and empty
-            results = catalog.slice(0, 15);
-        } else {
-            results = catalog.filter(c => {
+        let filtered = catalog;
+
+        // Apply category filter
+        if (currentCourseSearchFilter === 'THEORY') {
+            filtered = filtered.filter(c => c.type === 'Theory');
+        } else if (currentCourseSearchFilter === 'LAB') {
+            filtered = filtered.filter(c => c.type === 'Lab');
+        } else if (currentCourseSearchFilter === 'GED') {
+            filtered = filtered.filter(c => /^(BDS|ECO|ENG|SOC|PSY|HUM|GED|BSC|MSC|ACT|BAN)/i.test(c.code) || (typeof uiuGenEdCatalog !== 'undefined' && uiuGenEdCatalog.some(g => g.code === c.code)));
+        } else if (currentCourseSearchFilter === 'ELECTIVE') {
+            filtered = filtered.filter(c => typeof electiveTracks !== 'undefined' && Object.values(electiveTracks).some(arr => arr.some(el => el.code === c.code)));
+        } else if (currentCourseSearchFilter === 'FYDP') {
+            filtered = filtered.filter(c => /FYDP|Project|Thesis/i.test(c.title) || /4000/i.test(c.code));
+        }
+
+        // Apply text search
+        if (query) {
+            filtered = filtered.filter(c => {
                 const codeMatch = c.code.toLowerCase().includes(query) || c.code.toLowerCase().replace(/\s+/g, '').includes(query.replace(/\s+/g, ''));
                 const titleMatch = c.title.toLowerCase().includes(query);
                 const shortMatch = getCourseShortTitle(c.title, c.type, c.code).toLowerCase().includes(query);
@@ -4274,40 +4390,49 @@ window.uiuFallOfferings = uiuFallOfferings;
             });
         }
 
-        if (results.length === 0) {
-            dropdown.innerHTML = `
-                <div style="padding: 12px 16px; font-size: 0.85rem; color: var(--text-muted); text-align: center;">
-                    No catalog course found matching "<strong>${escapeHtml(query)}</strong>".
-                    <div style="margin-top: 8px;">
-                        <button type="button" class="btn-action" style="margin: 0; padding: 5px 12px; font-size: 0.8rem; background: var(--primary-color);" onclick="addCustomCourseToPlanner('${escapeHtml(query)}')">
-                            ➕ Add "${escapeHtml(query.toUpperCase())}" as Custom Course
-                        </button>
-                    </div>
+        if (filtered.length === 0) {
+            resultsContainer.innerHTML = `
+                <div style="padding: 28px 16px; font-size: 0.9rem; color: var(--text-muted); text-align: center; background: var(--bg-body); border-radius: 8px;">
+                    No catalog course found matching "<strong>${escapeHtml(query)}</strong>" in this filter.
+                    ${query ? `
+                        <div style="margin-top: 12px;">
+                            <button type="button" class="btn-action" style="margin: 0; padding: 6px 16px; font-size: 0.84rem; background: var(--primary-color);" onclick="addCustomCourseFromModal('${escapeHtml(query)}')">
+                                ➕ Add "${escapeHtml(query.toUpperCase())}" as Custom Course
+                            </button>
+                        </div>
+                    ` : ''}
                 </div>
             `;
-            dropdown.style.display = 'block';
             return;
         }
 
         let html = '';
-        results.slice(0, 25).forEach(c => {
+        filtered.slice(0, 40).forEach(c => {
             const isAdded = plannedCourses.some(p => p.code.toUpperCase() === c.code.toUpperCase());
             const offeringCount = (window.uiuFallOfferings || []).filter(o => o.code.toUpperCase() === c.code.toUpperCase()).length;
             const short = getCourseShortTitle(c.title, c.type, c.code);
 
             html += `
-                <div class="planner-search-item" style="padding: 9px 12px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; gap: 8px; cursor: pointer; transition: background 0.15s;" onmouseover="this.style.background='var(--bg-container)'" onmouseout="this.style.background='transparent'" onclick="selectCourseFromSearch('${c.code}')">
+                <div class="planner-search-item" style="padding: 10px 14px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; display: flex; justify-content: space-between; align-items: center; gap: 10px; cursor: pointer; transition: all 0.15s ease;" 
+                     onmouseover="this.style.background='var(--bg-container)'; this.style.borderColor='var(--primary-color)'" 
+                     onmouseout="this.style.background='var(--bg-card)'; this.style.borderColor='var(--border-color)'" 
+                     onclick="selectCourseFromSearchModal('${c.code}')">
                     <div style="min-width: 0; flex: 1;">
-                        <div style="display: flex; align-items: center; gap: 6px;">
-                            <strong style="color: var(--primary-color); font-size: 0.88rem;">${c.code}</strong>
-                            <span style="font-size: 0.68rem; font-weight: 700; padding: 1px 5px; border-radius: 4px; background: ${c.type === 'Lab' ? 'rgba(16, 185, 129, 0.2); color: #10b981;' : 'rgba(59, 130, 246, 0.2); color: #3b82f6;'}">${c.type}</span>
-                            <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 600;">[${short}]</span>
+                        <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                            <strong style="color: var(--primary-color); font-size: 0.94rem;">${c.code}</strong>
+                            <span class="sec-type-pill ${c.type === 'Lab' ? 'pill-lab' : 'pill-theory'}" style="font-size: 0.7rem; padding: 1px 6px;">${c.type}</span>
+                            <span style="font-size: 0.74rem; color: var(--text-muted); font-weight: 600;">[${short}]</span>
+                            <span style="font-size: 0.76rem; color: var(--text-muted);">(${c.cr} Credits)</span>
                         </div>
-                        <div style="font-size: 0.82rem; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${c.title}</div>
-                        <div style="font-size: 0.72rem; color: var(--text-muted);">${c.cr} Credits • ${offeringCount > 0 ? offeringCount + ' sections offered' : 'Catalog Course'}</div>
+                        <div style="font-size: 0.85rem; color: var(--text-color); font-weight: 600; margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                            ${c.title}
+                        </div>
+                        <div style="font-size: 0.74rem; color: var(--text-muted); margin-top: 2px;">
+                            ${offeringCount > 0 ? `⚡ <strong style="color:#059669;">${offeringCount} section(s)</strong> offered in Fall 2026` : `📚 Catalog curriculum course`}
+                        </div>
                     </div>
-                    <div>
-                        <button type="button" class="btn-action" style="margin: 0; padding: 4px 10px; font-size: 0.78rem; font-weight: 700; ${isAdded ? 'background: #10b981; color: white;' : 'background: var(--primary-color); color: white;'}" onclick="event.stopPropagation(); selectCourseFromSearch('${c.code}')">
+                    <div style="flex-shrink: 0;">
+                        <button type="button" class="btn-action btn-search-modal-add" style="margin: 0; padding: 6px 14px; font-size: 0.8rem; font-weight: 700; border-radius: 6px; ${isAdded ? 'background: #10b981; color: white;' : 'background: var(--primary-color); color: white;'}" onclick="event.stopPropagation(); selectCourseFromSearchModal('${c.code}')">
                             ${isAdded ? '✓ Added' : '➕ Add'}
                         </button>
                     </div>
@@ -4315,58 +4440,32 @@ window.uiuFallOfferings = uiuFallOfferings;
             `;
         });
 
-        dropdown.innerHTML = html;
-        dropdown.style.display = 'block';
+        resultsContainer.innerHTML = html;
     }
+    window.renderCourseSearchModalResults = renderCourseSearchModalResults;
 
-    function selectCourseFromSearch(code) {
+    function selectCourseFromSearchModal(code) {
         const catalog = getAllAvailableCoursesCatalog();
         const course = catalog.find(c => c.code.toUpperCase() === code.toUpperCase());
         if (course) {
             addCourseToPlanner(course.code, course.title, course.cr, course.type);
         }
-        clearPlannerCourseSearch();
-    }
-
-    function addSearchedCourseDirectly() {
-        const input = document.getElementById('plannerCourseSearchInput');
-        if (!input) return;
-        const query = input.value.trim();
-        if (!query) {
-            input.focus();
-            handlePlannerSearchInput();
-            return;
-        }
-        const catalog = getAllAvailableCoursesCatalog();
-        const exact = catalog.find(c => c.code.toLowerCase() === query.toLowerCase() || c.title.toLowerCase() === query.toLowerCase());
-        if (exact) {
-            selectCourseFromSearch(exact.code);
-        } else {
-            const partial = catalog.find(c => c.code.toLowerCase().includes(query.toLowerCase()) || c.title.toLowerCase().includes(query.toLowerCase()));
-            if (partial) {
-                selectCourseFromSearch(partial.code);
-            } else {
-                addCustomCourseToPlanner(query);
-            }
+        closeCourseSearchModal();
+        const offerings = (window.uiuFallOfferings || []).filter(o => o.code.toUpperCase() === code.toUpperCase());
+        if (offerings.length > 0) {
+            openSectionsModal(course ? course.code : code);
         }
     }
+    window.selectCourseFromSearchModal = selectCourseFromSearchModal;
 
-    function addCustomCourseToPlanner(query) {
+    function addCustomCourseFromModal(query) {
         const cleanCode = query.trim().toUpperCase();
         if (!cleanCode) return;
         const isLab = /lab/i.test(cleanCode);
         addCourseToPlanner(cleanCode, cleanCode, isLab ? 1.0 : 3.0, isLab ? 'Lab' : 'Theory');
-        clearPlannerCourseSearch();
+        closeCourseSearchModal();
     }
-
-    function clearPlannerCourseSearch() {
-        const input = document.getElementById('plannerCourseSearchInput');
-        const dropdown = document.getElementById('plannerCourseDropdown');
-        const clearBtn = document.getElementById('plannerSearchClearBtn');
-        if (input) input.value = '';
-        if (dropdown) dropdown.style.display = 'none';
-        if (clearBtn) clearBtn.style.display = 'none';
-    }
+    window.addCustomCourseFromModal = addCustomCourseFromModal;
 
     function handlePlannerSearchKey(e) {
         if (e.key === 'Enter') {
@@ -4774,6 +4873,9 @@ window.uiuFallOfferings = uiuFallOfferings;
             if (modal) modal.classList.remove('is-open');
             if (modalId === 'course-sections-modal' && typeof closeSectionsModal === 'function') {
                 closeSectionsModal();
+            }
+            if (modalId === 'course-search-modal' && typeof closeCourseSearchModal === 'function') {
+                closeCourseSearchModal();
             }
         }
     }
@@ -5208,11 +5310,26 @@ window.uiuFallOfferings = uiuFallOfferings;
         const container = document.getElementById('plannerCoursesList');
         if (!container) return;
 
+        const addCardHtml = `
+            <div class="course-plan-item course-add-card" onclick="openCourseSearchModal()" title="Click to search and add courses to your routine">
+                <div style="display: flex; align-items: center; justify-content: center; flex-direction: column; padding: 18px 12px; text-align: center; gap: 8px; width: 100%;">
+                    <div class="add-card-icon-circle">
+                        ➕
+                    </div>
+                    <div>
+                        <strong style="color: var(--primary-color); font-size: 0.98rem; display: block; letter-spacing: 0.2px;">Add Course</strong>
+                        <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 500;">Search & add from 790+ Fall offerings, electives, GenEd & curriculum</span>
+                    </div>
+                </div>
+            </div>
+        `;
+
         if (plannedCourses.length === 0) {
             container.innerHTML = `
-                <div style="grid-column: 1 / -1; font-size: 0.88rem; color: var(--text-muted); text-align: center; padding: 18px 0; background: var(--bg-body); border-radius: 8px;">
-                    👈 Select a core trimester above to load your advising courses.
+                <div style="grid-column: 1 / -1; font-size: 0.88rem; color: var(--text-muted); text-align: center; padding: 14px 0; background: var(--bg-body); border-radius: 8px; margin-bottom: 6px;">
+                    👈 Select a core trimester above or click below to search & add any course.
                 </div>
+                ${addCardHtml}
             `;
             const summary = document.getElementById('plannerCreditsSummary');
             if (summary) summary.innerText = '';
@@ -5382,7 +5499,7 @@ window.uiuFallOfferings = uiuFallOfferings;
             `;
         });
 
-        container.innerHTML = html;
+        container.innerHTML = html + addCardHtml;
         if (activeSectionsModalCourseCode) {
             const modal = document.getElementById('course-sections-modal');
             if (modal && modal.classList.contains('is-open')) {
@@ -8677,6 +8794,54 @@ window.uiuFallOfferings = uiuFallOfferings;
         <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 14px;">Select your FYDP / Capstone project course offered in Fall 2026:</p>
         <div id="fydp-courses-modal-list" style="display: flex; flex-direction: column; gap: 8px; max-height: 55vh; overflow-y: auto;">
             <!-- Rendered by renderFydpModal() -->
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Search & Add Courses Popup -->
+<div class="modal-backdrop-custom" id="course-search-modal" onclick="closeCustomModalOnBackdrop(event, 'course-search-modal')">
+    <div class="modal-dialog-custom" style="max-width: 720px; width: 95%; max-height: 86vh; display: flex; flex-direction: column;">
+        <!-- Modal Header -->
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 12px; margin-bottom: 14px;">
+            <h3 style="margin: 0; color: var(--primary-color); display: flex; align-items: center; gap: 8px; font-size: 1.15rem;">
+                <span style="font-size: 1.25rem;">🔍</span> <span>Search & Add Courses</span>
+            </h3>
+            <button type="button" class="modal-window-btn btn-close" onclick="closeCourseSearchModal()" title="Close popup">✕</button>
+        </div>
+
+        <!-- Search Input Bar & Filter Category Tags -->
+        <div style="margin-bottom: 14px;">
+            <div style="display: flex; align-items: center; background: var(--bg-card); border: 2px solid var(--primary-color); border-radius: 8px; padding: 0 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
+                <span style="font-size: 1.1rem; color: var(--primary-color); margin-right: 8px;">🔍</span>
+                <input type="text" id="courseSearchModalInput" placeholder="Search by course code, title, topic (e.g. CSE 4181, DBMS, Math, AI)..." 
+                       autocomplete="off"
+                       oninput="handleCourseSearchModalInput()" 
+                       onkeydown="handleCourseSearchModalKey(event)"
+                       style="flex: 1; border: none; background: transparent; padding: 11px 0; font-size: 0.92rem; color: var(--text-main); outline: none;">
+                <button type="button" id="courseSearchModalClearBtn" onclick="clearCourseSearchModalInput()" style="display: none; background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 1rem; padding: 0 4px;" title="Clear search">✕</button>
+            </div>
+            
+            <!-- Quick Filter Category Pills -->
+            <div style="display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; align-items: center;">
+                <span style="font-size: 0.76rem; color: var(--text-muted); font-weight: 700;">Filter:</span>
+                <button type="button" class="search-modal-filter-pill active" onclick="setCourseSearchFilter('ALL', this)">All (790+)</button>
+                <button type="button" class="search-modal-filter-pill" onclick="setCourseSearchFilter('THEORY', this)">Theory</button>
+                <button type="button" class="search-modal-filter-pill" onclick="setCourseSearchFilter('LAB', this)">Lab</button>
+                <button type="button" class="search-modal-filter-pill" onclick="setCourseSearchFilter('GED', this)">GenEd</button>
+                <button type="button" class="search-modal-filter-pill" onclick="setCourseSearchFilter('ELECTIVE', this)">Electives</button>
+                <button type="button" class="search-modal-filter-pill" onclick="setCourseSearchFilter('FYDP', this)">FYDP</button>
+            </div>
+        </div>
+
+        <!-- Scrollable Search Results List -->
+        <div id="courseSearchModalResults" style="flex: 1; overflow-y: auto; padding-right: 4px; display: flex; flex-direction: column; gap: 8px; min-height: 240px; max-height: 52vh;">
+            <!-- Rendered dynamically -->
+        </div>
+
+        <!-- Modal Footer -->
+        <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-color); padding-top: 10px; margin-top: 12px; font-size: 0.8rem; color: var(--text-muted);">
+            <div>💡 Click any course to add it to your advising planner and view sections</div>
+            <button type="button" class="btn-action" style="background: #64748b; margin: 0; padding: 6px 16px; font-size: 0.82rem; border-radius: 6px;" onclick="closeCourseSearchModal()">Close</button>
         </div>
     </div>
 </div>
