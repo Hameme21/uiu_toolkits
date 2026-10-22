@@ -496,11 +496,39 @@
         .remove-btn:hover { color: red; }
 
         /* --- TIMELINE GRID STYLES --- */
+        #unifiedRoutineTable {
+            table-layout: fixed !important;
+            width: 100% !important;
+            border-collapse: separate !important;
+            border-spacing: 0 !important;
+        }
+
+        #unifiedRoutineTable col.col-day,
+        #unifiedRoutineTable th.th-day,
+        #unifiedRoutineTable td.day-col {
+            width: 8.5% !important;
+            min-width: 80px !important;
+            max-width: 8.5% !important;
+            box-sizing: border-box !important;
+        }
+
+        #unifiedRoutineTable col.col-hour,
+        #unifiedRoutineTable th.th-hour {
+            width: 10.1667% !important;
+            box-sizing: border-box !important;
+            text-align: center;
+        }
+
+        #unifiedRoutineTable td.timeline-row-cell {
+            width: 91.5% !important;
+            box-sizing: border-box !important;
+        }
+
         .timeline-row-cell {
             position: relative;
             min-height: 64px;
             padding: 0 !important;
-            background-image: repeating-linear-gradient(to right, transparent, transparent calc(11.111% - 1px), var(--border-color) calc(11.111% - 1px), var(--border-color) 11.111%);
+            background-image: repeating-linear-gradient(to right, transparent 0, transparent calc(100% / 9 - 1px), var(--border-color) calc(100% / 9 - 1px), var(--border-color) calc(100% / 9));
             transition: min-height 0.25s ease, height 0.25s ease;
             border-bottom: 1px solid var(--border-color);
         }
@@ -2825,19 +2853,31 @@
         </div>
 
         <div class="table-scroll" style="margin-bottom: 30px; box-shadow: 0 6px 20px rgba(0,0,0,0.06); border-radius: 12px; overflow-x: auto; width: 100%;">
-            <table class="routine-table" id="unifiedRoutineTable" style="width: 100%; min-width: 860px; max-width: 100%; margin-top: 15px; border-collapse: separate; border-spacing: 0; border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden;">
+            <table class="routine-table" id="unifiedRoutineTable" style="table-layout: fixed; width: 100%; min-width: 860px; max-width: 100%; margin-top: 15px; border-collapse: separate; border-spacing: 0; border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden;">
+                <colgroup>
+                    <col class="col-day" style="width: 8.5%; min-width: 80px;">
+                    <col class="col-hour" style="width: 10.1667%;">
+                    <col class="col-hour" style="width: 10.1667%;">
+                    <col class="col-hour" style="width: 10.1667%;">
+                    <col class="col-hour" style="width: 10.1667%;">
+                    <col class="col-hour" style="width: 10.1667%;">
+                    <col class="col-hour" style="width: 10.1667%;">
+                    <col class="col-hour" style="width: 10.1667%;">
+                    <col class="col-hour" style="width: 10.1667%;">
+                    <col class="col-hour" style="width: 10.1667%;">
+                </colgroup>
                 <thead>
                     <tr style="background: var(--bg-input);">
-                        <th style="width: 8.5%; min-width: 80px; background: var(--bg-input); color: var(--text-main); border: 1px solid var(--border-color); font-size: 0.88rem; font-weight: 800; padding: 10px 4px; text-align: center;">Day</th>
-                        <th style="width: 10.16%; font-size: 0.82rem; font-weight: 700; color: white; border: 1px solid var(--border-color); padding: 10px 4px; letter-spacing: 0.2px;">8 AM - 9 AM</th>
-                        <th style="width: 10.16%; font-size: 0.82rem; font-weight: 700; color: white; border: 1px solid var(--border-color); padding: 10px 4px; letter-spacing: 0.2px;">9 AM - 10 AM</th>
-                        <th style="width: 10.16%; font-size: 0.82rem; font-weight: 700; color: white; border: 1px solid var(--border-color); padding: 10px 4px; letter-spacing: 0.2px;">10 AM - 11 AM</th>
-                        <th style="width: 10.16%; font-size: 0.82rem; font-weight: 700; color: white; border: 1px solid var(--border-color); padding: 10px 4px; letter-spacing: 0.2px;">11 AM - 12 PM</th>
-                        <th style="width: 10.16%; font-size: 0.82rem; font-weight: 700; color: white; border: 1px solid var(--border-color); padding: 10px 4px; letter-spacing: 0.2px;">12 PM - 1 PM</th>
-                        <th style="width: 10.16%; font-size: 0.82rem; font-weight: 700; color: white; border: 1px solid var(--border-color); padding: 10px 4px; letter-spacing: 0.2px;">1 PM - 2 PM</th>
-                        <th style="width: 10.16%; font-size: 0.82rem; font-weight: 700; color: white; border: 1px solid var(--border-color); padding: 10px 4px; letter-spacing: 0.2px;">2 PM - 3 PM</th>
-                        <th style="width: 10.16%; font-size: 0.82rem; font-weight: 700; color: white; border: 1px solid var(--border-color); padding: 10px 4px; letter-spacing: 0.2px;">3 PM - 4 PM</th>
-                        <th style="width: 10.16%; font-size: 0.82rem; font-weight: 700; color: white; border: 1px solid var(--border-color); padding: 10px 4px; letter-spacing: 0.2px;">4 PM - 5 PM</th>
+                        <th class="th-day" style="width: 8.5%; min-width: 80px; background: var(--bg-input); color: var(--text-main); border: 1px solid var(--border-color); font-size: 0.88rem; font-weight: 800; padding: 10px 4px; text-align: center;">Day</th>
+                        <th class="th-hour" style="width: 10.1667%; font-size: 0.82rem; font-weight: 700; color: white; border: 1px solid var(--border-color); padding: 10px 4px; letter-spacing: 0.2px;">8 AM - 9 AM</th>
+                        <th class="th-hour" style="width: 10.1667%; font-size: 0.82rem; font-weight: 700; color: white; border: 1px solid var(--border-color); padding: 10px 4px; letter-spacing: 0.2px;">9 AM - 10 AM</th>
+                        <th class="th-hour" style="width: 10.1667%; font-size: 0.82rem; font-weight: 700; color: white; border: 1px solid var(--border-color); padding: 10px 4px; letter-spacing: 0.2px;">10 AM - 11 AM</th>
+                        <th class="th-hour" style="width: 10.1667%; font-size: 0.82rem; font-weight: 700; color: white; border: 1px solid var(--border-color); padding: 10px 4px; letter-spacing: 0.2px;">11 AM - 12 PM</th>
+                        <th class="th-hour" style="width: 10.1667%; font-size: 0.82rem; font-weight: 700; color: white; border: 1px solid var(--border-color); padding: 10px 4px; letter-spacing: 0.2px;">12 PM - 1 PM</th>
+                        <th class="th-hour" style="width: 10.1667%; font-size: 0.82rem; font-weight: 700; color: white; border: 1px solid var(--border-color); padding: 10px 4px; letter-spacing: 0.2px;">1 PM - 2 PM</th>
+                        <th class="th-hour" style="width: 10.1667%; font-size: 0.82rem; font-weight: 700; color: white; border: 1px solid var(--border-color); padding: 10px 4px; letter-spacing: 0.2px;">2 PM - 3 PM</th>
+                        <th class="th-hour" style="width: 10.1667%; font-size: 0.82rem; font-weight: 700; color: white; border: 1px solid var(--border-color); padding: 10px 4px; letter-spacing: 0.2px;">3 PM - 4 PM</th>
+                        <th class="th-hour" style="width: 10.1667%; font-size: 0.82rem; font-weight: 700; color: white; border: 1px solid var(--border-color); padding: 10px 4px; letter-spacing: 0.2px;">4 PM - 5 PM</th>
                     </tr>
                 </thead>
                 <tbody id="unifiedRoutineBody">
@@ -3789,6 +3829,16 @@ window.uiuFallOfferings = uiuFallOfferings;
             if (typeof closeGenEdModal === 'function') closeGenEdModal();
             if (typeof closeMajorModal === 'function') closeMajorModal();
             if (typeof closeFydpModal === 'function') closeFydpModal();
+        } else if (event.key === 'Enter') {
+            const secModal = document.getElementById('course-sections-modal');
+            if (secModal && secModal.classList.contains('is-open')) {
+                if (!['TEXTAREA'].includes(document.activeElement?.tagName)) {
+                    event.preventDefault();
+                    if (typeof applySectionsModalSelection === 'function') {
+                        applySectionsModalSelection();
+                    }
+                }
+            }
         }
     });
 
@@ -4940,6 +4990,14 @@ window.uiuFallOfferings = uiuFallOfferings;
             hideSectionDetailsPopover();
         }
     }, true);
+
+    function applySectionsModalSelection() {
+        hideSectionDetailsPopover();
+        closeSectionsModal();
+        renderPlannerCourses();
+        renderSectionRoutine();
+    }
+    window.applySectionsModalSelection = applySectionsModalSelection;
 
     function closeSectionsModal() {
         hideSectionDetailsPopover();
@@ -6402,9 +6460,10 @@ window.uiuFallOfferings = uiuFallOfferings;
                 block.style.left = stackPos > 0 
                     ? `calc(${inst.leftPercent}% + ${xOffset}px)` 
                     : `${inst.leftPercent}%`;
-                block.style.width = stackPos > 0 
-                    ? `calc(${inst.widthPercent}% - ${Math.min(xOffset, 12)}px)` 
-                    : `${inst.widthPercent}%`;
+                block.style.width = `${inst.widthPercent}%`;
+                block.style.maxWidth = stackPos > 0 
+                    ? `calc(100% - ${inst.leftPercent}% - ${xOffset}px)` 
+                    : `calc(100% - ${inst.leftPercent}%)`;
                 block.style.height = `${cardHeight}px`;
                 block.style.zIndex = 60 - (stackPos * 4);
 
@@ -8637,6 +8696,9 @@ window.uiuFallOfferings = uiuFallOfferings;
             </div>
             <!-- Window Control Buttons at top right corner -->
             <div style="display: flex; align-items: center; gap: 6px; flex-shrink: 0;">
+                <button type="button" class="modal-window-btn btn-apply-modal" onclick="applySectionsModalSelection()" title="Apply selection & close popup (Enter)" style="background: #10b981; color: white; font-weight: 700; padding: 4px 12px; font-size: 0.82rem; border-radius: 6px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 6px rgba(16,185,129,0.35); transition: all 0.2s ease;">
+                    <span>✓</span> <span>Apply</span>
+                </button>
                 <button type="button" class="modal-window-btn btn-minimize" onclick="minimizeSectionsModal()" title="Minimize to dock (view routine unobstructed)">
                     🗕
                 </button>
@@ -8654,6 +8716,23 @@ window.uiuFallOfferings = uiuFallOfferings;
         <!-- Modal Body: Scrollable Faculty Groups & Section Chips -->
         <div id="sections-modal-body" style="flex: 1; overflow-y: auto; padding-right: 4px;">
             <!-- Rendered dynamically -->
+        </div>
+
+        <!-- Modal Footer: Apply / Close Action Bar with Enter hint -->
+        <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-color); padding-top: 10px; margin-top: 10px; flex-wrap: wrap; gap: 10px;">
+            <div style="font-size: 0.8rem; color: var(--text-muted); display: flex; align-items: center; gap: 6px;">
+                <span>Press</span>
+                <kbd style="background: var(--bg-card); color: var(--text-main); padding: 2px 6px; border: 1px solid var(--border-color); border-radius: 4px; font-size: 0.74rem; font-family: inherit; font-weight: 700; box-shadow: 0 1px 2px rgba(0,0,0,0.1);">Enter ↵</kbd>
+                <span>or click Apply to save routine</span>
+            </div>
+            <div style="display: flex; gap: 8px; align-items: center;">
+                <button type="button" class="btn-action" style="background: #64748b; margin: 0; padding: 6px 14px; font-size: 0.82rem; border-radius: 6px;" onclick="closeSectionsModal()">
+                    Close
+                </button>
+                <button type="button" class="btn-action btn-apply-modal" style="background: #10b981; color: white; font-weight: 700; margin: 0; padding: 6px 18px; font-size: 0.84rem; border-radius: 6px; border: none; cursor: pointer; box-shadow: 0 2px 6px rgba(16,185,129,0.35); display: inline-flex; align-items: center; gap: 5px;" onclick="applySectionsModalSelection()">
+                    <span>✓</span> <span>Apply Selection</span>
+                </button>
+            </div>
         </div>
     </div>
 </div>
