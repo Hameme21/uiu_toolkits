@@ -575,6 +575,59 @@
             flex-direction: column;
             justify-content: space-between;
         }
+
+        /* Theory specific sleek dimensions matching 80-minute timing */
+        .timeline-event.is-theory {
+            border-radius: 12px;
+            padding: 5px 8px;
+        }
+        .timeline-event.is-theory .card-middle-strip {
+            margin: 2px 0;
+            padding: 2px 6px;
+        }
+        .timeline-event.is-theory .card-bottom-row {
+            margin-top: 1px;
+        }
+
+        /* Playing Card Deck styles for overlapping classes */
+        .timeline-event.is-deck-behind {
+            cursor: pointer;
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.2s ease, filter 0.2s ease;
+        }
+        .timeline-event.is-deck-behind:hover {
+            transform: translateY(-5px) scale(1.03) !important;
+            filter: brightness(1.15) !important;
+            z-index: 70 !important;
+            box-shadow: 0 12px 28px rgba(0,0,0,0.5) !important;
+        }
+        .timeline-event.is-deck-top:hover {
+            transform: translateY(-4px) scale(1.02) !important;
+            z-index: 75 !important;
+        }
+
+        .card-btn-deck-shuffle {
+            background: rgba(245, 158, 11, 0.95);
+            border: 1.5px solid #78350f;
+            color: #ffffff;
+            font-weight: 800;
+            font-size: 0.7rem;
+            padding: 1px 6px;
+            border-radius: 10px;
+            cursor: pointer;
+            line-height: 1.2;
+            display: inline-flex;
+            align-items: center;
+            gap: 2px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+            user-select: none;
+        }
+        .card-btn-deck-shuffle:hover {
+            transform: scale(1.12);
+            background: #f59e0b;
+            box-shadow: 0 3px 8px rgba(245, 158, 11, 0.6);
+        }
         
         .timeline-event:hover,
         .timeline-event.is-preview:hover,
@@ -625,7 +678,8 @@
             box-shadow: 0 1px 3px rgba(0,0,0,0.3);
             display: inline-flex;
             align-items: center;
-            max-width: calc(100% - 85px);
+            flex: 1;
+            min-width: 0;
         }
 
         .card-action-group {
@@ -2662,6 +2716,26 @@
                 <span id="plannerCreditsSummary" style="font-size: 0.85rem; font-weight: 700; color: var(--primary-color);"></span>
             </div>
 
+            <!-- Search & Add Course Bar -->
+            <div class="planner-add-course-bar" style="margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px solid var(--border-color); display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                <div style="position: relative; flex: 1; min-width: 260px;">
+                    <div style="display: flex; align-items: center; background: var(--bg-card); border: 2px solid var(--border-color); border-radius: 8px; padding: 0 12px; transition: border-color 0.2s;">
+                        <span style="font-size: 1rem; color: var(--text-muted); margin-right: 8px;">🔍</span>
+                        <input type="text" id="plannerCourseSearchInput" placeholder="Search & add courses (e.g. CSE 4181, Data Mining, DBMS, GED)..." 
+                               autocomplete="off"
+                               oninput="handlePlannerSearchInput()" 
+                               onfocus="handlePlannerSearchInput()" 
+                               onkeydown="handlePlannerSearchKey(event)" 
+                               style="flex: 1; border: none; background: transparent; padding: 9px 0; font-size: 0.88rem; color: var(--text-main); outline: none;">
+                        <button type="button" id="plannerSearchClearBtn" onclick="clearPlannerCourseSearch()" style="display: none; background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 0.95rem; padding: 0 4px;" title="Clear search">✕</button>
+                    </div>
+                    <div id="plannerCourseDropdown" style="display: none; position: absolute; top: calc(100% + 4px); left: 0; right: 0; max-height: 280px; overflow-y: auto; background: var(--bg-card); border: 1.5px solid var(--primary-color); border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.22); z-index: 1000;"></div>
+                </div>
+                <button type="button" class="btn-action" style="margin: 0; padding: 9px 18px; font-weight: 700; font-size: 0.88rem; background: var(--primary-color); white-space: nowrap; display: inline-flex; align-items: center; gap: 6px;" onclick="addSearchedCourseDirectly()">
+                    <span>➕</span> Add Course
+                </button>
+            </div>
+
             <!-- Planned Courses List -->
             <div id="plannerCoursesList" class="planner-courses-grid">
                 <div style="grid-column: 1 / -1; font-size: 0.88rem; color: var(--text-muted); text-align: center; padding: 18px 0; background: var(--bg-body); border-radius: 8px;">
@@ -4041,6 +4115,242 @@ window.uiuFallOfferings = uiuFallOfferings;
             window.previewCandidate = null;
         }
         renderPlannerCourses();
+        renderSectionRoutine();
+    }
+
+    // --- ESCAPE HTML HELPER ---
+    function escapeHtml(str) {
+        if (!str) return '';
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+
+    // --- COMPREHENSIVE COURSE CATALOG FOR SEARCH & ADD ---
+    function getAllAvailableCoursesCatalog() {
+        const catalogMap = new Map();
+
+        const register = (code, title, cr, type) => {
+            if (!code || isGedPlaceholder(code) || isMajorPlaceholder(code)) return;
+            const normCode = code.trim().toUpperCase();
+            if (catalogMap.has(normCode)) {
+                const existing = catalogMap.get(normCode);
+                if (!existing.title && title) existing.title = title;
+                if (!existing.cr && cr) existing.cr = cr;
+                if (!existing.type && type) existing.type = type;
+                return;
+            }
+            let detectedType = type;
+            if (!detectedType) {
+                detectedType = (cr === 1.0 || /lab|laboratory/i.test(title || '')) ? 'Lab' : 'Theory';
+            }
+            catalogMap.set(normCode, {
+                code: normCode,
+                title: title || normCode,
+                cr: cr || (detectedType === 'Lab' ? 1.0 : 3.0),
+                type: detectedType
+            });
+        };
+
+        // 1. Fall offerings
+        if (window.uiuFallOfferings && Array.isArray(window.uiuFallOfferings)) {
+            window.uiuFallOfferings.forEach(o => {
+                register(o.code, o.title, o.cr || o.credit, o.type);
+            });
+        }
+
+        // 2. Standard Curriculum
+        if (typeof uiuCurriculum === 'object') {
+            Object.values(uiuCurriculum).forEach(courses => {
+                if (Array.isArray(courses)) {
+                    courses.forEach(c => register(c.code, c.title, c.cr, (c.cr === 1.0 || /lab/i.test(c.title)) ? 'Lab' : 'Theory'));
+                }
+            });
+        }
+
+        // 3. GenEd catalog
+        if (Array.isArray(uiuGenEdCatalog)) {
+            uiuGenEdCatalog.forEach(c => register(c.code, c.title, c.cr, 'Theory'));
+        }
+
+        // 4. Elective Tracks
+        if (typeof electiveTracks === 'object') {
+            Object.values(electiveTracks).forEach(courses => {
+                if (Array.isArray(courses)) {
+                    courses.forEach(c => register(c.code, c.title, c.cr, (c.cr === 1.0 || /lab/i.test(c.title)) ? 'Lab' : 'Theory'));
+                }
+            });
+        }
+
+        // 5. FYDP
+        if (Array.isArray(uiuFydpCatalog)) {
+            uiuFydpCatalog.forEach(c => register(c.code, c.title, c.cr, 'Lab'));
+        }
+
+        return Array.from(catalogMap.values()).sort((a, b) => a.code.localeCompare(b.code));
+    }
+
+    // --- SEARCH & ADD TO PLANNER INTERACTION ---
+    function handlePlannerSearchInput() {
+        const input = document.getElementById('plannerCourseSearchInput');
+        const dropdown = document.getElementById('plannerCourseDropdown');
+        const clearBtn = document.getElementById('plannerSearchClearBtn');
+        if (!input || !dropdown) return;
+
+        const query = input.value.trim().toLowerCase();
+        if (clearBtn) clearBtn.style.display = query ? 'block' : 'none';
+
+        const catalog = getAllAvailableCoursesCatalog();
+        let results = [];
+
+        if (!query) {
+            // Show first 15 catalog courses when focused and empty
+            results = catalog.slice(0, 15);
+        } else {
+            results = catalog.filter(c => {
+                const codeMatch = c.code.toLowerCase().includes(query) || c.code.toLowerCase().replace(/\s+/g, '').includes(query.replace(/\s+/g, ''));
+                const titleMatch = c.title.toLowerCase().includes(query);
+                const shortMatch = getCourseShortTitle(c.title, c.type, c.code).toLowerCase().includes(query);
+                return codeMatch || titleMatch || shortMatch;
+            });
+        }
+
+        if (results.length === 0) {
+            dropdown.innerHTML = `
+                <div style="padding: 12px 16px; font-size: 0.85rem; color: var(--text-muted); text-align: center;">
+                    No catalog course found matching "<strong>${escapeHtml(query)}</strong>".
+                    <div style="margin-top: 8px;">
+                        <button type="button" class="btn-action" style="margin: 0; padding: 5px 12px; font-size: 0.8rem; background: var(--primary-color);" onclick="addCustomCourseToPlanner('${escapeHtml(query)}')">
+                            ➕ Add "${escapeHtml(query.toUpperCase())}" as Custom Course
+                        </button>
+                    </div>
+                </div>
+            `;
+            dropdown.style.display = 'block';
+            return;
+        }
+
+        let html = '';
+        results.slice(0, 25).forEach(c => {
+            const isAdded = plannedCourses.some(p => p.code.toUpperCase() === c.code.toUpperCase());
+            const offeringCount = (window.uiuFallOfferings || []).filter(o => o.code.toUpperCase() === c.code.toUpperCase()).length;
+            const short = getCourseShortTitle(c.title, c.type, c.code);
+
+            html += `
+                <div class="planner-search-item" style="padding: 9px 12px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; gap: 8px; cursor: pointer; transition: background 0.15s;" onmouseover="this.style.background='var(--bg-container)'" onmouseout="this.style.background='transparent'" onclick="selectCourseFromSearch('${c.code}')">
+                    <div style="min-width: 0; flex: 1;">
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <strong style="color: var(--primary-color); font-size: 0.88rem;">${c.code}</strong>
+                            <span style="font-size: 0.68rem; font-weight: 700; padding: 1px 5px; border-radius: 4px; background: ${c.type === 'Lab' ? 'rgba(16, 185, 129, 0.2); color: #10b981;' : 'rgba(59, 130, 246, 0.2); color: #3b82f6;'}">${c.type}</span>
+                            <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 600;">[${short}]</span>
+                        </div>
+                        <div style="font-size: 0.82rem; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${c.title}</div>
+                        <div style="font-size: 0.72rem; color: var(--text-muted);">${c.cr} Credits • ${offeringCount > 0 ? offeringCount + ' sections offered' : 'Catalog Course'}</div>
+                    </div>
+                    <div>
+                        <button type="button" class="btn-action" style="margin: 0; padding: 4px 10px; font-size: 0.78rem; font-weight: 700; ${isAdded ? 'background: #10b981; color: white;' : 'background: var(--primary-color); color: white;'}" onclick="event.stopPropagation(); selectCourseFromSearch('${c.code}')">
+                            ${isAdded ? '✓ Added' : '➕ Add'}
+                        </button>
+                    </div>
+                </div>
+            `;
+        });
+
+        dropdown.innerHTML = html;
+        dropdown.style.display = 'block';
+    }
+
+    function selectCourseFromSearch(code) {
+        const catalog = getAllAvailableCoursesCatalog();
+        const course = catalog.find(c => c.code.toUpperCase() === code.toUpperCase());
+        if (course) {
+            addCourseToPlanner(course.code, course.title, course.cr, course.type);
+        }
+        clearPlannerCourseSearch();
+    }
+
+    function addSearchedCourseDirectly() {
+        const input = document.getElementById('plannerCourseSearchInput');
+        if (!input) return;
+        const query = input.value.trim();
+        if (!query) {
+            input.focus();
+            handlePlannerSearchInput();
+            return;
+        }
+        const catalog = getAllAvailableCoursesCatalog();
+        const exact = catalog.find(c => c.code.toLowerCase() === query.toLowerCase() || c.title.toLowerCase() === query.toLowerCase());
+        if (exact) {
+            selectCourseFromSearch(exact.code);
+        } else {
+            const partial = catalog.find(c => c.code.toLowerCase().includes(query.toLowerCase()) || c.title.toLowerCase().includes(query.toLowerCase()));
+            if (partial) {
+                selectCourseFromSearch(partial.code);
+            } else {
+                addCustomCourseToPlanner(query);
+            }
+        }
+    }
+
+    function addCustomCourseToPlanner(query) {
+        const cleanCode = query.trim().toUpperCase();
+        if (!cleanCode) return;
+        const isLab = /lab/i.test(cleanCode);
+        addCourseToPlanner(cleanCode, cleanCode, isLab ? 1.0 : 3.0, isLab ? 'Lab' : 'Theory');
+        clearPlannerCourseSearch();
+    }
+
+    function clearPlannerCourseSearch() {
+        const input = document.getElementById('plannerCourseSearchInput');
+        const dropdown = document.getElementById('plannerCourseDropdown');
+        const clearBtn = document.getElementById('plannerSearchClearBtn');
+        if (input) input.value = '';
+        if (dropdown) dropdown.style.display = 'none';
+        if (clearBtn) clearBtn.style.display = 'none';
+    }
+
+    function handlePlannerSearchKey(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            addSearchedCourseDirectly();
+        } else if (e.key === 'Escape') {
+            clearPlannerCourseSearch();
+        }
+    }
+
+    document.addEventListener('click', function(e) {
+        const searchBar = document.querySelector('.planner-add-course-bar');
+        const dropdown = document.getElementById('plannerCourseDropdown');
+        if (dropdown && dropdown.style.display !== 'none') {
+            if (!e.target.closest('.planner-add-course-bar') && !e.target.closest('#plannerCourseDropdown')) {
+                dropdown.style.display = 'none';
+            }
+        }
+    });
+
+    // Helper: format 08:30 AM -> 8:30 for compact, clean time display
+    function formatShortTime(tStr) {
+        if (!tStr) return '';
+        let s = tStr.trim();
+        s = s.replace(/^0/, '');
+        s = s.replace(/\s*(AM|PM)/i, '').trim();
+        return s;
+    }
+
+    // --- DECK SHUFFLE STATE & HANDLER FOR OVERLAPPED COURSES ---
+    window.routineDeckState = window.routineDeckState || {};
+
+    function shuffleRoutineDeck(deckKey, delta = 1, targetIdx = null) {
+        if (!window.routineDeckState) window.routineDeckState = {};
+        if (targetIdx !== null && targetIdx !== undefined) {
+            window.routineDeckState[deckKey] = targetIdx;
+        } else {
+            const cur = window.routineDeckState[deckKey] || 0;
+            window.routineDeckState[deckKey] = cur + delta;
+        }
         renderSectionRoutine();
     }
 
@@ -5718,6 +6028,7 @@ window.uiuFallOfferings = uiuFallOfferings;
             let startMin = 0, endMin = 0;
             let startStr = '', endStr = '';
 
+            const isLabItem = (item.type || '').toLowerCase() === 'lab' || item.cr === 1.0 || /lab|laboratory/i.test(item.title || '');
             if (item.time) {
                 const parts = item.time.split('-');
                 if (parts.length >= 2) {
@@ -5727,7 +6038,7 @@ window.uiuFallOfferings = uiuFallOfferings;
                     endMin = parseTimeToMinutes(endStr);
                 }
             } else if (item.slotIndex !== undefined && item.slotIndex > -1) {
-                let timeLabel = item.type === 'Theory' ? theoryTimeSlots[item.slotIndex] : labTimeSlots[item.slotIndex];
+                let timeLabel = !isLabItem ? theoryTimeSlots[item.slotIndex] : labTimeSlots[item.slotIndex];
                 if (timeLabel) {
                     let timeMatch = timeLabel.match(/\((.*?)\s*-\s*(.*?)\)/);
                     if (timeMatch) {
@@ -5865,30 +6176,59 @@ window.uiuFallOfferings = uiuFallOfferings;
                 }
             });
 
-            // Card layering assignment (like playing cards in a spread hand / deck):
-            // Instead of splitting rows into separate vertical bands (one above another),
-            // overlapping items share the row with a graceful card stagger (e.g. +18px right, +14px down)
-            // and full card height, so all layers peek through and pop to the front on hover!
-            let maxCardIndexOnDay = 0;
-            instances.forEach(inst => {
-                const usedIndices = new Set();
-                inst.overlappingWith.forEach(other => {
-                    if (other.cardIndex !== undefined) {
-                        usedIndices.add(other.cardIndex);
-                    }
+            // Build connected overlap clusters (decks)
+            const clusters = [];
+            const visited = new Set();
+            instances.forEach((inst, i) => {
+                if (visited.has(i)) return;
+                const cluster = [inst];
+                visited.add(i);
+                const queue = [inst];
+                while (queue.length > 0) {
+                    const curr = queue.shift();
+                    instances.forEach((other, j) => {
+                        if (!visited.has(j)) {
+                            if (curr.startMin < other.endMin && curr.endMin > other.startMin) {
+                                visited.add(j);
+                                cluster.push(other);
+                                queue.push(other);
+                            }
+                        }
+                    });
+                }
+                // Sort cluster: primary non-backups first, candidates next, backups last
+                cluster.sort((a, b) => {
+                    const score = x => (x.isCandidate ? 2 : (x.isBackup ? 3 : 1));
+                    return score(a) - score(b);
                 });
-                let idx = 0;
-                while (usedIndices.has(idx)) {
-                    idx++;
-                }
-                inst.cardIndex = idx;
-                if (idx > maxCardIndexOnDay) {
-                    maxCardIndexOnDay = idx;
-                }
+                clusters.push(cluster);
             });
 
-            const cardHeight = 108; // Matching card height (longer vertically)
-            const dynamicRowHeight = Math.max(116, 4 + (maxCardIndexOnDay * 14) + cardHeight + 4);
+            // Assign deck properties to each instance
+            clusters.forEach((cluster, cIdx) => {
+                const isDeck = cluster.length > 1;
+                const deckKey = `${d}_deck_${cIdx}`;
+                let activeIdx = 0;
+                if (isDeck && window.routineDeckState && window.routineDeckState[deckKey] !== undefined) {
+                    activeIdx = Math.abs(window.routineDeckState[deckKey]) % cluster.length;
+                }
+                cluster.forEach((inst, idxInCluster) => {
+                    const stackPos = isDeck ? ((idxInCluster - activeIdx + cluster.length) % cluster.length) : 0;
+                    inst.stackPos = stackPos;
+                    inst.deckKey = deckKey;
+                    inst.isDeck = isDeck;
+                    inst.clusterSize = cluster.length;
+                    inst.idxInCluster = idxInCluster;
+                    inst.activeIdx = activeIdx;
+                });
+            });
+
+            let maxStackPosOnDay = 0;
+            instances.forEach(inst => {
+                if (inst.stackPos > maxStackPosOnDay) maxStackPosOnDay = inst.stackPos;
+            });
+
+            const dynamicRowHeight = Math.max(116, 4 + (maxStackPosOnDay * 14) + 106 + 8);
             cell.style.height = `${dynamicRowHeight}px`;
             cell.style.minHeight = `${dynamicRowHeight}px`;
 
@@ -5903,6 +6243,12 @@ window.uiuFallOfferings = uiuFallOfferings;
                 const block = document.createElement('div');
                 block.className = 'timeline-event';
 
+                const isLab = (item.type || '').toLowerCase() === 'lab' || item.cr === 1.0 || /lab|laboratory/i.test(item.title || '');
+                const cardHeight = isLab ? 106 : 82;
+                if (!isLab) {
+                    block.classList.add('is-theory');
+                }
+
                 if (inst.isCandidate) {
                     block.classList.add('is-preview');
                 } else if (inst.isFacultyOverlay) {
@@ -5915,24 +6261,43 @@ window.uiuFallOfferings = uiuFallOfferings;
                     if (focusedSectionClassId === item.id) block.classList.add('is-focused');
                 }
 
-                // Staggered card positioning for overlap visibility
-                const cardIdx = inst.cardIndex || 0;
-                const xOffset = cardIdx * 18;
-                const yOffset = cardIdx * 14;
+                // Staggered card positioning for overlap visibility / playing-card deck
+                const stackPos = inst.stackPos || 0;
+                const xOffset = stackPos * 16;
+                const yOffset = stackPos * 14;
 
                 block.style.top = `${4 + yOffset}px`;
-                block.style.left = cardIdx > 0 
+                block.style.left = stackPos > 0 
                     ? `calc(${inst.leftPercent}% + ${xOffset}px)` 
                     : `${inst.leftPercent}%`;
-                block.style.width = cardIdx > 0 
-                    ? `calc(${inst.widthPercent}% - ${Math.min(xOffset, 14)}px)` 
+                block.style.width = stackPos > 0 
+                    ? `calc(${inst.widthPercent}% - ${Math.min(xOffset, 12)}px)` 
                     : `${inst.widthPercent}%`;
                 block.style.height = `${cardHeight}px`;
-                block.style.zIndex = 10 + (cardIdx * 3);
+                block.style.zIndex = 60 - (stackPos * 4);
+
+                // Deck interactive handling
+                if (inst.isDeck) {
+                    block.classList.add('is-in-deck');
+                    if (stackPos === 0) {
+                        block.classList.add('is-deck-top');
+                        block.onclick = (e) => {
+                            if (e.target.closest('button') || e.target.closest('.card-icon-btn') || e.target.closest('.card-btn-action')) return;
+                            shuffleRoutineDeck(inst.deckKey, 1);
+                        };
+                    } else {
+                        block.classList.add('is-deck-behind');
+                        block.style.opacity = Math.max(0.75, 1 - (stackPos * 0.12));
+                        block.onclick = (e) => {
+                            if (e.target.closest('button') || e.target.closest('.card-icon-btn') || e.target.closest('.card-btn-action')) return;
+                            shuffleRoutineDeck(inst.deckKey, null, inst.idxInCluster);
+                        };
+                    }
+                }
 
                 // Card background matching user mockup
                 if (!inst.isCandidate && !inst.isFacultyOverlay && !inst.isBackup) {
-                    block.style.background = item.type === 'Lab' 
+                    block.style.background = isLab 
                         ? 'linear-gradient(135deg, #0b6938 0%, #15803d 50%, #16a34a 100%)' 
                         : 'linear-gradient(135deg, #0f4c81 0%, #0284c7 60%, #0369a1 100%)';
                 } else if (inst.isBackup) {
@@ -5961,7 +6326,7 @@ window.uiuFallOfferings = uiuFallOfferings;
                 // Section
                 const secUpper = `SEC ${item.section || 'A'}`.toUpperCase();
 
-                // Day & Time display formatted cleanly like "SUN: 8:30-11:00" or "SUN, TUE: 8:30-10:00"
+                // Day & Time display formatted cleanly like "SUN: 8:30-11:00" or "SAT, TUE: 8:30-9:50"
                 let dayPrefix = d.substring(0, 3).toUpperCase();
                 const rawDays = item.days || item.day || '';
                 if (rawDays.includes('&')) {
@@ -5972,7 +6337,15 @@ window.uiuFallOfferings = uiuFallOfferings;
                                        .replace('Tuesday', 'TUE')
                                        .replace('Wednesday', 'WED');
                 }
-                const timeSlotDisplay = `${dayPrefix}: ${inst.startStr}-${inst.endStr}`;
+                const formattedStart = formatShortTime(inst.startStr);
+                const formattedEnd = formatShortTime(inst.endStr);
+                const timeSlotDisplay = `${dayPrefix}: ${formattedStart}-${formattedEnd}`;
+
+                // Deck shuffle button on front card
+                let deckShuffleHtml = '';
+                if (inst.isDeck && stackPos === 0) {
+                    deckShuffleHtml = `<button type="button" class="card-btn-deck-shuffle" title="Deck of ${inst.clusterSize} overlapping classes. Click to shuffle!" onclick="event.stopPropagation(); shuffleRoutineDeck('${inst.deckKey}', 1);">🔀 ${inst.activeIdx + 1}/${inst.clusterSize}</button>`;
+                }
 
                 // Status Icon: Star (⭐) for primary, Plus (+) for backup (Clickable to switch Primary <-> Backup)
                 let statusIconHtml = '';
@@ -6004,6 +6377,7 @@ window.uiuFallOfferings = uiuFallOfferings;
                             ${courseShortDisplay}
                         </div>
                         <div class="card-action-group">
+                            ${deckShuffleHtml}
                             ${statusIconHtml}
                             <button type="button" class="${tickClass}" title="${tickTitle}" onclick="${tickOnClick}">✓</button>
                             <button type="button" class="card-btn-action btn-cross" title="Remove from routine" onclick="${deleteOnClick}">✕</button>
@@ -6015,13 +6389,14 @@ window.uiuFallOfferings = uiuFallOfferings;
                     </div>
                     <div class="card-bottom-row">
                         <span class="card-time-text" title="${timeSlotDisplay}">${timeSlotDisplay}</span>
-                        ${item.type !== 'Theory' && !inst.isBackup && !inst.isCandidate && !inst.isFacultyOverlay ? `
+                        ${isLab && !inst.isBackup && !inst.isCandidate && !inst.isFacultyOverlay ? `
                             <span class="card-anchor-tag"><span style="color:#ef4444; font-size:1.05rem;">★</span> anchor</span>
                         ` : ''}
                     </div>
                 `;
 
-                block.title = `${inst.isBackup ? '[BACKUP] ' : ''}${courseTitle}\nSection: ${item.section}\nFaculty: ${facultyDisplayName}\nTime: ${timeSlotDisplay}${inst.isClash ? '\n⚠️ Overlaps with another class! (Click ✓ on this card to keep it)' : ''}`;
+                const deckTooltipSuffix = inst.isDeck ? `\n🔀 Part of deck (${inst.clusterSize} overlapping classes). ${stackPos === 0 ? 'Click card to shuffle to next.' : 'Click to bring this section to front.'}` : '';
+                block.title = `${inst.isBackup ? '[BACKUP] ' : ''}${courseTitle}\nSection: ${item.section}\nFaculty: ${facultyDisplayName}\nTime: ${timeSlotDisplay}${inst.isClash ? '\n⚠️ Overlaps with another class! (Click ✓ on this card to keep it)' : ''}${deckTooltipSuffix}`;
                 cell.appendChild(block);
             });
         });
