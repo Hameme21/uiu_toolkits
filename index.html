@@ -821,20 +821,64 @@
         .course-plan-item {
             background: var(--bg-container);
             border: 1px solid var(--border-color);
-            border-radius: 8px;
+            border-radius: 10px;
             padding: 12px 16px;
             position: relative;
             transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+            user-select: none;
         }
 
         .course-plan-item:hover {
             transform: translateY(-2px);
-            z-index: 20;
             box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+            border-color: var(--primary-color);
         }
 
         .course-plan-item.is-selected {
             border-left: 4px solid #10b981;
+            background: var(--bg-container);
+        }
+
+        .course-top-actions {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .course-icon-btn {
+            width: 30px;
+            height: 30px;
+            border-radius: 7px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-card);
+            color: var(--text-muted);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.92rem;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            padding: 0;
+            line-height: 1;
+        }
+
+        .course-icon-btn:hover {
+            background: var(--bg-container);
+            color: var(--text-color);
+            transform: scale(1.08);
+        }
+
+        .course-icon-btn.btn-undo-icon:hover {
+            background: rgba(99, 102, 241, 0.15);
+            border-color: #6366f1;
+            color: #6366f1;
+        }
+
+        .course-icon-btn.btn-delete-icon:hover {
+            background: rgba(239, 68, 68, 0.15);
+            border-color: #ef4444;
+            color: #ef4444;
         }
 
         .section-option-row {
@@ -1218,6 +1262,91 @@
             padding: 24px;
             box-shadow: 0 20px 40px rgba(0,0,0,0.3);
             border: 1px solid var(--border-color);
+        }
+
+        /* Modal Window Control Buttons (Minimize & Close) */
+        .modal-window-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.95rem;
+            font-weight: 800;
+            cursor: pointer;
+            border: 1px solid var(--border-color);
+            background: var(--bg-container);
+            color: var(--text-color);
+            transition: all 0.18s ease;
+            padding: 0;
+            line-height: 1;
+        }
+
+        .modal-window-btn.btn-minimize:hover {
+            background: rgba(99, 102, 241, 0.15);
+            border-color: #6366f1;
+            color: #6366f1;
+            transform: scale(1.08);
+        }
+
+        .modal-window-btn.btn-close:hover {
+            background: #ef4444;
+            border-color: #dc2626;
+            color: #ffffff;
+            transform: scale(1.08);
+        }
+
+        /* Minimized Floating Dock Pill */
+        .sections-minimized-dock {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 99999;
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            color: #ffffff;
+            border: 1.5px solid #38bdf8;
+            border-radius: 30px;
+            padding: 8px 14px 8px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4), 0 0 15px rgba(56, 189, 248, 0.3);
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            animation: slideUpBounce 0.3s ease-out;
+        }
+
+        .sections-minimized-dock:hover {
+            transform: translateY(-3px) scale(1.03);
+            border-color: #0ea5e9;
+            box-shadow: 0 14px 28px rgba(0, 0, 0, 0.5), 0 0 20px rgba(56, 189, 248, 0.5);
+        }
+
+        .dock-btn-action {
+            background: rgba(255, 255, 255, 0.15);
+            border: none;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.76rem;
+            font-weight: 800;
+            transition: background 0.15s ease;
+        }
+
+        .dock-btn-action:hover {
+            background: rgba(255, 255, 255, 0.35);
+        }
+
+        @keyframes slideUpBounce {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         /* --- BUTTON & CGPA STYLES --- */
@@ -3469,18 +3598,35 @@ window.uiuFallOfferings = uiuFallOfferings;
     }
 
     function exportSectionCSV() {
-        if (mySectionClasses.length === 0) {
-            alert("No classes to export in your Section Planner!");
+        if (mySectionClasses.length === 0 && backupClasses.length === 0) {
+            alert("No classes (primary or backup) to export in your Section Planner!");
             return;
         }
-        let csv = "Course,Section,Type,Days,Time Slot,Faculty\n";
+        let csv = "Course,Section,Type,Days,Time Slot,Faculty,Role\n";
+
+        // Export Primary Courses
         mySectionClasses.forEach(c => {
-            const courseName = `"${c.course}"`;
-            const timeStr = c.type === 'Theory' ? theoryTimeSlots[c.slotIndex] : labTimeSlots[c.slotIndex];
-            const facultyStr = `"${c.faculty || ''}"`;
-            csv += `${courseName},${c.section},${c.type},"${c.day}","${timeStr}",${facultyStr}\n`;
+            const courseName = `"${c.course || (c.title ? `${c.title} (${c.courseCode || ''})` : (c.courseCode || ''))}"`;
+            let timeStr = c.time || '';
+            if (!timeStr && c.slotIndex !== undefined && c.slotIndex > -1) {
+                timeStr = c.type === 'Theory' ? theoryTimeSlots[c.slotIndex] : labTimeSlots[c.slotIndex];
+            }
+            const facultyStr = `"${c.faculty || c.initial || ''}"`;
+            csv += `${courseName},${c.section || ''},${c.type || 'Theory'},"${c.day || c.days || ''}","${timeStr}",${facultyStr},Primary\n`;
         });
-        downloadCSV(csv, "Section_Planner.csv");
+
+        // Export Backup Courses
+        backupClasses.forEach(b => {
+            const courseName = `"${b.course || (b.title ? `${b.title} (${b.courseCode || ''})` : (b.courseCode || ''))}"`;
+            let timeStr = b.time || '';
+            if (!timeStr && b.slotIndex !== undefined && b.slotIndex > -1) {
+                timeStr = b.type === 'Theory' ? theoryTimeSlots[b.slotIndex] : labTimeSlots[b.slotIndex];
+            }
+            const facultyStr = `"${b.faculty || b.initial || ''}"`;
+            csv += `${courseName},${b.section || ''},${b.type || 'Theory'},"${b.day || b.days || ''}","${timeStr}",${facultyStr},Backup\n`;
+        });
+
+        downloadCSV(csv, "Section_Planner_Routine.csv");
     }
 
     function importSectionCSV(event) {
@@ -3489,34 +3635,57 @@ window.uiuFallOfferings = uiuFallOfferings;
         const reader = new FileReader();
         reader.onload = function(e) {
             const lines = e.target.result.split('\n');
-            let importedClasses = [];
+            let importedPrimary = [];
+            let importedBackups = [];
             for (let i = 1; i < lines.length; i++) {
                 if (!lines[i].trim()) continue;
                 const row = parseCSVRow(lines[i]);
-                if(row.length < 5) continue;
+                if (row.length < 5) continue;
                 
+                const courseStr = row[0];
+                const section = row[1];
                 const type = row[2];
+                const day = row[3];
                 const slotStr = row[4];
-                const slotIndex = type === 'Theory' ? theoryTimeSlots.indexOf(slotStr) : labTimeSlots.indexOf(slotStr);
                 const faculty = row[5] ? row[5].trim() : '';
-                
-                const newClass = {
-                    id: Date.now().toString() + i, 
-                    course: row[0],
-                    section: row[1],
+                const role = row[6] ? row[6].trim().toLowerCase() : 'primary';
+
+                let cCode = '';
+                const match = courseStr.match(/\(([^)]+)\)/);
+                if (match) cCode = match[1].trim();
+
+                const slotIndex = type === 'Theory' ? theoryTimeSlots.indexOf(slotStr) : labTimeSlots.indexOf(slotStr);
+
+                const item = {
+                    id: Date.now().toString() + '_' + i,
+                    course: courseStr,
+                    courseCode: cCode,
+                    section: section,
                     type: type,
-                    day: row[3],
+                    day: day,
+                    days: day,
+                    time: slotStr,
                     slotIndex: slotIndex > -1 ? slotIndex : 0,
-                    faculty: faculty
+                    faculty: faculty,
+                    initial: faculty.length <= 6 ? faculty : ''
                 };
-                importedClasses.push(newClass);
+
+                if (role === 'backup') {
+                    item.isBackup = true;
+                    importedBackups.push(item);
+                } else {
+                    importedPrimary.push(item);
+                }
             }
-            mySectionClasses = importedClasses;
+            mySectionClasses = importedPrimary;
+            backupClasses = importedBackups;
             saveSectionClasses();
+            saveBackupClasses();
+            renderPlannerCourses();
             renderSectionRoutine();
             const dashSec = document.getElementById('dashboard-section');
             if (dashSec && dashSec.classList.contains('active')) initDashboard();
-            alert(`Successfully imported ${importedClasses.length} sessions into Section Planner.`);
+            alert(`Successfully imported ${importedPrimary.length} primary and ${importedBackups.length} backup class sessions!`);
         };
         reader.readAsText(file);
         event.target.value = ''; 
@@ -3534,7 +3703,13 @@ window.uiuFallOfferings = uiuFallOfferings;
     }
 
     document.addEventListener('keydown', event => {
-        if (event.key === 'Escape') toggleNavigation(false);
+        if (event.key === 'Escape') {
+            toggleNavigation(false);
+            if (typeof closeSectionsModal === 'function') closeSectionsModal();
+            if (typeof closeGenEdModal === 'function') closeGenEdModal();
+            if (typeof closeMajorModal === 'function') closeMajorModal();
+            if (typeof closeFydpModal === 'function') closeFydpModal();
+        }
     });
 
     function switchTab(tab) {
@@ -4231,6 +4406,9 @@ window.uiuFallOfferings = uiuFallOfferings;
         if (e.target.id === modalId) {
             const modal = document.getElementById(modalId);
             if (modal) modal.classList.remove('is-open');
+            if (modalId === 'course-sections-modal' && typeof closeSectionsModal === 'function') {
+                closeSectionsModal();
+            }
         }
     }
 
@@ -4304,11 +4482,229 @@ window.uiuFallOfferings = uiuFallOfferings;
     window.getCleanFacultyName = getCleanFacultyName;
 
     // --- RENDER PLANNED COURSES ---
+    // --- SECTIONS POPUP MODAL & CONTROLS ---
+    let activeSectionsModalCourseCode = null;
+
+    function openSectionsModal(courseCode) {
+        if (!courseCode) return;
+        activeSectionsModalCourseCode = courseCode;
+
+        // Hide floating dock if currently open
+        const dock = document.getElementById('sections-minimized-dock');
+        if (dock) dock.style.display = 'none';
+
+        renderSectionsModalContent(courseCode);
+
+        const modal = document.getElementById('course-sections-modal');
+        if (modal) modal.classList.add('is-open');
+    }
+    window.openSectionsModal = openSectionsModal;
+
+    function closeSectionsModal() {
+        const modal = document.getElementById('course-sections-modal');
+        if (modal) modal.classList.remove('is-open');
+        const dock = document.getElementById('sections-minimized-dock');
+        if (dock) dock.style.display = 'none';
+        activeSectionsModalCourseCode = null;
+    }
+    window.closeSectionsModal = closeSectionsModal;
+
+    function minimizeSectionsModal() {
+        const modal = document.getElementById('course-sections-modal');
+        if (modal) modal.classList.remove('is-open');
+
+        const dock = document.getElementById('sections-minimized-dock');
+        const dockTitle = document.getElementById('minimized-dock-title');
+        if (dock) {
+            if (dockTitle && activeSectionsModalCourseCode) {
+                const planned = plannedCourses.find(p => p.code === activeSectionsModalCourseCode);
+                dockTitle.innerText = `${activeSectionsModalCourseCode} Sections${planned ? ` (${planned.title})` : ''}`;
+            }
+            dock.style.display = 'flex';
+        }
+    }
+    window.minimizeSectionsModal = minimizeSectionsModal;
+
+    function restoreSectionsModal() {
+        const dock = document.getElementById('sections-minimized-dock');
+        if (dock) dock.style.display = 'none';
+
+        if (activeSectionsModalCourseCode) {
+            renderSectionsModalContent(activeSectionsModalCourseCode);
+            const modal = document.getElementById('course-sections-modal');
+            if (modal) modal.classList.add('is-open');
+        }
+    }
+    window.restoreSectionsModal = restoreSectionsModal;
+
+    function closeMinimizedSectionsDock() {
+        const dock = document.getElementById('sections-minimized-dock');
+        if (dock) dock.style.display = 'none';
+        activeSectionsModalCourseCode = null;
+    }
+    window.closeMinimizedSectionsDock = closeMinimizedSectionsDock;
+
+    function renderSectionsModalContent(courseCode) {
+        if (!courseCode) return;
+        const planned = plannedCourses.find(p => p.code === courseCode);
+        const offerings = (window.uiuFallOfferings || []).filter(o => o.code === courseCode);
+
+        const titleEl = document.getElementById('sections-modal-course-title');
+        const subEl = document.getElementById('sections-modal-course-sub');
+        const statusEl = document.getElementById('sections-modal-active-status');
+        const bodyEl = document.getElementById('sections-modal-body');
+
+        if (!bodyEl) return;
+
+        const courseTitle = planned ? planned.title : (offerings.length > 0 ? offerings[0].title : courseCode);
+        const courseCredits = planned ? planned.cr : (offerings.length > 0 ? offerings[0].credit : 3);
+        const courseType = planned ? planned.type : (offerings.length > 0 ? offerings[0].type : 'Theory');
+
+        if (titleEl) {
+            titleEl.innerHTML = `
+                <span>⚡</span>
+                <span><strong>${courseCode}: ${courseTitle}</strong></span>
+                <span class="sec-type-pill ${courseType === 'Theory' ? 'pill-theory' : 'pill-lab'}" style="font-size: 0.74rem; margin-left: 6px;">${courseType}</span>
+                <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 500;">(${courseCredits} Cr)</span>
+            `;
+        }
+
+        if (subEl) {
+            subEl.innerHTML = `
+                <span>Showing <strong>${offerings.length}</strong> section(s) in Fall 2026. Click a section pill to add (<strong>1st = Primary ⭐</strong>, <strong>next = Backup ➕</strong>).</span>
+            `;
+        }
+
+        const currentSelection = mySectionClasses.find(c => c.courseCode === courseCode || (c.course && c.course.includes(courseCode)));
+        const currentBackups = backupClasses.filter(b => b.courseCode === courseCode || (b.course && b.course.includes(courseCode)));
+
+        if (statusEl) {
+            statusEl.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                    ${currentSelection ? `
+                        <span style="background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; padding: 3px 9px; border-radius: 6px; font-weight: 700;">
+                            ⭐ Primary: Sec ${currentSelection.section} (${currentSelection.initial || currentSelection.faculty})
+                        </span>
+                        <button type="button" class="btn-action" style="padding: 2px 8px; margin: 0; font-size: 0.74rem; background: #64748b; border-radius: 4px;" onclick="undoCourseSection('${courseCode}')" title="Reset primary selection">
+                            ↩ Reset
+                        </button>
+                    ` : `
+                        <span style="background: #fffbeb; color: #92400e; border: 1px solid #fde68a; padding: 3px 9px; border-radius: 6px; font-weight: 600;">
+                            ⚠️ No Primary Selected
+                        </span>
+                    `}
+                    ${currentBackups.length > 0 ? `
+                        <span style="background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; padding: 3px 9px; border-radius: 6px; font-weight: 700;">
+                            🛡️ ${currentBackups.length} Backup(s): ${currentBackups.map(b => `Sec ${b.section}`).join(', ')}
+                        </span>
+                    ` : ''}
+                </div>
+                <div style="font-size: 0.76rem; color: var(--text-muted);">
+                    💡 Click ★ or ➕ on chips to switch Primary/Backup roles
+                </div>
+            `;
+        }
+
+        if (offerings.length === 0) {
+            bodyEl.innerHTML = `
+                <div style="font-size: 0.88rem; color: var(--text-muted); padding: 24px 0; text-align: center;">
+                    No section offerings found for <strong>${courseCode}</strong> in Fall 2026.
+                </div>
+            `;
+            return;
+        }
+
+        // Group offerings by faculty
+        const fMap = new Map();
+        offerings.forEach(o => {
+            const fName = getCleanFacultyName(o);
+            const init = (o.initial || '').trim();
+            const key = init ? init.toUpperCase() : fName.toLowerCase();
+            if (!fMap.has(key)) {
+                fMap.set(key, { facultyName: fName, initial: init, sections: [] });
+            }
+            fMap.get(key).sections.push(o);
+        });
+
+        bodyEl.innerHTML = `
+            <div class="faculty-groups-container">
+                ${Array.from(fMap.values()).map(fg => `
+                    <div class="faculty-group-card">
+                        <div class="faculty-info-col">
+                            <span style="font-size: 1.15rem;">👨‍🏫</span>
+                            <div>
+                                <span class="faculty-name-text">${fg.facultyName}</span>
+                                ${fg.initial ? `<span class="faculty-initial-badge">${fg.initial}</span>` : ''}
+                            </div>
+                        </div>
+                        <div class="faculty-chips-col">
+                            ${fg.sections.map(o => {
+                                const isCurrent = currentSelection && currentSelection.section === o.section;
+                                const isBackup = currentBackups.some(b => b.section === o.section);
+                                const conflict = checkOfferingConflict(o, courseCode);
+
+                                return `
+                                    <div class="sec-chip-wrapper">
+                                        <button type="button" 
+                                                class="sec-chip-btn ${isCurrent ? 'is-primary' : (isBackup ? 'is-backup' : '')} ${conflict && !isCurrent && !isBackup ? 'has-clash' : ''}" 
+                                                onclick="handleSectionChipClick('${courseCode}', '${o.section}')">
+                                            
+                                            ${isCurrent ? `
+                                                <span class="sec-chip-icon star-icon" title="Primary (Click to switch with backup)" onclick="event.stopPropagation(); togglePrimaryBackupRole('${courseCode}', '${o.section}')">★</span>
+                                            ` : (isBackup ? `
+                                                <span class="sec-chip-icon plus-icon" title="Backup (Click to make Primary ⭐)" onclick="event.stopPropagation(); togglePrimaryBackupRole('${courseCode}', '${o.section}')">+</span>
+                                            ` : '')}
+
+                                            <span class="sec-chip-label">Sec ${o.section}</span>
+
+                                            ${conflict && !isCurrent && !isBackup ? `
+                                                <span style="font-size: 0.72rem;" title="Time conflict with enrolled class">⚠️</span>
+                                            ` : ''}
+                                        </button>
+                                        
+                                        <div class="sec-popover">
+                                            <div class="sec-popover-header">
+                                                <strong style="color: #ffffff; font-size: 0.82rem;">${courseCode} • Sec ${o.section}</strong>
+                                                <span class="sec-popover-tag ${isCurrent ? 'tag-primary' : (isBackup ? 'tag-backup' : 'tag-available')}">
+                                                    ${isCurrent ? '⭐ Primary' : (isBackup ? '🛡️ Backup' : 'Available')}
+                                                </span>
+                                            </div>
+                                            <div class="sec-popover-body">
+                                                <div>👨‍🏫 <strong>${fg.facultyName}</strong> ${fg.initial ? `[${fg.initial}]` : ''}</div>
+                                                <div>🕒 <strong>${o.days} • ${o.time}</strong></div>
+                                                <div>📍 Room: <strong>${o.room || 'TBA'}</strong></div>
+                                                ${conflict ? `
+                                                    <div class="sec-popover-conflict">⚠️ Clashes with: <strong>${conflict.course.split(' (')[0]} (Sec ${conflict.section})</strong></div>
+                                                ` : `
+                                                    <div class="sec-popover-ok">✓ No clash with enrolled routine</div>
+                                                `}
+                                            </div>
+                                            <div class="sec-popover-footer">
+                                                ${isCurrent ? `
+                                                    <span>⭐ Primary: Click chip to remove • Click ★ to demote</span>
+                                                ` : (isBackup ? `
+                                                    <span>🛡️ Backup: Click chip to remove • Click + to make Primary</span>
+                                                ` : `
+                                                    <span>👉 Click to add to routine (${currentSelection ? 'as Backup ➕' : 'as Primary ⭐'})</span>
+                                                `)}
+                                            </div>
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    }
+    window.renderSectionsModalContent = renderSectionsModalContent;
+
     function toggleCourseSections(courseCode) {
-        expandedSectionsCourseCode = (expandedSectionsCourseCode === courseCode) ? null : courseCode;
-        renderPlannerCourses();
+        openSectionsModal(courseCode);
     }
 
+    // --- RENDER PLANNED COURSES ---
     function renderPlannerCourses() {
         const container = document.getElementById('plannerCoursesList');
         if (!container) return;
@@ -4347,20 +4743,23 @@ window.uiuFallOfferings = uiuFallOfferings;
 
             if (isGed) {
                 html += `
-                    <div class="course-plan-item" style="margin-bottom: 4px; border: 1.5px dashed #8b5cf6; background: rgba(139, 92, 246, 0.05);">
+                    <div class="course-plan-item" style="margin-bottom: 8px; border: 1.5px dashed #8b5cf6; background: rgba(139, 92, 246, 0.05);" onclick="openGenEdModalForSlot('${p.code}')" title="Click to choose a General Education course">
                         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
-                            <div>
+                            <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 6px;">
                                 <span class="sec-type-pill pill-theory" style="background:#8b5cf6; color:white;">GED</span>
-                                <strong style="color: #6d28d9;">${p.code}: ${p.title}</strong>
-                                <span style="font-size: 0.82rem; color: var(--text-muted); margin-left: 6px;">(${p.cr} Cr)</span>
-                                <span style="font-size: 0.78rem; color: #8b5cf6; margin-left: 8px; font-weight: 700;">👈 Please select a course</span>
+                                <strong style="color: #6d28d9; font-size: 0.92rem;">${p.code}: ${p.title}</strong>
+                                <span style="font-size: 0.82rem; color: var(--text-muted);">(${p.cr} Cr)</span>
+                                <span style="font-size: 0.78rem; color: #8b5cf6; margin-left: 6px; font-weight: 700;">👈 Click to choose course</span>
                             </div>
-                            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                                <button type="button" class="btn-action" style="padding: 5px 14px; margin: 0; font-size: 0.82rem; font-weight: 800; background: #8b5cf6; color: white;" onclick="openGenEdModalForSlot('${p.code}')">
-                                    👉 Select Course
+                            <div class="course-top-actions">
+                                <button type="button" class="btn-action" style="padding: 3px 10px; margin: 0; font-size: 0.78rem; font-weight: 700; background: #8b5cf6; color: white; border-radius: 6px;" onclick="event.stopPropagation(); openGenEdModalForSlot('${p.code}')">
+                                    📚 Select
                                 </button>
-                                <button type="button" class="btn-action" style="padding: 3px 8px; margin: 0; font-size: 0.78rem; background: none; border: 1px solid var(--border-color); color: var(--text-muted);" onclick="removeCourseFromPlanner('${p.code}')" title="Remove placeholder">
-                                    ✕
+                                <button type="button" class="course-icon-btn btn-undo-icon" disabled style="opacity: 0.35; cursor: not-allowed;" title="No selection to undo">
+                                    ↩
+                                </button>
+                                <button type="button" class="course-icon-btn btn-delete-icon" onclick="event.stopPropagation(); removeCourseFromPlanner('${p.code}')" title="Remove placeholder">
+                                    🗑️
                                 </button>
                             </div>
                         </div>
@@ -4371,20 +4770,23 @@ window.uiuFallOfferings = uiuFallOfferings;
 
             if (isMajor) {
                 html += `
-                    <div class="course-plan-item" style="margin-bottom: 4px; border: 1.5px dashed #d97706; background: rgba(217, 119, 6, 0.05);">
+                    <div class="course-plan-item" style="margin-bottom: 8px; border: 1.5px dashed #d97706; background: rgba(217, 119, 6, 0.05);" onclick="openMajorModalForSlot('${p.code}')" title="Click to choose a Major Elective course">
                         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
-                            <div>
+                            <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 6px;">
                                 <span class="sec-type-pill pill-theory" style="background:#d97706; color:white;">MAJOR</span>
-                                <strong style="color: #b45309;">${p.code}: ${p.title}</strong>
-                                <span style="font-size: 0.82rem; color: var(--text-muted); margin-left: 6px;">(${p.cr} Cr)</span>
-                                <span style="font-size: 0.78rem; color: #d97706; margin-left: 8px; font-weight: 700;">👈 Please select a course</span>
+                                <strong style="color: #b45309; font-size: 0.92rem;">${p.code}: ${p.title}</strong>
+                                <span style="font-size: 0.82rem; color: var(--text-muted);">(${p.cr} Cr)</span>
+                                <span style="font-size: 0.78rem; color: #d97706; margin-left: 6px; font-weight: 700;">👈 Click to choose course</span>
                             </div>
-                            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                                <button type="button" class="btn-action" style="padding: 5px 14px; margin: 0; font-size: 0.82rem; font-weight: 800; background: #d97706; color: white;" onclick="openMajorModalForSlot('${p.code}')">
-                                    👉 Select Course
+                            <div class="course-top-actions">
+                                <button type="button" class="btn-action" style="padding: 3px 10px; margin: 0; font-size: 0.78rem; font-weight: 700; background: #d97706; color: white; border-radius: 6px;" onclick="event.stopPropagation(); openMajorModalForSlot('${p.code}')">
+                                    🔬 Select
                                 </button>
-                                <button type="button" class="btn-action" style="padding: 3px 8px; margin: 0; font-size: 0.78rem; background: none; border: 1px solid var(--border-color); color: var(--text-muted);" onclick="removeCourseFromPlanner('${p.code}')" title="Remove placeholder">
-                                    ✕
+                                <button type="button" class="course-icon-btn btn-undo-icon" disabled style="opacity: 0.35; cursor: not-allowed;" title="No selection to undo">
+                                    ↩
+                                </button>
+                                <button type="button" class="course-icon-btn btn-delete-icon" onclick="event.stopPropagation(); removeCourseFromPlanner('${p.code}')" title="Remove placeholder">
+                                    🗑️
                                 </button>
                             </div>
                         </div>
@@ -4395,182 +4797,99 @@ window.uiuFallOfferings = uiuFallOfferings;
 
             const currentSelection = mySectionClasses.find(c => c.courseCode === p.code || (c.course && c.course.includes(p.code)));
             const currentBackups = backupClasses.filter(b => b.courseCode === p.code || (b.course && b.course.includes(p.code)));
-            const isExpanded = expandedSectionsCourseCode === p.code;
 
             // Find all Fall 2026 offerings for this course code
             const offerings = (window.uiuFallOfferings || []).filter(o => o.code === p.code);
 
-            const isPreviewingThisCourse = previewCandidate && previewCandidate.courseCode === p.code;
-
             html += `
-                <div class="course-plan-item ${currentSelection ? 'is-selected' : ''}" style="margin-bottom: 4px;">
+                <div class="course-plan-item ${currentSelection ? 'is-selected' : ''}" style="margin-bottom: 8px;" onclick="openSectionsModal('${p.code}')" title="Click to view & select sections (${offerings.length} available)">
                     <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
-                        <div>
+                        <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 6px;">
                             <span class="sec-type-pill ${p.type === 'Theory' ? 'pill-theory' : 'pill-lab'}">${p.type}</span>
-                            <strong>${p.code}: ${p.title}</strong>
-                            <span style="font-size: 0.82rem; color: var(--text-muted); margin-left: 6px;">(${p.cr} Cr)</span>
+                            <strong style="color: var(--text-color); font-size: 0.92rem;">${p.code}: ${p.title}</strong>
+                            <span style="font-size: 0.82rem; color: var(--text-muted);">(${p.cr} Cr)</span>
                             ${isReplacedGed ? `
-                                <span style="background: #f5f3ff; color: #6d28d9; border: 1px solid #ddd6fe; padding: 2px 7px; border-radius: 4px; font-size: 0.74rem; font-weight: 700; margin-left: 6px;">
+                                <span style="background: #f5f3ff; color: #6d28d9; border: 1px solid #ddd6fe; padding: 2px 7px; border-radius: 4px; font-size: 0.74rem; font-weight: 700;">
                                     📚 GED (${p.slotReplaced || 'Elective'})
                                 </span>
+                                <button type="button" class="btn-action" style="padding: 2px 7px; margin: 0; font-size: 0.72rem; background: #8b5cf6; border-radius: 4px;" onclick="event.stopPropagation(); openGenEdModalForSlot('${p.code}')" title="Change to another GED course">
+                                    🔄 Change
+                                </button>
                             ` : ''}
                             ${isReplacedMajor ? `
-                                <span style="background: #fffbeb; color: #b45309; border: 1px solid #fde68a; padding: 2px 7px; border-radius: 4px; font-size: 0.74rem; font-weight: 700; margin-left: 6px;">
+                                <span style="background: #fffbeb; color: #b45309; border: 1px solid #fde68a; padding: 2px 7px; border-radius: 4px; font-size: 0.74rem; font-weight: 700;">
                                     🔬 Major: ${p.majorTrack || 'Elective'}
                                 </span>
+                                <button type="button" class="btn-action" style="padding: 2px 7px; margin: 0; font-size: 0.72rem; background: #d97706; border-radius: 4px;" onclick="event.stopPropagation(); openMajorModalForSlot('${p.code}')" title="Change to another Major course">
+                                    🔄 Change
+                                </button>
                             ` : ''}
                         </div>
-                        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                            ${isReplacedGed ? `
-                                <button type="button" class="btn-action" style="padding: 3px 8px; margin: 0; font-size: 0.78rem; background: #8b5cf6;" onclick="openGenEdModalForSlot('${p.code}')" title="Change to another GED course">
-                                    🔄 Change Course
-                                </button>
-                            ` : ''}
-                            ${isReplacedMajor ? `
-                                <button type="button" class="btn-action" style="padding: 3px 8px; margin: 0; font-size: 0.78rem; background: #d97706;" onclick="openMajorModalForSlot('${p.code}')" title="Change to another Major course">
-                                    🔄 Change Course
-                                </button>
-                            ` : ''}
-                            ${currentSelection ? `
-                                <span style="background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; padding: 3px 8px; border-radius: 6px; font-weight: 700; font-size: 0.8rem;">
-                                    ✓ Primary: Sec ${currentSelection.section} (${currentSelection.initial || currentSelection.faculty})
-                                </span>
-                                <button type="button" class="btn-action" style="padding: 3px 8px; margin: 0; font-size: 0.78rem; background: #64748b;" onclick="undoCourseSection('${p.code}')" title="Undo section choice">
-                                    ↩ Undo
-                                </button>
-                            ` : `
-                                <span style="background: #fffbeb; color: #92400e; border: 1px solid #fde68a; padding: 3px 8px; border-radius: 6px; font-weight: 600; font-size: 0.8rem;">
-                                    ⚠️ Not Selected
-                                </span>
-                            `}
+                        <div class="course-top-actions">
                             ${currentBackups.length > 0 ? `
-                                <span style="background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; padding: 3px 8px; border-radius: 6px; font-weight: 700; font-size: 0.8rem;">
-                                    🛡️ ${currentBackups.length} Backup(s)
+                                <span style="background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; padding: 2px 9px; border-radius: 12px; font-weight: 700; font-size: 0.76rem;" title="${currentBackups.length} backup section(s) saved">
+                                    ➕ ${currentBackups.length} Backup${currentBackups.length > 1 ? 's' : ''}
                                 </span>
                             ` : ''}
-                            <button type="button" class="btn-action" style="padding: 3px 10px; margin: 0; font-size: 0.8rem; background: var(--secondary-color);" onclick="toggleCourseSections('${p.code}')">
-                                ${isExpanded ? '▲ Hide Sections' : `▼ View Sections (${offerings.length})`}
+                            ${!currentSelection && currentBackups.length === 0 ? `
+                                <span style="background: #fffbeb; color: #92400e; border: 1px solid #fde68a; padding: 2px 8px; border-radius: 6px; font-weight: 600; font-size: 0.74rem;">
+                                    ⚠️ Unselected
+                                </span>
+                            ` : ''}
+                            <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 500; margin-right: 2px;">
+                                (${offerings.length} sec)
+                            </span>
+                            <button type="button" 
+                                    class="course-icon-btn btn-undo-icon" 
+                                    ${(!currentSelection && currentBackups.length === 0) ? 'disabled style="opacity: 0.35; cursor: not-allowed;"' : ''} 
+                                    onclick="event.stopPropagation(); undoCourseSection('${p.code}')" 
+                                    title="${(!currentSelection && currentBackups.length === 0) ? 'No section to undo' : 'Undo section selection'}">
+                                ↩
                             </button>
-                            <button type="button" class="btn-action" style="padding: 3px 8px; margin: 0; font-size: 0.78rem; background: none; border: 1px solid var(--border-color); color: var(--text-muted);" onclick="removeCourseFromPlanner('${p.code}')" title="Remove course from plan">
-                                ✕
+                            <button type="button" 
+                                    class="course-icon-btn btn-delete-icon" 
+                                    onclick="event.stopPropagation(); removeCourseFromPlanner('${p.code}')" 
+                                    title="Remove course from plan">
+                                🗑️
                             </button>
                         </div>
                     </div>
 
-                    ${currentBackups.length > 0 ? `
-                        <div style="margin-top: 6px; padding-top: 6px; border-top: 1px dashed var(--border-color); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 0.8rem;">
-                            <span style="font-weight: 700; color: #0284c7; display: flex; align-items: center; gap: 4px;">
-                                <span>🛡️</span> Saved Backups:
-                            </span>
-                            ${currentBackups.map(b => `
-                                <span style="background: #f0f9ff; color: #0369a1; border: 1px solid #bae6fd; padding: 2px 8px; border-radius: 5px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;">
-                                    <span><strong>Sec ${b.section}</strong> (${b.initial || b.faculty}) • ${b.day} ${b.time}</span>
-                                    <button type="button" onclick="promoteBackupToPrimary('${p.code}', '${b.section}')" title="Promote this backup to Primary (replaces current primary)" style="background: #10b981; color: white; border: none; border-radius: 3px; padding: 1px 6px; cursor: pointer; font-size: 0.7rem; font-weight: bold;">★ Set Primary</button>
-                                    <button type="button" onclick="removeBackupSection('${p.code}', '${b.section}')" title="Remove this backup" style="background: none; border: none; cursor: pointer; color: #ef4444; font-weight: bold; font-size: 0.82rem; line-height: 1;">✕</button>
+                    ${currentSelection ? `
+                        <div style="margin-top: 8px; padding: 7px 12px; background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 8px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; font-size: 0.82rem;">
+                            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                                <span style="font-weight: 800; color: #059669; display: inline-flex; align-items: center; gap: 4px;">
+                                    ⭐ Sec ${currentSelection.section}
                                 </span>
-                            `).join('')}
+                                <span style="color: var(--text-color); font-weight: 600;">
+                                    👨‍🏫 ${currentSelection.faculty || 'TBA'}${currentSelection.initial ? ` [${currentSelection.initial}]` : ''}
+                                </span>
+                                <span style="color: var(--text-muted);">
+                                    🕒 ${currentSelection.day || currentSelection.days || ''} • ${currentSelection.time || ''}
+                                </span>
+                                ${currentSelection.room ? `<span style="color: var(--text-muted);">📍 ${currentSelection.room}</span>` : ''}
+                            </div>
+                            <span style="font-size: 0.74rem; color: var(--primary-color); font-weight: 600;">
+                                Click to manage sections ↗
+                            </span>
                         </div>
-                    ` : ''}
-
-                    ${isExpanded ? `
-                        <div style="margin-top: 12px; border-top: 1px solid var(--border-color); padding-top: 10px;">
-                            ${offerings.length === 0 ? `
-                                <div style="font-size: 0.82rem; color: var(--text-muted); padding: 8px 0;">
-                                    No official section offerings found for ${p.code} in Fall 2026. You can add a manual session using the form below.
-                                </div>
-                            ` : `
-                                <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;">
-                                    <span>💡 Sections grouped by faculty. Hover for timings & clashes. <strong>Click section pill to add to routine</strong> (1st selection = Primary ⭐, next = Backup ➕). Click ⭐ / ➕ to switch!</span>
-                                </div>
-                                <div class="faculty-groups-container">
-                                    ${(() => {
-                                        const fMap = new Map();
-                                        offerings.forEach(o => {
-                                            const fName = getCleanFacultyName(o);
-                                            const init = (o.initial || '').trim();
-                                            const key = init ? init.toUpperCase() : fName.toLowerCase();
-                                            if (!fMap.has(key)) {
-                                                fMap.set(key, { facultyName: fName, initial: init, sections: [] });
-                                            }
-                                            fMap.get(key).sections.push(o);
-                                        });
-                                        return Array.from(fMap.values()).map(fg => `
-                                            <div class="faculty-group-card">
-                                                <div class="faculty-info-col">
-                                                    <span style="font-size: 1.1rem;">👨‍🏫</span>
-                                                    <div>
-                                                        <span class="faculty-name-text">${fg.facultyName}</span>
-                                                        ${fg.initial ? `<span class="faculty-initial-badge">${fg.initial}</span>` : ''}
-                                                    </div>
-                                                </div>
-                                                <div class="faculty-chips-col">
-                                                    ${fg.sections.map(o => {
-                                                        const isCurrent = currentSelection && currentSelection.section === o.section;
-                                                        const isBackup = currentBackups.some(b => b.section === o.section);
-                                                        const conflict = checkOfferingConflict(o, p.code);
-
-                                                        return `
-                                                            <div class="sec-chip-wrapper">
-                                                                <button type="button" 
-                                                                        class="sec-chip-btn ${isCurrent ? 'is-primary' : (isBackup ? 'is-backup' : '')} ${conflict && !isCurrent && !isBackup ? 'has-clash' : ''}" 
-                                                                        onclick="handleSectionChipClick('${p.code}', '${o.section}')">
-                                                                    
-                                                                    ${isCurrent ? `
-                                                                        <span class="sec-chip-icon star-icon" title="Primary (Click to switch with backup)" onclick="event.stopPropagation(); togglePrimaryBackupRole('${p.code}', '${o.section}')">★</span>
-                                                                    ` : (isBackup ? `
-                                                                        <span class="sec-chip-icon plus-icon" title="Backup (Click to make Primary ⭐)" onclick="event.stopPropagation(); togglePrimaryBackupRole('${p.code}', '${o.section}')">+</span>
-                                                                    ` : '')}
-
-                                                                    <span class="sec-chip-label">Sec ${o.section}</span>
-
-                                                                    ${conflict && !isCurrent && !isBackup ? `
-                                                                        <span style="font-size: 0.72rem;" title="Time Conflict with enrolled class">⚠️</span>
-                                                                    ` : ''}
-                                                                </button>
-                                                                
-                                                                <div class="sec-popover">
-                                                                    <div class="sec-popover-header">
-                                                                        <strong style="color: #ffffff; font-size: 0.82rem;">${p.code} • Sec ${o.section}</strong>
-                                                                        <span class="sec-popover-tag ${isCurrent ? 'tag-primary' : (isBackup ? 'tag-backup' : 'tag-available')}">
-                                                                            ${isCurrent ? '⭐ Primary' : (isBackup ? '🛡️ Backup' : 'Available')}
-                                                                        </span>
-                                                                    </div>
-                                                                    <div class="sec-popover-body">
-                                                                        <div>👨‍🏫 <strong>${fg.facultyName}</strong> ${fg.initial ? `[${fg.initial}]` : ''}</div>
-                                                                        <div>🕒 <strong>${o.days} • ${o.time}</strong></div>
-                                                                        <div>📍 Room: <strong>${o.room || 'TBA'}</strong></div>
-                                                                        ${conflict ? `
-                                                                            <div class="sec-popover-conflict">⚠️ Clashes with: <strong>${conflict.course.split(' (')[0]} (Sec ${conflict.section})</strong></div>
-                                                                        ` : `
-                                                                            <div class="sec-popover-ok">✓ No clash with enrolled routine</div>
-                                                                        `}
-                                                                    </div>
-                                                                    <div class="sec-popover-footer">
-                                                                        ${isCurrent ? `
-                                                                            <span>⭐ Primary: Click chip to remove • Click ★ to demote</span>
-                                                                        ` : (isBackup ? `
-                                                                            <span>🛡️ Backup: Click chip to remove • Click + to make Primary</span>
-                                                                        ` : `
-                                                                            <span>👉 Click to add to routine (${currentSelection ? 'as Backup ➕' : 'as Primary ⭐'})</span>
-                                                                        `)}
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        `;
-                                                    }).join('')}
-                                                </div>
-                                            </div>
-                                        `).join('');
-                                    })()}
-                                </div>
-                            `}
+                    ` : `
+                        <div style="margin-top: 6px; display: flex; align-items: center; justify-content: space-between; font-size: 0.78rem; color: var(--text-muted);">
+                            <span>👈 Click this course to view available sections & add to routine</span>
+                            <span style="color: var(--primary-color); font-weight: 600;">Click to select ⚡</span>
                         </div>
-                    ` : ''}
+                    `}
                 </div>
             `;
         });
 
         container.innerHTML = html;
+        if (activeSectionsModalCourseCode) {
+            const modal = document.getElementById('course-sections-modal');
+            if (modal && modal.classList.contains('is-open')) {
+                renderSectionsModalContent(activeSectionsModalCourseCode);
+            }
+        }
     }
 
     // --- SELECTION, FINALIZING, PREVIEW & UNDO ---
@@ -4794,7 +5113,9 @@ window.uiuFallOfferings = uiuFallOfferings;
 
     function undoCourseSection(courseCode) {
         mySectionClasses = mySectionClasses.filter(c => !(c.courseCode === courseCode || (c.course && c.course.includes(courseCode))));
+        backupClasses = backupClasses.filter(b => !(b.courseCode === courseCode || (b.course && b.course.includes(courseCode))));
         saveSectionClasses();
+        saveBackupClasses();
         if (previewCandidate && previewCandidate.courseCode === courseCode) {
             previewCandidate = null;
             window.previewCandidate = null;
@@ -7791,6 +8112,61 @@ window.uiuFallOfferings = uiuFallOfferings;
         <div id="fydp-courses-modal-list" style="display: flex; flex-direction: column; gap: 8px; max-height: 55vh; overflow-y: auto;">
             <!-- Rendered by renderFydpModal() -->
         </div>
+    </div>
+</div>
+
+<!-- Modal: Course Sections Popup Modal -->
+<div class="modal-backdrop-custom" id="course-sections-modal" onclick="closeCustomModalOnBackdrop(event, 'course-sections-modal')">
+    <div class="modal-dialog-custom" style="max-width: 820px; width: 95%; max-height: 88vh; display: flex; flex-direction: column;">
+        <!-- Modal Header with Title & Controls (Minimize + Close) -->
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid var(--border-color); padding-bottom: 12px; margin-bottom: 12px; gap: 12px;">
+            <div>
+                <h3 id="sections-modal-course-title" style="margin: 0; color: var(--primary-color); display: flex; align-items: center; gap: 8px; font-size: 1.15rem; flex-wrap: wrap;">
+                    <span>⚡</span> <span>Course Sections</span>
+                </h3>
+                <div id="sections-modal-course-sub" style="font-size: 0.84rem; color: var(--text-muted); margin-top: 4px;">
+                    Select sections grouped by faculty. Click a section pill to add (1st = Primary ⭐, subsequent = Backup ➕).
+                </div>
+            </div>
+            <!-- Window Control Buttons at top right corner -->
+            <div style="display: flex; align-items: center; gap: 6px; flex-shrink: 0;">
+                <button type="button" class="modal-window-btn btn-minimize" onclick="minimizeSectionsModal()" title="Minimize to dock (view routine unobstructed)">
+                    🗕
+                </button>
+                <button type="button" class="modal-window-btn btn-close" onclick="closeSectionsModal()" title="Close sections popup">
+                    ✕
+                </button>
+            </div>
+        </div>
+
+        <!-- Status / Active Selection Banner in Modal -->
+        <div id="sections-modal-active-status" style="margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; font-size: 0.82rem; padding: 6px 12px; background: var(--bg-body); border-radius: 6px; border: 1px solid var(--border-color);">
+            <!-- Rendered dynamically -->
+        </div>
+
+        <!-- Modal Body: Scrollable Faculty Groups & Section Chips -->
+        <div id="sections-modal-body" style="flex: 1; overflow-y: auto; padding-right: 4px;">
+            <!-- Rendered dynamically -->
+        </div>
+    </div>
+</div>
+
+<!-- Minimized Floating Dock Pill -->
+<div id="sections-minimized-dock" class="sections-minimized-dock" style="display: none;" onclick="restoreSectionsModal()">
+    <div style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+        <span style="font-size: 1.1rem;">⚡</span>
+        <div>
+            <div id="minimized-dock-title" style="font-weight: 800; font-size: 0.86rem; letter-spacing: 0.3px;">CSE Sections</div>
+            <div style="font-size: 0.72rem; color: #94a3b8;">Click to expand popup</div>
+        </div>
+    </div>
+    <div style="display: flex; align-items: center; gap: 6px; margin-left: 14px;">
+        <button type="button" class="dock-btn-action" onclick="event.stopPropagation(); restoreSectionsModal()" title="Restore window">
+            🗖
+        </button>
+        <button type="button" class="dock-btn-action" onclick="event.stopPropagation(); closeMinimizedSectionsDock()" title="Close dock">
+            ✕
+        </button>
     </div>
 </div>
 
