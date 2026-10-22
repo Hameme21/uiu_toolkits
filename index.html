@@ -4055,12 +4055,24 @@ window.uiuFallOfferings = uiuFallOfferings;
     }
 
     function parseTimeToMinutes(timeStr) {
-        let [time, modifier] = timeStr.trim().split(' ');
-        let [hours, minutes] = time.split(':');
-        hours = parseInt(hours, 10);
-        minutes = parseInt(minutes, 10);
-        if (hours === 12 && modifier === 'AM') hours = 0;
-        if (hours < 12 && modifier === 'PM') hours += 12;
+        if (!timeStr) return 0;
+        const cleanStr = String(timeStr).replace(/^[^(]*\(/, '').replace(/\)[^)]*$/, '').trim();
+        const match = cleanStr.match(/(\d{1,2}):(\d{2})(?::\d{2})?\s*(AM|PM)?/i);
+        if (!match) return 0;
+        let hours = parseInt(match[1], 10);
+        let minutes = parseInt(match[2], 10);
+        const modifier = match[3] ? match[3].toUpperCase() : null;
+
+        if (modifier === 'PM') {
+            if (hours < 12) hours += 12;
+        } else if (modifier === 'AM') {
+            if (hours === 12) hours = 0;
+        } else {
+            // UIU regular class timeline runs 8:00 AM - 6:00 PM
+            if (hours >= 1 && hours <= 7) {
+                hours += 12;
+            }
+        }
         return (hours * 60) + minutes;
     }
 
@@ -4489,7 +4501,15 @@ window.uiuFallOfferings = uiuFallOfferings;
     // Helper: format 08:30 AM -> 8:30 for compact, clean time display
     function formatShortTime(tStr) {
         if (!tStr) return '';
-        let s = tStr.trim();
+        let s = String(tStr).trim();
+        const paren = s.match(/\((.*?)\)/);
+        if (paren) s = paren[1].trim();
+        const match = s.match(/(\d{1,2}):(\d{2})/);
+        if (match) {
+            let h = parseInt(match[1], 10);
+            let m = match[2];
+            return `${h}:${m}`;
+        }
         s = s.replace(/^0/, '');
         s = s.replace(/\s*(AM|PM)/i, '').trim();
         return s;
@@ -4882,8 +4902,11 @@ window.uiuFallOfferings = uiuFallOfferings;
 
     // --- TIME OVERLAP / CONFLICT CHECKER ---
     function checkOfferingConflict(offering, currentCourseCode) {
-        // Parse offering time and days
-        const timeParts = offering.time.split('-');
+        if (!offering || !offering.time) return null;
+        let oTime = offering.time;
+        const parenMatch = oTime.match(/\((.*?)\)/);
+        if (parenMatch) oTime = parenMatch[1];
+        const timeParts = oTime.split('-');
         if (timeParts.length < 2) return null;
         const oStart = parseTimeToMinutes(timeParts[0].trim());
         const oEnd = parseTimeToMinutes(timeParts[1].trim());
@@ -4900,27 +4923,28 @@ window.uiuFallOfferings = uiuFallOfferings;
             }
 
             let cDays = [];
-            if (c.day === "Saturday & Tuesday") cDays = ["Saturday", "Tuesday"];
-            else if (c.day === "Sunday & Wednesday") cDays = ["Sunday", "Wednesday"];
-            else cDays = [c.day];
+            const cDayStr = c.days || c.day || '';
+            if (cDayStr === "Saturday & Tuesday") cDays = ["Saturday", "Tuesday"];
+            else if (cDayStr === "Sunday & Wednesday") cDays = ["Sunday", "Wednesday"];
+            else if (cDayStr) cDays = [cDayStr];
 
             const sharedDay = oDays.some(d => cDays.includes(d));
             if (!sharedDay) continue;
 
             // Get time for class c
             let cStart = 0, cEnd = 0;
-            if (c.time) {
-                const parts = c.time.split('-');
+            let cTimeRaw = c.time || '';
+            const isLabC = (c.type || '').toLowerCase() === 'lab' || c.cr === 1.0 || /lab|laboratory/i.test(c.title || c.course || '');
+            if (!cTimeRaw && c.slotIndex !== undefined && c.slotIndex > -1) {
+                cTimeRaw = !isLabC ? theoryTimeSlots[c.slotIndex] : labTimeSlots[c.slotIndex];
+            }
+            if (cTimeRaw) {
+                const cParen = cTimeRaw.match(/\((.*?)\)/);
+                const cTimeClean = cParen ? cParen[1] : cTimeRaw;
+                const parts = cTimeClean.split('-');
                 if (parts.length >= 2) {
                     cStart = parseTimeToMinutes(parts[0].trim());
                     cEnd = parseTimeToMinutes(parts[1].trim());
-                }
-            } else if (c.slotIndex !== undefined && c.slotIndex > -1) {
-                const slotStr = c.type === 'Theory' ? theoryTimeSlots[c.slotIndex] : labTimeSlots[c.slotIndex];
-                const match = slotStr ? slotStr.match(/\((.*?)\s*-\s*(.*?)\)/) : null;
-                if (match) {
-                    cStart = parseTimeToMinutes(match[1].trim());
-                    cEnd = parseTimeToMinutes(match[2].trim());
                 }
             }
 
@@ -6134,18 +6158,18 @@ window.uiuFallOfferings = uiuFallOfferings;
             if (!daysToRender.includes(day)) return;
             
             let cStart = 0, cEnd = 0;
-            if (c.time) {
-                const parts = c.time.split('-');
+            let cTimeRaw = c.time || '';
+            const isLabC = (c.type || '').toLowerCase() === 'lab' || c.cr === 1.0 || /lab|laboratory/i.test(c.title || c.course || '');
+            if (!cTimeRaw && c.slotIndex !== undefined && c.slotIndex > -1) {
+                cTimeRaw = !isLabC ? theoryTimeSlots[c.slotIndex] : labTimeSlots[c.slotIndex];
+            }
+            if (cTimeRaw) {
+                const cParen = cTimeRaw.match(/\((.*?)\)/);
+                const cTimeClean = cParen ? cParen[1] : cTimeRaw;
+                const parts = cTimeClean.split('-');
                 if (parts.length >= 2) {
                     cStart = parseTimeToMinutes(parts[0].trim());
                     cEnd = parseTimeToMinutes(parts[1].trim());
-                }
-            } else {
-                let timeLabel = c.type === 'Theory' ? theoryTimeSlots[c.slotIndex] : labTimeSlots[c.slotIndex];
-                let timeMatch = timeLabel ? timeLabel.match(/\((.*?)\s*-\s*(.*?)\)/) : null;
-                if (timeMatch) {
-                    cStart = parseTimeToMinutes(timeMatch[1].trim());
-                    cEnd = parseTimeToMinutes(timeMatch[2].trim());
                 }
             }
             
@@ -6336,25 +6360,28 @@ window.uiuFallOfferings = uiuFallOfferings;
             let startStr = '', endStr = '';
 
             const isLabItem = (item.type || '').toLowerCase() === 'lab' || item.cr === 1.0 || /lab|laboratory/i.test(item.title || '');
-            if (item.time) {
-                const parts = item.time.split('-');
+            let timeRaw = item.time || '';
+            if (!timeRaw && item.slotIndex !== undefined && item.slotIndex > -1) {
+                timeRaw = !isLabItem ? theoryTimeSlots[item.slotIndex] : labTimeSlots[item.slotIndex];
+            }
+            if (timeRaw) {
+                const parenMatch = timeRaw.match(/\((.*?)\)/);
+                const timeClean = parenMatch ? parenMatch[1] : timeRaw;
+                const parts = timeClean.split('-');
                 if (parts.length >= 2) {
                     startStr = parts[0].trim();
                     endStr = parts[1].trim();
                     startMin = parseTimeToMinutes(startStr);
                     endMin = parseTimeToMinutes(endStr);
                 }
-            } else if (item.slotIndex !== undefined && item.slotIndex > -1) {
-                let timeLabel = !isLabItem ? theoryTimeSlots[item.slotIndex] : labTimeSlots[item.slotIndex];
-                if (timeLabel) {
-                    let timeMatch = timeLabel.match(/\((.*?)\s*-\s*(.*?)\)/);
-                    if (timeMatch) {
-                        startStr = timeMatch[1].trim();
-                        endStr = timeMatch[2].trim();
-                        startMin = parseTimeToMinutes(startStr);
-                        endMin = parseTimeToMinutes(endStr);
-                    }
-                }
+            }
+
+            // Fallback guard to guarantee valid numbers and prevent NaN
+            if (!startMin || !endMin || isNaN(startMin) || isNaN(endMin) || endMin <= startMin) {
+                startMin = 510; // 8:30 AM
+                endMin = isLabItem ? 660 : 590; // 11:00 AM (Lab, 150m) or 9:50 AM (Theory, 80m)
+                startStr = '08:30 AM';
+                endStr = isLabItem ? '11:00 AM' : '09:50 AM';
             }
 
             if (!startStr || !endStr) return;
@@ -6364,6 +6391,8 @@ window.uiuFallOfferings = uiuFallOfferings;
 
             let leftPercent = Math.max(0, ((startMin - timelineStart) / timelineTotal) * 100);
             let widthPercent = Math.min(100 - leftPercent, ((endMin - startMin) / timelineTotal) * 100);
+            if (isNaN(leftPercent)) leftPercent = 5.5555;
+            if (isNaN(widthPercent)) widthPercent = isLabItem ? 27.7778 : 14.8148;
 
             daysToRender.forEach(d => {
                 if (dayInstances[d]) {
