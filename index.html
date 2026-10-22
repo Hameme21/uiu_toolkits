@@ -625,12 +625,12 @@
         .timeline-event.is-deck-behind:hover {
             transform: translateY(-5px) scale(1.03) !important;
             filter: brightness(1.15) !important;
-            z-index: 70 !important;
+            z-index: 99999 !important;
             box-shadow: 0 12px 28px rgba(0,0,0,0.5) !important;
         }
         .timeline-event.is-deck-top:hover {
             transform: translateY(-4px) scale(1.02) !important;
-            z-index: 75 !important;
+            z-index: 99999 !important;
         }
 
         .card-btn-deck-shuffle {
@@ -658,21 +658,23 @@
         }
         
         .timeline-event:hover,
+        .timeline-event.is-theory:hover,
+        .timeline-event.is-deck-behind:hover,
+        .timeline-event.is-deck-top:hover,
         .timeline-event.is-preview:hover,
         .timeline-event.is-backup:hover,
         .timeline-event.is-faculty-overlay:hover,
         .timeline-event.is-clash:hover,
         .timeline-event.is-focused:hover {
             transform: translateY(-6px) scale(1.04) !important;
-            z-index: 9999 !important;
+            z-index: 99999 !important;
             box-shadow: 0 20px 42px rgba(0, 0, 0, 0.7), 0 0 18px rgba(255, 255, 255, 0.45) !important;
-            filter: brightness(1.12) !important;
+            filter: brightness(1.15) !important;
         }
 
         .timeline-event.is-focused {
             border: 2px solid #ffd700 !important;
             box-shadow: 0 0 15px rgba(255, 215, 0, 0.75) !important;
-            z-index: 45 !important;
         }
 
         /* Show red border ONLY if clash */
@@ -1306,7 +1308,6 @@
             border: 2px dashed #ffffff !important;
             box-shadow: 0 0 15px rgba(245, 158, 11, 0.6) !important;
             animation: preview-pulse 2s infinite ease-in-out;
-            z-index: 40 !important;
         }
 
         @keyframes preview-pulse {
@@ -1318,7 +1319,6 @@
             background: linear-gradient(135deg, #6366f1, #8b5cf6) !important;
             border: 2px solid #c4b5fd !important;
             opacity: 0.95;
-            z-index: 30 !important;
         }
 
         .timeline-event.is-backup {
@@ -1326,7 +1326,6 @@
             border: 2px solid transparent !important;
             box-shadow: 0 4px 12px rgba(2, 132, 199, 0.4) !important;
             opacity: 0.96;
-            z-index: 35 !important;
         }
 
         .timeline-event.is-backup.is-clash {
@@ -6498,8 +6497,15 @@ window.uiuFallOfferings = uiuFallOfferings;
                 return;
             }
 
-            // Sort: earlier start first, then longer duration first
-            instances.sort((a, b) => a.startMin - b.startMin || (b.endMin - b.startMin) - (a.endMin - a.startMin));
+            // Sort: earlier start first, then theory first (always keep theory cards in front of lab cards)
+            instances.sort((a, b) => {
+                if (a.startMin !== b.startMin) return a.startMin - b.startMin;
+                const isLabA = (a.item.type || '').toLowerCase() === 'lab' || a.item.cr === 1.0 || /lab|laboratory/i.test(a.item.title || a.item.course || '');
+                const isLabB = (b.item.type || '').toLowerCase() === 'lab' || b.item.cr === 1.0 || /lab|laboratory/i.test(b.item.title || b.item.course || '');
+                if (!isLabA && isLabB) return -1;
+                if (isLabA && !isLabB) return 1;
+                return (a.endMin - a.startMin) - (b.endMin - b.startMin);
+            });
 
             // Determine overlapping instances for conflict detection
             instances.forEach(inst => {
@@ -6532,10 +6538,22 @@ window.uiuFallOfferings = uiuFallOfferings;
                         }
                     });
                 }
-                // Sort cluster: primary non-backups first, candidates next, backups last
+                // Sort cluster: ALWAYS keep Theory cards in front of Lab cards so user can easily hover and see both!
                 cluster.sort((a, b) => {
-                    const score = x => (x.isCandidate ? 2 : (x.isBackup ? 3 : 1));
-                    return score(a) - score(b);
+                    const isLabA = (a.item.type || '').toLowerCase() === 'lab' || a.item.cr === 1.0 || /lab|laboratory/i.test(a.item.title || a.item.course || '');
+                    const isLabB = (b.item.type || '').toLowerCase() === 'lab' || b.item.cr === 1.0 || /lab|laboratory/i.test(b.item.title || b.item.course || '');
+
+                    // Theory in front of Lab
+                    if (!isLabA && isLabB) return -1;
+                    if (isLabA && !isLabB) return 1;
+
+                    // Role score: primary (1), candidates (2), backups (3)
+                    const roleScore = x => (x.isCandidate ? 2 : (x.isBackup ? 3 : 1));
+                    const roleA = roleScore(a);
+                    const roleB = roleScore(b);
+                    if (roleA !== roleB) return roleA - roleB;
+
+                    return (a.endMin - a.startMin) - (b.endMin - b.startMin);
                 });
                 clusters.push(cluster);
             });
@@ -6611,7 +6629,9 @@ window.uiuFallOfferings = uiuFallOfferings;
                     ? `calc(100% - ${inst.leftPercent}% - ${xOffset}px)` 
                     : `calc(100% - ${inst.leftPercent}%)`;
                 block.style.height = `${cardHeight}px`;
-                block.style.zIndex = 60 - (stackPos * 4);
+                // Theory cards always stay in front (baseZ: 80) of Lab cards (baseZ: 35) so user can easily hover
+                const baseZ = !isLab ? 80 : 35;
+                block.style.zIndex = Math.max(1, baseZ - (stackPos * 4));
 
                 // Deck interactive handling
                 if (inst.isDeck) {
