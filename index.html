@@ -2777,7 +2777,10 @@
                         Select your core trimester below to load curriculum courses. Pick courses for General Education & Major electives, and select sections for your routine.
                     </p>
                 </div>
-                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+                    <button type="button" class="btn-action btn-apply-all" style="margin: 0; font-size: 0.84rem; padding: 7px 16px; background: #10b981; color: white; font-weight: 700; border-radius: 8px; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(16,185,129,0.35); border: none; cursor: pointer;" onclick="applyAllSections()" title="Apply all selected course sections to routine">
+                        <span>✓</span> <span>Apply All Sections</span>
+                    </button>
                     <button type="button" class="btn-action" style="margin: 0; font-size: 0.82rem; padding: 6px 14px; background: #64748b;" onclick="clearTrimesterPlan()">🗑️ Clear Plan</button>
                 </div>
             </div>
@@ -2878,7 +2881,10 @@
 
         <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 30px; flex-wrap: wrap; gap: 15px;">
             <h2 style="color: var(--secondary-color); font-size: 1.4em; margin-bottom: 0; border-bottom: 3px solid var(--primary-color); padding-bottom: 5px;">Unified Class Routine</h2>
-            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+                <button type="button" class="btn-action btn-apply-all" style="margin-top: 0; background: #10b981; color: white; display: inline-flex; align-items: center; gap: 6px; font-weight: 700; padding: 6px 16px; border-radius: 8px; border: none; box-shadow: 0 2px 8px rgba(16,185,129,0.35); cursor: pointer;" onclick="applyAllSections()" title="Apply all selected course sections to routine">
+                    <span>✓</span> <span>Apply All Sections</span>
+                </button>
                 <button type="button" id="btnToggleBackupsOnRoutine" class="btn-action" style="margin-top: 0; background: #0284c7; color: white; display: inline-flex; align-items: center; gap: 5px;" onclick="toggleShowBackupsOnRoutine()" title="Toggle display of backup sections on weekly routine">🛡️ Backups on Routine: ON</button>
                 <input type="file" id="sectionCsvInput" accept=".csv" style="display: none;" onchange="importSectionCSV(event)">
                 <button class="btn-action btn-import" style="margin-top: 0;" onclick="document.getElementById('sectionCsvInput').click()">📤 Import Planner from CSV</button>
@@ -5116,11 +5122,70 @@ window.uiuFallOfferings = uiuFallOfferings;
         }
     }, true);
 
-    function applySectionsModalSelection() {
+    // --- SLEEK TOAST NOTIFICATION ---
+    function showToast(msg, duration = 3000) {
+        let toast = document.getElementById('uiu-toast-notification');
+        if (!toast) {
+            toast = document.createElement('div');
+            toast.id = 'uiu-toast-notification';
+            toast.style.cssText = `
+                position: fixed;
+                bottom: 24px;
+                right: 24px;
+                background: #0f172a;
+                color: #ffffff;
+                border: 1px solid #10b981;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.4), 0 0 15px rgba(16,185,129,0.3);
+                border-radius: 10px;
+                padding: 12px 20px;
+                font-size: 0.9rem;
+                font-weight: 600;
+                z-index: 999999;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                opacity: 0;
+                transform: translateY(20px);
+                pointer-events: none;
+            `;
+            document.body.appendChild(toast);
+        }
+        toast.innerHTML = `<span style="font-size:1.15rem; color:#10b981;">✓</span> <span>${msg}</span>`;
+        toast.style.opacity = '1';
+        toast.style.transform = 'translateY(0)';
+        if (window._toastTimeout) clearTimeout(window._toastTimeout);
+        window._toastTimeout = setTimeout(() => {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateY(20px)';
+        }, duration);
+    }
+    window.showToast = showToast;
+
+    // --- APPLY ALL SECTIONS BUTTON ACTION ---
+    function applyAllSections() {
         hideSectionDetailsPopover();
         closeSectionsModal();
+
+        saveSectionClasses();
+        saveBackupClasses();
         renderPlannerCourses();
         renderSectionRoutine();
+
+        const primaryCount = mySectionClasses.length;
+        const backupCount = backupClasses.length;
+
+        if (primaryCount === 0 && backupCount === 0) {
+            showToast("No sections selected yet. Click courses above to select sections!", 3500);
+            return;
+        }
+
+        showToast(`All sections applied! (${primaryCount} Primary ⭐, ${backupCount} Backup${backupCount === 1 ? '' : 's'} ➕ active on routine)`, 3000);
+    }
+    window.applyAllSections = applyAllSections;
+
+    function applySectionsModalSelection() {
+        closeSectionsModal();
     }
     window.applySectionsModalSelection = applySectionsModalSelection;
 
@@ -8910,9 +8975,6 @@ window.uiuFallOfferings = uiuFallOfferings;
             </div>
             <!-- Window Control Buttons at top right corner -->
             <div style="display: flex; align-items: center; gap: 6px; flex-shrink: 0;">
-                <button type="button" class="modal-window-btn btn-apply-modal" onclick="applySectionsModalSelection()" title="Apply selection & close popup (Enter)" style="background: #10b981; color: white; font-weight: 700; padding: 4px 12px; font-size: 0.82rem; border-radius: 6px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 6px rgba(16,185,129,0.35); transition: all 0.2s ease;">
-                    <span>✓</span> <span>Apply</span>
-                </button>
                 <button type="button" class="modal-window-btn btn-minimize" onclick="minimizeSectionsModal()" title="Minimize to dock (view routine unobstructed)">
                     🗕
                 </button>
@@ -8932,19 +8994,14 @@ window.uiuFallOfferings = uiuFallOfferings;
             <!-- Rendered dynamically -->
         </div>
 
-        <!-- Modal Footer: Apply / Close Action Bar with Enter hint -->
+        <!-- Modal Footer: Action Bar -->
         <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-color); padding-top: 10px; margin-top: 10px; flex-wrap: wrap; gap: 10px;">
             <div style="font-size: 0.8rem; color: var(--text-muted); display: flex; align-items: center; gap: 6px;">
-                <span>Press</span>
-                <kbd style="background: var(--bg-card); color: var(--text-main); padding: 2px 6px; border: 1px solid var(--border-color); border-radius: 4px; font-size: 0.74rem; font-family: inherit; font-weight: 700; box-shadow: 0 1px 2px rgba(0,0,0,0.1);">Enter ↵</kbd>
-                <span>or click Apply to save routine</span>
+                <span>💡 Click section chips to select. Use <strong>Apply All Sections</strong> on the planner to finalize all.</span>
             </div>
             <div style="display: flex; gap: 8px; align-items: center;">
-                <button type="button" class="btn-action" style="background: #64748b; margin: 0; padding: 6px 14px; font-size: 0.82rem; border-radius: 6px;" onclick="closeSectionsModal()">
-                    Close
-                </button>
-                <button type="button" class="btn-action btn-apply-modal" style="background: #10b981; color: white; font-weight: 700; margin: 0; padding: 6px 18px; font-size: 0.84rem; border-radius: 6px; border: none; cursor: pointer; box-shadow: 0 2px 6px rgba(16,185,129,0.35); display: inline-flex; align-items: center; gap: 5px;" onclick="applySectionsModalSelection()">
-                    <span>✓</span> <span>Apply Selection</span>
+                <button type="button" class="btn-action" style="background: #64748b; margin: 0; padding: 6px 18px; font-size: 0.84rem; border-radius: 6px;" onclick="closeSectionsModal()">
+                    Done
                 </button>
             </div>
         </div>
