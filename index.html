@@ -1099,85 +1099,70 @@
             filter: brightness(1.2);
         }
 
-        /* Popover on hover */
-        .sec-popover {
-            position: absolute;
-            bottom: calc(100% + 8px);
-            left: 50%;
-            transform: translateX(-50%) translateY(4px);
-            width: 260px;
+        /* Global Floating Popover for Section Details (forced to show whole details, immune to modal overflow/clipping) */
+        #section-details-floating-popover {
+            position: fixed;
+            width: 300px;
+            max-width: calc(100vw - 24px);
             background: #0f172a;
             color: #f8fafc;
-            border: 1px solid #334155;
+            border: 1.5px solid #3b82f6;
             border-radius: 10px;
-            padding: 10px 12px;
-            font-size: 0.78rem;
-            z-index: 1000;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.4);
+            padding: 10px 14px;
+            font-size: 0.8rem;
+            z-index: 9999999;
+            box-shadow: 0 16px 36px rgba(0, 0, 0, 0.65), 0 0 16px rgba(59, 130, 246, 0.35);
             pointer-events: none;
+            display: none;
             opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s ease;
+            transition: opacity 0.15s ease;
             text-align: left;
+            word-break: break-word;
+            box-sizing: border-box;
+            line-height: 1.35;
         }
 
-        .sec-popover::after {
-            content: '';
-            position: absolute;
-            top: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            border-width: 6px;
-            border-style: solid;
-            border-color: #0f172a transparent transparent transparent;
-        }
-
-        .sec-chip-wrapper:hover .sec-popover,
-        .sec-chip-wrapper:focus-within .sec-popover {
-            opacity: 1;
-            visibility: visible;
-            transform: translateX(-50%) translateY(0);
-        }
-
-        .sec-popover-header {
+        #section-details-floating-popover .sec-popover-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             border-bottom: 1px solid #334155;
             padding-bottom: 6px;
             margin-bottom: 6px;
+            gap: 6px;
         }
 
-        .sec-popover-tag {
-            font-size: 0.7rem;
+        #section-details-floating-popover .sec-popover-tag {
+            font-size: 0.72rem;
             font-weight: 700;
-            padding: 1px 6px;
+            padding: 2px 7px;
             border-radius: 4px;
+            white-space: nowrap;
         }
 
-        .sec-popover-tag.tag-primary {
+        #section-details-floating-popover .sec-popover-tag.tag-primary {
             background: #10b981;
             color: #ffffff;
         }
 
-        .sec-popover-tag.tag-backup {
+        #section-details-floating-popover .sec-popover-tag.tag-backup {
             background: #0284c7;
             color: #ffffff;
         }
 
-        .sec-popover-tag.tag-available {
+        #section-details-floating-popover .sec-popover-tag.tag-available {
             background: #334155;
             color: #94a3b8;
         }
 
-        .sec-popover-body {
+        #section-details-floating-popover .sec-popover-body {
             display: flex;
             flex-direction: column;
-            gap: 4px;
-            line-height: 1.35;
+            gap: 5px;
+            font-size: 0.82rem;
         }
 
-        .sec-popover-conflict {
+        #section-details-floating-popover .sec-popover-conflict {
             color: #f87171;
             font-weight: 700;
             margin-top: 4px;
@@ -1185,18 +1170,39 @@
             padding-top: 4px;
         }
 
-        .sec-popover-ok {
+        #section-details-floating-popover .sec-popover-ok {
             color: #34d399;
             font-weight: 600;
             margin-top: 4px;
         }
 
-        .sec-popover-footer {
+        #section-details-floating-popover .sec-popover-footer {
             margin-top: 8px;
             padding-top: 6px;
             border-top: 1px solid #334155;
-            font-size: 0.72rem;
+            font-size: 0.74rem;
             color: #94a3b8;
+        }
+
+        #section-details-floating-popover .sec-popover-arrow {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #0f172a;
+            border: 1.5px solid #3b82f6;
+            transform: rotate(45deg);
+        }
+
+        #section-details-floating-popover[data-placement="top"] .sec-popover-arrow {
+            bottom: -6px;
+            border-top: none;
+            border-left: none;
+        }
+
+        #section-details-floating-popover[data-placement="bottom"] .sec-popover-arrow {
+            top: -6px;
+            border-bottom: none;
+            border-right: none;
         }
 
         /* Card Icon Button for Star and Plus */
@@ -4810,7 +4816,133 @@ window.uiuFallOfferings = uiuFallOfferings;
     }
     window.openSectionsModal = openSectionsModal;
 
+    // --- FLOATING SECTION DETAILS POPOVER (ALWAYS 100% VISIBLE & IMMUNE TO CLIPPING) ---
+    window.activeCourseOfferingsDetails = window.activeCourseOfferingsDetails || {};
+
+    function showSectionDetailsPopover(chipEl, courseCode, section) {
+        if (!chipEl || !courseCode || !section) return;
+        const key = `${courseCode}_${section}`;
+        const data = window.activeCourseOfferingsDetails[key];
+        if (!data) return;
+
+        let popover = document.getElementById('section-details-floating-popover');
+        if (!popover) {
+            popover = document.createElement('div');
+            popover.id = 'section-details-floating-popover';
+            document.body.appendChild(popover);
+        }
+
+        const currentSelection = mySectionClasses.find(c => c.courseCode === courseCode || (c.course && c.course.includes(courseCode)));
+
+        const statusTag = data.isCurrent 
+            ? '<span class="sec-popover-tag tag-primary">⭐ Primary</span>'
+            : (data.isBackup 
+                ? '<span class="sec-popover-tag tag-backup">🛡️ Backup</span>'
+                : '<span class="sec-popover-tag tag-available">Available</span>');
+
+        const actionHint = data.isCurrent 
+            ? '⭐ Primary: Click chip to remove • Click ★ to demote' 
+            : (data.isBackup 
+                ? '🛡️ Backup: Click chip to remove • Click + to make Primary' 
+                : `👉 Click to add (${currentSelection ? 'as Backup ➕' : 'as Primary ⭐'})`);
+
+        const conflictHtml = data.conflictCourse 
+            ? `<div class="sec-popover-conflict">⚠️ Clashes with: <strong>${data.conflictCourse} (Sec ${data.conflictSection})</strong></div>`
+            : `<div class="sec-popover-ok">✓ No clash with enrolled routine</div>`;
+
+        popover.innerHTML = `
+            <div class="sec-popover-header">
+                <strong style="color: #ffffff; font-size: 0.88rem; display: flex; align-items: center; gap: 5px;">
+                    <span>⚡</span> ${data.courseCode} • Sec ${data.section}
+                </strong>
+                ${statusTag}
+            </div>
+            <div class="sec-popover-body">
+                <div>👨‍🏫 Teacher: <strong>${data.facultyName}</strong> ${data.initial ? `<span class="faculty-initial-badge" style="font-size: 0.72rem;">${data.initial}</span>` : ''}</div>
+                <div style="color: #38bdf8;">🕒 Schedule: <strong>${data.days} • ${data.time}</strong></div>
+                <div>📍 Room: <strong>${data.room}</strong></div>
+                ${conflictHtml}
+            </div>
+            <div class="sec-popover-footer">
+                ${actionHint}
+            </div>
+            <div class="sec-popover-arrow"></div>
+        `;
+
+        // Measure popover dimensions offscreen
+        popover.style.display = 'block';
+        popover.style.visibility = 'hidden';
+        popover.style.opacity = '0';
+
+        const chipRect = chipEl.getBoundingClientRect();
+        const popRect = popover.getBoundingClientRect();
+        const popWidth = Math.min(300, (window.innerWidth || 1200) - 24);
+        const popHeight = popRect.height || 180;
+
+        const winHeight = window.innerHeight || (document.documentElement ? document.documentElement.clientHeight : 800) || 800;
+        const winWidth = window.innerWidth || (document.documentElement ? document.documentElement.clientWidth : 1200) || 1200;
+        const spaceAbove = chipRect.top;
+        const spaceBelow = winHeight - chipRect.bottom;
+
+        let top = 0;
+        let placement = 'top';
+
+        // Prefer placing above if there's enough space, otherwise flip below
+        if (spaceAbove >= popHeight + 12) {
+            top = chipRect.top - popHeight - 10;
+            placement = 'top';
+        } else if (spaceBelow >= popHeight + 12) {
+            top = chipRect.bottom + 10;
+            placement = 'bottom';
+        } else {
+            // Tight viewport: pick the side with more space and clamp within viewport
+            if (spaceBelow > spaceAbove) {
+                top = Math.min(winHeight - popHeight - 10, chipRect.bottom + 8);
+                placement = 'bottom';
+            } else {
+                top = Math.max(10, chipRect.top - popHeight - 8);
+                placement = 'top';
+            }
+        }
+
+        // Horizontal position: centered on chip, clamped to viewport margins
+        let left = chipRect.left + (chipRect.width / 2) - (popWidth / 2);
+        left = Math.max(12, Math.min(left, winWidth - popWidth - 12));
+
+        popover.style.width = `${popWidth}px`;
+        popover.style.top = `${top}px`;
+        popover.style.left = `${left}px`;
+        popover.setAttribute('data-placement', placement);
+
+        // Align arrow pointer directly with the chip center
+        const arrowEl = popover.querySelector('.sec-popover-arrow');
+        if (arrowEl) {
+            const arrowLeft = Math.max(14, Math.min(popWidth - 24, chipRect.left + (chipRect.width / 2) - left - 5));
+            arrowEl.style.left = `${arrowLeft}px`;
+        }
+
+        popover.style.visibility = 'visible';
+        popover.style.opacity = '1';
+    }
+
+    function hideSectionDetailsPopover() {
+        const popover = document.getElementById('section-details-floating-popover');
+        if (popover) {
+            popover.style.display = 'none';
+            popover.style.opacity = '0';
+        }
+    }
+
+    // Dismiss floating popover on window resize or when scrolling inside section modal body
+    window.addEventListener('resize', hideSectionDetailsPopover);
+    document.addEventListener('scroll', function(e) {
+        if (e.target && (e.target.id === 'sections-modal-body' || (e.target.classList && e.target.classList.contains('modal-dialog-custom')))) {
+            hideSectionDetailsPopover();
+        }
+    }, true);
+
     function closeSectionsModal() {
+        hideSectionDetailsPopover();
         const modal = document.getElementById('course-sections-modal');
         if (modal) modal.classList.remove('is-open');
         const dock = document.getElementById('sections-minimized-dock');
@@ -4820,6 +4952,7 @@ window.uiuFallOfferings = uiuFallOfferings;
     window.closeSectionsModal = closeSectionsModal;
 
     function minimizeSectionsModal() {
+        hideSectionDetailsPopover();
         const modal = document.getElementById('course-sections-modal');
         if (modal) modal.classList.remove('is-open');
 
@@ -4836,6 +4969,7 @@ window.uiuFallOfferings = uiuFallOfferings;
     window.minimizeSectionsModal = minimizeSectionsModal;
 
     function restoreSectionsModal() {
+        hideSectionDetailsPopover();
         const dock = document.getElementById('sections-minimized-dock');
         if (dock) dock.style.display = 'none';
 
@@ -4848,6 +4982,7 @@ window.uiuFallOfferings = uiuFallOfferings;
     window.restoreSectionsModal = restoreSectionsModal;
 
     function closeMinimizedSectionsDock() {
+        hideSectionDetailsPopover();
         const dock = document.getElementById('sections-minimized-dock');
         if (dock) dock.style.display = 'none';
         activeSectionsModalCourseCode = null;
@@ -4924,11 +5059,31 @@ window.uiuFallOfferings = uiuFallOfferings;
             return;
         }
 
-        // Group offerings by faculty
+        // Group offerings by faculty and register details for floating popovers
+        window.activeCourseOfferingsDetails = {};
         const fMap = new Map();
         offerings.forEach(o => {
             const fName = getCleanFacultyName(o);
             const init = (o.initial || '').trim();
+            const conflict = checkOfferingConflict(o, courseCode);
+            const isCurrent = currentSelection && currentSelection.section === o.section;
+            const isBackup = currentBackups.some(b => b.section === o.section);
+
+            window.activeCourseOfferingsDetails[`${courseCode}_${o.section}`] = {
+                courseCode: courseCode,
+                courseTitle: courseTitle,
+                section: o.section,
+                facultyName: fName,
+                initial: init,
+                days: o.days,
+                time: o.time,
+                room: o.room || 'TBA',
+                isCurrent: isCurrent,
+                isBackup: isBackup,
+                conflictCourse: conflict ? conflict.course.split(' (')[0] : null,
+                conflictSection: conflict ? conflict.section : null
+            };
+
             const key = init ? init.toUpperCase() : fName.toLowerCase();
             if (!fMap.has(key)) {
                 fMap.set(key, { facultyName: fName, initial: init, sections: [] });
@@ -4957,12 +5112,16 @@ window.uiuFallOfferings = uiuFallOfferings;
                                     <div class="sec-chip-wrapper">
                                         <button type="button" 
                                                 class="sec-chip-btn ${isCurrent ? 'is-primary' : (isBackup ? 'is-backup' : '')} ${conflict && !isCurrent && !isBackup ? 'has-clash' : ''}" 
-                                                onclick="handleSectionChipClick('${courseCode}', '${o.section}')">
+                                                onmouseenter="showSectionDetailsPopover(this, '${courseCode}', '${o.section}')"
+                                                onmouseleave="hideSectionDetailsPopover()"
+                                                onfocus="showSectionDetailsPopover(this, '${courseCode}', '${o.section}')"
+                                                onblur="hideSectionDetailsPopover()"
+                                                onclick="hideSectionDetailsPopover(); handleSectionChipClick('${courseCode}', '${o.section}')">
                                             
                                             ${isCurrent ? `
-                                                <span class="sec-chip-icon star-icon" title="Primary (Click to switch with backup)" onclick="event.stopPropagation(); togglePrimaryBackupRole('${courseCode}', '${o.section}')">★</span>
+                                                <span class="sec-chip-icon star-icon" title="Primary (Click to switch with backup)" onclick="event.stopPropagation(); hideSectionDetailsPopover(); togglePrimaryBackupRole('${courseCode}', '${o.section}')">★</span>
                                             ` : (isBackup ? `
-                                                <span class="sec-chip-icon plus-icon" title="Backup (Click to make Primary ⭐)" onclick="event.stopPropagation(); togglePrimaryBackupRole('${courseCode}', '${o.section}')">+</span>
+                                                <span class="sec-chip-icon plus-icon" title="Backup (Click to make Primary ⭐)" onclick="event.stopPropagation(); hideSectionDetailsPopover(); togglePrimaryBackupRole('${courseCode}', '${o.section}')">+</span>
                                             ` : '')}
 
                                             <span class="sec-chip-label">Sec ${o.section}</span>
@@ -4971,34 +5130,6 @@ window.uiuFallOfferings = uiuFallOfferings;
                                                 <span style="font-size: 0.72rem;" title="Time conflict with enrolled class">⚠️</span>
                                             ` : ''}
                                         </button>
-                                        
-                                        <div class="sec-popover">
-                                            <div class="sec-popover-header">
-                                                <strong style="color: #ffffff; font-size: 0.82rem;">${courseCode} • Sec ${o.section}</strong>
-                                                <span class="sec-popover-tag ${isCurrent ? 'tag-primary' : (isBackup ? 'tag-backup' : 'tag-available')}">
-                                                    ${isCurrent ? '⭐ Primary' : (isBackup ? '🛡️ Backup' : 'Available')}
-                                                </span>
-                                            </div>
-                                            <div class="sec-popover-body">
-                                                <div>👨‍🏫 <strong>${fg.facultyName}</strong> ${fg.initial ? `[${fg.initial}]` : ''}</div>
-                                                <div>🕒 <strong>${o.days} • ${o.time}</strong></div>
-                                                <div>📍 Room: <strong>${o.room || 'TBA'}</strong></div>
-                                                ${conflict ? `
-                                                    <div class="sec-popover-conflict">⚠️ Clashes with: <strong>${conflict.course.split(' (')[0]} (Sec ${conflict.section})</strong></div>
-                                                ` : `
-                                                    <div class="sec-popover-ok">✓ No clash with enrolled routine</div>
-                                                `}
-                                            </div>
-                                            <div class="sec-popover-footer">
-                                                ${isCurrent ? `
-                                                    <span>⭐ Primary: Click chip to remove • Click ★ to demote</span>
-                                                ` : (isBackup ? `
-                                                    <span>🛡️ Backup: Click chip to remove • Click + to make Primary</span>
-                                                ` : `
-                                                    <span>👉 Click to add to routine (${currentSelection ? 'as Backup ➕' : 'as Primary ⭐'})</span>
-                                                `)}
-                                            </div>
-                                        </div>
                                     </div>
                                 `;
                             }).join('')}
@@ -5245,6 +5376,7 @@ window.uiuFallOfferings = uiuFallOfferings;
     }
 
     function handleSectionChipClick(courseCode, sectionName) {
+        hideSectionDetailsPopover();
         if (!courseCode || !sectionName) return;
 
         const isPrimary = mySectionClasses.some(c => (c.courseCode === courseCode || (c.course && c.course.includes(courseCode))) && c.section === sectionName);
